@@ -1,0 +1,14 @@
+{"version":1,"strings":[
+{"hash":100039646,"name":"mysql57conn.serrserverconnectfailed","sourcebytes":[83,101,114,118,101,114,32,99,111,110,110,101,99,116,32,102,97,105,108,101,100,46],"value":"Server connect failed."},
+{"hash":74174723,"name":"mysql57conn.serrsetcharsetfailed","sourcebytes":[70,97,105,108,101,100,32,116,111,32,115,101,116,32,99,111,110,110,101,99,116,105,111,110,32,99,104,97,114,97,99,116,101,114,32,115,101,116,58,32,37,115],"value":"Failed to set connection character set: %s"},
+{"hash":211414643,"name":"mysql57conn.serrdatabaseselectfailed","sourcebytes":[70,97,105,108,101,100,32,116,111,32,115,101,108,101,99,116,32,100,97,116,97,98,97,115,101,58,32,37,115],"value":"Failed to select database: %s"},
+{"hash":261152371,"name":"mysql57conn.serrdatabasecreate","sourcebytes":[70,97,105,108,101,100,32,116,111,32,99,114,101,97,116,101,32,100,97,116,97,98,97,115,101,58,32,37,115],"value":"Failed to create database: %s"},
+{"hash":259053651,"name":"mysql57conn.serrdatabasedrop","sourcebytes":[70,97,105,108,101,100,32,116,111,32,100,114,111,112,32,100,97,116,97,98,97,115,101,58,32,37,115],"value":"Failed to drop database: %s"},
+{"hash":149699140,"name":"mysql57conn.serrnodata","sourcebytes":[78,111,32,100,97,116,97,32,102,111,114,32,114,101,99,111,114,100],"value":"No data for record"},
+{"hash":212300515,"name":"mysql57conn.serrexecuting","sourcebytes":[69,114,114,111,114,32,101,120,101,99,117,116,105,110,103,32,113,117,101,114,121,58,32,37,115],"value":"Error executing query: %s"},
+{"hash":203993251,"name":"mysql57conn.serrfetchingdata","sourcebytes":[69,114,114,111,114,32,102,101,116,99,104,105,110,103,32,114,111,119,32,100,97,116,97,58,32,37,115],"value":"Error fetching row data: %s"},
+{"hash":162100755,"name":"mysql57conn.serrgettingresult","sourcebytes":[69,114,114,111,114,32,103,101,116,116,105,110,103,32,114,101,115,117,108,116,32,115,101,116,58,32,37,115],"value":"Error getting result set: %s"},
+{"hash":107627374,"name":"mysql57conn.serrnoqueryresult","sourcebytes":[78,111,32,114,101,115,117,108,116,32,102,114,111,109,32,113,117,101,114,121,46],"value":"No result from query."},
+{"hash":148891886,"name":"mysql57conn.serrversionmismatch","sourcebytes":[37,115,32,99,97,110,32,110,111,116,32,119,111,114,107,32,119,105,116,104,32,116,104,101,32,105,110,115,116,97,108,108,101,100,32,77,121,83,81,76,32,99,108,105,101,110,116,32,118,101,114,115,105,111,110,58,32,69,120,112,101,99,116,101,100,32,40,37,115,41,44,32,103,111,116,32,40,37,115,41,46],"value":"%s can not work with the installed MySQL client version: Expected (%s), got (%s)."},
+{"hash":134460082,"name":"mysql57conn.serrsettingparameter","sourcebytes":[69,114,114,111,114,32,115,101,116,116,105,110,103,32,112,97,114,97,109,101,116,101,114,32,34,37,115,34],"value":"Error setting parameter \"%s\""}
+]}
