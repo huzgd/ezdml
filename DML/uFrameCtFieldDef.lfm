@@ -1,0 +1,1710 @@
+object FrameCtFieldDef: TFrameCtFieldDef
+  Left = 0
+  Height = 543
+  Top = 0
+  Width = 622
+  ClientHeight = 543
+  ClientWidth = 622
+  TabOrder = 0
+  TabStop = True
+  DesignLeft = 463
+  DesignTop = 287
+  object PageControl1: TPageControl
+    Left = 8
+    Height = 527
+    Top = 8
+    Width = 604
+    ActivePage = TabSheet2
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    TabIndex = 1
+    TabOrder = 0
+    OnChange = PageControl1Change
+    object TabSheet1: TTabSheet
+      Caption = 'Field defination'
+      ClientHeight = 517
+      ClientWidth = 596
+      object ScrollBoxFieldDef: TScrollBox
+        Left = 0
+        Height = 517
+        Top = 0
+        Width = 596
+        HorzScrollBar.Page = 382
+        VertScrollBar.Page = 493
+        VertScrollBar.Tracking = True
+        Align = alClient
+        ClientHeight = 513
+        ClientWidth = 592
+        TabOrder = 0
+        object Label3: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.dataType'
+          Top = 172
+          Width = 56
+          Caption = 'Data type'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label4: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.keyFieldType'
+          Top = 204
+          Width = 56
+          Caption = 'Field kind'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label6: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.memo'
+          Top = 72
+          Width = 62
+          Caption = 'Comments'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label9: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.dataLength, curField.dataScale'
+          Top = 204
+          Width = 23
+          Caption = 'Size'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label8: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.indexType'
+          Top = 306
+          Width = 61
+          Caption = 'Index type'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label21: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.defaultValue'
+          Top = 236
+          Width = 75
+          Caption = 'Default value'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label1: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.relateTable'
+          Top = 336
+          Width = 69
+          Caption = 'Relate table'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Bevel1: TBevel
+          Left = 8
+          Height = 5
+          Top = 156
+          Width = 575
+          Anchors = [akTop, akLeft, akRight]
+          Shape = bsTopLine
+        end
+        object Bevel2: TBevel
+          Left = 8
+          Height = 5
+          Top = 292
+          Width = 575
+          Anchors = [akTop, akLeft, akRight]
+          Shape = bsTopLine
+        end
+        object Label19: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.displayName'
+          Top = 48
+          Width = 67
+          Caption = 'Logic name'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label7: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.name'
+          Top = 16
+          Width = 63
+          Caption = 'Field name'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label15: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.dataTypeName'
+          Top = 172
+          Width = 64
+          Caption = 'Type name'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label29: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.relateFields'
+          Top = 362
+          Width = 65
+          Caption = 'Relate field'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object sbtnSearchFields: TSpeedButton
+          Left = 570
+          Height = 21
+          Hint = 'Import from exists table'
+          Top = 4
+          Width = 13
+          Anchors = [akTop, akRight]
+          AutoSize = True
+          Caption = '...'
+          Visible = False
+          OnClick = sbtnSearchFieldsClick
+          ShowHint = True
+          ParentShowHint = False
+        end
+        object edtDataLength: TEdit
+          Left = 369
+          Height = 25
+          Top = 200
+          Width = 209
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 6
+        end
+        object combDataType: TComboBox
+          Left = 112
+          Height = 25
+          Top = 168
+          Width = 140
+          DropDownCount = 32
+          ItemHeight = 17
+          OnChange = combDataTypeChange
+          Style = csDropDownList
+          TabOrder = 3
+        end
+        object combKeyFieldType: TComboBox
+          Left = 112
+          Height = 25
+          Top = 200
+          Width = 140
+          DropDownCount = 32
+          ItemHeight = 17
+          OnChange = edtNameExit
+          Style = csDropDownList
+          TabOrder = 5
+        end
+        object memoMemo: TMemo
+          Left = 112
+          Height = 74
+          Top = 74
+          Width = 466
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 2
+        end
+        object combIndexType: TComboBox
+          Left = 112
+          Height = 25
+          Top = 302
+          Width = 140
+          DropDownCount = 32
+          ItemHeight = 17
+          OnChange = edtNameExit
+          Style = csDropDownList
+          TabOrder = 10
+        end
+        object edtDefaultValue: TEdit
+          Left = 112
+          Height = 25
+          Top = 232
+          Width = 466
+          Anchors = [akTop, akLeft, akRight]
+          OnChange = edtDefaultValueChange
+          OnExit = edtNameExit
+          TabOrder = 7
+        end
+        object edtRelateTable: TComboBox
+          Left = 112
+          Height = 25
+          Top = 332
+          Width = 466
+          Anchors = [akTop, akLeft, akRight]
+          DropDownCount = 32
+          ItemHeight = 17
+          OnChange = edtRelateTableChange
+          OnCloseUp = edtNameExit
+          OnExit = edtNameExit
+          TabOrder = 12
+        end
+        object ckbNullable: TCheckBox
+          Left = 112
+          Height = 21
+          Hint = 'curField.nullable'
+          Top = 264
+          Width = 70
+          Caption = 'Nullable'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 8
+        end
+        object edtDisplayName: TEdit
+          Left = 112
+          Height = 25
+          Top = 44
+          Width = 466
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 1
+        end
+        object edtName: TEdit
+          Left = 112
+          Height = 25
+          Top = 12
+          Width = 466
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 0
+        end
+        object edtDataTypeName: TEdit
+          Left = 369
+          Height = 25
+          Top = 168
+          Width = 209
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 4
+        end
+        object edtRelateField: TEdit
+          Left = 112
+          Height = 25
+          Top = 362
+          Width = 440
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 13
+        end
+        object ckbAutoIncrement: TCheckBox
+          Left = 272
+          Height = 21
+          Hint = 'curField.defaultValue: {auto_increment}'
+          Top = 264
+          Width = 110
+          Caption = 'Auto increment'
+          OnClick = ckbAutoIncrementClick
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 9
+        end
+        object Label40: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.indexFields'
+          Top = 306
+          Width = 67
+          Caption = 'Index fields'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object edtIndexFields: TEdit
+          Left = 369
+          Height = 25
+          Hint = 'Only available for extra multi fields index, must set Data type to Function first, please specify at least two fields'
+          Top = 302
+          Width = 182
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 11
+        end
+        object Label41: TLabel
+          Left = 112
+          Height = 17
+          Top = 476
+          Width = 12
+          Caption = '   '
+          ParentColor = False
+        end
+        object memoDBCheck: TMemo
+          Left = 112
+          Height = 74
+          Top = 394
+          Width = 466
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 14
+        end
+        object Label17: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.DBCheck'
+          Top = 392
+          Width = 35
+          Caption = 'Check'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object sbtnSelRelateFields: TSpeedButton
+          Left = 554
+          Height = 28
+          Hint = 'Select fields'
+          Top = 360
+          Width = 23
+          Anchors = [akTop, akRight]
+          Caption = '...'
+          OnClick = sbtnSelRelateFieldsClick
+          ShowHint = True
+          ParentShowHint = False
+        end
+        object sbtnSelIndexFields: TSpeedButton
+          Left = 554
+          Height = 28
+          Hint = 'Select fields'
+          Top = 300
+          Width = 23
+          Anchors = [akTop, akRight]
+          Caption = '...'
+          OnClick = sbtnSelIndexFieldsClick
+          ShowHint = True
+          ParentShowHint = False
+        end
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Editor UI'
+      ClientHeight = 497
+      ClientWidth = 596
+      ImageIndex = 1
+      object ScrollBoxEditorUI: TScrollBox
+        Left = 0
+        Height = 497
+        Top = 0
+        Width = 596
+        HorzScrollBar.Page = 465
+        VertScrollBar.Page = 493
+        VertScrollBar.Tracking = True
+        Align = alClient
+        ClientHeight = 493
+        ClientWidth = 575
+        TabOrder = 0
+        object Label18: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.hint'
+          Top = 160
+          Width = 18
+          Caption = 'Tip'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label28: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.dropDownMode'
+          Top = 428
+          Width = 62
+          Caption = 'Dropdown'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label14: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.measureUnit'
+          Top = 136
+          Width = 23
+          Caption = 'Unit'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label16: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.editorType'
+          Top = 15
+          Width = 35
+          Caption = 'Editor'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label5: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.labelText'
+          Top = 136
+          Width = 31
+          Caption = 'Label'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label20: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.displayFormat'
+          Top = 544
+          Width = 69
+          Caption = 'Disp format'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label22: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.editFormat'
+          Top = 572
+          Width = 65
+          Caption = 'Edit format'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label23: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.fontName'
+          Top = 615
+          Width = 61
+          Caption = 'Font name'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label24: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.fontSize'
+          Top = 618
+          Width = 51
+          Caption = 'Font size'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label25: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.foreColor'
+          Top = 664
+          Width = 60
+          Caption = 'Fore color'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label26: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.backColor'
+          Top = 664
+          Width = 62
+          Caption = 'Back color'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Bevel3: TBevel
+          Left = 8
+          Height = 5
+          Top = 604
+          Width = 558
+          Anchors = [akTop, akLeft, akRight]
+          Shape = bsTopLine
+        end
+        object Bevel4: TBevel
+          Left = 8
+          Height = 5
+          Top = 292
+          Width = 558
+          Anchors = [akTop, akLeft, akRight]
+          Shape = bsTopLine
+        end
+        object Label32: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.visibility'
+          Top = 15
+          Width = 44
+          Caption = 'Visibilty'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label31: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.textAlign'
+          Top = 431
+          Width = 56
+          Caption = 'Text align'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label34: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.colWidth'
+          Top = 304
+          Width = 54
+          Caption = 'Col width'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label35: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.maxLength'
+          Top = 404
+          Width = 65
+          Caption = 'Max length'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object edtHint: TEdit
+          Left = 112
+          Height = 25
+          Top = 160
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 12
+        end
+        object combDropDownMode: TComboBox
+          Left = 112
+          Height = 25
+          Top = 431
+          Width = 145
+          DropDownCount = 32
+          ItemHeight = 17
+          Items.Strings = (
+            'Editable'
+            'Fixed'
+          )
+          OnChange = edtNameExit
+          Style = csDropDownList
+          TabOrder = 24
+        end
+        object combMeasureUnit: TComboBox
+          Left = 352
+          Height = 25
+          Top = 132
+          Width = 210
+          Anchors = [akTop, akLeft, akRight]
+          DropDownCount = 32
+          ItemHeight = 17
+          OnChange = combEditorChange
+          OnCloseUp = edtNameExit
+          OnExit = edtNameExit
+          TabOrder = 11
+        end
+        object combEditorType: TComboBox
+          Left = 112
+          Height = 25
+          Top = 12
+          Width = 145
+          DropDownCount = 32
+          ItemHeight = 17
+          OnChange = combEditorChange
+          OnCloseUp = edtNameExit
+          OnExit = edtNameExit
+          TabOrder = 0
+        end
+        object edtLabelText: TEdit
+          Left = 112
+          Height = 25
+          Top = 132
+          Width = 145
+          OnExit = edtNameExit
+          TabOrder = 10
+        end
+        object ckbEditorReadOnly: TCheckBox
+          Left = 112
+          Height = 21
+          Hint = 'curField.editorReadOnly'
+          Top = 44
+          Width = 78
+          Caption = 'ReadOnly'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 2
+        end
+        object ckbEditorEnabled: TCheckBox
+          Left = 240
+          Height = 21
+          Hint = 'curField.editorEnabled'
+          Top = 44
+          Width = 69
+          Caption = 'Enabled'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 3
+        end
+        object edtDisplayFormat: TEdit
+          Left = 112
+          Height = 25
+          Top = 544
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 29
+        end
+        object edtEditFormat: TEdit
+          Left = 112
+          Height = 25
+          Top = 572
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 30
+        end
+        object edtFontSize: TEdit
+          Left = 352
+          Height = 25
+          Top = 615
+          Width = 210
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 32
+        end
+        object ckbFontStyleB: TCheckBox
+          Left = 112
+          Height = 21
+          Hint = 'curField.fontStyle'
+          Top = 640
+          Width = 49
+          Caption = 'Bold'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 33
+        end
+        object combVisibilty: TComboBox
+          Left = 352
+          Height = 25
+          Top = 12
+          Width = 210
+          Anchors = [akTop, akLeft, akRight]
+          DropDownCount = 32
+          ItemHeight = 17
+          Items.Strings = (
+            'Auto'
+            'High: card, grid and sheet'
+            'Mid: grid and sheet'
+            'Low: sheet only'
+          )
+          OnChange = combEditorChange
+          OnCloseUp = edtNameExit
+          OnExit = edtNameExit
+          TabOrder = 1
+        end
+        object combTextAlign: TComboBox
+          Left = 352
+          Height = 25
+          Top = 431
+          Width = 210
+          Anchors = [akTop, akLeft, akRight]
+          DropDownCount = 32
+          ItemHeight = 17
+          Items.Strings = (
+            'Auto'
+            'Left'
+            'Center'
+            'Right'
+          )
+          OnChange = edtNameExit
+          Style = csDropDownList
+          TabOrder = 25
+        end
+        object edtColWidth: TEdit
+          Left = 112
+          Height = 25
+          Top = 304
+          Width = 145
+          OnExit = edtNameExit
+          TabOrder = 15
+        end
+        object ckbSearchable: TCheckBox
+          Left = 112
+          Height = 21
+          Hint = 'curField.searchable'
+          Top = 68
+          Width = 87
+          Caption = 'Fast search'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 5
+        end
+        object edtMaxLength: TEdit
+          Left = 352
+          Height = 25
+          Top = 404
+          Width = 210
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 23
+        end
+        object ckbQueryable: TCheckBox
+          Left = 240
+          Height = 21
+          Hint = 'curField.queryable'
+          Top = 68
+          Width = 82
+          Caption = 'Queryable'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 6
+        end
+        object Label42: TLabel
+          Left = 112
+          Height = 17
+          Top = 756
+          Width = 12
+          Caption = '   '
+          ParentColor = False
+        end
+        object ckbIsHidden: TCheckBox
+          Left = 368
+          Height = 21
+          Hint = 'curField.isHidden'
+          Top = 44
+          Width = 76
+          Caption = 'Is hidden'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 4
+        end
+        object Bevel5: TBevel
+          Left = 8
+          Height = 5
+          Top = 120
+          Width = 558
+          Anchors = [akTop, akLeft, akRight]
+          Shape = bsTopLine
+        end
+        object edtExplainText: TEdit
+          Left = 112
+          Height = 25
+          Top = 188
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 13
+        end
+        object Label44: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.explainText'
+          Top = 188
+          Width = 66
+          Caption = 'Explain text'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object ckbHideOnList: TCheckBox
+          Left = 112
+          Height = 21
+          Hint = 'curField.hideOnList'
+          Top = 92
+          Width = 88
+          Caption = 'Hide on list'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 7
+        end
+        object ckbHideOnEdit: TCheckBox
+          Left = 240
+          Height = 21
+          Hint = 'curField.hideOnEdit'
+          Top = 92
+          Width = 94
+          Caption = 'Hide on edit'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 8
+        end
+        object ckbHideOnView: TCheckBox
+          Left = 368
+          Height = 21
+          Hint = 'curField.hideOnView'
+          Top = 92
+          Width = 97
+          Caption = 'Hide on view'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 9
+        end
+        object edtColGroup: TEdit
+          Left = 112
+          Height = 25
+          Top = 332
+          Width = 145
+          OnExit = edtNameExit
+          TabOrder = 17
+        end
+        object Label45: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.colGroup'
+          Top = 332
+          Width = 59
+          Caption = 'Col group'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object edtSheetGroup: TEdit
+          Left = 112
+          Height = 25
+          Top = 404
+          Width = 145
+          OnExit = edtNameExit
+          TabOrder = 22
+        end
+        object Label46: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.sheetGroup'
+          Top = 404
+          Width = 72
+          Caption = 'Sheet group'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label47: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.fixColType'
+          Top = 304
+          Width = 65
+          Caption = 'Col fix type'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object combFixColType: TComboBox
+          Left = 352
+          Height = 25
+          Top = 304
+          Width = 210
+          Anchors = [akTop, akLeft, akRight]
+          DropDownCount = 32
+          ItemHeight = 17
+          Items.Strings = (
+            'None'
+            'Left'
+            'Right'
+          )
+          OnChange = edtNameExit
+          OnExit = edtNameExit
+          Style = csDropDownList
+          TabOrder = 16
+        end
+        object ckbAutoMerge: TCheckBox
+          Left = 112
+          Height = 21
+          Hint = 'curField.autoMerge'
+          Top = 364
+          Width = 91
+          Caption = 'Auto merge'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 19
+        end
+        object ckbShowFilterBox: TCheckBox
+          Left = 240
+          Height = 21
+          Hint = 'curField.showFilterBox'
+          Top = 364
+          Width = 109
+          Caption = 'Show filter box'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 20
+        end
+        object ckbColSortable: TCheckBox
+          Left = 368
+          Height = 21
+          Hint = 'curField.colSortable'
+          Top = 364
+          Width = 93
+          Caption = 'Col sortable'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 21
+        end
+        object Bevel6: TBevel
+          Left = 8
+          Height = 5
+          Top = 392
+          Width = 558
+          Anchors = [akTop, akLeft, akRight]
+          Shape = bsTopLine
+        end
+        object Label48: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.textClipSize'
+          Top = 460
+          Width = 74
+          Caption = 'Text clip size'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object edtTextClipSize: TEdit
+          Left = 112
+          Height = 25
+          Top = 460
+          Width = 145
+          OnExit = edtNameExit
+          TabOrder = 26
+        end
+        object Label49: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.itemColCount'
+          Top = 460
+          Width = 53
+          Caption = 'Item cols'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object edtItemColCount: TEdit
+          Left = 352
+          Height = 25
+          Top = 460
+          Width = 210
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 27
+        end
+        object memoDropDownSql: TMemo
+          Left = 112
+          Height = 54
+          Top = 488
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 28
+        end
+        object Label50: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.dropDownSQL'
+          Top = 488
+          Width = 89
+          Caption = 'Dropdown SQL'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label51: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.editorProps'
+          Top = 692
+          Width = 74
+          Caption = 'Editor props'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object memoEditorProps: TMemo
+          Left = 112
+          Height = 57
+          Top = 692
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 36
+        end
+        object combAggregateFun: TComboBox
+          Left = 352
+          Height = 25
+          Top = 332
+          Width = 210
+          Anchors = [akTop, akLeft, akRight]
+          DropDownCount = 32
+          ItemHeight = 17
+          Items.Strings = (
+            'Sum'
+            'Avg'
+            'Max'
+            'Min'
+            'Count'
+          )
+          OnChange = combEditorChange
+          OnCloseUp = edtNameExit
+          OnExit = edtNameExit
+          TabOrder = 18
+        end
+        object Label13: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.aggregateFun'
+          Top = 332
+          Width = 54
+          Caption = 'Summary'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object memoDropDownItems: TMemo
+          Left = 112
+          Height = 72
+          Top = 216
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 14
+          WordWrap = False
+        end
+        object Label27: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.dropDownItems'
+          Top = 216
+          Width = 52
+          Caption = 'Value list'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object combFontName: TComboBox
+          Left = 112
+          Height = 25
+          Top = 615
+          Width = 145
+          DropDownCount = 24
+          ItemHeight = 17
+          OnDropDown = combFontNameDropDown
+          OnExit = edtNameExit
+          TabOrder = 31
+        end
+        object colobForeColor: TColorBox
+          Left = 112
+          Height = 22
+          Top = 664
+          Width = 145
+          Style = [cbStandardColors, cbIncludeDefault, cbCustomColor]
+          DropDownCount = 32
+          ItemHeight = 16
+          OnExit = edtNameExit
+          TabOrder = 34
+        end
+        object colobBackColor: TColorBox
+          Left = 352
+          Height = 22
+          Top = 664
+          Width = 210
+          Style = [cbStandardColors, cbIncludeDefault, cbCustomColor]
+          Anchors = [akTop, akLeft, akRight]
+          DropDownCount = 32
+          ItemHeight = 16
+          OnExit = edtNameExit
+          TabOrder = 35
+        end
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'Operation logic'
+      ClientHeight = 497
+      ClientWidth = 596
+      ImageIndex = 2
+      object ScrollBoxOperLogic: TScrollBox
+        Left = 0
+        Height = 497
+        Top = 0
+        Width = 596
+        HorzScrollBar.Page = 348
+        VertScrollBar.Page = 493
+        VertScrollBar.Tracking = True
+        Align = alClient
+        ClientHeight = 493
+        ClientWidth = 575
+        TabOrder = 0
+        object Label10: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.resType'
+          Top = 372
+          Width = 53
+          Caption = 'Res Type'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label11: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.url'
+          Top = 344
+          Width = 47
+          Caption = 'URL link'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label2: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.formula'
+          Top = 400
+          Width = 47
+          Caption = 'Formula'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label12: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.formulaCondition'
+          Top = 424
+          Width = 64
+          Caption = 'Formula Ex'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label30: TLabel
+          Left = 7
+          Height = 17
+          Hint = 'curField.graphDesc'
+          Top = 672
+          Width = 71
+          Caption = 'Graphic info'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label33: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.initValue'
+          Top = 316
+          Width = 52
+          Caption = 'Init value'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label36: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.valueFormat'
+          Top = 171
+          Width = 61
+          Caption = 'Val format'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label37: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.valueMin'
+          Top = 228
+          Width = 57
+          Caption = 'Value min'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label38: TLabel
+          Left = 272
+          Height = 17
+          Hint = 'curField.valueMax'
+          Top = 228
+          Width = 60
+          Caption = 'Value max'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Label39: TLabel
+          Left = 7
+          Height = 17
+          Hint = 'curField.extraProps'
+          Top = 597
+          Width = 53
+          Caption = 'Ex-props'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object edtResType: TEdit
+          Left = 112
+          Height = 25
+          Top = 368
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 10
+        end
+        object edtURL: TEdit
+          Left = 112
+          Height = 25
+          Top = 340
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 9
+        end
+        object edtFormula: TEdit
+          Left = 112
+          Height = 25
+          Top = 396
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 11
+        end
+        object memoFormulaCondition: TMemo
+          Left = 112
+          Height = 48
+          Top = 424
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 12
+        end
+        object MemoGraphicDesc: TMemo
+          Left = 111
+          Height = 45
+          Top = 672
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 16
+        end
+        object edtInitValue: TEdit
+          Left = 112
+          Height = 25
+          Top = 312
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 8
+        end
+        object combValueFormat: TComboBox
+          Left = 112
+          Height = 25
+          Top = 168
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          DropDownCount = 32
+          ItemHeight = 17
+          Items.Strings = (
+            'NUMBER'
+            'INTEGER'
+            'FLOAT'
+            'EMAIL'
+            'URL'
+            'POSTALCODE'
+            'FAX'
+            'MOBILE'
+            'TEL'
+            'IDCARD'
+          )
+          OnChange = combEditorChange
+          OnCloseUp = edtNameExit
+          OnExit = edtNameExit
+          TabOrder = 2
+        end
+        object edtValMin: TEdit
+          Left = 113
+          Height = 25
+          Top = 224
+          Width = 143
+          OnExit = edtNameExit
+          TabOrder = 5
+        end
+        object edtValMax: TEdit
+          Left = 352
+          Height = 25
+          Top = 225
+          Width = 209
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 6
+        end
+        object memoExtraProps: TMemo
+          Left = 111
+          Height = 71
+          Top = 596
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 15
+        end
+        object Label43: TLabel
+          Left = 111
+          Height = 17
+          Top = 724
+          Width = 12
+          Caption = '   '
+          ParentColor = False
+        end
+        object Bevel7: TBevel
+          Left = 8
+          Height = 3
+          Top = 160
+          Width = 554
+          Anchors = [akTop, akLeft, akRight]
+          Shape = bsTopLine
+        end
+        object memoTestDataRules: TMemo
+          Left = 112
+          Height = 71
+          Top = 40
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 1
+          WordWrap = False
+        end
+        object Label52: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.testDataRules'
+          Top = 40
+          Width = 80
+          Caption = 'Test data rule'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object ckbRequired: TCheckBox
+          Left = 113
+          Height = 21
+          Hint = 'curField.required'
+          Top = 200
+          Width = 75
+          Caption = 'Required'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 3
+        end
+        object ckbAutoTrim: TCheckBox
+          Left = 272
+          Height = 21
+          Hint = 'curField.autoTrim'
+          Top = 200
+          Width = 76
+          Caption = 'Auto trim'
+          OnClick = edtNameExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 4
+        end
+        object Label53: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.validateRule'
+          Top = 252
+          Width = 79
+          Caption = 'Validate rules'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object Bevel8: TBevel
+          Left = 7
+          Height = 3
+          Top = 304
+          Width = 554
+          Anchors = [akTop, akLeft, akRight]
+          Shape = bsTopLine
+        end
+        object Bevel9: TBevel
+          Left = 8
+          Height = 3
+          Top = 480
+          Width = 554
+          Anchors = [akTop, akLeft, akRight]
+          Shape = bsTopLine
+        end
+        object Label54: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.UILogic'
+          Top = 488
+          Width = 45
+          Caption = 'UI logic'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object MemoUILogic: TMemo
+          Left = 112
+          Height = 45
+          Top = 488
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 13
+        end
+        object Label55: TLabel
+          Left = 7
+          Height = 17
+          Hint = 'curField.businessLogic'
+          Top = 536
+          Width = 82
+          Caption = 'Business logic'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object memoBusinessLogic: TMemo
+          Left = 111
+          Height = 54
+          Top = 538
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 14
+        end
+        object memoValidateRule: TMemo
+          Left = 112
+          Height = 45
+          Top = 252
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 7
+        end
+        object lbDemoData: TLabel
+          Left = 112
+          Height = 48
+          Hint = 'curField.genDemoData(row,opt,ds)'
+          Top = 112
+          Width = 449
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = False
+          Caption = 'Demo data'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+          WordWrap = True
+        end
+        object Label56: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.testDataType'
+          Top = 12
+          Width = 83
+          Caption = 'Test data type'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object combTestDataType: TComboBox
+          Left = 112
+          Height = 25
+          Top = 12
+          Width = 450
+          Anchors = [akTop, akLeft, akRight]
+          DropDownCount = 32
+          ItemHeight = 17
+          Items.Strings = (
+            'string'
+            'word'
+            'info'
+            'guid'
+            'list'
+            'int'
+            'inc'
+            'float'
+            'seq'
+            'bool'
+            'norm_dist'
+            'color'
+            'person_info'
+            'location'
+            'business'
+            'commercial'
+            'financial'
+            'education'
+            'media'
+            'datetime'
+            'file'
+            'database'
+            'js'
+            'pas'
+          )
+          OnChange = combEditorChange
+          OnCloseUp = edtNameExit
+          OnExit = edtNameExit
+          TabOrder = 0
+        end
+      end
+    end
+    object TabSheetCust: TTabSheet
+      Caption = 'Custom'
+      ClientHeight = 717
+      ClientWidth = 649
+      ImageIndex = 3
+      OnShow = TabSheetCustShow
+      object lbCustomSCTip: TLabel
+        Left = 0
+        Height = 1
+        Top = 0
+        Width = 649
+        Align = alTop
+        ParentColor = False
+      end
+      object ScrollBoxCustomScriptDef: TScrollBox
+        Left = 0
+        Height = 716
+        Top = 1
+        Width = 649
+        HorzScrollBar.Page = 289
+        HorzScrollBar.Tracking = True
+        VertScrollBar.Page = 103
+        VertScrollBar.Tracking = True
+        Align = alClient
+        ClientHeight = 712
+        ClientWidth = 645
+        TabOrder = 0
+        OnResize = ScrollBoxCustomScriptDefResize
+        object PanelCustomScriptDef: TPanel
+          Left = 0
+          Height = 103
+          Top = 0
+          Width = 289
+          BevelOuter = bvNone
+          TabOrder = 0
+          OnResize = PanelCustomScriptDefResize
+        end
+      end
+    end
+  end
+  object stFieldName: TStaticText
+    Left = 536
+    Height = 18
+    Hint = 'curField.nameCaption'
+    Top = 1
+    Width = 62
+    Anchors = [akTop, akRight]
+    AutoSize = True
+    Caption = 'FieldName'
+    Font.Color = clHighlight
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 1
+    Visible = False
+  end
+  object btnHideFieldProp: TBitBtn
+    Left = 600
+    Height = 21
+    Hint = 'Hide'
+    Top = 2
+    Width = 22
+    Anchors = [akTop, akRight]
+    Glyph.Data = {
+      36040000424D3604000000000000360000002800000010000000100000000100
+      2000000000000004000064000000640000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      FFFF00009CFF00009CFF00009CFF000000000000000000000000000000000000
+      00000000FFFF00009CFF00009CFF00009CFF0000000000000000000000000000
+      FFFF0000CEFF0000CEFF0000CEFF00009CFF0000000000000000000000000000
+      FFFF0000CEFF0000CEFF0000CEFF00009CFF0000000000000000000000000000
+      00000000FFFF0000CEFF0000CEFF0000CEFF00009CFF000000000000FFFF0000
+      CEFF0000CEFF0000CEFF00009CFF000000000000000000000000000000000000
+      0000000000000000FFFF0000CEFF0000CEFF0000CEFF00009CFF0000CEFF0000
+      CEFF0000CEFF00009CFF00000000000000000000000000000000000000000000
+      000000000000000000000000FFFF0000CEFF0000CEFF0000CEFF0000CEFF0000
+      CEFF00009CFF0000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000FFFF0000CEFF0000CEFF0000CEFF0000
+      9CFF000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000FFFF0000CEFF0000CEFF0000CEFF0000CEFF0000
+      CEFF00009CFF0000000000000000000000000000000000000000000000000000
+      0000000000000000FFFF0000CEFF0000CEFF0000CEFF00009CFF0000CEFF0000
+      CEFF0000CEFF00009CFF00000000000000000000000000000000000000000000
+      00000000FFFF0000CEFF0000CEFF0000CEFF00009CFF000000000000FFFF0000
+      CEFF0000CEFF0000CEFF00009CFF000000000000000000000000000000000000
+      FFFF0000CEFF0000CEFF0000CEFF00009CFF0000000000000000000000000000
+      FFFF0000CEFF0000CEFF0000CEFF00009CFF0000000000000000000000000000
+      FFFF0000FFFF0000FFFF0000FFFF000000000000000000000000000000000000
+      00000000FFFF0000FFFF0000FFFF0000FFFF0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000
+    }
+    Layout = blGlyphTop
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 2
+    Visible = False
+  end
+end

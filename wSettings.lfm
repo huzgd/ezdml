@@ -1,0 +1,1465 @@
+object frmSettings: TfrmSettings
+  Left = 415
+  Height = 580
+  Top = 52
+  Width = 544
+  BorderStyle = bsDialog
+  Caption = 'Settings'
+  ClientHeight = 580
+  ClientWidth = 544
+  OnCreate = FormCreate
+  OnShow = FormShow
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 36
+    Top = 544
+    Width = 544
+    Align = alBottom
+    AutoSize = True
+    BevelOuter = bvNone
+    BorderWidth = 4
+    ClientHeight = 36
+    ClientWidth = 544
+    TabOrder = 0
+    object btnOk: TButton
+      Left = 397
+      Height = 27
+      Top = 4
+      Width = 44
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Caption = 'OK'
+      ModalResult = 1
+      TabOrder = 0
+    end
+    object btnCancel: TButton
+      Left = 469
+      Height = 27
+      Top = 4
+      Width = 64
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Cancel = True
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 1
+    end
+    object Label1: TLabel
+      Left = 4
+      Height = 17
+      Top = 15
+      Width = 4
+      Caption = ' '
+      ParentColor = False
+    end
+  end
+  object PageControlMain: TPageControl
+    Left = 0
+    Height = 544
+    Top = 0
+    Width = 544
+    ActivePage = tabshtFieldTypes
+    Align = alClient
+    TabIndex = 3
+    TabOrder = 1
+    object tabshtGeneral: TTabSheet
+      Caption = 'General'
+      ClientHeight = 593
+      ClientWidth = 536
+      object PanelGen1: TPanel
+        Left = 0
+        Height = 593
+        Top = 0
+        Width = 536
+        Align = alClient
+        BevelOuter = bvNone
+        BorderWidth = 8
+        ClientHeight = 593
+        ClientWidth = 536
+        TabOrder = 0
+        object GroupBoxUI: TGroupBox
+          Left = 8
+          Height = 169
+          Top = 8
+          Width = 520
+          Align = alTop
+          Caption = 'User interface'
+          ClientHeight = 147
+          ClientWidth = 516
+          TabOrder = 0
+          object lbLanguage: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 60
+            Caption = 'Language:'
+            ParentColor = False
+          end
+          object ckbEnableCustomPropUI: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 48
+            Width = 279
+            Caption = 'Enable custom UI page for tables and fields'
+            OnChange = ckbEnableCustomPropUIChange
+            TabOrder = 1
+          end
+          object lbLanguageTip: TLabel
+            Left = 276
+            Height = 17
+            Top = 8
+            Width = 157
+            Caption = '(need restart, empty=auto)'
+            ParentColor = False
+          end
+          object combLANG: TComboBox
+            Left = 140
+            Height = 25
+            Top = 8
+            Width = 128
+            DropDownCount = 24
+            ItemHeight = 17
+            TabOrder = 0
+          end
+          object ckbCheckForUpdates: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 112
+            Width = 299
+            Caption = 'Auto check for updates on exit (once per week)'
+            TabOrder = 4
+          end
+          object edtCustomPropUICaption: TEdit
+            Left = 318
+            Height = 25
+            Top = 48
+            Width = 130
+            TabOrder = 2
+            TextHint = 'Custom page title'
+          end
+          object ckbEnableAdvTbProp: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 78
+            Width = 215
+            Caption = 'Enable advanced page for tables'
+            OnChange = ckbEnableCustomPropUIChange
+            TabOrder = 3
+          end
+        end
+        object BevelGen1: TBevel
+          Left = 8
+          Height = 10
+          Top = 177
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxAutoSave: TGroupBox
+          Left = 8
+          Height = 204
+          Top = 187
+          Width = 520
+          Align = alTop
+          AutoSize = True
+          Caption = 'Auto save'
+          ClientHeight = 182
+          ClientWidth = 516
+          TabOrder = 1
+          object edtAutoSaveMinutes: TEdit
+            Left = 140
+            Height = 25
+            Top = 8
+            Width = 128
+            TabOrder = 0
+          end
+          object lbAutoSaveMinutes: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 77
+            Caption = 'Time interval:'
+            ParentColor = False
+          end
+          object lbAutoSaveMinutesTail: TLabel
+            Left = 276
+            Height = 17
+            Top = 8
+            Width = 137
+            Caption = 'minutes, 0 means never'
+            ParentColor = False
+          end
+          object ckbSaveTempFileOnExit: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 48
+            Width = 178
+            Caption = 'Save temporary file on exit'
+            TabOrder = 1
+          end
+          object LabelLayoutSpacer1: TLabel
+            Left = 0
+            Height = 17
+            Top = 0
+            Width = 4
+            Caption = ' '
+            ParentColor = False
+          end
+          object lbAutoSaveTip: TLabel
+            Left = 24
+            Height = 102
+            Top = 80
+            Width = 480
+            Anchors = [akTop, akLeft, akRight]
+            Caption = 'Usually, when current opened file is modified, the system will save it to temporary directory at specified intervals. You can find these files by choose "File|Show Temporary File" from main menu.'#13#10'Also, when closing the program, EZDML may save current file to temporary folder, and try to load it from temporary folder when opening, just like that it''s never been closed before.'
+            ParentColor = False
+            WordWrap = True
+          end
+        end
+        object Bevel1: TBevel
+          Left = 8
+          Height = 10
+          Top = 391
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxHugeMode: TGroupBox
+          Left = 8
+          Height = 121
+          Top = 401
+          Width = 520
+          Align = alTop
+          AutoSize = True
+          Caption = 'Huge mode'
+          ClientHeight = 99
+          ClientWidth = 516
+          TabOrder = 2
+          object lbHugeModeTableCountTip: TLabel
+            Left = 24
+            Height = 51
+            Top = 48
+            Width = 480
+            Anchors = [akTop, akLeft, akRight]
+            Caption = 'When table count reaches the threshold, the Huge-Mode will be turned on, the system stops automatically saving temporary files, and adopts fast layout algorithms for model diagrams.'
+            ParentColor = False
+            WordWrap = True
+          end
+          object edtHugeModeTableCount: TEdit
+            Left = 140
+            Height = 25
+            Top = 8
+            Width = 128
+            TabOrder = 0
+          end
+          object lbHugeModeTableCount: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 71
+            Caption = 'Table count:'
+            ParentColor = False
+          end
+          object LabelLayoutSpacer: TLabel
+            Left = 0
+            Height = 17
+            Top = 0
+            Width = 4
+            Caption = ' '
+            ParentColor = False
+          end
+        end
+      end
+    end
+    object tabshtDisplay: TTabSheet
+      Caption = 'Display'
+      ClientHeight = 593
+      ClientWidth = 536
+      object PanelDisp: TPanel
+        Left = 0
+        Height = 593
+        Top = 0
+        Width = 536
+        Align = alClient
+        BevelOuter = bvNone
+        BorderWidth = 8
+        ClientHeight = 593
+        ClientWidth = 536
+        TabOrder = 0
+        object GroupBoxBaseFont: TGroupBox
+          Left = 8
+          Height = 72
+          Top = 35
+          Width = 520
+          Align = alTop
+          Caption = 'Base font'
+          ClientHeight = 50
+          ClientWidth = 516
+          TabOrder = 0
+          object lbBaseFontName: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 38
+            Caption = 'Name:'
+            ParentColor = False
+          end
+          object edtAppDefFontName: TComboBox
+            Left = 104
+            Height = 25
+            Top = 8
+            Width = 128
+            DropDownCount = 24
+            ItemHeight = 17
+            TabOrder = 0
+          end
+          object edtAppDefFontSize: TEdit
+            Left = 360
+            Height = 25
+            Top = 8
+            Width = 128
+            TabOrder = 1
+          end
+          object lbBaseFontSize: TLabel
+            Left = 280
+            Height = 17
+            Top = 8
+            Width = 26
+            Caption = 'Size:'
+            ParentColor = False
+          end
+        end
+        object Bevel6: TBevel
+          Left = 8
+          Height = 10
+          Top = 107
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxMonoFont: TGroupBox
+          Left = 8
+          Height = 70
+          Top = 117
+          Width = 520
+          Align = alTop
+          Caption = 'Monospaced font (for SQL and code)'
+          ClientHeight = 48
+          ClientWidth = 516
+          TabOrder = 1
+          object edtAppFixWidthFontSize: TEdit
+            Left = 360
+            Height = 25
+            Top = 8
+            Width = 128
+            TabOrder = 1
+          end
+          object lbMonoFontSize: TLabel
+            Left = 280
+            Height = 17
+            Top = 8
+            Width = 26
+            Caption = 'Size:'
+            ParentColor = False
+          end
+          object edtAppFixWidthFontName: TComboBox
+            Left = 104
+            Height = 25
+            Top = 8
+            Width = 128
+            DropDownCount = 24
+            ItemHeight = 17
+            TabOrder = 0
+          end
+          object lbMonoFontName: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 38
+            Caption = 'Name:'
+            ParentColor = False
+          end
+        end
+        object Bevel7: TBevel
+          Left = 8
+          Height = 10
+          Top = 187
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxDispDmlGraph: TGroupBox
+          Left = 8
+          Height = 235
+          Top = 197
+          Width = 520
+          Align = alTop
+          Caption = 'DML graph'
+          ClientHeight = 213
+          ClientWidth = 516
+          TabOrder = 2
+          object lbDmlFontName: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 64
+            Caption = 'Font name:'
+            ParentColor = False
+          end
+          object edtDmlGraphFontName: TComboBox
+            Left = 104
+            Height = 25
+            Top = 40
+            Width = 128
+            DropDownCount = 24
+            ItemHeight = 17
+            TabOrder = 0
+          end
+          object lbDmlMaxTbFieldCount: TLabel
+            Left = 280
+            Height = 17
+            Top = 8
+            Width = 126
+            Caption = 'Max table field count:'
+            ParentColor = False
+          end
+          object edtTableFieldMaxDrawCount: TEdit
+            Left = 360
+            Height = 25
+            Top = 40
+            Width = 128
+            TabOrder = 1
+          end
+          object lbDmlMaxFieldNameSize: TLabel
+            Left = 24
+            Height = 17
+            Top = 88
+            Width = 136
+            Caption = 'Max size of field-name:'
+            ParentColor = False
+          end
+          object lbDmlMaxFieldTypeSize: TLabel
+            Left = 280
+            Height = 17
+            Top = 88
+            Width = 129
+            Caption = 'Max size of field-type:'
+            ParentColor = False
+          end
+          object edtFieldTypeMaxDrawSize: TEdit
+            Left = 360
+            Height = 25
+            Top = 120
+            Width = 128
+            TabOrder = 3
+          end
+          object edtFieldNameMaxDrawSize: TEdit
+            Left = 104
+            Height = 25
+            Top = 120
+            Width = 128
+            TabOrder = 2
+          end
+          object lbScreenDpiInfo: TLabel
+            Left = 24
+            Height = 17
+            Top = 168
+            Width = 66
+            Caption = 'Screen DPI:'
+            ParentColor = False
+          end
+          object edtScreenDpi: TEdit
+            Left = 104
+            Height = 25
+            Top = 168
+            Width = 128
+            ParentColor = True
+            ReadOnly = True
+            TabOrder = 4
+          end
+        end
+        object lbDispFontNote: TLabel
+          Left = 8
+          Height = 17
+          Top = 8
+          Width = 520
+          Align = alTop
+          Caption = 'Notes: You may need to restart the program after modifying fonts.'
+          ParentColor = False
+          WordWrap = True
+        end
+        object Bevel13: TBevel
+          Left = 8
+          Height = 10
+          Top = 25
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+      end
+    end
+    object tabshtSQL: TTabSheet
+      Caption = 'SQL'
+      ClientHeight = 593
+      ClientWidth = 536
+      object PanelSQL: TPanel
+        Left = 0
+        Height = 593
+        Top = 0
+        Width = 536
+        Align = alClient
+        BevelOuter = bvNone
+        BorderWidth = 8
+        ClientHeight = 593
+        ClientWidth = 536
+        TabOrder = 0
+        object Bevel3: TBevel
+          Left = 8
+          Height = 10
+          Top = 208
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxTableDataSQL: TGroupBox
+          Left = 8
+          Height = 105
+          Top = 218
+          Width = 520
+          Align = alTop
+          Caption = 'Preview table data'
+          ClientHeight = 83
+          ClientWidth = 516
+          TabOrder = 1
+          object edtMaxRowCountForTableData: TEdit
+            Left = 140
+            Height = 25
+            Top = 8
+            Width = 128
+            TabOrder = 0
+          end
+          object lbTableDataPreviewRows: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 62
+            Caption = 'Rows limit:'
+            ParentColor = False
+          end
+          object ckbLogicNamesForTableData: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 48
+            Width = 198
+            Caption = 'Use logic-names in select-SQL'
+            TabOrder = 1
+          end
+        end
+        object GroupBoxSQLGen: TGroupBox
+          Left = 8
+          Height = 200
+          Top = 8
+          Width = 520
+          Align = alTop
+          Caption = 'SQL Generate'
+          ClientHeight = 178
+          ClientWidth = 516
+          TabOrder = 0
+          object ckbQuotReservedNames: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 8
+            Width = 148
+            Caption = 'Quot reserved names'
+            TabOrder = 0
+          end
+          object ckbBackupBeforeAlterColumn: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 40
+            Width = 292
+            Caption = 'Generate backup SQL before altering columns'
+            TabOrder = 1
+          end
+          object ckbAddColCommentToCreateTbSql: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 72
+            Width = 269
+            Caption = 'Add field-comments to table-creation-SQL'
+            TabOrder = 2
+          end
+          object ckbCreateSeqForOracle: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 104
+            Width = 235
+            Caption = 'Create/check sequences for ORACLE'
+            TabOrder = 3
+          end
+          object ckbQuotAllNames: TCheckBox
+            Left = 232
+            Height = 21
+            Top = 8
+            Width = 110
+            Caption = 'Quot all names'
+            TabOrder = 4
+          end
+          object ckbCreateIndexForForeignkey: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 136
+            Width = 205
+            Caption = 'Create indexes for foreign keys'
+            TabOrder = 5
+          end
+        end
+      end
+    end
+    object tabshtFieldTypes: TTabSheet
+      Caption = 'Field Types'
+      ClientHeight = 514
+      ClientWidth = 536
+      object ScrollBoxFieldTypes: TScrollBox
+        Left = 0
+        Height = 514
+        Top = 0
+        Width = 536
+        HorzScrollBar.Page = 512
+        VertScrollBar.Page = 510
+        VertScrollBar.Tracking = True
+        Align = alClient
+        ClientHeight = 510
+        ClientWidth = 515
+        TabOrder = 0
+        object PanelFieldTypes: TPanel
+          Left = 0
+          Height = 1130
+          Top = 0
+          Width = 512
+          BevelOuter = bvNone
+          BorderWidth = 8
+          ClientHeight = 1130
+          ClientWidth = 512
+          TabOrder = 0
+          object GroupBoxCustomFldTypes: TGroupBox
+            Left = 8
+            Height = 280
+            Top = 52
+            Width = 496
+            Align = alTop
+            Caption = 'Custom field types'
+            ClientHeight = 258
+            ClientWidth = 492
+            TabOrder = 0
+            object ListBoxCustFldTps: TListBox
+              Left = 17
+              Height = 163
+              Top = 8
+              Width = 207
+              ItemHeight = 0
+              OnClick = ListBoxCustFldTpsClick
+              TabOrder = 0
+            end
+            object lbCustFldtpName: TLabel
+              Left = 248
+              Height = 17
+              Top = 8
+              Width = 38
+              Caption = 'Name:'
+              ParentColor = False
+            end
+            object edtCustFldtpName: TEdit
+              Left = 352
+              Height = 25
+              Hint = 'example: MyStr or MyTestType'
+              Top = 8
+              Width = 120
+              OnChange = edtCustFldtpNameChange
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 1
+            end
+            object edtCustFldtpPhyType: TEdit
+              Left = 352
+              Height = 25
+              Hint = 'example: NVARCHAR or CHAR(500)  (default lengths can be specified)'
+              Top = 80
+              Width = 120
+              OnChange = edtCustFldtpNameChange
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 2
+            end
+            object lbCustFldtpPhyType: TLabel
+              Left = 248
+              Height = 17
+              Top = 48
+              Width = 137
+              Caption = 'Physical type (optional):'
+              ParentColor = False
+            end
+            object btnCustFldtpNew: TButton
+              Left = 248
+              Height = 25
+              Top = 146
+              Width = 49
+              Caption = '+'
+              OnClick = btnCustFldtpNewClick
+              TabOrder = 3
+            end
+            object btnCustFldtpRemove: TButton
+              Left = 313
+              Height = 25
+              Top = 146
+              Width = 49
+              Caption = '-'
+              OnClick = btnCustFldtpRemoveClick
+              TabOrder = 4
+            end
+            object lbCustFldtpTip: TLabel
+              Left = 19
+              Height = 51
+              Top = 184
+              Width = 453
+              Anchors = [akTop, akLeft, akRight]
+              Caption = 'Custom field types will be listed after system types. When a custom type is set to a field (stored in data-type-name), EZDML will automatically match a system logic type to display its icon.'
+              ParentColor = False
+              WordWrap = True
+            end
+          end
+          object GroupBoxSysFldTypes: TGroupBox
+            Left = 8
+            Height = 262
+            Top = 342
+            Width = 496
+            Align = alTop
+            Caption = 'Custom physical types'
+            ClientHeight = 240
+            ClientWidth = 492
+            TabOrder = 1
+            object ListBoxDefPhyTypes: TListBox
+              Left = 17
+              Height = 163
+              Top = 8
+              Width = 207
+              ItemHeight = 0
+              OnClick = ListBoxDefPhyTypesClick
+              TabOrder = 0
+            end
+            object lbDefPhyTpLogicType: TLabel
+              Left = 248
+              Height = 17
+              Top = 8
+              Width = 59
+              Caption = 'Data type:'
+              ParentColor = False
+            end
+            object lbCustomPhyType: TLabel
+              Left = 248
+              Height = 17
+              Top = 48
+              Width = 126
+              Caption = 'Custom physical type:'
+              ParentColor = False
+            end
+            object edtCustomPhyType: TEdit
+              Left = 352
+              Height = 25
+              Hint = 'example for Float: DECIMAL, for String: VARCHAR2(800)  (default lengths can be specified)'
+              Top = 80
+              Width = 120
+              OnChange = edtCustomPhyTypeChange
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 2
+            end
+            object btnNewCustPhyTp: TButton
+              Left = 248
+              Height = 25
+              Top = 146
+              Width = 49
+              Caption = '+'
+              OnClick = btnNewCustPhyTpClick
+              TabOrder = 3
+            end
+            object btnRemoveCustPhyTp: TButton
+              Left = 312
+              Height = 25
+              Top = 146
+              Width = 49
+              Caption = '-'
+              OnClick = btnRemoveCustPhyTpClick
+              TabOrder = 4
+            end
+            object combDefPhyTpLogicType: TComboBox
+              Left = 352
+              Height = 25
+              Top = 8
+              Width = 120
+              DropDownCount = 24
+              ItemHeight = 17
+              OnChange = edtCustomPhyTypeChange
+              Style = csDropDownList
+              TabOrder = 1
+            end
+            object lbCustPhyTpTip: TLabel
+              Left = 19
+              Height = 34
+              Top = 184
+              Width = 453
+              Anchors = [akTop, akLeft, akRight]
+              Caption = 'You can define your own physical type for each logic type to replace the one recommended by the system.'
+              ParentColor = False
+              WordWrap = True
+            end
+          end
+          object Bevel10: TBevel
+            Left = 8
+            Height = 10
+            Top = 332
+            Width = 496
+            Align = alTop
+            Shape = bsSpacer
+          end
+          object Bevel11: TBevel
+            Left = 8
+            Height = 10
+            Top = 870
+            Width = 496
+            Align = alTop
+            Shape = bsSpacer
+          end
+          object GroupBoxTpNameReplaces: TGroupBox
+            Left = 8
+            Height = 256
+            Top = 614
+            Width = 496
+            Align = alTop
+            Caption = 'Type name replaces'
+            ClientHeight = 234
+            ClientWidth = 492
+            TabOrder = 2
+            object ListBoxTpNameReplaces: TListBox
+              Left = 17
+              Height = 163
+              Top = 8
+              Width = 207
+              ItemHeight = 0
+              OnClick = ListBoxTpNameReplacesClick
+              TabOrder = 0
+            end
+            object lbTpnRepPattern: TLabel
+              Left = 248
+              Height = 17
+              Top = 8
+              Width = 44
+              Caption = 'Pattern:'
+              ParentColor = False
+            end
+            object edtTpnRepPattern: TEdit
+              Left = 352
+              Height = 25
+              Hint = 'for example: VARCHAR2, VARCHAR2(4000), %RAW, %TEXT%  (wildcard % can be used on left or right side)'
+              Top = 8
+              Width = 120
+              OnChange = edtTpnRepPatternChange
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 1
+            end
+            object edtTpnReplacement: TEdit
+              Left = 352
+              Height = 25
+              Hint = 'for example: NVARCHAR2, CHAR(200), BLOB, NCLOB'
+              Top = 48
+              Width = 120
+              OnChange = edtTpnRepPatternChange
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 2
+            end
+            object lbTpnReplacement: TLabel
+              Left = 248
+              Height = 17
+              Top = 48
+              Width = 78
+              Caption = 'Replacement:'
+              ParentColor = False
+            end
+            object btnTpnRepNew: TButton
+              Left = 248
+              Height = 25
+              Top = 146
+              Width = 49
+              Caption = '+'
+              OnClick = btnTpnRepNewClick
+              TabOrder = 3
+            end
+            object btnTpnRepRemove: TButton
+              Left = 313
+              Height = 25
+              Top = 146
+              Width = 49
+              Caption = '-'
+              OnClick = btnTpnRepRemoveClick
+              TabOrder = 4
+            end
+            object lbTpnReplaceTip: TLabel
+              Left = 19
+              Height = 34
+              Top = 184
+              Width = 453
+              Anchors = [akTop, akLeft, akRight]
+              Caption = 'When generating SQL for any column, the physical data type name (with length) can be replaced as needed.'
+              ParentColor = False
+              WordWrap = True
+            end
+          end
+          object Bevel12: TBevel
+            Left = 8
+            Height = 10
+            Top = 42
+            Width = 496
+            Align = alTop
+            Shape = bsSpacer
+          end
+          object lbDBConnNote1: TLabel
+            Left = 8
+            Height = 34
+            Top = 8
+            Width = 496
+            Align = alTop
+            Caption = 'Notes: Custom types is only used to generate SQLs and may have no effect on model diagrams.'
+            ParentColor = False
+            WordWrap = True
+          end
+          object GroupBoxFieldDataGenRules: TGroupBox
+            Left = 8
+            Height = 256
+            Top = 880
+            Width = 496
+            Align = alTop
+            Caption = 'Field data generate rules'
+            ClientHeight = 234
+            ClientWidth = 492
+            TabOrder = 3
+            object ListBoxFDGenRules: TListBox
+              Left = 17
+              Height = 163
+              Top = 8
+              Width = 207
+              ItemHeight = 0
+              OnClick = ListBoxFDGenRulesClick
+              TabOrder = 0
+            end
+            object lbTpnRepPattern1: TLabel
+              Left = 248
+              Height = 17
+              Top = 8
+              Width = 28
+              Caption = 'Rule:'
+              ParentColor = False
+            end
+            object edtFDGenRule: TEdit
+              Left = 352
+              Height = 25
+              Hint = 'for example: person_name'
+              Top = 8
+              Width = 120
+              OnChange = edtFDGenRuleChange
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 1
+            end
+            object edtFDGenNames: TEdit
+              Left = 352
+              Height = 25
+              Hint = 'for example: CreatorID, ModifierID'
+              Top = 48
+              Width = 120
+              OnChange = edtFDGenRuleChange
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 2
+            end
+            object lbTpnReplacement1: TLabel
+              Left = 248
+              Height = 17
+              Top = 48
+              Width = 72
+              Caption = 'Field names:'
+              ParentColor = False
+            end
+            object btnFDGenNew: TButton
+              Left = 248
+              Height = 25
+              Top = 146
+              Width = 49
+              Caption = '+'
+              OnClick = btnFDGenNewClick
+              TabOrder = 3
+            end
+            object btnFDGenRemove: TButton
+              Left = 313
+              Height = 25
+              Top = 146
+              Width = 49
+              Caption = '-'
+              OnClick = btnFDGenRemoveClick
+              TabOrder = 4
+            end
+            object lbFDGenTip: TLabel
+              Left = 19
+              Height = 17
+              Top = 184
+              Width = 453
+              Anchors = [akTop, akLeft, akRight]
+              Caption = 'Use commas to separate multiple names, use % for partial match.'
+              ParentColor = False
+              WordWrap = True
+            end
+          end
+          object Bevel18: TBevel
+            Left = 8
+            Height = 10
+            Top = 604
+            Width = 496
+            Align = alTop
+            Shape = bsSpacer
+          end
+        end
+      end
+    end
+    object tabshtConnection: TTabSheet
+      Caption = 'DB Connect'
+      ClientHeight = 593
+      ClientWidth = 536
+      object PanelDBConn: TPanel
+        Left = 0
+        Height = 593
+        Top = 0
+        Width = 536
+        Align = alClient
+        BevelOuter = bvNone
+        BorderWidth = 8
+        ClientHeight = 593
+        ClientWidth = 536
+        TabOrder = 0
+        object GroupBoxDBConnOracle: TGroupBox
+          Left = 8
+          Height = 108
+          Top = 52
+          Width = 520
+          Align = alTop
+          Caption = 'Oracle'
+          ClientHeight = 86
+          ClientWidth = 516
+          TabOrder = 0
+          object edtOCILIB: TEdit
+            Left = 112
+            Height = 25
+            Top = 8
+            Width = 344
+            TabOrder = 0
+          end
+          object lbOciLib: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 43
+            Caption = 'OCI lib:'
+            ParentColor = False
+          end
+          object btnOracleLibBrs: TButton
+            Left = 456
+            Height = 25
+            Top = 8
+            Width = 51
+            Anchors = [akTop, akRight]
+            Caption = '..'
+            OnClick = btnOracleLibBrsClick
+            TabOrder = 1
+          end
+          object lbNLSLang: TLabel
+            Left = 24
+            Height = 17
+            Top = 48
+            Width = 64
+            Caption = 'NLS_LANG:'
+            ParentColor = False
+          end
+          object combNLSLang: TComboBox
+            Left = 112
+            Height = 25
+            Top = 48
+            Width = 344
+            DropDownCount = 24
+            ItemHeight = 17
+            Items.Strings = (
+              'SIMPLIFIED CHINESE_CHINA.ZHS16GBK'
+              'SIMPLIFIED CHINESE_CHINA.AL32UTF8'
+              'TRADITIONALCHINESE_TAIWAN.ZHT16BIG5'
+              'AMERICAN_AMERICA.AL32UTF8'
+              'AMERICAN_AMERICA.WE8ISO8859P1'
+              'AMERICAN_AMERICA.WE8ISO8859P15'
+              'AMERICAN_AMERICA.ZHS16GBK'
+              'KOREAN_KOREA.KO16KSC5601'
+              'KOREAN_KOREA.AL32UTF8'
+              'JAPANESE_JAPAN.JA16EUC'
+              'JAPANESE_JAPAN.AL32UTF8'
+            )
+            OnChange = edtCustomPhyTypeChange
+            TabOrder = 2
+          end
+        end
+        object GroupBoxDBConnMysql: TGroupBox
+          Left = 8
+          Height = 68
+          Top = 170
+          Width = 520
+          Align = alTop
+          Caption = 'Mysql'
+          ClientHeight = 46
+          ClientWidth = 516
+          TabOrder = 1
+          object edtMYSQLLIB: TEdit
+            Left = 112
+            Height = 25
+            Top = 8
+            Width = 344
+            TabOrder = 0
+          end
+          object lbMysqlLib: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 17
+            Caption = 'lib:'
+            ParentColor = False
+          end
+          object btnMysqlLibBrs: TButton
+            Left = 456
+            Height = 25
+            Top = 8
+            Width = 51
+            Anchors = [akTop, akRight]
+            Caption = '..'
+            OnClick = btnMysqlLibBrsClick
+            TabOrder = 1
+          end
+        end
+        object Bevel4: TBevel
+          Left = 8
+          Height = 10
+          Top = 160
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object Bevel5: TBevel
+          Left = 8
+          Height = 10
+          Top = 238
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxDBConnSqlServer: TGroupBox
+          Left = 8
+          Height = 96
+          Top = 248
+          Width = 520
+          Align = alTop
+          Caption = 'SQLServer'
+          ClientHeight = 74
+          ClientWidth = 516
+          TabOrder = 2
+          object edtSQLSERVERLIB: TEdit
+            Left = 112
+            Height = 25
+            Top = 8
+            Width = 344
+            TabOrder = 0
+          end
+          object lbSqlServerLib: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 17
+            Caption = 'lib:'
+            ParentColor = False
+          end
+          object btnSqlServerLibBrs: TButton
+            Left = 456
+            Height = 25
+            Top = 8
+            Width = 51
+            Anchors = [akTop, akRight]
+            Caption = '..'
+            OnClick = btnSqlServerLibBrsClick
+            TabOrder = 1
+          end
+          object ckbUseOdbcDriverForMsSql: TCheckBox
+            Left = 111
+            Height = 21
+            Top = 40
+            Width = 121
+            Caption = 'Use ODBC driver'
+            TabOrder = 2
+          end
+        end
+        object Bevel8: TBevel
+          Left = 8
+          Height = 10
+          Top = 344
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxDBConnSqlite: TGroupBox
+          Left = 8
+          Height = 69
+          Top = 433
+          Width = 520
+          Align = alTop
+          Caption = 'Sqlite'
+          ClientHeight = 47
+          ClientWidth = 516
+          TabOrder = 4
+          object edtSQLITELIB: TEdit
+            Left = 112
+            Height = 25
+            Top = 8
+            Width = 344
+            TabOrder = 0
+          end
+          object lbSqliteLib: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 17
+            Caption = 'lib:'
+            ParentColor = False
+          end
+          object btnSqliteLibBrs: TButton
+            Left = 456
+            Height = 25
+            Top = 8
+            Width = 51
+            Anchors = [akTop, akRight]
+            Caption = '..'
+            OnClick = btnSqliteLibBrsClick
+            TabOrder = 1
+          end
+        end
+        object lbDBConnNote: TLabel
+          Left = 8
+          Height = 34
+          Top = 8
+          Width = 520
+          Align = alTop
+          Caption = 'Notes: libs should be 64-bit. Libs can be placed in search paths, or just specify exact locations directly below (a restart operation may needed).'
+          ParentColor = False
+          WordWrap = True
+        end
+        object Bevel9: TBevel
+          Left = 8
+          Height = 10
+          Top = 42
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object Bevel16: TBevel
+          Left = 8
+          Height = 10
+          Top = 502
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxDBConnPostgre: TGroupBox
+          Left = 8
+          Height = 69
+          Top = 354
+          Width = 520
+          Align = alTop
+          Caption = 'PostgreSQL'
+          ClientHeight = 47
+          ClientWidth = 516
+          TabOrder = 3
+          object edtPOSTGRESLIB: TEdit
+            Left = 112
+            Height = 25
+            Top = 8
+            Width = 344
+            TabOrder = 0
+          end
+          object lbPostgreLib: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 17
+            Caption = 'lib:'
+            ParentColor = False
+          end
+          object btnPostgreLibBrs: TButton
+            Left = 456
+            Height = 25
+            Top = 8
+            Width = 51
+            Anchors = [akTop, akRight]
+            Caption = '..'
+            OnClick = btnPostgreLibBrsClick
+            TabOrder = 1
+          end
+        end
+        object Bevel17: TBevel
+          Left = 8
+          Height = 10
+          Top = 423
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+      end
+    end
+    object tabshtOthers: TTabSheet
+      Caption = 'Others'
+      ClientHeight = 593
+      ClientWidth = 536
+      object PanelOthers: TPanel
+        Left = 0
+        Height = 593
+        Top = 0
+        Width = 536
+        Align = alClient
+        BevelOuter = bvNone
+        BorderWidth = 8
+        ClientHeight = 593
+        ClientWidth = 536
+        TabOrder = 0
+        object GroupBoxOthersTb: TGroupBox
+          Left = 8
+          Height = 96
+          Top = 8
+          Width = 520
+          Align = alTop
+          Caption = 'Table properties'
+          ClientHeight = 74
+          ClientWidth = 516
+          TabOrder = 0
+          object ckbWriteConstraintToDescribeStr: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 8
+            Width = 259
+            Caption = 'Write constraint to table-description-text'
+            TabOrder = 0
+          end
+          object ckbFieldGridShowLines: TCheckBox
+            Left = 312
+            Height = 21
+            Top = 8
+            Width = 166
+            Caption = 'Show lines of Fields-Grid'
+            TabOrder = 1
+          end
+          object ckbTableDialogViewModeByDefault: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 40
+            Width = 309
+            Caption = 'View table prop by default (unless CTRL pressed)'
+            TabOrder = 2
+          end
+        end
+        object GroupBoxKnownTbPrefix: TGroupBox
+          Left = 8
+          Height = 173
+          Top = 114
+          Width = 520
+          Align = alTop
+          Caption = 'Known table prefix'
+          ClientHeight = 151
+          ClientWidth = 516
+          TabOrder = 1
+          object lbKnownTbPrefixTip: TLabel
+            Left = 18
+            Height = 34
+            Top = 7
+            Width = 478
+            Anchors = [akTop, akLeft, akRight]
+            Caption = 'Known prefixes help generating shorter index-names for table SQLs. (one per line)'
+            ParentColor = False
+            WordWrap = True
+          end
+          object MemoKnownTbPrefixs: TMemo
+            Left = 24
+            Height = 90
+            Top = 48
+            Width = 294
+            ScrollBars = ssVertical
+            TabOrder = 0
+            WordWrap = False
+          end
+        end
+        object Bevel14: TBevel
+          Left = 8
+          Height = 10
+          Top = 104
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object Bevel15: TBevel
+          Left = 8
+          Height = 10
+          Top = 287
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxCustDict: TGroupBox
+          Left = 8
+          Height = 230
+          Top = 297
+          Width = 520
+          Align = alTop
+          Caption = 'Custom dictionary'
+          ClientHeight = 208
+          ClientWidth = 516
+          TabOrder = 2
+          object lbCustDictTip: TLabel
+            Left = 18
+            Height = 34
+            Top = 7
+            Width = 478
+            Anchors = [akTop, akLeft, akRight]
+            Caption = 'Custom dictionary is used to identify uncommon words in table field names. (one per line)'
+            ParentColor = False
+            WordWrap = True
+          end
+          object MemoCustDict: TMemo
+            Left = 24
+            Height = 144
+            Top = 48
+            Width = 294
+            ScrollBars = ssVertical
+            TabOrder = 0
+            WordWrap = False
+          end
+        end
+      end
+    end
+  end
+  object OpenDialogDbLib: TOpenDialog
+    Options = [ofFileMustExist, ofEnableSizing, ofViewDetail]
+    left = 416
+    top = 200
+  end
+end

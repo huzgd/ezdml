@@ -1,0 +1,87 @@
+object frmAddCtFields: TfrmAddCtFields
+  Left = 335
+  Height = 326
+  Top = 265
+  Width = 444
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Add system fields'
+  ClientHeight = 326
+  ClientWidth = 444
+  Color = clBtnFace
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.4.0'
+  object Label2: TLabel
+    Left = 17
+    Height = 13
+    Top = 11
+    Width = 102
+    Caption = 'Choose fields to add:'
+    ParentColor = False
+  end
+  object btnOK: TButton
+    Left = 280
+    Height = 23
+    Top = 283
+    Width = 40
+    AutoSize = True
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 0
+  end
+  object btnCancel: TButton
+    Left = 356
+    Height = 23
+    Top = 283
+    Width = 58
+    AutoSize = True
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object cklbFields: TCheckListBox
+    Left = 17
+    Height = 226
+    Top = 39
+    Width = 409
+    Columns = 3
+    ItemHeight = 0
+    TabOrder = 2
+  end
+  object ckbSelAll: TCheckBox
+    Left = 17
+    Height = 21
+    Top = 282
+    Width = 64
+    Caption = 'Select all'
+    OnClick = ckbSelAllClick
+    TabOrder = 3
+  end
+  object rdbFNameTp1: TRadioButton
+    Left = 265
+    Height = 21
+    Top = 9
+    Width = 55
+    Caption = 'English'
+    OnClick = rdgFNameTpClick
+    TabOrder = 4
+  end
+  object rdbFNameTp2: TRadioButton
+    Left = 352
+    Height = 21
+    Top = 9
+    Width = 46
+    Caption = 'Local'
+    Checked = True
+    OnClick = rdgFNameTpClick
+    TabOrder = 5
+    TabStop = True
+  end
+end

@@ -1,0 +1,16 @@
+{"version":1,"strings":[
+{"hash":122049230,"name":"tfrmlogonctdb.caption","sourcebytes":[68,97,116,97,98,97,115,101,32,99,111,110,110,101,99,116,105,111,110],"value":"Database connection"},
+{"hash":70913637,"name":"tfrmlogonctdb.label1.caption","sourcebytes":[69,110,103,105,110,101,32,84,121,112,101],"value":"Engine Type"},
+{"hash":379330,"name":"tfrmlogonctdb.label2.caption","sourcebytes":[85,115,101,114],"value":"User"},
+{"hash":145417188,"name":"tfrmlogonctdb.label_pwd.caption","sourcebytes":[80,97,115,115,119,111,114,100],"value":"Password"},
+{"hash":132924069,"name":"tfrmlogonctdb.label4.caption","sourcebytes":[68,97,116,97,32,115,111,117,114,99,101],"value":"Data source"},
+{"hash":88496133,"name":"tfrmlogonctdb.combdbtype.text","sourcebytes":[79,82,65,67,76,69],"value":"ORACLE"},
+{"hash":1339,"name":"tfrmlogonctdb.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmlogonctdb.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":80735086,"name":"tfrmlogonctdb.btndbcfg.hint","sourcebytes":[67,111,110,102,105,103,46,46,46],"value":"Config..."},
+{"hash":782,"name":"tfrmlogonctdb.btndbcfg.caption","sourcebytes":[46,46],"value":".."},
+{"hash":19313076,"name":"tfrmlogonctdb.ckbsavepwd.caption","sourcebytes":[83,97,118,101,32,112,97,115,115,119,111,114,100],"value":"Save password"},
+{"hash":70945449,"name":"tfrmlogonctdb.ckbautologin.caption","sourcebytes":[65,117,116,111,32,108,111,103,105,110,32,40,112,114,101,115,115,32,83,72,73,70,84,32,116,111,32,115,107,105,112,41],"value":"Auto login (press SHIFT to skip)"},
+{"hash":240441001,"name":"tfrmlogonctdb.btnlogonhist.hint","sourcebytes":[76,111,103,111,110,32,104,105,115,116,111,114,121],"value":"Logon history"},
+{"hash":118,"name":"tfrmlogonctdb.btnlogonhist.caption","sourcebytes":[118],"value":"v"}
+]}

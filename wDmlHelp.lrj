@@ -1,0 +1,6 @@
+{"version":1,"strings":[
+{"hash":322608,"name":"tfrmhelpabout.caption","sourcebytes":[72,101,108,112],"value":"Help"},
+{"hash":1339,"name":"tfrmhelpabout.button1.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":171665052,"name":"tfrmhelpabout.editselectall1.caption","sourcebytes":[83,101,108,101,99,116,32,38,65,108,108],"value":"Select &All"},
+{"hash":182988884,"name":"tfrmhelpabout.editselectall1.hint","sourcebytes":[83,101,108,101,99,116,32,65,108,108,124,83,101,108,101,99,116,115,32,116,104,101,32,101,110,116,105,114,101,32,100,111,99,117,109,101,110,116],"value":"Select All|Selects the entire document"}
+]}

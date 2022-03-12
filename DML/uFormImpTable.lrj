@@ -1,0 +1,20 @@
+{"version":1,"strings":[
+{"hash":265206901,"name":"tfrmimportcttable.caption","sourcebytes":[73,109,112,111,114,116,32,68,97,116,97,98,97,115,101],"value":"Import Database"},
+{"hash":174410724,"name":"tfrmimportcttable.label1.caption","sourcebytes":[67,111,110,110,101,99,116],"value":"Connect"},
+{"hash":208634625,"name":"tfrmimportcttable.label2.caption","sourcebytes":[67,104,111,111,115,101,32,83,99,104,101,109,97],"value":"Choose Schema"},
+{"hash":151760442,"name":"tfrmimportcttable.label3.caption","sourcebytes":[79,98,106,101,99,116,115,58],"value":"Objects:"},
+{"hash":99130874,"name":"tfrmimportcttable.label4.caption","sourcebytes":[80,114,111,103,114,101,115,115,58],"value":"Progress:"},
+{"hash":80755394,"name":"tfrmimportcttable.label5.caption","sourcebytes":[70,105,108,116,101,114],"value":"Filter"},
+{"hash":13088,"name":"tfrmimportcttable.labelprog.caption","sourcebytes":[48,47,48],"value":"0/0"},
+{"hash":5941396,"name":"tfrmimportcttable.btnok.caption","sourcebytes":[83,116,97,114,116],"value":"Start"},
+{"hash":4863637,"name":"tfrmimportcttable.btncancel.caption","sourcebytes":[67,108,111,115,101],"value":"Close"},
+{"hash":782,"name":"tfrmimportcttable.btndblogon.caption","sourcebytes":[46,46],"value":".."},
+{"hash":196280757,"name":"tfrmimportcttable.ckbautocapitalize.caption","sourcebytes":[65,117,116,111,32,99,97,112,105,116,97,108,105,122,101],"value":"Auto capitalize"},
+{"hash":81265349,"name":"tfrmimportcttable.ckbcomments2displayname.caption","sourcebytes":[67,111,109,109,101,110,116,115,32,97,115,32,76,111,103,105,99,45,78,97,109,101],"value":"Comments as Logic-Name"},
+{"hash":199470419,"name":"tfrmimportcttable.ckbimportdbtypenames.caption","sourcebytes":[73,109,112,111,114,116,32,100,97,116,97,45,116,121,112,101,32,110,97,109,101,115],"value":"Import data-type names"},
+{"hash":143064595,"name":"tfrmimportcttable.ckboverwriteexists.caption","sourcebytes":[79,118,101,114,119,114,105,116,101,32,101,120,105,115,116,32,116,97,98,108,101,115],"value":"Overwrite exist tables"},
+{"hash":252708708,"name":"tfrmimportcttable.mn_checkall.caption","sourcebytes":[65,108,108,32,115,101,108,101,99,116,47,117,110,115,101,108,101,99,116],"value":"All select/unselect"},
+{"hash":60978619,"name":"tfrmimportcttable.mn_checkselected.caption","sourcebytes":[67,104,101,99,107,47,117,110,99,104,101,99,107],"value":"Check/uncheck"},
+{"hash":192777182,"name":"tfrmimportcttable.mn_inversesel.caption","sourcebytes":[73,110,118,101,114,115,101,32,115,101,108,101,99,116,105,111,110],"value":"Inverse selection"},
+{"hash":31957139,"name":"tfrmimportcttable.mn_tableprops.caption","sourcebytes":[84,97,98,108,101,32,112,114,111,112,112,101,114,116,105,101,115],"value":"Table propperties"}
+]}

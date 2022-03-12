@@ -1,0 +1,19 @@
+{"version":1,"strings":[
+{"hash":79384371,"name":"tfrmcttableprop.caption","sourcebytes":[84,97,98,108,101,32,112,114,111,112,101,114,116,105,101,115],"value":"Table properties"},
+{"hash":1339,"name":"tfrmcttableprop.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmcttableprop.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":10799477,"name":"tfrmcttableprop.btncapitalize.caption","sourcebytes":[67,97,112,105,116,97,108,105,122,101],"value":"Capitalize"},
+{"hash":32,"name":"tfrmcttableprop.label1.caption","sourcebytes":[32],"value":" "},
+{"hash":29937829,"name":"tfrmcttableprop.bbtnview.hint","sourcebytes":[83,119,105,116,99,104,32,116,111,32,86,105,101,119,32,109,111,100,101],"value":"Switch to View mode"},
+{"hash":171665052,"name":"tfrmcttableprop.editselectall1.caption","sourcebytes":[83,101,108,101,99,116,32,38,65,108,108],"value":"Select &All"},
+{"hash":182988884,"name":"tfrmcttableprop.editselectall1.hint","sourcebytes":[83,101,108,101,99,116,32,65,108,108,124,83,101,108,101,99,116,115,32,116,104,101,32,101,110,116,105,114,101,32,100,111,99,117,109,101,110,116],"value":"Select All|Selects the entire document"},
+{"hash":245455733,"name":"tfrmcttableprop.actcapuppercase.caption","sourcebytes":[65,108,108,32,85,112,112,101,114,32,67,97,115,101],"value":"All Upper Case"},
+{"hash":245476037,"name":"tfrmcttableprop.actcaplowercase.caption","sourcebytes":[65,108,108,32,76,111,119,101,114,32,67,97,115,101],"value":"All Lower Case"},
+{"hash":196411829,"name":"tfrmcttableprop.actautocapitalize.caption","sourcebytes":[65,117,116,111,32,67,97,112,105,116,97,108,105,122,101],"value":"Auto Capitalize"},
+{"hash":93848277,"name":"tfrmcttableprop.actexchangedispcomm.caption","sourcebytes":[67,111,109,109,101,110,116,115,32,116,111,32,76,111,103,105,99,45,78,97,109,101],"value":"Comments to Logic-Name"},
+{"hash":253584997,"name":"tfrmcttableprop.actexchangenamedisp.caption","sourcebytes":[78,97,109,101,32,116,111,32,76,111,103,105,99,45,78,97,109,101],"value":"Name to Logic-Name"},
+{"hash":245179316,"name":"tfrmcttableprop.actcheckwithmydict.caption","sourcebytes":[67,104,101,99,107,32,119,105,116,104,32,77,121,68,105,99,116,46,116,120,116],"value":"Check with MyDict.txt"},
+{"hash":97869950,"name":"tfrmcttableprop.actconvertchntopy.caption","sourcebytes":[67,111,110,118,101,114,116,32,67,104,105,110,101,115,101,32,116,111,32,80,105,110,89,105,110],"value":"Convert Chinese to PinYin"},
+{"hash":63602373,"name":"tfrmcttableprop.actcamecaseltounderline.caption","sourcebytes":[67,97,109,101,108,45,67,97,115,101,32,116,111,32,85,110,100,101,114,108,105,110,101],"value":"Camel-Case to Underline"},
+{"hash":261161749,"name":"tfrmcttableprop.actunderlinetocamelcase.caption","sourcebytes":[85,110,100,101,114,108,105,110,101,32,116,111,32,67,97,109,101,108,45,67,97,115,101],"value":"Underline to Camel-Case"}
+]}

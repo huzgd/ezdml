@@ -1,0 +1,160 @@
+object frmAddTbLink: TfrmAddTbLink
+  Left = 418
+  Height = 223
+  Top = 252
+  Width = 644
+  BorderStyle = bsDialog
+  Caption = 'Add Link'
+  ClientHeight = 223
+  ClientWidth = 644
+  Color = clBtnFace
+  OnCloseQuery = FormCloseQuery
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object edtNewFieldName: TEdit
+    Left = 408
+    Height = 25
+    Top = 61
+    Width = 210
+    TabOrder = 8
+    Visible = False
+  end
+  object Label1: TLabel
+    Left = 16
+    Height = 17
+    Top = 122
+    Width = 55
+    Caption = 'Link type:'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 16
+    Height = 17
+    Top = 62
+    Width = 73
+    Caption = 'Master field:'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 16
+    Height = 17
+    Top = 24
+    Width = 77
+    Caption = 'Master table:'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 325
+    Height = 17
+    Top = 63
+    Width = 68
+    Caption = 'Relate field:'
+    ParentColor = False
+  end
+  object Label5: TLabel
+    Left = 325
+    Height = 17
+    Top = 25
+    Width = 69
+    Caption = 'Detail table:'
+    ParentColor = False
+  end
+  object combLinkType: TComboBox
+    Left = 99
+    Height = 25
+    Top = 120
+    Width = 210
+    ItemHeight = 17
+    Items.Strings = (
+      'Foreign key'
+      'Line'
+      'Direct'
+      'Opposite direct'
+    )
+    OnChange = combLinkTypeChange
+    Style = csDropDownList
+    TabOrder = 0
+  end
+  object combMasterField: TComboBox
+    Left = 99
+    Height = 25
+    Top = 60
+    Width = 210
+    DropDownCount = 48
+    ItemHeight = 17
+    Style = csDropDownList
+    TabOrder = 1
+  end
+  object btnOK: TButton
+    Left = 277
+    Height = 27
+    Top = 160
+    Width = 44
+    AutoSize = True
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 2
+  end
+  object btnCancel: TButton
+    Left = 333
+    Height = 27
+    Top = 160
+    Width = 64
+    AutoSize = True
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 3
+  end
+  object edtMasterTb: TEdit
+    Left = 99
+    Height = 25
+    Top = 22
+    Width = 210
+    ParentColor = True
+    ReadOnly = True
+    TabOrder = 4
+  end
+  object combRelateField: TComboBox
+    Left = 408
+    Height = 25
+    Top = 60
+    Width = 210
+    DropDownCount = 48
+    ItemHeight = 17
+    OnChange = combRelateFieldChange
+    Style = csDropDownList
+    TabOrder = 5
+  end
+  object edtDetailTb: TEdit
+    Left = 408
+    Height = 25
+    Top = 22
+    Width = 210
+    ParentColor = True
+    ReadOnly = True
+    TabOrder = 6
+  end
+  object lbLinkInfo: TLabel
+    Left = 317
+    Height = 17
+    Top = 123
+    Width = 23
+    Caption = 'Link'
+    ParentColor = False
+  end
+  object ckbCreateNewField: TCheckBox
+    Left = 410
+    Height = 21
+    Top = 94
+    Width = 116
+    Caption = 'Create new field'
+    OnChange = ckbCreateNewFieldChange
+    TabOrder = 7
+    Visible = False
+  end
+end

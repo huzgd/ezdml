@@ -1,0 +1,138 @@
+object frmHttpSvr: TfrmHttpSvr
+  Left = 379
+  Height = 429
+  Top = 162
+  Width = 591
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'HTTP server'
+  ClientHeight = 429
+  ClientWidth = 591
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  Position = poMainFormCenter
+  LCLVersion = '2.0.4.0'
+  object Label1: TLabel
+    Left = 22
+    Height = 13
+    Top = 77
+    Width = 40
+    Caption = 'Connect'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 262
+    Height = 13
+    Top = 115
+    Width = 46
+    Caption = 'Password'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 22
+    Height = 13
+    Top = 152
+    Width = 22
+    Caption = 'Logs'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 22
+    Height = 13
+    Top = 115
+    Width = 20
+    Caption = 'Port'
+    ParentColor = False
+  end
+  object btnOK: TButton
+    Left = 414
+    Height = 23
+    Top = 384
+    Width = 50
+    Anchors = [akRight, akBottom]
+    AutoSize = True
+    Caption = 'Start'
+    OnClick = btnOKClick
+    TabOrder = 0
+  end
+  object btnCancel: TButton
+    Left = 507
+    Height = 23
+    Top = 384
+    Width = 52
+    Anchors = [akRight, akBottom]
+    AutoSize = True
+    Cancel = True
+    Caption = 'Close'
+    OnClick = btnCancelClick
+    TabOrder = 1
+  end
+  object edtDBLinkInfo: TEdit
+    Left = 104
+    Height = 21
+    Top = 72
+    Width = 432
+    Anchors = [akTop, akLeft, akRight]
+    ParentColor = True
+    ReadOnly = True
+    TabOrder = 2
+  end
+  object btnDBLogon: TButton
+    Left = 537
+    Height = 23
+    Top = 72
+    Width = 38
+    Anchors = [akTop, akRight]
+    AutoSize = True
+    Caption = '...'
+    OnClick = btnDBLogonClick
+    TabOrder = 3
+  end
+  object edtPassword: TEdit
+    Left = 344
+    Height = 21
+    Top = 112
+    Width = 231
+    Anchors = [akTop, akLeft, akRight]
+    TabOrder = 4
+  end
+  object MemoLogs: TMemo
+    Left = 104
+    Height = 210
+    Top = 152
+    Width = 471
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    ScrollBars = ssBoth
+    TabOrder = 5
+    WordWrap = False
+  end
+  object edtPort: TEdit
+    Left = 104
+    Height = 21
+    Top = 112
+    Width = 113
+    TabOrder = 6
+    Text = '8083'
+  end
+  object lbHTTPSvrTip: TLabel
+    Left = 22
+    Height = 26
+    Top = 16
+    Width = 553
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Run HTTP server to share current database connection to remote EZDML client. When password is not empty, only one authorized session is allowed each time.'
+    ParentColor = False
+    WordWrap = True
+  end
+  object TimerInit: TTimer
+    Interval = 500
+    OnTimer = TimerInitTimer
+    left = 180
+    top = 203
+  end
+end

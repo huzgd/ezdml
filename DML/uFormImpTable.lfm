@@ -1,0 +1,232 @@
+object frmImportCtTable: TfrmImportCtTable
+  Left = 366
+  Height = 561
+  Top = 167
+  Width = 846
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Import Database'
+  ClientHeight = 561
+  ClientWidth = 846
+  Color = clBtnFace
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.4.0'
+  object Label1: TLabel
+    Left = 22
+    Height = 17
+    Top = 22
+    Width = 47
+    Caption = 'Connect'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 22
+    Height = 17
+    Top = 58
+    Width = 93
+    Caption = 'Choose Schema'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 22
+    Height = 17
+    Top = 131
+    Width = 47
+    Caption = 'Objects:'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 22
+    Height = 17
+    Top = 480
+    Width = 55
+    Anchors = [akLeft, akBottom]
+    Caption = 'Progress:'
+    ParentColor = False
+  end
+  object Label5: TLabel
+    Left = 22
+    Height = 17
+    Top = 96
+    Width = 28
+    Caption = 'Filter'
+    ParentColor = False
+  end
+  object LabelProg: TLabel
+    Left = 128
+    Height = 17
+    Top = 515
+    Width = 19
+    Anchors = [akLeft, akBottom]
+    Caption = '0/0'
+    ParentColor = False
+  end
+  object btnOK: TButton
+    Left = 675
+    Height = 27
+    Top = 515
+    Width = 53
+    Anchors = [akRight, akBottom]
+    AutoSize = True
+    Caption = 'Start'
+    OnClick = btnOKClick
+    TabOrder = 0
+  end
+  object btnCancel: TButton
+    Left = 765
+    Height = 27
+    Top = 515
+    Width = 58
+    Anchors = [akRight, akBottom]
+    AutoSize = True
+    Cancel = True
+    Caption = 'Close'
+    OnClick = btnCancelClick
+    TabOrder = 1
+  end
+  object edtDBLinkInfo: TEdit
+    Left = 128
+    Height = 25
+    Top = 18
+    Width = 662
+    Anchors = [akTop, akLeft, akRight]
+    ParentColor = True
+    ReadOnly = True
+    TabOrder = 2
+  end
+  object btnDBLogon: TButton
+    Left = 798
+    Height = 27
+    Top = 17
+    Width = 32
+    Anchors = [akTop, akRight]
+    AutoSize = True
+    Caption = '..'
+    OnClick = btnDBLogonClick
+    TabOrder = 3
+  end
+  object combDBUser: TComboBox
+    Left = 128
+    Height = 25
+    Top = 55
+    Width = 702
+    Anchors = [akTop, akLeft, akRight]
+    ItemHeight = 17
+    OnChange = combDBUserChange
+    TabOrder = 4
+  end
+  object cklbDbObjs: TCheckListBox
+    Left = 128
+    Height = 278
+    Top = 132
+    Width = 702
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Columns = 3
+    ItemHeight = 0
+    OnDblClick = cklbDbObjsDblClick
+    PopupMenu = PopupMenu1
+    TabOrder = 5
+  end
+  object ProgressBar1: TProgressBar
+    Left = 128
+    Height = 23
+    Top = 480
+    Width = 702
+    Anchors = [akLeft, akRight, akBottom]
+    TabOrder = 9
+  end
+  object combObjFilter: TComboBox
+    Left = 128
+    Height = 25
+    Top = 93
+    Width = 702
+    Anchors = [akTop, akLeft, akRight]
+    ItemHeight = 17
+    Items.Strings = (
+      '(Show all objects)'
+      '(Objects not exist in DML)'
+      '(Objects exist in DML)'
+    )
+    OnChange = combObjFilterChange
+    TabOrder = 10
+  end
+  object ckbAutoCapitalize: TCheckBox
+    Left = 352
+    Height = 21
+    Top = 418
+    Width = 107
+    Anchors = [akLeft, akBottom]
+    Caption = 'Auto capitalize'
+    TabOrder = 6
+  end
+  object ckbComments2DisplayName: TCheckBox
+    Left = 504
+    Height = 21
+    Top = 418
+    Width = 176
+    Anchors = [akLeft, akBottom]
+    Caption = 'Comments as Logic-Name'
+    TabOrder = 7
+  end
+  object ckbImportDbTypeNames: TCheckBox
+    Left = 128
+    Height = 21
+    Top = 418
+    Width = 164
+    Anchors = [akLeft, akBottom]
+    Caption = 'Import data-type names'
+    TabOrder = 11
+  end
+  object ckbOverwriteExists: TCheckBox
+    Left = 128
+    Height = 21
+    Top = 448
+    Width = 147
+    Anchors = [akLeft, akBottom]
+    Caption = 'Overwrite exist tables'
+    TabOrder = 8
+  end
+  object PopupMenu1: TPopupMenu
+    OnPopup = PopupMenu1Popup
+    left = 176
+    top = 165
+    object MN_CheckAll: TMenuItem
+      AutoCheck = True
+      Caption = 'All select/unselect'
+      OnClick = MN_CheckAllClick
+    end
+    object MN_CheckSelected: TMenuItem
+      AutoCheck = True
+      Caption = 'Check/uncheck'
+      OnClick = MN_CheckSelectedClick
+    end
+    object MN_InverseSel: TMenuItem
+      Caption = 'Inverse selection'
+      OnClick = MN_InverseSelClick
+    end
+    object MenuItem2: TMenuItem
+      Caption = '-'
+    end
+    object MN_TableProps: TMenuItem
+      Caption = 'Table propperties'
+      Default = True
+      OnClick = MN_TablePropsClick
+    end
+  end
+  object TimerInit: TTimer
+    Interval = 500
+    OnTimer = TimerInitTimer
+    left = 204
+    top = 165
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = '.dbk'
+    Filter = 'Database backup files(*.dbk)|*.dbk'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    left = 232
+    top = 165
+  end
+end

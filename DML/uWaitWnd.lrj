@@ -1,0 +1,5 @@
+{"version":1,"strings":[
+{"hash":242294270,"name":"tfrmwaitwnd.caption","sourcebytes":[80,114,111,99,101,115,115,105,110,103,46,46,46],"value":"Processing..."},
+{"hash":242294270,"name":"tfrmwaitwnd.labelprompt.caption","sourcebytes":[80,114,111,99,101,115,115,105,110,103,46,46,46],"value":"Processing..."},
+{"hash":77089212,"name":"tfrmwaitwnd.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+]}

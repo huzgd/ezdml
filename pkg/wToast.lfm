@@ -1,0 +1,31 @@
+object frmToast: TfrmToast
+  Left = 636
+  Height = 93
+  Top = 289
+  Width = 385
+  BorderIcons = []
+  BorderStyle = bsDialog
+  Caption = 'Info'
+  ClientHeight = 93
+  ClientWidth = 385
+  FormStyle = fsSystemStayOnTop
+  OnClose = FormClose
+  Position = poMainFormCenter
+  LCLVersion = '2.0.4.0'
+  object LabelMsg: TLabel
+    Left = 24
+    Height = 57
+    Top = 24
+    Width = 337
+    AutoSize = False
+    Caption = 'Please wait...'
+    ParentColor = False
+    WordWrap = True
+  end
+  object TimerHide: TTimer
+    Enabled = False
+    OnTimer = TimerHideTimer
+    left = 104
+    top = 56
+  end
+end

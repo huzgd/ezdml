@@ -1,0 +1,6 @@
+{"version":1,"strings":[
+{"hash":340132,"name":"tframecttabledef.panelcttbtree.caption","sourcebytes":[76,105,115,116],"value":"List"},
+{"hash":79384371,"name":"tframecttabledef.paneltableprop.caption","sourcebytes":[84,97,98,108,101,32,112,114,111,112,101,114,116,105,101,115],"value":"Table properties"},
+{"hash":78255971,"name":"tframecttabledef.panelfieldprop.caption","sourcebytes":[70,105,101,108,100,32,112,114,111,112,101,114,116,105,101,115],"value":"Field properties"},
+{"hash":184019005,"name":"tframecttabledef.paneldmlgraph.caption","sourcebytes":[68,105,97,103,114,97,109],"value":"Diagram"}
+]}

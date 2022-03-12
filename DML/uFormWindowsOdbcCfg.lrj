@@ -1,0 +1,10 @@
+{"version":1,"strings":[
+{"hash":226307812,"name":"tfrmwindowsodbcconfg.caption","sourcebytes":[79,68,66,67,32,67,111,110,110,101,99,116],"value":"ODBC Connect"},
+{"hash":7554042,"name":"tfrmwindowsodbcconfg.label1.caption","sourcebytes":[68,83,78,32,108,105,115,116,58],"value":"DSN list:"},
+{"hash":163859646,"name":"tfrmwindowsodbcconfg.ckbuserdsn.caption","sourcebytes":[85,115,101,114,32,68,83,78],"value":"User DSN"},
+{"hash":180025822,"name":"tfrmwindowsodbcconfg.ckbsystemdsn.caption","sourcebytes":[83,121,115,116,101,109,32,68,83,78],"value":"System DSN"},
+{"hash":78007543,"name":"tfrmwindowsodbcconfg.btnconfigdsn.caption","sourcebytes":[67,111,110,102,105,103],"value":"Config"},
+{"hash":1339,"name":"tfrmwindowsodbcconfg.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmwindowsodbcconfg.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":253984995,"name":"tfrmwindowsodbcconfg.lberrormsg.caption","sourcebytes":[73,110,115,117,102,102,105,99,105,101,110,116,32,112,101,114,109,105,115,115,105,111,110,115],"value":"Insufficient permissions"}
+]}

@@ -1,0 +1,201 @@
+object frmCtTableProp: TfrmCtTableProp
+  Left = 405
+  Height = 678
+  Top = 140
+  Width = 1037
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Table properties'
+  ClientHeight = 678
+  ClientWidth = 1037
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDeactivate = FormDeactivate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  LCLVersion = '2.0.12.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 35
+    Top = 635
+    Width = 1037
+    Align = alBottom
+    AutoSize = True
+    BevelOuter = bvNone
+    BorderWidth = 4
+    ClientHeight = 35
+    ClientWidth = 1037
+    ParentFont = False
+    TabOrder = 0
+    object btnOk: TButton
+      Left = 868
+      Height = 27
+      Top = 4
+      Width = 44
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Caption = 'OK'
+      ModalResult = 1
+      OnClick = btnOkClick
+      ParentFont = False
+      TabOrder = 0
+    end
+    object btnCancel: TButton
+      Left = 916
+      Height = 27
+      Top = 4
+      Width = 64
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Caption = 'Cancel'
+      ModalResult = 2
+      OnClick = btnCancelClick
+      ParentFont = False
+      TabOrder = 1
+    end
+    object btnCapitalize: TButton
+      Left = 20
+      Height = 27
+      Top = 4
+      Width = 82
+      AutoSize = True
+      Caption = 'Capitalize'
+      OnClick = btnCapitalizeClick
+      ParentFont = False
+      TabOrder = 2
+    end
+    object Label1: TLabel
+      Left = 4
+      Height = 17
+      Top = 10
+      Width = 4
+      Caption = ' '
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 8
+    Top = 670
+    Width = 1037
+    Align = alBottom
+    BevelOuter = bvNone
+    ParentFont = False
+    TabOrder = 1
+  end
+  object bbtnView: TBitBtn
+    Left = 1002
+    Height = 22
+    Hint = 'Switch to View mode'
+    Top = 7
+    Width = 23
+    Anchors = [akTop, akRight]
+    Glyph.Data = {
+      3E010000424D3E010000000000003600000028000000070000000B0000000100
+      1800000000000801000000000000000000000000000000000000FF80FFFF80FF
+      FF80FF000000FF80FFFF80FFFF80FF000000FF80FFFF80FFFF80FF000000FF80
+      FFFF80FFFF80FF000000FF80FFFF80FFFF80FF000000FF80FFFF80FFFF80FF00
+      0000FF80FFFF80FFFF80FF000000FF80FFFF80FFFF80FF000000000000000000
+      000000000000000000000000000000000000FF80FF000000F9F9F9F9F9F90000
+      00000000FF80FF000000FF80FF000000F9F9F9F9F9F9000000000000FF80FF00
+      0000FF80FF000000F8F8F8F8F8F8000000000000FF80FF000000FF80FF000000
+      F8F8F8F8F8F8000000000000FF80FF000000FF80FF0000000000000000000000
+      00000000FF80FF000000FF80FFFF80FFFF80FFFF80FFFF80FFFF80FFFF80FF00
+      0000
+    }
+    Layout = blGlyphBottom
+    OnClick = bbtnViewClick
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 2
+  end
+  object ActionList1: TActionList
+    left = 36
+    top = 56
+    object EditSelectAll1: TEditSelectAll
+      Category = 'Edit'
+      Caption = 'Select &All'
+      Hint = 'Select All|Selects the entire document'
+      ShortCut = 16449
+    end
+    object actCapUppercase: TAction
+      Caption = 'All Upper Case'
+      OnExecute = actCapUppercaseExecute
+    end
+    object actCapLowercase: TAction
+      Caption = 'All Lower Case'
+      OnExecute = actCapLowercaseExecute
+    end
+    object actAutoCapitalize: TAction
+      Caption = 'Auto Capitalize'
+      OnExecute = actAutoCapitalizeExecute
+    end
+    object actExchangeDispComm: TAction
+      Caption = 'Comments to Logic-Name'
+      OnExecute = actExchangeDispCommExecute
+    end
+    object actExchangeNameDisp: TAction
+      Caption = 'Name to Logic-Name'
+      OnExecute = actExchangeNameDispExecute
+    end
+    object actCheckWithMyDict: TAction
+      Caption = 'Check with MyDict.txt'
+      OnExecute = actCheckWithMyDictExecute
+    end
+    object actConvertChnToPy: TAction
+      Caption = 'Convert Chinese to PinYin'
+      OnExecute = actConvertChnToPyExecute
+    end
+    object actCameCaselToUnderline: TAction
+      Caption = 'Camel-Case to Underline'
+      OnExecute = actCameCaselToUnderlineExecute
+    end
+    object actUnderlineToCamelCase: TAction
+      Caption = 'Underline to Camel-Case'
+      OnExecute = actUnderlineToCamelCaseExecute
+    end
+  end
+  object PopupMenu1: TPopupMenu
+    left = 36
+    top = 88
+    object AutoCapitalize1: TMenuItem
+      Action = actAutoCapitalize
+    end
+    object AllUpperCase1: TMenuItem
+      Action = actCapUppercase
+    end
+    object AllLowerCase1: TMenuItem
+      Action = actCapLowercase
+    end
+    object MenuItem1: TMenuItem
+      Action = actCameCaselToUnderline
+    end
+    object MenuItem2: TMenuItem
+      Action = actUnderlineToCamelCase
+    end
+    object ConvertChinesetoPinYin1: TMenuItem
+      Action = actConvertChnToPy
+    end
+    object CheckwithMyDicttxt1: TMenuItem
+      Action = actCheckWithMyDict
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object CommentstoDisplayName1: TMenuItem
+      Action = actExchangeDispComm
+    end
+    object NametoDisplayName1: TMenuItem
+      Action = actExchangeNameDisp
+    end
+  end
+  object TimerDelayCmd: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = TimerDelayCmdTimer
+    left = 107
+    top = 203
+  end
+end

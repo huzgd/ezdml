@@ -1,0 +1,628 @@
+object frmMainDml: TfrmMainDml
+  Left = 241
+  Height = 609
+  Top = 182
+  Width = 1017
+  Caption = 'EZDML'
+  ClientHeight = 589
+  ClientWidth = 1017
+  Menu = MainMenu1
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnDropFiles = FormDropFiles
+  Position = poDefaultPosOnly
+  LCLVersion = '2.0.12.0'
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 22
+    Top = 567
+    Width = 1017
+    Panels = <    
+      item
+        Width = 450
+      end    
+      item
+        Width = 300
+      end    
+      item
+        Width = 150
+      end>
+    ParentFont = False
+    SimplePanel = False
+  end
+  object PanelNewVerHint: TPanel
+    Left = 24
+    Height = 56
+    Top = 360
+    Width = 241
+    Anchors = [akLeft, akBottom]
+    BevelOuter = bvNone
+    ClientHeight = 56
+    ClientWidth = 241
+    ParentBackground = False
+    TabOrder = 1
+    Visible = False
+    object Shape1: TShape
+      Left = 0
+      Height = 56
+      Top = 0
+      Width = 241
+      Align = alClient
+      Brush.Color = clInfoBk
+    end
+    object lbNewVerInfo: TLabel
+      Cursor = crHandPoint
+      Left = 8
+      Height = 17
+      Top = 8
+      Width = 224
+      Anchors = [akTop, akLeft, akRight]
+      Caption = 'New version'
+      ParentColor = False
+      ParentShowHint = False
+      WordWrap = True
+      OnClick = lbNewVerInfoClick
+    end
+  end
+  object MainMenu1: TMainMenu
+    left = 344
+    top = 80
+    object Mn_File: TMenuItem
+      Caption = '&File'
+      object MnNewFile: TMenuItem
+        Action = actNewFile
+      end
+      object MnOpenFile: TMenuItem
+        Action = actOpenFile
+      end
+      object MnSaveFile: TMenuItem
+        Action = actSaveFile
+      end
+      object MNSaveFileAs: TMenuItem
+        Action = actSaveFileAs
+      end
+      object MNShowFileInExplorer: TMenuItem
+        Action = actShowFileInExplorer
+      end
+      object MNShowTemprFile: TMenuItem
+        Action = actShowTmprFile
+      end
+      object MNImportFile: TMenuItem
+        Action = actImportFile
+      end
+      object MnOpenLastFile1A: TMenuItem
+        Action = actOpenLastFile1
+      end
+      object MN_Recentfiles: TMenuItem
+        Caption = 'Recent files'
+      end
+      object N2: TMenuItem
+        Caption = '-'
+      end
+      object MnExitWithoutSave: TMenuItem
+        Action = actExitWithoutSave
+      end
+      object MnExit: TMenuItem
+        Action = actExit
+      end
+    end
+    object MN_Model: TMenuItem
+      Caption = 'Model'
+      object MNNewTable: TMenuItem
+        Action = actNewTable
+      end
+      object MnNewModel: TMenuItem
+        Action = actNewModel
+      end
+      object N1: TMenuItem
+        Caption = '-'
+      end
+      object MnImportDatabase: TMenuItem
+        Action = actImportDatabase
+      end
+      object MnGenerateDatabase: TMenuItem
+        Action = actGenerateDatabase
+      end
+      object MnGenerateCode: TMenuItem
+        Action = actGenerateCode
+      end
+      object MnGenerateLastCode: TMenuItem
+        Action = actGenerateLastCode
+      end
+      object N3: TMenuItem
+        Caption = '-'
+      end
+      object MnTogglePhyView: TMenuItem
+        Action = actTogglePhyView
+      end
+      object MN_ToggleTableView: TMenuItem
+        Action = actToggleTableView
+      end
+      object MN_ColorStyles: TMenuItem
+        Action = actModelOptions
+      end
+      object MN_ExportXls: TMenuItem
+        Action = actExportModel
+      end
+      object MN_ExecScript: TMenuItem
+        Action = actExecScript
+      end
+      object MN_SearchFields: TMenuItem
+        Action = actFindObjects
+      end
+      object MN_FullScreen: TMenuItem
+        Action = actFullScreen
+      end
+    end
+    object MnTools1: TMenuItem
+      Caption = 'Tools'
+      object MN_Settings: TMenuItem
+        Action = actSettings
+      end
+      object MN_EditINIfile: TMenuItem
+        Action = actEditSettingFile
+      end
+      object MN_EditMyDict: TMenuItem
+        Action = actEditMyDict
+      end
+      object MN_editGlobalScript: TMenuItem
+        Action = actEditGlobalScript
+      end
+      object N4: TMenuItem
+        Caption = '-'
+      end
+      object MnBackupDatabase: TMenuItem
+        Action = actBackupDatabase
+      end
+      object MnRestoreDatabase: TMenuItem
+        Action = actRestoreDatabase
+      end
+      object MNSqlTool: TMenuItem
+        Action = actSqlTool
+      end
+      object MN_FindHex: TMenuItem
+        Action = actCharCodeTool
+      end
+      object MN_HttpServer: TMenuItem
+        Action = actHttpServer
+      end
+      object N5: TMenuItem
+        Caption = '-'
+      end
+      object MN_BrowseScripts: TMenuItem
+        Action = actBrowseScripts
+      end
+      object MnOpenCustomToolFolder: TMenuItem
+        Action = actBrowseCustomTools
+      end
+    end
+    object Mn_Help: TMenuItem
+      Caption = 'Help'
+      object MnQuickStart: TMenuItem
+        Action = actQuickStart
+      end
+      object mn_EzdmlHomePage: TMenuItem
+        Action = actEzdmlHomePage
+      end
+      object MN_CheckUpdates: TMenuItem
+        Action = actCheckUpdates
+      end
+      object Mn_About: TMenuItem
+        Action = actAboutEzdml
+      end
+    end
+  end
+  object TimerInit: TTimer
+    Enabled = False
+    Interval = 300
+    OnTimer = TimerInitTimer
+    left = 44
+    top = 80
+  end
+  object OpenDialog1: TOpenDialog
+    DefaultExt = '.xml'
+    Filter = 'All supported files(*.dmj;*.dmx;*.dmh)|*.dmj;*.dmx;*.dmh|Json files(*.dmj)|*.dmj|XML files(*.dmx)|*.dmx|Binary files(*.dmh)|*.dmh'
+    left = 200
+    top = 80
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = '.dmj'
+    Filter = 'Json files(*.dmj)|*.dmj|XML files(*.dmx)|*.dmx|Binary files(*.dmh)|*.dmh'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    left = 48
+    top = 184
+  end
+  object ActionList1: TActionList
+    left = 192
+    top = 184
+    object EditSelectAll1: TEditSelectAll
+      Category = 'Edit'
+      Caption = 'Select &All'
+      Hint = 'Select All|Selects the entire document'
+      ShortCut = 16449
+    end
+    object actGoTbFilter: TAction
+      Category = 'Edit'
+      Caption = 'actGoTbFilter'
+      OnExecute = actGoTbFilterExecute
+      ShortCut = 32836
+    end
+    object actNewFile: TAction
+      Category = 'File'
+      Caption = 'New File'
+      OnExecute = actNewFileExecute
+      ShortCut = 16462
+    end
+    object actOpenFile: TAction
+      Category = 'File'
+      Caption = 'Open...'
+      OnExecute = actOpenFileExecute
+      ShortCut = 16463
+    end
+    object actSaveFile: TAction
+      Category = 'File'
+      Caption = 'Save'
+      OnExecute = actSaveFileExecute
+      ShortCut = 16467
+    end
+    object actSaveFileAs: TAction
+      Category = 'File'
+      Caption = 'Save as...'
+      OnExecute = actSaveFileAsExecute
+    end
+    object actShowFileInExplorer: TAction
+      Category = 'File'
+      Caption = 'Show in Explorer'
+      OnExecute = actShowFileInExplorerExecute
+    end
+    object actShowTmprFile: TAction
+      Category = 'File'
+      Caption = 'Show Temporary File'
+      OnExecute = actShowTmprFileExecute
+    end
+    object actOpenLastFile1: TAction
+      Category = 'File'
+      Caption = 'Reopen Last File'
+      OnExecute = actOpenLastFile1Execute
+      ShortCut = 32817
+    end
+    object actExitWithoutSave: TAction
+      Category = 'File'
+      Caption = 'Exit Without Save'
+      OnExecute = actExitWithoutSaveExecute
+    end
+    object actExit: TAction
+      Category = 'File'
+      Caption = 'Exit'
+      OnExecute = actExitExecute
+    end
+    object actNewTable: TAction
+      Category = 'Model'
+      Caption = 'New Table'
+      OnExecute = actNewTableExecute
+    end
+    object actNewModel: TAction
+      Category = 'Model'
+      Caption = 'New Model'
+      OnExecute = actNewModelExecute
+    end
+    object actImportDatabase: TAction
+      Category = 'Model'
+      Caption = 'Import Database'
+      OnExecute = actImportDatabaseExecute
+    end
+    object actGenerateDatabase: TAction
+      Category = 'Model'
+      Caption = 'Generate Database'
+      OnExecute = actGenerateDatabaseExecute
+    end
+    object actGenerateCode: TAction
+      Category = 'Model'
+      Caption = 'Generate Code'
+      OnExecute = actGenerateCodeExecute
+    end
+    object actTogglePhyView: TAction
+      Category = 'Model'
+      Caption = 'Physics/Logic View'
+      OnExecute = actTogglePhyViewExecute
+    end
+    object actModelOptions: TAction
+      Category = 'Model'
+      Caption = 'Model Options'
+      OnExecute = actModelOptionsExecute
+    end
+    object actExportModel: TAction
+      Category = 'Model'
+      Caption = 'Export...'
+      OnExecute = actExportModelExecute
+    end
+    object actExecScript: TAction
+      Category = 'Model'
+      Caption = 'Exec Script'
+      OnExecute = actExecScriptExecute
+    end
+    object actFindObjects: TAction
+      Category = 'Model'
+      Caption = 'Find Objects'
+      OnExecute = actFindObjectsExecute
+      ShortCut = 16454
+    end
+    object actEditSettingFile: TAction
+      Category = 'Tools'
+      Caption = 'Edit INI File'
+      OnExecute = actEditSettingFileExecute
+      Visible = False
+    end
+    object actEditMyDict: TAction
+      Category = 'Tools'
+      Caption = 'Edit MyDict.txt'
+      OnExecute = actEditMyDictExecute
+      Visible = False
+    end
+    object actBrowseScripts: TAction
+      Category = 'Tools'
+      Caption = 'Browse Script Files'
+      OnExecute = actBrowseScriptsExecute
+    end
+    object actBackupDatabase: TAction
+      Category = 'Tools'
+      Caption = 'Backup Database'
+      OnExecute = actBackupDatabaseExecute
+      Visible = False
+    end
+    object actRestoreDatabase: TAction
+      Category = 'Tools'
+      Caption = 'Restore Database'
+      OnExecute = actRestoreDatabaseExecute
+      Visible = False
+    end
+    object actSqlTool: TAction
+      Category = 'Tools'
+      Caption = 'SQL Tool'
+      OnExecute = actSqlToolExecute
+      ShortCut = 32849
+    end
+    object actBrowseCustomTools: TAction
+      Category = 'Tools'
+      Caption = 'Browse Custom Tools'
+      OnExecute = actBrowseCustomToolsExecute
+    end
+    object actQuickStart: TAction
+      Category = 'Help'
+      Caption = 'Quick Start'
+      OnExecute = actQuickStartExecute
+      ShortCut = 112
+    end
+    object actEzdmlHomePage: TAction
+      Category = 'Help'
+      Caption = 'EZDML Home Page'
+      OnExecute = actEzdmlHomePageExecute
+    end
+    object actAboutEzdml: TAction
+      Category = 'Help'
+      Caption = 'About'
+      OnExecute = actAboutEzdmlExecute
+    end
+    object actEditGlobalScript: TAction
+      Category = 'Tools'
+      Caption = 'Edit Global Script'
+      OnExecute = actEditGlobalScriptExecute
+    end
+    object actImportFile: TAction
+      Category = 'File'
+      Caption = 'Import File...'
+      OnExecute = actImportFileExecute
+    end
+    object actCharCodeTool: TAction
+      Category = 'Tools'
+      Caption = 'Char Code Tool'
+      OnExecute = actCharCodeToolExecute
+      ShortCut = 16465
+    end
+    object actSettings: TAction
+      Category = 'Tools'
+      Caption = 'Settings'
+      OnExecute = actSettingsExecute
+    end
+    object actShowDescText: TAction
+      Category = 'Edit'
+      Caption = 'ShowDescText'
+      OnExecute = actShowDescTextExecute
+      ShortCut = 16452
+    end
+    object actGenerateLastCode: TAction
+      Category = 'Model'
+      Caption = 'Generate Last Code'
+      OnExecute = actGenerateLastCodeExecute
+    end
+    object actHttpServer: TAction
+      Category = 'Tools'
+      Caption = 'Run HTTP Server'
+      OnExecute = actHttpServerExecute
+      Visible = False
+    end
+    object actCheckUpdates: TAction
+      Category = 'Help'
+      Caption = 'Check for updates'
+      OnExecute = actCheckUpdatesExecute
+    end
+    object actFullScreen: TAction
+      Category = 'Model'
+      Caption = 'Full screen'
+      OnExecute = actFullScreenExecute
+      ShortCut = 123
+    end
+    object actToggleTableView: TAction
+      Category = 'Model'
+      Caption = 'Toggle Table View'
+      OnExecute = actToggleTableViewExecute
+      ShortCut = 120
+    end
+  end
+  object TimerAutoSave: TTimer
+    Interval = 60000
+    OnTimer = TimerAutoSaveTimer
+    left = 48
+    top = 264
+  end
+  object OpenDialogImp: TOpenDialog
+    DefaultExt = '.xml'
+    Filter = 'PDM xml files(*.pdm)|*.pdm'
+    left = 192
+    top = 264
+  end
+  object ImageListSwitchOnOff: TImageList
+    Height = 18
+    Width = 32
+    left = 328
+    top = 192
+    Bitmap = {
+      4C69020000002000000012000000EFEFEF00EFEFEF00E0E0E000CCCCCC007E7E
+      7E00BABABA548F8F8FD77A7A7AFF7B7B7BFF818181FF808080FF808080FF8080
+      80FF808080FF808080FF808080FF808080FF808080FF808080FF808080FF8080
+      80FF808080FF818181FF7C7C7CFF797979FF8B8B8BDBB7B7B75A7D7D7D00C6C6
+      C600DDDDDD00EBEBEB00EBEBEB00EFEFEF00EFEFEF00E0E0E000CCCCCC2F7E7E
+      7EE9656565FF858585FDA3A3A3B39898988286868687838383977A7A7A9D8181
+      819C8D8D8D9C8D8D8D9C8D8D8D9C8D8D8D9C8D8D8D9C8D8D8D9C8D8D8D9C8D8D
+      8D9C8D8D8D9C8989899A96969698A0A0A0BB858585FB656565FF7D7D7DEEC6C6
+      C635DDDDDD00EBEBEB00EBEBEB00EFEFEF00EFEFEF00E0E0E04E656565FF7070
+      70FFC5C5C54AA9A9A9008E8E8E0089898900929292009F9F9F00C7C7C7008181
+      81008D8D8D008D8D8D008D8D8D008D8D8D008D8D8D008D8D8D008D8D8D008D8D
+      8D008D8D8D008989890096969600A0A0A00085858500C4C4C458797979FF6565
+      65FFDDDDDD56EBEBEB00EBEBEB00EFEFEF00EFEFEF2F656565FF848484E2EBEB
+      EB007F7F7F00A9A9A9748E8E8EDF898989FB929292F29F9F9FC1C7C7C746B7B7
+      B700CBCBCB008D8D8D008D8D8D008D8D8D008D8D8D008D8D8D008D8D8D008D8D
+      8D008D8D8D008989890096969600A0A0A00085858500C4C4C400DCDCDC079090
+      90DB656565FFEBEBEB37EBEBEB00D3D3D300979797D8656565FF84848400EBEB
+      EB0C7F7F7FEC656565FF777777FF7F7F7FFF7C7C7CFF6C6C6CFF656565FFB7B7
+      B794CBCBCB00E6E6E600E6E6E6008D8D8D008D8D8D008D8D8D008D8D8D008D8D
+      8D008D8D8D008989890096969600A0A0A00085858500C4C4C400DCDCDC00FDFD
+      FD10676767FF8E8E8EE2D3D3D300D3D3D34D656565FFD8D8D856C3C3C3009595
+      95E3656565FF868686FF858585FF848484FF848484FF868686FF7C7C7CFF6565
+      65FFCBCBCB7DE6E6E600E6E6E600E6E6E600E6E6E6008D8D8D008D8D8D008D8D
+      8D008D8D8D008989890096969600A0A0A00085858500C4C4C400DCDCDC00FDFD
+      FD00DADADA5F656565FFD3D3D357A0A0A0B6737373FFD8D8D800C3C3C3786565
+      65FF878787FF848484FF848484FF848484FF848484FF848484FF868686FF6F6F
+      6FFF7D7D7DF7E6E6E619E6E6E600E6E6E600E6E6E600E6E6E6008D8D8D008D8D
+      8D008D8D8D008989890096969600A0A0A000EAEAEA00EAEAEA00EAEAEA00EAEA
+      EA00EAEAEA027D7D7DFF999999C17D7D7DFC9F9F9FBF91919100919191D36F6F
+      6FFF858585FF848484FF848484FF848484FF848484FF848484FF848484FF8585
+      85FF656565FFBDBDBD67BDBDBD00BDBDBD00BDBDBD00BDBDBD00BDBDBD008D8D
+      8D008D8D8D008989890096969600A0A0A000EAEAEA00EAEAEA00EAEAEA00EAEA
+      EA00EAEAEA00A2A2A2C17A7A7AFF6D6D6DFFB9B9B98A78787800787878F68181
+      81FF848484FF848484FF848484FF848484FF848484FF848484FF848484FF8585
+      85FF757575FF9696969196969600969696009696960096969600969696009696
+      96008D8D8D008989890096969600AEAEAE00AEAEAE00AEAEAE00AEAEAE00AEAE
+      AE00AEAEAE00AEAEAE97707070FF6D6D6DFFB8B8B88978787800787878F68181
+      81FF848484FF848484FF848484FF848484FF848484FF848484FF848484FF8585
+      85FF787878FF9595959195959500959595009595950095959500959595009595
+      9500A6A6A600A7A7A7009E9E9E00ADADAD00ADADAD00ADADAD00ADADAD00ADAD
+      AD00ADADAD00ADADAD96727272FF7E7E7EFD9D9D9DBD91919100919191D46F6F
+      6FFF858585FF848484FF848484FF848484FF848484FF848484FF848484FF8686
+      86FF656565FFBABABA67BABABA00BABABA00BABABA00BABABA00BABABA00A6A6
+      A600A6A6A600A7A7A7009E9E9E009A9A9A00ECECEC00ECECEC00ECECEC00ECEC
+      EC00ECECEC00A3A3A3C0797979FFA0A0A0B6727272FFD7D7D700BFBFBF786565
+      65FF878787FF848484FF848484FF848484FF848484FF848484FF868686FF6F6F
+      6FFF7D7D7DF8E5E5E51AE5E5E500E5E5E500E5E5E500E5E5E500A6A6A600A6A6
+      A600A6A6A600A7A7A7009E9E9E009A9A9A00ECECEC00ECECEC00ECECEC00ECEC
+      EC00ECECEC02808080FF999999C1CBCBCB4E656565FFD7D7D754BFBFBF009191
+      91E3656565FF868686FF858585FF848484FF848484FF868686FF7D7D7DFF6565
+      65FFC8C8C87FE5E5E500E5E5E500E5E5E500A6A6A600A6A6A600A6A6A600A6A6
+      A600A6A6A600A7A7A7009E9E9E009A9A9A0087878700C0C0C000E1E1E100FEFE
+      FE00D2D2D25D656565FFCCCCCC58CBCBCB00909090DA666666FF8A8A8A00F4F4
+      F40F848484EF656565FF787878FF838383FF7E7E7EFF6D6D6DFF656565FFBDBD
+      BD98C8C8C800E5E5E500A6A6A600A6A6A600A6A6A600A6A6A600A6A6A600A6A6
+      A600A6A6A600A7A7A7009E9E9E009A9A9A0087878700C0C0C000E1E1E100FEFE
+      FE0F6F6F6FFF8B8B8BE4CCCCCC00EEEEEE00EEEEEE31656565FF8A8A8ADF6666
+      6600C3C3C300ADADAD788D8D8DE27C7C7CFC828282F3939393C4BEBEBE4ABDBD
+      BD00A6A6A600A6A6A600A6A6A600A6A6A600A6A6A600A6A6A600A6A6A600A6A6
+      A600A6A6A600A7A7A7009E9E9E009A9A9A0087878700C0C0C000E1E1E1059292
+      92D7656565FFE9E9E939E9E9E900EEEEEE00EEEEEE00DCDCDC50656565FF6666
+      66FFC3C3C344868686009D9D9D00A5A5A500ACACAC00A7A7A700A3A3A300A2A2
+      A200A6A6A600A6A6A600A6A6A600A6A6A600A6A6A600A6A6A600A6A6A600A6A6
+      A600A6A6A600A7A7A7009E9E9E009A9A9A0087878700C0C0C0537E7E7EFF6565
+      65FFD8D8D859E9E9E900E9E9E900EEEEEE00EEEEEE00DCDCDC00C8C8C8318383
+      83EC656565FF868686FB9D9D9DAEA5A5A580ACACAC87A7A7A797A3A3A39DA2A2
+      A29CA6A6A69CA6A6A69CA6A6A69CA6A6A69CA6A6A69CA6A6A69CA6A6A69CA6A6
+      A69CA6A6A69CA7A7A79A9E9E9E979A9A9AB7878787F9656565FF7C7C7CF1C2C2
+      C238D8D8D800E9E9E900E9E9E900EEEEEE00EEEEEE00DCDCDC00C8C8C8008383
+      8300AFAFAF58919191DB7C7C7CFF7A7A7AFF747474FF757575FF757575FF7575
+      75FF757575FF757575FF757575FF757575FF757575FF757575FF757575FF7575
+      75FF757575FF747474FF7A7A7AFF7C7C7CFF8F8F8FDFAAAAAA5E7C7C7C00C2C2
+      C200D8D8D800E9E9E900E9E9E900FCFCFC00FFFFFF00DFE5DD00BEC9BA00B7C8
+      B1009ABF8C4B88BB74B07CB864E27AB861F47AB861F47AB861F27AB861F27AB8
+      61F27AB861F27AB861F27AB861F27AB861F27AB861F27AB861F27AB861F27AB8
+      61F27AB861F27AB861F479B861F47CB865E487BB73B396BD8650B7C8B100BBC7
+      B600E1E6DE00FFFFFF00F9FAF900FCFCFC00FFFFFF00EEEAEF00AFC4A62881B9
+      6BD96EB651FF6FB752FF75B85BFF77B85EFF77B85EFF77B85EFF77B85EFF77B8
+      5EFF77B85EFF77B85EFF77B85EFF77B85EFF77B85EFF77B85EFF77B85EFF78B8
+      5FFF76B85CFF70B455FF6EB352FF70B555FF6FB653FF6EB652FF7FB968DFA9C1
+      9F2EF0ECF200FFFFFF00FAFBFA00FDFDFF00FFFFFF00CDDEC54768AE4DFF6AB4
+      4DFF78B85FFF79B860FF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF79B961FF78B85FFF64AE
+      47FF62AC44FF77B75EFF7DBB65FF6EB253FF5EAA40FF6EB353FF6EB651FF68AF
+      4BFFC9DDC24FFFFFFF00FAFBFB00FFFFFF00E9F1E62B70B455FE69B24DFF7AB9
+      61FF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF7AB961FF73B659FF5EAA40FF93C5
+      7FFFD6E9CFFFF1F7EFFFF7FAF6FFE8F2E5FFBEDCB2FF71B457FF64AE48FF6FB5
+      53FF6DB351FFDBE4D732F9F4FB00F0ECF2008EC17AC05FAD41FF7BB962FF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B860FF75B65BFF60AB43FFB7D8AAFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5F9F4FF81BC6AFF65AE
+      49FF64B047FF88BD73C7EFEBF000B0C8A64767B04AFF77B85EFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF79B961FF60AB42FFA9D199FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEEF6ECFF76B6
+      5DFF6CB250FF67B14BFFBAD1B15095C1839C67B24AFF79B860FF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF6FB354FF79B860FFF1F7EFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBDDB
+      B0FF62AC45FF67B24AFF91C07FA581BA6BD271B656FF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF62AD45FFA3CE92FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9F3
+      E5FF74B55AFF6CB350FF7EB967D579B860EC77B85EFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF5FAB42FFBCDBAFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCFD
+      FBFF84BE6DFF6BB24FFF79B860EB79B860ED77B85EFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF5FAB42FFBCDBB0FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCFD
+      FCFF84BE6EFF6BB250FF79B860EC7EB867D473B758FF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF62AD45FFA5CF95FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBF4
+      E7FF75B65BFF6DB451FF7DB865D793C181A067B24AFF79B860FF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF6EB353FF7BB963FFF4F9F2FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC0DD
+      B4FF62AC45FF67B24AFF8FBF7DA9B7CFAE4D67B14AFF77B85EFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF79B960FF5FAB42FFAED4A0FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF3F8F1FF79B8
+      61FF6AB14FFF66B049FFBBD4B256F2EDF2008ABF75C860AE43FF7BB962FF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF79B860FF74B65AFF62AC45FFC0DDB5FFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBFDFBFF88C072FF64AD
+      47FF65B048FF86BE71CFF2F0F300FFFFFF00E3ECDF3568B04CFF6BB34FFF7AB9
+      62FF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF7AB962FF71B557FF5FAB42FF9BCA
+      89FFDEEDD8FFF9FBF8FFFEFEFEFFF0F7EDFFC7E1BDFF77B75EFF62AD46FF6FB5
+      54FF66AF49FFDBE7D63DFFFCFF00FEFDFE00FFFFFF00CFE2C75668B04CFF6BB4
+      4EFF78B85FFF79B860FF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF7AB961FF77B85EFF62AC
+      44FF65AE49FF7DBA66FF84BD6DFF74B55AFF5EAA41FF6CB250FF6FB653FF67AF
+      4AFFCAE0C25EFFFFFF00FDFCFD00FDFCFD00FFFFFF00FEFAFF00B0C7A6367AB6
+      63E76BB44FFF6EB653FF76B85CFF78B860FF78B85FFF78B85FFF78B85FFF78B8
+      5FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF78B85FFF79B8
+      60FF76B75DFF6FB354FF6CB251FF70B455FF70B754FF6CB54FFF79B662ECA9C4
+      9E3DF9F8FA00FFFFFF00FDFDFD00FCFCFC00FFFFFF00F1F4F000C1CCBD00B7C7
+      B1009FC3915F84BA6EC17BB863EB77B85EF678B85FF378B85FF278B85FF278B8
+      5FF278B85FF278B85FF278B85FF278B85FF278B85FF278B85FF278B85FF278B8
+      5FF278B85FF278B85FF277B85FF67AB862ED81B96BC39EC39064B9C9B202BBC8
+      B600EEF2EC00FFFFFF00FCFCFC00
+    }
+  end
+end

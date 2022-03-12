@@ -1,0 +1,83 @@
+object frmCtMetaFieldProp: TfrmCtMetaFieldProp
+  Left = 535
+  Height = 606
+  Top = 158
+  Width = 614
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Field properties'
+  ClientHeight = 606
+  ClientWidth = 614
+  Constraints.MinHeight = 543
+  Constraints.MinWidth = 524
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.4.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 36
+    Top = 562
+    Width = 614
+    Align = alBottom
+    AutoSize = True
+    BevelOuter = bvNone
+    BorderWidth = 4
+    ClientHeight = 36
+    ClientWidth = 614
+    TabOrder = 0
+    object btnOk: TButton
+      Left = 467
+      Height = 27
+      Top = 4
+      Width = 44
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Caption = 'OK'
+      ModalResult = 1
+      TabOrder = 0
+    end
+    object btnCancel: TButton
+      Left = 539
+      Height = 27
+      Top = 4
+      Width = 64
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Cancel = True
+      Caption = 'Cancel'
+      ModalResult = 2
+      OnClick = btnCancelClick
+      TabOrder = 1
+    end
+    object Label1: TLabel
+      Left = 4
+      Height = 17
+      Top = 15
+      Width = 4
+      Caption = ' '
+      ParentColor = False
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 8
+    Top = 598
+    Width = 614
+    Align = alBottom
+    BevelOuter = bvNone
+    TabOrder = 1
+  end
+  object ActionList1: TActionList
+    left = 16
+    top = 28
+    object EditSelectAll1: TEditSelectAll
+      Category = 'Edit'
+      Caption = 'Select &All'
+      Hint = 'Select All|Selects the entire document'
+      ShortCut = 16449
+    end
+  end
+end

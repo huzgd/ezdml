@@ -1,0 +1,172 @@
+object frmLogonCtDB: TfrmLogonCtDB
+  Left = 423
+  Height = 287
+  Top = 253
+  Width = 477
+  BorderStyle = bsDialog
+  Caption = 'Database connection'
+  ClientHeight = 287
+  ClientWidth = 477
+  Color = clBtnFace
+  OnClick = FormClick
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object Label1: TLabel
+    Left = 15
+    Height = 17
+    Top = 22
+    Width = 71
+    Caption = 'Engine Type'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 16
+    Height = 17
+    Top = 98
+    Width = 27
+    Caption = 'User'
+    ParentColor = False
+  end
+  object Label_Pwd: TLabel
+    Left = 15
+    Height = 17
+    Top = 137
+    Width = 56
+    Caption = 'Password'
+    ParentColor = False
+    OnDblClick = Label_PwdDblClick
+  end
+  object Label4: TLabel
+    Left = 16
+    Height = 17
+    Top = 60
+    Width = 70
+    Caption = 'Data source'
+    ParentColor = False
+  end
+  object combDbType: TComboBox
+    Left = 112
+    Height = 25
+    Top = 20
+    Width = 302
+    ItemHeight = 17
+    ItemIndex = 0
+    Items.Strings = (
+      'ORACLE'
+    )
+    OnChange = combDbTypeChange
+    OnClick = FormClick
+    OnDropDown = FormClick
+    Style = csDropDownList
+    TabOrder = 0
+    Text = 'ORACLE'
+  end
+  object edtUserName: TEdit
+    Left = 112
+    Height = 25
+    Top = 97
+    Width = 302
+    OnClick = FormClick
+    TabOrder = 3
+  end
+  object edtPassword: TEdit
+    Left = 112
+    Height = 25
+    Top = 135
+    Width = 302
+    EchoMode = emPassword
+    OnClick = FormClick
+    PasswordChar = '*'
+    TabOrder = 4
+  end
+  object combDBName: TComboBox
+    Left = 112
+    Height = 25
+    Top = 59
+    Width = 302
+    ItemHeight = 17
+    OnClick = FormClick
+    OnDropDown = FormClick
+    TabOrder = 1
+  end
+  object btnOK: TButton
+    Left = 206
+    Height = 27
+    Top = 235
+    Width = 44
+    AutoSize = True
+    Caption = 'OK'
+    Default = True
+    OnClick = btnOKClick
+    TabOrder = 5
+  end
+  object btnCancel: TButton
+    Left = 270
+    Height = 27
+    Top = 235
+    Width = 64
+    AutoSize = True
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 6
+  end
+  object btnDBCfg: TButton
+    Left = 422
+    Height = 27
+    Hint = 'Config...'
+    Top = 58
+    Width = 32
+    AutoSize = True
+    Caption = '..'
+    OnClick = btnDBCfgClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 2
+  end
+  object ckbSavePwd: TCheckBox
+    Left = 112
+    Height = 21
+    Top = 168
+    Width = 110
+    Caption = 'Save password'
+    OnClick = ckbSavePwdClick
+    TabOrder = 7
+  end
+  object ckbAutoLogin: TCheckBox
+    Left = 112
+    Height = 21
+    Top = 193
+    Width = 207
+    Caption = 'Auto login (press SHIFT to skip)'
+    TabOrder = 8
+  end
+  object btnLogonHist: TButton
+    Left = 422
+    Height = 27
+    Hint = 'Logon history'
+    Top = 19
+    Width = 32
+    AutoSize = True
+    Caption = 'v'
+    OnClick = btnLogonHistClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 9
+  end
+  object TimerAutoLogin: TTimer
+    Enabled = False
+    Interval = 1200
+    OnTimer = TimerAutoLoginTimer
+    Left = 344
+    Top = 240
+  end
+  object PopupMenuLogonHist: TPopupMenu
+    Left = 392
+    Top = 240
+  end
+end

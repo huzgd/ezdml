@@ -1,0 +1,70 @@
+object frmUIPrvSheet: TfrmUIPrvSheet
+  Left = 934
+  Height = 645
+  Top = 219
+  Width = 485
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'UI Preview - Sheet'
+  ClientHeight = 645
+  ClientWidth = 485
+  Color = clWindow
+  FormStyle = fsStayOnTop
+  OnCreate = FormCreate
+  OnResize = FormResize
+  OnWindowStateChange = FormWindowStateChange
+  LCLVersion = '2.0.12.0'
+  object ScrollBoxSheetEdit: TScrollBox
+    Left = 0
+    Height = 645
+    Top = 0
+    Width = 485
+    HorzScrollBar.Page = 312
+    HorzScrollBar.Tracking = True
+    VertScrollBar.Page = 111
+    VertScrollBar.Tracking = True
+    Align = alClient
+    BorderStyle = bsNone
+    ClientHeight = 645
+    ClientWidth = 485
+    TabOrder = 0
+    object PanelSheetEdit: TPanel
+      Left = 0
+      Height = 111
+      Top = 0
+      Width = 312
+      BevelOuter = bvNone
+      TabOrder = 0
+    end
+  end
+  object ScrollBoxSheetView: TScrollBox
+    Left = 0
+    Height = 645
+    Top = 0
+    Width = 485
+    HorzScrollBar.Page = 320
+    HorzScrollBar.Tracking = True
+    VertScrollBar.Page = 111
+    VertScrollBar.Tracking = True
+    Align = alClient
+    BorderStyle = bsNone
+    ClientHeight = 645
+    ClientWidth = 485
+    TabOrder = 1
+    Visible = False
+    object PanelSheetView: TPanel
+      Left = 0
+      Height = 111
+      Top = 0
+      Width = 320
+      BevelOuter = bvNone
+      TabOrder = 0
+    end
+  end
+  object TimerResize: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = TimerResizeTimer
+    Left = 165
+    Top = 255
+  end
+end

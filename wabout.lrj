@@ -1,0 +1,7 @@
+{"version":1,"strings":[
+{"hash":4691652,"name":"tfrmabout.caption","sourcebytes":[65,98,111,117,116],"value":"About"},
+{"hash":152973684,"name":"tfrmabout.lbtitle.caption","sourcebytes":[69,90,68,77,76,32,120,54,52],"value":"EZDML x64"},
+{"hash":214540302,"name":"tfrmabout.lbversion.caption","sourcebytes":[86,101,114,115,105,111,110],"value":"Version"},
+{"hash":245318634,"name":"tfrmabout.lbacknowledgements.caption","sourcebytes":[65,99,107,110,111,119,108,101,100,103,101,109,101,110,116,115,58],"value":"Acknowledgements:"},
+{"hash":1339,"name":"tfrmabout.btnok.caption","sourcebytes":[79,75],"value":"OK"}
+]}

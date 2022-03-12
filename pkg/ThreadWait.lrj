@@ -1,0 +1,6 @@
+{"version":1,"strings":[
+{"hash":242294270,"name":"tfrmthreadwait.caption","sourcebytes":[80,114,111,99,101,115,115,105,110,103,46,46,46],"value":"Processing..."},
+{"hash":265880334,"name":"tfrmthreadwait.labelprompt.caption","sourcebytes":[80,108,101,97,115,101,32,119,97,105,116,46,46,46],"value":"Please wait..."},
+{"hash":77089212,"name":"tfrmthreadwait.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":144191004,"name":"tfrmthreadwait.actcancel.caption","sourcebytes":[97,99,116,67,97,110,99,101,108],"value":"actCancel"}
+]}

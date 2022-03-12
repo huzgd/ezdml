@@ -1,0 +1,586 @@
+object frmFindHex: TfrmFindHex
+  Left = 369
+  Height = 473
+  Top = 305
+  Width = 695
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Char Code Tool'
+  ClientHeight = 473
+  ClientWidth = 695
+  OnShow = FormShow
+  ParentFont = True
+  Position = poOwnerFormCenter
+  LCLVersion = '2.0.12.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 473
+    Top = 0
+    Width = 695
+    ActivePage = TabSheetCharCode
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 0
+    object TabSheetCharCode: TTabSheet
+      Caption = 'Char code'
+      ClientHeight = 443
+      ClientWidth = 687
+      object lbText: TLabel
+        Left = 6
+        Height = 17
+        Top = 14
+        Width = 27
+        Caption = 'Text:'
+        ParentColor = False
+      end
+      object lbNumber: TLabel
+        Left = 6
+        Height = 17
+        Top = 79
+        Width = 51
+        Caption = 'Number:'
+        ParentColor = False
+      end
+      object lbHex: TLabel
+        Left = 6
+        Height = 17
+        Top = 146
+        Width = 25
+        Caption = 'Hex:'
+        ParentColor = False
+      end
+      object Label1: TLabel
+        Left = 6
+        Height = 17
+        Top = 216
+        Width = 36
+        Caption = 'Other:'
+        ParentColor = False
+      end
+      object edtText: TMemo
+        Left = 80
+        Height = 51
+        Top = 10
+        Width = 480
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = edtTextChange
+        OnKeyUp = edtTextKeyUp
+        TabOrder = 0
+      end
+      object MemoNum: TMemo
+        Left = 80
+        Height = 49
+        Top = 78
+        Width = 480
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = MemoNumChange
+        OnKeyUp = edtTextKeyUp
+        TabOrder = 1
+      end
+      object MemoHex: TMemo
+        Left = 80
+        Height = 53
+        Top = 144
+        Width = 480
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = MemoHexChange
+        OnKeyUp = edtTextKeyUp
+        TabOrder = 2
+      end
+      object combNumDig: TComboBox
+        Left = 602
+        Height = 25
+        Top = 72
+        Width = 77
+        Anchors = [akTop, akRight]
+        ItemHeight = 17
+        ItemIndex = 0
+        Items.Strings = (
+          '8 bit int'
+          '16 bit int'
+          '32 bit int'
+          '32 bit float'
+          '64 bit int'
+          '64 bit float'
+        )
+        OnChange = ckbUnicodeClick
+        Style = csDropDownList
+        TabOrder = 3
+        Text = '8 bit int'
+      end
+      object combCharset: TComboBox
+        Left = 602
+        Height = 25
+        Top = 112
+        Width = 77
+        Anchors = [akTop, akRight]
+        ItemHeight = 17
+        ItemIndex = 2
+        Items.Strings = (
+          'ANSI'
+          'Unicode'
+          'UTF-8'
+        )
+        OnChange = ckbUnicodeClick
+        Style = csDropDownList
+        TabOrder = 4
+        Text = 'UTF-8'
+      end
+      object btnULCase: TButton
+        Left = 581
+        Height = 27
+        Top = 160
+        Width = 98
+        Anchors = [akTop, akRight]
+        AutoSize = True
+        Caption = 'Up/low case'
+        OnClick = btnULCaseClick
+        TabOrder = 5
+      end
+      object TabSetOtherEnc: TTabControl
+        Left = 80
+        Height = 197
+        Top = 216
+        Width = 480
+        OnChange = TabSetOtherEncChange
+        TabPosition = tpBottom
+        TabIndex = 0
+        Tabs.Strings = (
+          'UrlEncode'
+          'Base64'
+        )
+        Anchors = [akLeft, akRight, akBottom]
+        TabOrder = 6
+        object MemoOtherEncode: TMemo
+          Left = 2
+          Height = 170
+          Top = 2
+          Width = 476
+          Align = alClient
+          OnChange = MemoOtherEncodeChange
+          OnKeyUp = edtTextKeyUp
+          TabOrder = 1
+        end
+      end
+    end
+    object TabSheetJson: TTabSheet
+      Caption = 'JSON'
+      ClientHeight = 443
+      ClientWidth = 687
+      ImageIndex = 1
+      object Label2: TLabel
+        Left = 6
+        Height = 17
+        Top = 10
+        Width = 29
+        Caption = 'Json:'
+        ParentColor = False
+      end
+      object MemoJson: TMemo
+        Left = 64
+        Height = 384
+        Top = 10
+        Width = 512
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        OnKeyUp = edtTextKeyUp
+        ScrollBars = ssVertical
+        TabOrder = 0
+      end
+      object btnFormatJson: TButton
+        Left = 613
+        Height = 27
+        Top = 80
+        Width = 67
+        Anchors = [akTop, akRight]
+        AutoSize = True
+        Caption = '&Format'
+        OnClick = btnFormatJsonClick
+        TabOrder = 1
+      end
+      object ckbEncode: TCheckBox
+        Left = 610
+        Height = 21
+        Top = 120
+        Width = 65
+        Anchors = [akTop, akRight]
+        Caption = 'Encode'
+        TabOrder = 2
+      end
+    end
+    object TabSheetXML: TTabSheet
+      Caption = 'XML'
+      ClientHeight = 443
+      ClientWidth = 687
+      object Label4: TLabel
+        Left = 6
+        Height = 17
+        Top = 10
+        Width = 25
+        Caption = 'Xml:'
+        ParentColor = False
+      end
+      object MemoXml: TMemo
+        Left = 64
+        Height = 384
+        Top = 10
+        Width = 512
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        OnKeyUp = edtTextKeyUp
+        ScrollBars = ssVertical
+        TabOrder = 0
+      end
+      object btnFormatXml: TButton
+        Left = 613
+        Height = 27
+        Top = 80
+        Width = 67
+        Anchors = [akTop, akRight]
+        AutoSize = True
+        Caption = '&Format'
+        OnClick = btnFormatXmlClick
+        TabOrder = 1
+      end
+    end
+    object TabSheetLRChg: TTabSheet
+      Caption = 'LR Exchange'
+      ClientHeight = 443
+      ClientWidth = 687
+      object Label5: TLabel
+        Left = 264
+        Height = 17
+        Top = 382
+        Width = 69
+        Anchors = [akLeft, akBottom]
+        Caption = 'Middle split'
+        ParentColor = False
+      end
+      object Label7: TLabel
+        Left = 496
+        Height = 17
+        Top = 382
+        Width = 80
+        Anchors = [akLeft, akBottom]
+        Caption = 'Keep on right'
+        ParentColor = False
+      end
+      object edtSplitter: TEdit
+        Left = 264
+        Height = 25
+        Top = 408
+        Width = 104
+        Anchors = [akLeft, akBottom]
+        TabOrder = 2
+        Text = '='
+      end
+      object edtKeepOnRight: TEdit
+        Left = 496
+        Height = 25
+        Top = 408
+        Width = 80
+        Anchors = [akLeft, akBottom]
+        TabOrder = 3
+        Text = ';'
+      end
+      object btnExecLRChg: TButton
+        Left = 611
+        Height = 27
+        Top = 72
+        Width = 70
+        Anchors = [akTop, akRight]
+        AutoSize = True
+        Caption = 'Execute'
+        OnClick = btnExecLRChgClick
+        TabOrder = 4
+      end
+      object Label8: TLabel
+        Left = 6
+        Height = 17
+        Top = 10
+        Width = 34
+        Caption = 'Code:'
+        ParentColor = False
+      end
+      object MemoLRChgCode: TMemo
+        Left = 64
+        Height = 344
+        Top = 10
+        Width = 512
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        OnKeyUp = edtTextKeyUp
+        ScrollBars = ssVertical
+        TabOrder = 0
+      end
+      object lbSwitchLRSplitter: TLabel
+        Cursor = crHandPoint
+        Left = 376
+        Height = 17
+        Top = 409
+        Width = 12
+        Caption = ':='
+        ParentColor = False
+        OnClick = lbSwitchLRSplitterClick
+      end
+      object ckbLRSpKeepLeftSpace: TCheckBox
+        Left = 64
+        Height = 21
+        Top = 382
+        Width = 131
+        Caption = 'Keep space on left'
+        Checked = True
+        State = cbChecked
+        TabOrder = 1
+      end
+      object lbSwitchLRSpKeepR: TLabel
+        Cursor = crHandPoint
+        Left = 584
+        Height = 17
+        Top = 409
+        Width = 10
+        Caption = '--'
+        ParentColor = False
+        OnClick = lbSwitchLRSpKeepRClick
+      end
+    end
+    object TabSheetMd5: TTabSheet
+      Caption = 'MD5'
+      ClientHeight = 443
+      ClientWidth = 687
+      ImageIndex = 2
+      object lbMd5TxtIn: TLabel
+        Left = 6
+        Height = 17
+        Top = 10
+        Width = 27
+        Caption = 'Text:'
+        ParentColor = False
+      end
+      object lbMd5FileIn: TLabel
+        Left = 6
+        Height = 17
+        Top = 153
+        Width = 22
+        Caption = 'File:'
+        ParentColor = False
+      end
+      object Label3: TLabel
+        Left = 6
+        Height = 17
+        Top = 192
+        Width = 31
+        Caption = 'MD5:'
+        ParentColor = False
+      end
+      object MemoMD5TxtIn: TMemo
+        Left = 88
+        Height = 119
+        Top = 10
+        Width = 488
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = MemoMD5TxtInChange
+        OnKeyUp = edtTextKeyUp
+        ScrollBars = ssVertical
+        TabOrder = 0
+      end
+      object edtMd5FileIn: TEdit
+        Left = 88
+        Height = 25
+        Top = 153
+        Width = 488
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = edtMd5FileInChange
+        TabOrder = 1
+      end
+      object btnMD5FileBrs: TButton
+        Left = 584
+        Height = 27
+        Top = 152
+        Width = 32
+        Anchors = [akTop, akRight]
+        AutoSize = True
+        Caption = '..'
+        OnClick = btnMD5FileBrsClick
+        TabOrder = 2
+      end
+      object edtMD5Res: TEdit
+        Left = 88
+        Height = 25
+        Top = 192
+        Width = 488
+        Anchors = [akTop, akLeft, akRight]
+        ParentColor = True
+        ReadOnly = True
+        TabOrder = 3
+      end
+      object edtMd5ResLower: TEdit
+        Left = 88
+        Height = 25
+        Top = 232
+        Width = 488
+        Anchors = [akTop, akLeft, akRight]
+        ParentColor = True
+        ReadOnly = True
+        TabOrder = 4
+      end
+    end
+    object TabSheetOthes: TTabSheet
+      Caption = 'Others'
+      ClientHeight = 443
+      ClientWidth = 687
+      ImageIndex = 3
+      OnShow = TabSheetOthesShow
+      object lbRandStr: TLabel
+        Left = 6
+        Height = 17
+        Top = 108
+        Width = 49
+        Caption = 'Random'
+        ParentColor = False
+      end
+      object lbRandStrLenPrompt: TLabel
+        Left = 6
+        Height = 17
+        Top = 232
+        Width = 42
+        Caption = 'Length:'
+        ParentColor = False
+      end
+      object lbRandStrLen: TLabel
+        Left = 324
+        Height = 17
+        Top = 261
+        Width = 14
+        Caption = '32'
+        ParentColor = False
+      end
+      object edtGUID: TEdit
+        Left = 104
+        Height = 25
+        Top = 8
+        Width = 456
+        Anchors = [akTop, akLeft, akRight]
+        ParentColor = True
+        ReadOnly = True
+        TabOrder = 0
+      end
+      object btnGuid: TButton
+        Left = 8
+        Height = 27
+        Top = 8
+        Width = 57
+        AutoSize = True
+        Caption = 'GUID'
+        OnClick = btnGuidClick
+        TabOrder = 1
+      end
+      object edtRandStr: TEdit
+        Left = 104
+        Height = 25
+        Top = 108
+        Width = 456
+        Anchors = [akTop, akLeft, akRight]
+        ParentColor = True
+        ReadOnly = True
+        TabOrder = 2
+      end
+      object ckbRandStrAZUpper: TCheckBox
+        Left = 104
+        Height = 21
+        Top = 144
+        Width = 119
+        Caption = 'Upper latin (A-Z)'
+        Checked = True
+        OnClick = TrackBarRandStrLenChange
+        State = cbChecked
+        TabOrder = 3
+      end
+      object ckbRandStrAZLower: TCheckBox
+        Left = 280
+        Height = 21
+        Top = 144
+        Width = 115
+        Caption = 'Lower latin (a-z)'
+        Checked = True
+        OnClick = TrackBarRandStrLenChange
+        State = cbChecked
+        TabOrder = 4
+      end
+      object ckbRandStrDigits: TCheckBox
+        Left = 104
+        Height = 21
+        Top = 184
+        Width = 86
+        Caption = 'Digits (0-9)'
+        Checked = True
+        OnClick = TrackBarRandStrLenChange
+        State = cbChecked
+        TabOrder = 5
+      end
+      object ckbRandStrSymbols: TCheckBox
+        Left = 280
+        Height = 21
+        Top = 184
+        Width = 108
+        Caption = 'Symbols (!@...)'
+        Checked = True
+        OnClick = TrackBarRandStrLenChange
+        State = cbChecked
+        TabOrder = 6
+      end
+      object TrackBarRandStrLen: TTrackBar
+        Left = 104
+        Height = 36
+        Top = 232
+        Width = 214
+        OnChange = TrackBarRandStrLenChange
+        Position = 4
+        TabOrder = 7
+      end
+      object btnGenRandStr: TButton
+        Left = 104
+        Height = 27
+        Top = 296
+        Width = 79
+        AutoSize = True
+        Caption = 'Generate'
+        OnClick = btnGenRandStrClick
+        TabOrder = 8
+      end
+      object edtGuid2: TEdit
+        Left = 104
+        Height = 25
+        Top = 48
+        Width = 456
+        Anchors = [akTop, akLeft, akRight]
+        ParentColor = True
+        ReadOnly = True
+        TabOrder = 9
+      end
+    end
+  end
+  object btnOK: TButton
+    Left = 626
+    Height = 27
+    Top = 56
+    Width = 58
+    Anchors = [akTop, akRight]
+    AutoSize = True
+    Cancel = True
+    Caption = 'Close'
+    ModalResult = 1
+    TabOrder = 1
+  end
+  object ActionList1: TActionList
+    Left = 136
+    Top = 216
+    object EditSelectAll1: TEditSelectAll
+      Category = 'Edit'
+      Caption = 'Select &All'
+      Hint = 'Select All|Selects the entire document'
+      ShortCut = 16449
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Options = [ofFileMustExist, ofEnableSizing]
+    Left = 344
+    Top = 216
+  end
+end

@@ -1,0 +1,557 @@
+object frmColorStyles: TfrmColorStyles
+  Left = 406
+  Height = 430
+  Top = 163
+  Width = 420
+  BorderIcons = [biSystemMenu, biMaximize]
+  BorderStyle = bsDialog
+  Caption = 'Model Options'
+  ClientHeight = 430
+  ClientWidth = 420
+  Color = clBtnFace
+  OnCreate = FormCreate
+  OnShow = FormShow
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.4.0'
+  object PageControl1: TPageControl
+    Left = 4
+    Height = 387
+    Top = 4
+    Width = 412
+    ActivePage = TabSheet1
+    Align = alClient
+    BorderSpacing.Around = 4
+    TabIndex = 1
+    TabOrder = 0
+    object TabSheet2: TTabSheet
+      Caption = 'Objects'
+      ClientHeight = 355
+      ClientWidth = 404
+      ImageIndex = 1
+      object Label15: TLabel
+        Left = 16
+        Height = 17
+        Top = 191
+        Width = 35
+        Caption = 'Color:'
+        ParentColor = False
+      end
+      object Label16: TLabel
+        Left = 9
+        Height = 17
+        Top = 167
+        Width = 68
+        Caption = 'Foreign key'
+        ParentColor = False
+      end
+      object Label9: TLabel
+        Left = 9
+        Height = 17
+        Top = 63
+        Width = 45
+        Caption = 'Caption'
+        ParentColor = False
+      end
+      object Label3: TLabel
+        Left = 16
+        Height = 17
+        Top = 87
+        Width = 35
+        Caption = 'Color:'
+        ParentColor = False
+      end
+      object Bevel1: TBevel
+        Left = 105
+        Height = 3
+        Top = 22
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Bevel3: TBevel
+        Left = 104
+        Height = 2
+        Top = 73
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Bevel4: TBevel
+        Left = 104
+        Height = 2
+        Top = 177
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Label12: TLabel
+        Left = 16
+        Height = 17
+        Top = 36
+        Width = 74
+        Caption = 'Background:'
+        ParentColor = False
+      end
+      object Label18: TLabel
+        Left = 9
+        Height = 17
+        Top = 12
+        Width = 32
+        Caption = 'Table'
+        ParentColor = False
+      end
+      object Label4: TLabel
+        Left = 9
+        Height = 17
+        Top = 219
+        Width = 41
+        Caption = 'Border'
+        ParentColor = False
+      end
+      object Label5: TLabel
+        Left = 16
+        Height = 17
+        Top = 243
+        Width = 35
+        Caption = 'Color:'
+        ParentColor = False
+      end
+      object Bevel6: TBevel
+        Left = 104
+        Height = 2
+        Top = 229
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Label19: TLabel
+        Left = 16
+        Height = 17
+        Top = 139
+        Width = 35
+        Caption = 'Color:'
+        ParentColor = False
+      end
+      object Label20: TLabel
+        Left = 9
+        Height = 17
+        Top = 115
+        Width = 68
+        Caption = 'Primary key'
+        ParentColor = False
+      end
+      object Bevel10: TBevel
+        Left = 104
+        Height = 2
+        Top = 125
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Label21: TLabel
+        Left = 16
+        Height = 17
+        Top = 295
+        Width = 35
+        Caption = 'Color:'
+        ParentColor = False
+      end
+      object Label22: TLabel
+        Left = 9
+        Height = 17
+        Top = 271
+        Width = 23
+        Caption = 'Line'
+        ParentColor = False
+      end
+      object Bevel11: TBevel
+        Left = 104
+        Height = 2
+        Top = 281
+        Width = 276
+        Shape = bsTopLine
+      end
+      object clbExKey: TColorBox
+        Left = 107
+        Height = 26
+        Top = 191
+        Width = 227
+        DefaultColorColor = clBlue
+        NoneColorColor = clBlue
+        Selected = clBlue
+        ItemHeight = 20
+        TabOrder = 6
+      end
+      object btnExKey: TButton
+        Left = 340
+        Height = 24
+        Top = 191
+        Width = 18
+        Caption = '..'
+        OnClick = btnExKeyClick
+        TabOrder = 7
+      end
+      object clbTitle: TColorBox
+        Left = 107
+        Height = 26
+        Top = 87
+        Width = 227
+        DefaultColorColor = clRed
+        NoneColorColor = clRed
+        Selected = clRed
+        ItemHeight = 20
+        TabOrder = 2
+      end
+      object btnTitle: TButton
+        Left = 340
+        Height = 24
+        Top = 87
+        Width = 18
+        Caption = '..'
+        OnClick = btnTitleClick
+        TabOrder = 3
+      end
+      object clbFill: TColorBox
+        Left = 108
+        Height = 26
+        Top = 36
+        Width = 227
+        DefaultColorColor = clWhite
+        NoneColorColor = clWhite
+        Selected = clWhite
+        ItemHeight = 20
+        TabOrder = 0
+      end
+      object btnFill: TButton
+        Left = 341
+        Height = 24
+        Top = 36
+        Width = 18
+        Caption = '..'
+        OnClick = btnFillClick
+        TabOrder = 1
+      end
+      object clbBorderColor: TColorBox
+        Left = 107
+        Height = 26
+        Top = 243
+        Width = 227
+        DefaultColorColor = clSkyBlue
+        NoneColorColor = clSkyBlue
+        Selected = clSkyBlue
+        ItemHeight = 20
+        TabOrder = 8
+      end
+      object btnBorderColor: TButton
+        Left = 340
+        Height = 24
+        Top = 243
+        Width = 18
+        Caption = '..'
+        OnClick = btnBorderColorClick
+        TabOrder = 9
+      end
+      object clbPrimaryKey: TColorBox
+        Left = 107
+        Height = 26
+        Top = 139
+        Width = 227
+        DefaultColorColor = clPurple
+        NoneColorColor = clPurple
+        Selected = clPurple
+        ItemHeight = 20
+        TabOrder = 4
+      end
+      object btnPK: TButton
+        Left = 340
+        Height = 24
+        Top = 139
+        Width = 18
+        Caption = '..'
+        OnClick = btnPKClick
+        TabOrder = 5
+      end
+      object clbLineColor: TColorBox
+        Left = 107
+        Height = 26
+        Top = 295
+        Width = 227
+        DefaultColorColor = clBlue
+        NoneColorColor = clBlue
+        Selected = clBlue
+        ItemHeight = 20
+        TabOrder = 10
+      end
+      object btnLinkLine: TButton
+        Left = 340
+        Height = 24
+        Top = 295
+        Width = 18
+        Caption = '..'
+        OnClick = btnLinkLineClick
+        TabOrder = 11
+      end
+    end
+    object TabSheet1: TTabSheet
+      Caption = 'Working Area'
+      ClientHeight = 357
+      ClientWidth = 404
+      ImageIndex = 1
+      object Bevel2: TBevel
+        Left = 101
+        Height = 2
+        Top = 79
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Label14: TLabel
+        Left = 17
+        Height = 17
+        Top = 93
+        Width = 35
+        Caption = 'Color:'
+        ParentColor = False
+      end
+      object Label13: TLabel
+        Left = 10
+        Height = 17
+        Top = 69
+        Width = 52
+        Caption = 'Selection'
+        ParentColor = False
+      end
+      object Label1: TLabel
+        Left = 16
+        Height = 17
+        Top = 151
+        Width = 37
+        Caption = 'Width:'
+        ParentColor = False
+      end
+      object Label2: TLabel
+        Left = 17
+        Height = 17
+        Top = 185
+        Width = 41
+        Caption = 'Height:'
+        ParentColor = False
+      end
+      object Label11: TLabel
+        Left = 16
+        Height = 17
+        Top = 36
+        Width = 35
+        Caption = 'Color:'
+        ParentColor = False
+      end
+      object Label17: TLabel
+        Left = 10
+        Height = 17
+        Top = 11
+        Width = 71
+        Caption = 'Background'
+        ParentColor = False
+      end
+      object Bevel5: TBevel
+        Left = 101
+        Height = 2
+        Top = 19
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Label6: TLabel
+        Left = 10
+        Height = 17
+        Top = 126
+        Width = 23
+        Caption = 'Size'
+        ParentColor = False
+      end
+      object Bevel7: TBevel
+        Left = 101
+        Height = 2
+        Top = 134
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Bevel8: TBevel
+        Left = 101
+        Height = 2
+        Top = 221
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Label7: TLabel
+        Left = 10
+        Height = 17
+        Top = 213
+        Width = 39
+        Caption = 'Others'
+        ParentColor = False
+      end
+      object btnSelect: TButton
+        Left = 337
+        Height = 24
+        Top = 93
+        Width = 18
+        Caption = '..'
+        OnClick = btnSelectClick
+        TabOrder = 3
+      end
+      object clbSelect: TColorBox
+        Left = 104
+        Height = 26
+        Top = 93
+        Width = 227
+        DefaultColorColor = clSkyBlue
+        NoneColorColor = clSkyBlue
+        Selected = clSkyBlue
+        ItemHeight = 20
+        TabOrder = 2
+      end
+      object edtWorkspaceWidth: TEdit
+        Left = 103
+        Height = 25
+        Top = 150
+        Width = 227
+        OnChange = edtWorkspaceWidthChange
+        TabOrder = 4
+      end
+      object edtWorkspaceHeight: TEdit
+        Left = 103
+        Height = 25
+        Top = 185
+        Width = 227
+        OnChange = edtWorkspaceHeightChange
+        TabOrder = 5
+      end
+      object chlShowFieldType: TCheckBox
+        Left = 236
+        Height = 21
+        Top = 237
+        Width = 111
+        Caption = 'Show field type'
+        TabOrder = 7
+      end
+      object clbBackGround: TColorBox
+        Left = 104
+        Height = 26
+        Top = 35
+        Width = 227
+        DefaultColorColor = clWhite
+        NoneColorColor = clWhite
+        Selected = clWhite
+        ItemHeight = 20
+        TabOrder = 0
+      end
+      object btnBackGround: TButton
+        Left = 337
+        Height = 24
+        Top = 35
+        Width = 18
+        Caption = '..'
+        OnClick = btnBackGroundClick
+        TabOrder = 1
+      end
+      object chlShowFieldIcon: TCheckBox
+        Left = 104
+        Height = 21
+        Top = 236
+        Width = 110
+        Caption = 'Show field icon'
+        TabOrder = 6
+      end
+      object ckbIndependPosForOverviewMode: TCheckBox
+        Left = 103
+        Height = 21
+        Top = 264
+        Width = 262
+        Caption = 'Independent position for overview-mode'
+        TabOrder = 8
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'Database'
+      ClientHeight = 357
+      ClientWidth = 404
+      ImageIndex = 2
+      object Label10: TLabel
+        Left = 10
+        Height = 17
+        Top = 11
+        Width = 55
+        Caption = 'Database'
+        ParentColor = False
+      end
+      object Bevel9: TBevel
+        Left = 99
+        Height = 2
+        Top = 18
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Label8: TLabel
+        Left = 21
+        Height = 17
+        Top = 44
+        Width = 31
+        Caption = 'Type:'
+        ParentColor = False
+      end
+      object combDbEngine: TComboBox
+        Left = 106
+        Height = 26
+        Top = 44
+        Width = 227
+        ItemHeight = 20
+        Items.Strings = (
+          'ORACLE'
+          'MYSQL'
+          'SQLSERVER'
+          'POSTGRESQL'
+          'STANDARD'
+        )
+        Style = csOwnerDrawFixed
+        TabOrder = 0
+      end
+    end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 35
+    Top = 395
+    Width = 420
+    Align = alBottom
+    AutoSize = True
+    BevelOuter = bvNone
+    BorderWidth = 4
+    ClientHeight = 35
+    ClientWidth = 420
+    TabOrder = 1
+    object btnOK: TButton
+      Left = 255
+      Height = 27
+      Top = 4
+      Width = 44
+      AutoSize = True
+      Caption = 'OK'
+      ModalResult = 1
+      TabOrder = 0
+    end
+    object btnCancel: TButton
+      Left = 344
+      Height = 27
+      Top = 4
+      Width = 64
+      AutoSize = True
+      Cancel = True
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 1
+    end
+    object Label23: TLabel
+      Left = 4
+      Height = 17
+      Top = 4
+      Width = 4
+      Caption = ' '
+      ParentColor = False
+    end
+  end
+end

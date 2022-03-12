@@ -1,0 +1,93 @@
+object frmSelectFields: TfrmSelectFields
+  Left = 324
+  Height = 575
+  Top = 269
+  Width = 789
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Select fields'
+  ClientHeight = 575
+  ClientWidth = 789
+  Color = clBtnFace
+  DesignTimePPI = 120
+  Font.Color = clWindowText
+  Font.Height = -14
+  Font.Name = 'Tahoma'
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object Label2: TLabel
+    Left = 21
+    Height = 17
+    Top = 14
+    Width = 84
+    Caption = 'Choose fields:'
+    Font.Color = clWindowText
+    Font.Height = -14
+    Font.Name = 'Tahoma'
+    ParentColor = False
+    ParentFont = False
+  end
+  object btnOK: TButton
+    Left = 539
+    Height = 29
+    Top = 521
+    Width = 108
+    Anchors = [akRight, akBottom]
+    Caption = 'OK'
+    Default = True
+    Font.Color = clWindowText
+    Font.Height = -14
+    Font.Name = 'Tahoma'
+    ModalResult = 1
+    ParentFont = False
+    TabOrder = 0
+  end
+  object btnCancel: TButton
+    Left = 658
+    Height = 29
+    Top = 521
+    Width = 109
+    Anchors = [akRight, akBottom]
+    Cancel = True
+    Caption = 'Cancel'
+    Font.Color = clWindowText
+    Font.Height = -14
+    Font.Name = 'Tahoma'
+    ModalResult = 2
+    ParentFont = False
+    TabOrder = 1
+  end
+  object cklbFields: TCheckListBox
+    Left = 21
+    Height = 450
+    Top = 49
+    Width = 746
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Columns = 3
+    Font.Color = clWindowText
+    Font.Height = -14
+    Font.Name = 'Tahoma'
+    ItemHeight = 0
+    MultiSelect = True
+    OnClick = cklbFieldsClick
+    ParentFont = False
+    TabOrder = 2
+  end
+  object ckbSelAll: TCheckBox
+    Left = 21
+    Height = 23
+    Top = 520
+    Width = 75
+    Anchors = [akLeft, akBottom]
+    Caption = 'Select all'
+    Font.Color = clWindowText
+    Font.Height = -14
+    Font.Name = 'Tahoma'
+    OnClick = ckbSelAllClick
+    ParentFont = False
+    TabOrder = 3
+    Visible = False
+  end
+end

@@ -1,0 +1,121 @@
+object frmOraDBConfig: TfrmOraDBConfig
+  Left = 408
+  Height = 361
+  Top = 310
+  Width = 473
+  BorderStyle = bsDialog
+  Caption = 'ORACLE Connection'
+  ClientHeight = 361
+  ClientWidth = 473
+  Color = clBtnFace
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object Label1: TLabel
+    Left = 48
+    Height = 17
+    Top = 108
+    Width = 45
+    Caption = 'Host IP:'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 320
+    Height = 17
+    Top = 108
+    Width = 27
+    Caption = 'Port:'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 48
+    Height = 17
+    Top = 148
+    Width = 23
+    Caption = 'SID:'
+    ParentColor = False
+  end
+  object edtIP: TEdit
+    Left = 116
+    Height = 25
+    Top = 104
+    Width = 196
+    TabOrder = 3
+  end
+  object edtPort: TEdit
+    Left = 368
+    Height = 25
+    Top = 104
+    Width = 72
+    TabOrder = 4
+    Text = '1521'
+  end
+  object edtSvcName: TEdit
+    Left = 116
+    Height = 25
+    Top = 144
+    Width = 324
+    TabOrder = 5
+  end
+  object btnOK: TButton
+    Left = 168
+    Height = 27
+    Top = 312
+    Width = 44
+    AutoSize = True
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 6
+  end
+  object btnCancel: TButton
+    Left = 240
+    Height = 27
+    Top = 312
+    Width = 64
+    AutoSize = True
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 7
+  end
+  object combNetSvcName: TComboBox
+    Left = 48
+    Height = 25
+    Top = 40
+    Width = 392
+    ItemHeight = 17
+    OnDropDown = combNetSvcNameDropDown
+    TabOrder = 1
+  end
+  object rdbNetSvc: TRadioButton
+    Left = 16
+    Height = 21
+    Top = 12
+    Width = 185
+    Caption = 'Through local service name:'
+    Checked = True
+    OnClick = rdbNetSvcClick
+    TabOrder = 0
+    TabStop = True
+  end
+  object rdbSvcParam: TRadioButton
+    Left = 16
+    Height = 21
+    Top = 72
+    Width = 166
+    Caption = 'Specify host parameters:'
+    OnClick = rdbSvcParamClick
+    TabOrder = 2
+  end
+  object Label4: TLabel
+    Left = 17
+    Height = 104
+    Top = 200
+    Width = 439
+    AutoSize = False
+    Caption = 'Note: EZDML for mac64/linux64/win64 needs oracle client / instant client for MacOS/Linux/Windows 64-bit, while EZDML for win32 needs instant client of Windows 32-bit. You can specify the location of libociei.dylib/.so/oci.dll in settings or just place it in search-path (windows: %PATH%. MacOS/Linux: /lib; $HOME/lib; /usr/local/lib; /usr/lib; $DYLD_LIBRARY_PATH; etc).'
+    ParentColor = False
+    WordWrap = True
+  end
+end

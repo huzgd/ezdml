@@ -1,0 +1,52 @@
+object frmHelpAbout: TfrmHelpAbout
+  Left = 414
+  Height = 488
+  Top = 108
+  Width = 731
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Help'
+  ClientHeight = 488
+  ClientWidth = 731
+  Color = clBtnFace
+  OnShow = FormShow
+  ParentFont = True
+  Position = poScreenCenter
+  LCLVersion = '2.0.4.0'
+  object Button1: TButton
+    Left = 642
+    Height = 26
+    Top = 471
+    Width = 76
+    Anchors = [akRight, akBottom]
+    Cancel = True
+    Caption = 'OK'
+    Default = True
+    OnClick = Button1Click
+    TabOrder = 1
+    TabStop = False
+  end
+  object Memo1: TMemo
+    Cursor = crArrow
+    Left = 0
+    Height = 488
+    Top = 0
+    Width = 731
+    Align = alClient
+    Color = clInfoBk
+    ReadOnly = True
+    ScrollBars = ssVertical
+    TabOrder = 0
+    WantReturns = False
+    WordWrap = False
+  end
+  object ActionList1: TActionList
+    left = 92
+    top = 240
+    object EditSelectAll1: TEditSelectAll
+      Category = 'Edit'
+      Caption = 'Select &All'
+      Hint = 'Select All|Selects the entire document'
+      ShortCut = 16449
+    end
+  end
+end

@@ -1,0 +1,18 @@
+{"version":1,"strings":[
+{"hash":123221859,"name":"tfrmdmlsearch.caption","sourcebytes":[83,101,97,114,99,104,32,84,97,98,108,101,115,32,97,110,100,32,70,105,101,108,100,115],"value":"Search Tables and Fields"},
+{"hash":1339,"name":"tfrmdmlsearch.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmdmlsearch.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":163088874,"name":"tfrmdmlsearch.lbsearchcap.caption","sourcebytes":[83,101,97,114,99,104,58],"value":"Search:"},
+{"hash":200686654,"name":"tfrmdmlsearch.lbsearchtip.caption","sourcebytes":[69,110,116,101,114,32,102,117,108,108,32,111,114,32,112,97,114,116,32,111,102,32,111,98,106,101,99,116,32,110,97,109,101,46,32,85,115,101,32,83,80,65,67,69,32,116,111,32,115,101,114,112,101,114,97,116,101,32,107,101,121,119,111,114,100,115,46],"value":"Enter full or part of object name. Use SPACE to serperate keywords."},
+{"hash":92818826,"name":"tfrmdmlsearch.lbrangecap.caption","sourcebytes":[82,97,110,103,101,58],"value":"Range:"},
+{"hash":4294967295,"name":"tfrmdmlsearch.stringgridsearchres.columns[0].title.caption","sourcebytes":[],"value":""},
+{"hash":346165,"name":"tfrmdmlsearch.stringgridsearchres.columns[1].title.caption","sourcebytes":[78,97,109,101],"value":"Name"},
+{"hash":159887390,"name":"tfrmdmlsearch.stringgridsearchres.columns[2].title.caption","sourcebytes":[67,97,112,116,105,111,110],"value":"Caption"},
+{"hash":145147077,"name":"tfrmdmlsearch.stringgridsearchres.columns[3].title.caption","sourcebytes":[68,97,116,97,84,121,112,101],"value":"DataType"},
+{"hash":103867912,"name":"tfrmdmlsearch.stringgridsearchres.columns[4].title.caption","sourcebytes":[68,97,116,97,76,101,110,103,116,104],"value":"DataLength"},
+{"hash":181268517,"name":"tfrmdmlsearch.stringgridsearchres.columns[5].title.caption","sourcebytes":[73,110,100,101,120,84,121,112,101],"value":"IndexType"},
+{"hash":343103,"name":"tfrmdmlsearch.stringgridsearchres.columns[6].title.caption","sourcebytes":[77,101,109,111],"value":"Memo"},
+{"hash":171665052,"name":"tfrmdmlsearch.editselectall1.caption","sourcebytes":[83,101,108,101,99,116,32,38,65,108,108],"value":"Select &All"},
+{"hash":182988884,"name":"tfrmdmlsearch.editselectall1.hint","sourcebytes":[83,101,108,101,99,116,32,65,108,108,124,83,101,108,101,99,116,115,32,116,104,101,32,101,110,116,105,114,101,32,100,111,99,117,109,101,110,116],"value":"Select All|Selects the entire document"},
+{"hash":173967955,"name":"tfrmdmlsearch.actviewprop.caption","sourcebytes":[86,105,101,119,32,112,114,111,112,101,114,116,105,101,115],"value":"View properties"}
+]}

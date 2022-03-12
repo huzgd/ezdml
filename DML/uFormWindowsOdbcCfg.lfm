@@ -1,0 +1,89 @@
+object frmWindowsOdbcConfg: TfrmWindowsOdbcConfg
+  Left = 398
+  Height = 338
+  Top = 161
+  Width = 432
+  BorderStyle = bsDialog
+  Caption = 'ODBC Connect'
+  ClientHeight = 338
+  ClientWidth = 432
+  OnCloseQuery = FormCloseQuery
+  Position = poScreenCenter
+  LCLVersion = '2.0.12.0'
+  object Label1: TLabel
+    Left = 16
+    Height = 17
+    Top = 14
+    Width = 49
+    Caption = 'DSN list:'
+    ParentColor = False
+  end
+  object ckbUserDSN: TRadioButton
+    Left = 24
+    Height = 21
+    Top = 248
+    Width = 79
+    Caption = 'User DSN'
+    Checked = True
+    OnChange = ckbUserDSNChange
+    TabOrder = 5
+    TabStop = True
+  end
+  object ckbSystemDSN: TRadioButton
+    Left = 176
+    Height = 21
+    Top = 248
+    Width = 93
+    Caption = 'System DSN'
+    OnChange = ckbSystemDSNChange
+    TabOrder = 0
+  end
+  object ListBoxDSNs: TListBox
+    Left = 19
+    Height = 201
+    Top = 39
+    Width = 397
+    ItemHeight = 0
+    TabOrder = 1
+  end
+  object btnConfigDSN: TButton
+    Left = 20
+    Height = 25
+    Top = 291
+    Width = 75
+    Caption = 'Config'
+    OnClick = btnConfigDSNClick
+    TabOrder = 2
+  end
+  object btnOk: TButton
+    Left = 240
+    Height = 25
+    Top = 291
+    Width = 75
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 3
+  end
+  object btnCancel: TButton
+    Left = 333
+    Height = 25
+    Top = 291
+    Width = 75
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 4
+  end
+  object lbErrorMsg: TStaticText
+    Left = 36
+    Height = 18
+    Top = 50
+    Width = 136
+    AutoSize = True
+    Caption = 'Insufficient permissions'
+    Font.Color = clRed
+    ParentFont = False
+    TabOrder = 6
+  end
+end

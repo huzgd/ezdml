@@ -1,0 +1,11 @@
+{"version":1,"strings":[
+{"hash":370579,"name":"tfrmgentabcust.caption","sourcebytes":[84,97,98,115],"value":"Tabs"},
+{"hash":1339,"name":"tfrmgentabcust.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmgentabcust.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":74665994,"name":"tfrmgentabcust.label1.caption","sourcebytes":[84,97,98,32,108,105,115,116,58],"value":"Tab list:"},
+{"hash":1472,"name":"tfrmgentabcust.btnup.caption","sourcebytes":[85,112],"value":"Up"},
+{"hash":308958,"name":"tfrmgentabcust.btndown.caption","sourcebytes":[68,111,119,110],"value":"Down"},
+{"hash":23392,"name":"tfrmgentabcust.btntop.caption","sourcebytes":[84,111,112],"value":"Top"},
+{"hash":76987229,"name":"tfrmgentabcust.btnbottom.caption","sourcebytes":[66,111,116,116,111,109],"value":"Bottom"},
+{"hash":195296268,"name":"tfrmgentabcust.ckbselectall.caption","sourcebytes":[83,101,108,101,99,116,32,97,108,108],"value":"Select all"}
+]}

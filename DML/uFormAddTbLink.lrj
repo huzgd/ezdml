@@ -1,0 +1,12 @@
+{"version":1,"strings":[
+{"hash":174402619,"name":"tfrmaddtblink.caption","sourcebytes":[65,100,100,32,76,105,110,107],"value":"Add Link"},
+{"hash":226440906,"name":"tfrmaddtblink.label1.caption","sourcebytes":[76,105,110,107,32,116,121,112,101,58],"value":"Link type:"},
+{"hash":88419946,"name":"tfrmaddtblink.label4.caption","sourcebytes":[77,97,115,116,101,114,32,102,105,101,108,100,58],"value":"Master field:"},
+{"hash":70074010,"name":"tfrmaddtblink.label2.caption","sourcebytes":[77,97,115,116,101,114,32,116,97,98,108,101,58],"value":"Master table:"},
+{"hash":235751514,"name":"tfrmaddtblink.label3.caption","sourcebytes":[82,101,108,97,116,101,32,102,105,101,108,100,58],"value":"Relate field:"},
+{"hash":225316138,"name":"tfrmaddtblink.label5.caption","sourcebytes":[68,101,116,97,105,108,32,116,97,98,108,101,58],"value":"Detail table:"},
+{"hash":1339,"name":"tfrmaddtblink.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmaddtblink.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":340043,"name":"tfrmaddtblink.lblinkinfo.caption","sourcebytes":[76,105,110,107],"value":"Link"},
+{"hash":30353492,"name":"tfrmaddtblink.ckbcreatenewfield.caption","sourcebytes":[67,114,101,97,116,101,32,110,101,119,32,102,105,101,108,100],"value":"Create new field"}
+]}

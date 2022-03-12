@@ -1,0 +1,347 @@
+object frmCtGenCode: TfrmCtGenCode
+  Left = 464
+  Height = 551
+  Top = 192
+  Width = 850
+  BorderIcons = [biSystemMenu, biMaximize]
+  BorderWidth = 4
+  Caption = 'Generate Code'
+  ClientHeight = 551
+  ClientWidth = 850
+  Color = clBtnFace
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnShow = FormShow
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object Panel2: TPanel
+    Left = 273
+    Height = 356
+    Top = 120
+    Width = 573
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 356
+    ClientWidth = 573
+    TabOrder = 1
+    object tpgAction: TPageControl
+      Left = 0
+      Height = 356
+      Top = 0
+      Width = 573
+      ActivePage = tbsResError
+      Align = alClient
+      MultiLine = True
+      TabIndex = 1
+      TabOrder = 0
+      Options = [nboMultiLine]
+      object tbsExecRes: TTabSheet
+        Caption = 'Message'
+        ClientHeight = 326
+        ClientWidth = 565
+        ImageIndex = 1
+        object memExecResult: TMemo
+          Left = 0
+          Height = 326
+          Top = 0
+          Width = 565
+          Align = alClient
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Courier New'
+          ParentFont = False
+          ScrollBars = ssBoth
+          TabOrder = 0
+          WordWrap = False
+        end
+      end
+      object tbsResError: TTabSheet
+        Caption = 'Error'
+        ClientHeight = 326
+        ClientWidth = 565
+        ImageIndex = 2
+        object memError: TMemo
+          Left = 0
+          Height = 326
+          Top = 0
+          Width = 565
+          Align = alClient
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Courier New'
+          ParentFont = False
+          ScrollBars = ssBoth
+          TabOrder = 0
+          WordWrap = False
+        end
+      end
+    end
+    object chkPause: TCheckBox
+      Left = 427
+      Height = 21
+      Top = 0
+      Width = 102
+      Anchors = [akTop, akRight]
+      Caption = 'Stop on error'
+      Checked = True
+      State = cbChecked
+      TabOrder = 1
+    end
+    object ckbOverwriteExists: TCheckBox
+      Left = 267
+      Height = 21
+      Top = 0
+      Width = 114
+      Anchors = [akTop, akRight]
+      Caption = 'Overwrite exists'
+      Checked = True
+      ParentShowHint = False
+      ShowHint = True
+      State = cbChecked
+      TabOrder = 2
+    end
+  end
+  object Panel1: TPanel
+    Left = 4
+    Height = 71
+    Top = 476
+    Width = 842
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 71
+    ClientWidth = 842
+    TabOrder = 0
+    object LabelProg: TLabel
+      Left = 104
+      Height = 17
+      Top = 40
+      Width = 19
+      Caption = '0/0'
+      ParentColor = False
+    end
+    object Label4: TLabel
+      Left = 3
+      Height = 17
+      Top = 8
+      Width = 52
+      Caption = 'Progress'
+      ParentColor = False
+    end
+    object ProgressBar1: TProgressBar
+      Left = 104
+      Height = 26
+      Top = 8
+      Width = 481
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 0
+    end
+    object btnCancel: TButton
+      Left = 762
+      Height = 27
+      Top = 7
+      Width = 58
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Cancel = True
+      Caption = 'Close'
+      OnClick = btnCancelClick
+      TabOrder = 1
+    end
+    object btnGenCode: TButton
+      Left = 608
+      Height = 27
+      Top = 7
+      Width = 79
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Caption = '&Generate'
+      OnClick = btnGenCodeClick
+      TabOrder = 2
+    end
+    object btnResum: TButton
+      Left = 696
+      Height = 27
+      Top = 7
+      Width = 65
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Caption = '&Ignore'
+      Enabled = False
+      OnClick = btnResumClick
+      TabOrder = 3
+    end
+  end
+  object Panel3: TPanel
+    Left = 4
+    Height = 356
+    Top = 120
+    Width = 264
+    Align = alLeft
+    BevelOuter = bvNone
+    ClientHeight = 356
+    ClientWidth = 264
+    TabOrder = 2
+    object combModels: TComboBox
+      Left = 0
+      Height = 25
+      Top = 0
+      Width = 264
+      Align = alTop
+      ItemHeight = 17
+      OnChange = combModelsChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object cklbDbObjs: TCheckListBox
+      Left = 0
+      Height = 331
+      Top = 25
+      Width = 264
+      Align = alClient
+      Anchors = [akTop, akLeft, akBottom]
+      ItemHeight = 0
+      PopupMenu = PopupMenu1
+      TabOrder = 1
+    end
+  end
+  object Panel4: TPanel
+    Left = 4
+    Height = 116
+    Top = 4
+    Width = 842
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 116
+    ClientWidth = 842
+    TabOrder = 3
+    object Bevel1: TBevel
+      Left = 3
+      Height = 90
+      Top = 7
+      Width = 624
+      Shape = bsFrame
+    end
+    object Label1: TLabel
+      Left = 15
+      Height = 17
+      Top = 63
+      Width = 79
+      Caption = 'Output folder'
+      ParentColor = False
+    end
+    object Label2: TLabel
+      Left = 15
+      Height = 17
+      Top = 23
+      Width = 54
+      Caption = 'Template'
+      ParentColor = False
+    end
+    object edtOutputDir: TEdit
+      Left = 123
+      Height = 25
+      Top = 60
+      Width = 408
+      TabOrder = 0
+      TextHint = 'Use temp folder by default'
+    end
+    object btnBrowseFolder: TButton
+      Left = 539
+      Height = 27
+      Hint = 'Browse...'
+      Top = 59
+      Width = 35
+      AutoSize = True
+      Caption = '...'
+      OnClick = btnBrowseFolderClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+    end
+    object combTemplate: TComboBox
+      Left = 123
+      Height = 25
+      Top = 20
+      Width = 448
+      DropDownCount = 32
+      ItemHeight = 17
+      Style = csDropDownList
+      TabOrder = 2
+    end
+    object btnGotoLocDest: TButton
+      Left = 580
+      Height = 27
+      Hint = 'Show in explorer'
+      Top = 58
+      Width = 35
+      AutoSize = True
+      Caption = '~'
+      OnClick = btnGotoLocDestClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+    end
+    object btnGotoLocTmpl: TButton
+      Left = 579
+      Height = 27
+      Hint = 'Show in explorer'
+      Top = 19
+      Width = 35
+      AutoSize = True
+      Caption = '~'
+      OnClick = btnGotoLocTmplClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 4
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 268
+    Height = 356
+    Top = 120
+    Width = 5
+  end
+  object PopupMenu1: TPopupMenu
+    OnPopup = PopupMenu1Popup
+    left = 80
+    top = 144
+    object MN_CheckAll: TMenuItem
+      AutoCheck = True
+      Caption = 'Select/unselect all'
+      OnClick = MN_CheckAllClick
+    end
+    object MN_CheckSelected: TMenuItem
+      AutoCheck = True
+      Caption = 'Check/uncheck'
+      OnClick = MN_CheckSelectedClick
+    end
+    object MN_InverseSel: TMenuItem
+      Caption = 'Inverse select'
+      OnClick = MN_InverseSelClick
+    end
+  end
+  object ActionList1: TActionList
+    left = 112
+    top = 144
+    object EditSelectAll1: TEditSelectAll
+      Category = 'Edit'
+      Caption = 'Select &All'
+      Hint = 'Select All|Selects the entire document'
+      ShortCut = 16449
+    end
+  end
+  object SaveDialog1: TSaveDialog
+    left = 144
+    top = 144
+  end
+  object TimerAutoGen: TTimer
+    Enabled = False
+    Interval = 300
+    OnTimer = TimerAutoGenTimer
+    left = 208
+    top = 145
+  end
+end

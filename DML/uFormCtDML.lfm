@@ -1,0 +1,15 @@
+object frmCtDML: TfrmCtDML
+  Left = 274
+  Height = 433
+  Top = 135
+  Width = 692
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Diagram'
+  Color = clBtnFace
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+end

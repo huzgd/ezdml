@@ -1,0 +1,7 @@
+{"version":1,"strings":[
+{"hash":252516483,"name":"tfrmselectfields.caption","sourcebytes":[83,101,108,101,99,116,32,102,105,101,108,100,115],"value":"Select fields"},
+{"hash":60733594,"name":"tfrmselectfields.label2.caption","sourcebytes":[67,104,111,111,115,101,32,102,105,101,108,100,115,58],"value":"Choose fields:"},
+{"hash":1339,"name":"tfrmselectfields.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmselectfields.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":195296268,"name":"tfrmselectfields.ckbselall.caption","sourcebytes":[83,101,108,101,99,116,32,97,108,108],"value":"Select all"}
+]}
