@@ -995,7 +995,7 @@ begin
                 srEzdmlAbortOpening);
             try
               FCtDataModelList.Clear;
-              FFrameCtTableDef.Init(FCtDataModelList, True);
+              FFrameCtTableDef.Init(nil, True);
             except
             end;
             FFrameCtTableDef.IsInitLoading := True;
@@ -1377,7 +1377,7 @@ procedure TfrmMainDml.ImportFromFile(fn: string);
     SetStatusBarMsg(Format(srEzdmlOpeningFileFmt, [GetStatusPanelFileName(fn)]));
     Self.Refresh;
     FCtDataModelList.Clear;
-    FFrameCtTableDef.Init(FCtDataModelList, True);
+    FFrameCtTableDef.Init(nil, True);
     FCurFileName := '';
     FProgressAll := 0;
     FProgressCur := 0;
@@ -2318,7 +2318,7 @@ end;
 procedure TfrmMainDml.actExitWithoutSaveExecute(Sender: TObject);
 begin
   FCtDataModelList.Clear;
-  FFrameCtTableDef.Init(FCtDataModelList, True);
+  FFrameCtTableDef.Init(nil, True);
   Close;
 end;
 
