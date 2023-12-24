@@ -28,14 +28,12 @@ object frmCtTableProp: TfrmCtTableProp
     ParentFont = False
     TabOrder = 0
     object btnOk: TButton
-      Left = 868
+      Left = 772
       Height = 27
       Top = 4
-      Width = 44
+      Width = 132
       Anchors = [akTop, akRight]
-      AutoSize = True
       Caption = 'OK'
-      ModalResult = 1
       OnClick = btnOkClick
       ParentFont = False
       TabOrder = 0
@@ -46,19 +44,16 @@ object frmCtTableProp: TfrmCtTableProp
       Top = 4
       Width = 64
       Anchors = [akTop, akRight]
-      AutoSize = True
       Caption = 'Cancel'
-      ModalResult = 2
       OnClick = btnCancelClick
       ParentFont = False
       TabOrder = 1
     end
     object btnCapitalize: TButton
-      Left = 20
+      Left = 12
       Height = 27
       Top = 4
-      Width = 82
-      AutoSize = True
+      Width = 102
       Caption = 'Capitalize'
       OnClick = btnCapitalizeClick
       ParentFont = False
@@ -85,24 +80,25 @@ object frmCtTableProp: TfrmCtTableProp
     TabOrder = 1
   end
   object bbtnView: TBitBtn
-    Left = 1002
-    Height = 22
-    Hint = 'Switch to View mode'
-    Top = 7
-    Width = 23
+    Left = 1000
+    Height = 21
+    Hint = 'Switch to Multi-View mode'
+    Top = 9
+    Width = 24
     Anchors = [akTop, akRight]
     Glyph.Data = {
-      3E010000424D3E010000000000003600000028000000070000000B0000000100
-      1800000000000801000000000000000000000000000000000000FF80FFFF80FF
-      FF80FF000000FF80FFFF80FFFF80FF000000FF80FFFF80FFFF80FF000000FF80
-      FFFF80FFFF80FF000000FF80FFFF80FFFF80FF000000FF80FFFF80FFFF80FF00
-      0000FF80FFFF80FFFF80FF000000FF80FFFF80FFFF80FF000000000000000000
-      000000000000000000000000000000000000FF80FF000000F9F9F9F9F9F90000
-      00000000FF80FF000000FF80FF000000F9F9F9F9F9F9000000000000FF80FF00
-      0000FF80FF000000F8F8F8F8F8F8000000000000FF80FF000000FF80FF000000
-      F8F8F8F8F8F8000000000000FF80FF000000FF80FF0000000000000000000000
-      00000000FF80FF000000FF80FFFF80FFFF80FFFF80FFFF80FFFF80FFFF80FF00
-      0000
+      6A010000424D6A010000000000003600000028000000070000000B0000000100
+      2000000000003401000064000000640000000000000000000000FFFFFF00FFFF
+      FF00FFFFFF007F7F7FFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF007F7F7FFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF007F7F
+      7FFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF007F7F7FFFFFFF
+      FF00FFFFFF00FFFFFF007F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F
+      7FFF7F7F7FFFFFFFFF007F7F7FFFFCFCFCFFFCFCFCFF7F7F7FFF7F7F7FFFFFFF
+      FF00FFFFFF007F7F7FFFFCFCFCFFFCFCFCFF7F7F7FFF7F7F7FFFFFFFFF00FFFF
+      FF007F7F7FFFFCFCFCFFFCFCFCFF7F7F7FFF7F7F7FFFFFFFFF00FFFFFF007F7F
+      7FFFFCFCFCFFFCFCFCFF7F7F7FFF7F7F7FFFFFFFFF00FFFFFF007F7F7FFF7F7F
+      7FFF7F7F7FFF7F7F7FFF7F7F7FFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00
     }
     Layout = blGlyphBottom
     OnClick = bbtnViewClick
@@ -156,6 +152,10 @@ object frmCtTableProp: TfrmCtTableProp
       Caption = 'Underline to Camel-Case'
       OnExecute = actUnderlineToCamelCaseExecute
     end
+    object actCnWordSegment: TAction
+      Caption = 'Chinese word segment'
+      OnExecute = actCnWordSegmentExecute
+    end
   end
   object PopupMenu1: TPopupMenu
     left = 36
@@ -174,6 +174,9 @@ object frmCtTableProp: TfrmCtTableProp
     end
     object MenuItem2: TMenuItem
       Action = actUnderlineToCamelCase
+    end
+    object MNCnWordSegment: TMenuItem
+      Action = actCnWordSegment
     end
     object ConvertChinesetoPinYin1: TMenuItem
       Action = actConvertChnToPy

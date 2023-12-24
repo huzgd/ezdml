@@ -303,6 +303,7 @@ begin
           DataTypeName := GetDbFieldTypeName(FQuery, vFieldDef);
       end;
     end;
+    Close;
   end;
 
 

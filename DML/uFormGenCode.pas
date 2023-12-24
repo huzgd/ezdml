@@ -8,7 +8,7 @@ uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes,
   Graphics, Controls, Forms,
   Dialogs, ComCtrls, StdCtrls, CheckLst, Menus, StrUtils,
-  ExtCtrls, ActnList, StdActns,
+  ExtCtrls, ActnList, StdActns, Buttons,
   CtMetaTable, CTMetaData, CtMetaEzdmlFakeDb;
 
 type
@@ -20,10 +20,11 @@ type
     btnBrowseFolder: TButton;
     btnGotoLocDest: TButton;
     btnGotoLocTmpl: TButton;
+    btnListMenu: TBitBtn;
     ckbOverwriteExists: TCheckBox;
     cklbDbObjs: TCheckListBox;
     combTemplate: TComboBox;
-    edtOutputDir: TEdit;
+    edtOutputDir: TComboBox;
     Label1: TLabel;
     Label2: TLabel;
     Panel3: TPanel;
@@ -52,6 +53,8 @@ type
     btnResum: TButton;
     combModels: TComboBox;
     SaveDialog1: TSaveDialog;
+    procedure btnListMenuClick(Sender: TObject);
+    procedure cklbDbObjsResize(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure MN_CheckAllClick(Sender: TObject);
     procedure MN_CheckSelectedClick(Sender: TObject);
@@ -136,6 +139,16 @@ begin
   LoadIniFile;
 end;
 
+procedure TfrmCtGenCode.btnListMenuClick(Sender: TObject);
+begin
+  PopupMenu1.PopUp;
+end;
+
+procedure TfrmCtGenCode.cklbDbObjsResize(Sender: TObject);
+begin
+  btnListMenu.Left := cklbDbObjs.Width - 22 - btnListMenu.Width;
+end;
+
 procedure TfrmCtGenCode.MN_CheckAllClick(Sender: TObject);
 var
   I: integer;
@@ -185,8 +198,9 @@ end;
 
 procedure TfrmCtGenCode.SaveIniFile;
 var
-  AFileName: string;
+  AFileName, S: string;
   IniFile: TIniFile;
+  I: Integer;
 begin
   AFileName := GetConfFileOfApp;
   if not FileExists(AFileName) then
@@ -196,7 +210,21 @@ begin
   with IniFile do
     try
       WriteString('GenCode', 'LastTemplate', combTemplate.Text);
-      WriteString('GenCode', 'LastOutputDir', edtOutputDir.Text);
+
+      S := edtOutputDir.Text;
+      if S <> '' then
+      begin
+        I := edtOutputDir.Items.IndexOf(S);
+        if I < 0 then
+          edtOutputDir.Items.Add(S)
+        else if I > 0 then
+          edtOutputDir.Items.Move(I, 0);
+        edtOutputDir.Text := S;
+      end;
+      WriteString('GenCode', 'LastOutputDir', S);
+      WriteInteger('GenCode', 'OutputDir_Count', edtOutputDir.Items.Count);
+      for I:=0 to edtOutputDir.Items.Count - 1 do      
+        WriteString('GenCode', 'OutputDir_Item'+IntToStr(I), edtOutputDir.Items[I]);
     finally
       Free;
     end;
@@ -487,8 +515,9 @@ end;
 
 procedure TfrmCtGenCode.LoadIniFile;
 var
-  AFileName: string;
+  AFileName, S: string;
   IniFile: TIniFile;
+  I, C: Integer;
 begin
   AFileName := GetConfFileOfApp;
   if not FileExists(AFileName) then
@@ -498,6 +527,13 @@ begin
   with IniFile do
     try
       FLastTemplate := ReadString('GenCode', 'LastTemplate', '');
+      C := ReadInteger('GenCode', 'OutputDir_Count', 0);
+      edtOutputDir.Items.Clear;
+      for I:=0 to C - 1 do
+      begin
+        S := ReadString('GenCode', 'OutputDir_Item'+IntToStr(I), '');
+        edtOutputDir.Items.Add(S);
+      end;
       edtOutputDir.Text := ReadString('GenCode', 'LastOutputDir', '');
     finally
       Free;
@@ -659,7 +695,7 @@ end;
 
 procedure TfrmCtGenCode.btnGotoLocDestClick(Sender: TObject);
 var
-  S, fn, df: string;
+  fn, df: string;
 begin
   fn := TrimFileName(edtOutputDir.Text);
   if (fn = '') then
@@ -673,40 +709,27 @@ begin
   df := FolderAddFileName(fn, df); 
   if DirectoryExists(df) then
     fn := df;
-{$ifdef WINDOWS}
-  S := 'Explorer "' + fn + '"';
-  ShellCmd(S);
-{$else}
-  S := fn;
-  CtOpenDoc(S);
-{$endif}
+
+  CtOpenDir(fn);
 end;
 
 procedure TfrmCtGenCode.btnGotoLocTmplClick(Sender: TObject);
 var
-  S, fn: string;
+  fn: string;
 begin
   fn := combTemplate.Text;
   if fn = '' then
     Exit;
   fn := FolderAddFileName(GetDmlScriptDir, fn);
-{$ifdef WINDOWS}
+
   if DirectoryExists(fn) then
   begin
-    S := 'Explorer "' + fn + '"';
+    CtOpenDir(fn);
   end
   else
   begin
-    S := 'Explorer /select, "' + fn + '"';
+    CtBrowseFile(fn);
   end;
-  ShellCmd(S);
-{$else}        
-  if DirectoryExists(fn) then
-    S := fn
-  else
-    S := ExtractFilePath(fn);
-  CtOpenDoc(S);
-{$endif}
 end;
 
 procedure TfrmCtGenCode.TimerAutoGenTimer(Sender: TObject);
@@ -780,6 +803,14 @@ begin
         end;
       end;
       log('Generate: ' + ofn);
+      S := ExtractFilePath(ofn);
+      if not DirectoryExists(S) then
+      begin
+        if ForceDirectories(S) then    
+          log('create folder: ' + S)
+        else
+          log('Failed to create: ' + S);
+      end;
 
       if vScript <> '' then
       begin
@@ -989,6 +1020,11 @@ begin
             begin
               S := tmplFiles[I];
               t1 := FolderAddFileName(dir1, S);
+              if ini.ReadInteger(S, 'skip', 0) = 1 then
+              begin   
+                log('Skip: ' + t1);
+                Continue;
+              end;
               vRename := Trim(ini.ReadString(S, 'rename', ''));
               vLoop := ini.ReadInteger(S, 'loop_each_table', 0);       
               vSkipExists := ini.ReadInteger(S, 'skip_exists', 0);
@@ -1054,7 +1090,9 @@ begin
   if S = '' then
     RaiseErr('Template not assigned');
   tmplFn := GetDmlScriptDir;
-  tmplFn := FolderAddFileName(tmplFn, S); 
+  tmplFn := FolderAddFileName(tmplFn, S);
+  SetGParamValue('GCODE_SRC_ROOT', TrimFileName(tmplFn));
+  SetGParamValue('GCODE_DST_ROOT', TrimFileName(outDir));
   if DirectoryExists(tmplFn) then
   begin                       
     FAutoOpenOnFinished := GetAutoOpenOnFinished(tmplFn, outDir);

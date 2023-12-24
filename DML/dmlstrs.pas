@@ -21,6 +21,7 @@ procedure SetEzdmlLang(lang: string);
 function GetCtDropDownItemsText(items: string): string;
 function GetCtDropDownTextOfValue(val, items: string): string;
 function GetCtDropDownValueOfText(txt, items: string): string;
+function GetCtDropDownValueOfTextEx(txt, items: string; var iFound: Integer): string;
                                                      
 function GetFullTextOfValue(val, items: string): string;
 
@@ -136,14 +137,16 @@ resourcestring
   srDataType = 'Data Type';
   srDataLength = 'Length';
   srConstraint = 'Constraint';
-  srComments = 'Comments';
+  srComments = 'Comments'; 
+  srDesignNotes = 'Design notes';
   srGeneratingSqlFmt = '%d/%d Generating SQL...%s';
   srCheckingDataFmt = '%d/%d Checking data...%s';
   srExecutingSqlFmt = '%d/%d Executing SQL...%s';
   srGeneratingCodeFmt = '%d/%d Generating Code...%s';
   srConfirmSkipErrorFmt = 'Error:'#13#10'%s'#13#10'Continue?';
   srStrAborted = 'Aborted';
-  srStrFinished = 'Finished';
+  srStrFinished = 'Finished';         
+  srNoFilePrompt = 'No file found';
   srRefreshingPrompt = 'Refreshing, please wait..';
   srDays = 'Days';
   srHours = 'Hours';
@@ -152,6 +155,12 @@ resourcestring
   srEstimating = 'Estimating';
   srCanInitWaitWnd =
     'Can not init waiting window, it may already be displayed or disabled.';
+  srCreateDbFileSystemPrompt = 'The program will open the Generate Database window to create/sync the ezdml file system tables. Do you want to continue?';
+  srDbFileComment = 'File comment:'; 
+  srDbFileRenamePrompt = 'Rename database file to:';
+  srConfirmDeleteDbFileFmt = 'Are you sure to delete database file %s?';    
+  srOverwriteDbFileWarning = 'Database file %s already exists, are you sure to OVERWRITE?';
+  srOverwriteSameDbFileWarning = 'Database file %s (%s) already exists and its contents are exactly the same as those to be saved. Continue saving anyway?';
   srViewModelDiagram = 'View diagram';
   srViewProperties = 'View properties';
   srConfirmAbort = 'Are you sure to abort current process?';
@@ -159,6 +168,7 @@ resourcestring
   srInvalidTableNameWarningFmt = 'Warning: Table name may be invalid - %s';
   srInvalidFieldNameWarningFmt = 'Warning: Field name may be invalid - %s';
   srDuplicateFieldNameWarningFmt = 'Warning: Duplicate field name - %s';
+  srPasteFromExcelPrompt = 'Copy content from EXCEL and paste here (may use <crlf> as row seperator):';
   srCtobjFuns = 'CT Object Functions';
   srListNameFmt = '%sList';
   srListName2Fmt = 'List class %s';
@@ -171,7 +181,9 @@ resourcestring
   srLink_OneToMany = 'one to many';
   srLink_OneToOne = 'one to one';
   srStep = 'Step';
-  srDmlGraphFontName = 'default';
+  srDmlGraphFontName = 'default';   
+  srDmlDefaultColor = 'Auto';        
+  srDmlCustomColor = 'Custom Color...';
   srCapClose = 'Close';
   srCapOk = 'OK';
   srCapCancel = 'Cancel';    
@@ -192,10 +204,12 @@ resourcestring
   srDmlPossibleKeyFieldNames = 'Normal'#10'Id'#10'Pid,ParentId'#10'Rid,RelateId'#10'Name,Title'#10'Caption,SubTitle'#10'Memo,Comment,Desc,Description,Note,Notes,Remark'#10'TypeName'#10'OrgId'#10'Period'#10'CreatorId,Creator'#10'CreatorName'#10'CreateDate'#10'ModifierId,Modifier'#10'ModifierName'#10'ModifyDate'#10'VersionNo'#10'HistoryId'#10'LockStamp'#10'InsNo'#10'ProcID'#10'URL'#10'DataLevel'#10'DataStatus'#10'OrderNo'#10'Others';
   srDmlAddLink = 'Add Link';
   srDmlEditLink = 'Edit Link';
+  srDmlShowLink = 'Link Info';
   srDmlLinkTypeNames = 'Foreign key'#10'Line'#10'Direct'#10'Opposite direct';
   srDmlConfirmEditLinkFmt = 'Warning: Field "%s" already linked with object "%s", continue operation will cause the old link to be overwritten! Are you sure to OVERWRITE?';
   srDmlLinkToRelateTableFmt = 'Table %s selected as master, please select the slave table to link';
   srDmlLinkToSelectTip = 'Please select one or two tables first';
+  srDmlPasteExistsTableFmt = 'Table %s exists in other models and is different from the pasting one, do you want to overwrite?'#10'(Yes=Overwrite No=Auto-rename Cancel=Abort)';
   srDmlAll = 'All';
   srDmlSearchNotFound = 'Not found';
   srBatchAddFields = 'Batch add fields';
@@ -205,7 +219,8 @@ resourcestring
   srBatchOpResultFmt = '%d fields processed';
   srImportDatabase = 'Import Database';
   srGenerateSql = 'Generate Database';
-  srGenerateCode = 'Generate Code';
+  srGenerateCode = 'Generate Code'; 
+  srChatGPT = 'ChatGPT';
   srNeedEngineType = 'Please select an DB-Engine-Type first';
   srClearCompareDmlPrompt = 'Clear current EZDMLFILE?';
   srBackupDatabase = 'Backup database';
@@ -218,25 +233,23 @@ resourcestring
     'Warning: The database is about to be modified, make sure you have backed up your data before continue. Do you still want to modify database now?';
   srRestoreDatabaseWarning =
     'Warning: The database is about to be restored, all data in selected tables will be lost. Do you still want to restore tables now?';
+  srInvalidTbNameError = 'Error: table name "%s" contains invalid characters';
   srRenameToExistsError = 'Error: Objects "%s" already exists, please choose another name';
+  srRenameToExistsFeildError = 'Error: Field "%s" already exists, please choose another name';
   //srRenameToDulObjleWarning =
   //  'Warning: Objects "%s" already exist, continue operation will cause those objects to be overwritten!!! Are you sure to OVERWRITE? (Yes=OVERWRITE No=SKIP Cancel=ABORT. If not sure, abort and backup before continue)';
   //srRenameFromDulObjlePrompt = 'Warning: There are %d linked objects with the SAME NAME "%s". Do you want to RENAME THEM ALL to "%s"? (YES=RENAME ALL, No=Just Rename Current, Cancel=ABORT. If not sure, abort and backup before continue)';
   srSqlEditorRunning = 'Running...';
   srSqlEditorRunError = 'Error: ';
+  srSqlEditorExecTip = 'Hold Ctrl key to execute SQL command only (no Result-Set)';
   srSqlEditorRunFinishedFmt = 'Execute finished in %f seconds';
   srNewFieldTypeItemTitle = 'New item';     
   srNewFieldTypeItemPrompt = 'Please enter new item:';
   srHugeMode = '(Huge mode)';    
   srPasBeginEndNeededTip = 'Seems that then <begin-end.> symbol needed for pascal script is missing. Add <begin-end.> before continue?';
-  srMysqlConnectTip = 'Example: localhost:3306@test'#10#10'You can specify location of mysql57-client lib (64-bit) in settings or ezdml_x.INI ( [Options] | MYSQLLIB=xxx ), or just place it in app folder';
-  srMysqlConnectTipWin = 'EZDML for win64 comes with a libmysql.dll by default, but you may still need to install Visual C++ Redistributable Packages for Visual Studio 2013 if the libmysql.dll can not be loaded.';
-  srPostgresConnectTip = 'Example: localhost:5432@test';
-  srPostgresConnectTipWin = 'EZDML for win64 comes with a libpq.dll by default, but you may still need to install Visual C++ Redistributable Packages for Visual Studio 2013 if the libpq.dll can not be loaded.';
-  srCheckEditingMetaFailedFmt = 'Please close the editing window (%s) before continue';     
+  srCheckEditingMetaFailedFmt = 'Please close the editing window (%s) before continue';
   srHugeModeArrangeHint = 'Hint: Using fast layout algorithms for model diagrams under Huge-Mode';
   srHttpJdbcConfigTip = 'Access JDBC through HTTP: we need java vm, JDBC driver and configs (JDBC url, username, password, etc.), then run the local HTTP server for EZDML HTTP_JDBC to call.'#10'Click OK to continue.';
-  srSqlServerConfigTip = 'Note: Leave user-name empty for integrated security authentication';
   srPasteCopySuffix = 'Copy';
   srClearTestDataRuleWarning =
     'Warning: Old test data rule will be clear, are you sure to continue?';
@@ -244,6 +257,12 @@ resourcestring
   srBoolName_False = 'no';
   srDictKey='Key';
   srDictValue='Value';
+  srTbRelateInfo='%s - references: %d objects, referenced by: %d objects.';
+  srTbRelateInfoWeak = 'Weakly related: %d objects';
+  srDBObjectNotExists = 'Object %s not exists in the database';
+  srDBObjectNotSynced = 'Object %s is not synchronized with the database';
+  srIdFieldNames = 'Id,Pid,ParentId,Rid,RelateId';
+  srChooseDbType = 'Database engine type:';
 
   srFieldEditorTypes='TextEdit' + #13#10 +
     'Memo' + #13#10 +
@@ -268,6 +287,7 @@ resourcestring
     'DateRange' + #13#10 +
     'TimeEdit' + #13#10 +
     'DateTime' + #13#10 +
+    'WeekSelect' + #13#10 +
     'MonthSelect' + #13#10 +
     'QuarterSelect' + #13#10 +
     'YearSelect' + #13#10 +
@@ -284,7 +304,15 @@ resourcestring
     'BarCode' + #13#10 +   
     'QRCode' + #13#10 +
     'Chart';
-             
+
+  srTbFieldCountFmt = '(%d total)';
+
+  srFieldWeights=     
+    '1=High' + #13#10 +
+    '0=Normal' + #13#10 +
+    '-1=Low' + #13#10 +
+    '-9=Hidden';
+
   srFieldVisibiltys=
     '0=Auto' + #13#10 +
     '1=High: card, grid and sheet' + #13#10 +
@@ -306,7 +334,9 @@ resourcestring
     '0=None' + #13#10 +
     '1=Fixed' + #13#10 +
     '2=Editable' + #13#10 +
-    '3=Appendable';
+    '3=Appendable' + #13#10 +
+    '4=AutoComplete' + #13#10 +
+    '5=AutoCompleteFixed';
           
   srFieldAggregateFun=
     'Sum' + #13#10 +
@@ -432,9 +462,28 @@ resourcestring
     'Sheet' + #13#10 +
     'Card' + #13#10 +
     'Query' + #13#10 +
-    'Fast search' + #13#10 +
+    'Fast search' + #13#10 +   
+    'Exportable' + #13#10 +
     'Required' + #13#10 +
     'Hidden';
+
+  srImportFieldProps =
+    'Name, Field name' + #13#10 +
+    'Display name, logical Name' + #13#10 +
+    'Data type' + #13#10 +
+    'Data size, Data Length, Size, Length' + #13#10 +
+    'Nullable, Is nullable' + #13#10 +
+    'Not Nullable,' + #13#10 +
+    'Unique, Is Unique,' + #13#10 +
+    'Constraints' + #13#10 +
+    'Comment, remarks' + #13#10 +
+    'Precision, accuracy, Data Scale, Scale' + #13#10 +
+    'Default, Default value,';
+
+  srImportingTbConfirm = '%d tables will be imported: ' +#13#10 +'%s'#13#10'Are you sure to continue?';
+  srChatGPTReqFailed = 'Request for ChatGPT service failed';
+  srChatGPTRecoFailed = 'The content returned by ChatGPT service is not recognized. Please modify the text or try again later';
+  srSqlLogEnabled = 'SQL log enabled';
 
 
 implementation
@@ -565,12 +614,49 @@ begin
   end;
 end;
 
-function GetCtDropDownValueOfText(txt, items: string): string;  
+function GetCtDropDownValueOfTextEx(txt, items: string; var iFound: Integer): string;
 var
   ss: TStringList;
   S, T: string;
   I, po: Integer;
-begin        
+begin
+  iFound := -1;
+  Result := txt;
+  if Trim(items)='' then
+    Exit;
+
+  ss:= TStringList.create;
+  try
+    ss.Text := items;
+    for I:=0 to ss.Count - 1 do
+    begin
+      S:=ss[I];
+      po := Pos('=', S);
+      if po>0 then
+        T := Copy(S, po+1,Length(S))
+      else
+        T := S;
+      if T=txt then
+      begin
+        iFound := I;
+        if po>0 then
+          Result := Copy(S, 1, po-1)
+        else
+          Result := T;
+        Exit;
+      end;
+    end;
+  finally
+    ss.Free;
+  end;
+end;
+
+function GetCtDropDownValueOfText(txt, items: string): string;
+var
+  ss: TStringList;
+  S, T: string;
+  I, po: Integer;
+begin
   Result := txt;
   if Pos('=', items)=0 then
     Exit;
@@ -587,7 +673,7 @@ begin
       else
         T := S;
       if T=txt then
-      begin                        
+      begin
         if po>0 then
           Result := Copy(S, 1, po-1)
         else

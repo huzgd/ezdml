@@ -9,6 +9,7 @@ object frmCtGenSQL: TfrmCtGenSQL
   ClientHeight = 594
   ClientWidth = 864
   Color = clBtnFace
+  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
@@ -24,7 +25,7 @@ object frmCtGenSQL: TfrmCtGenSQL
     BevelOuter = bvNone
     ClientHeight = 401
     ClientWidth = 569
-    TabOrder = 1
+    TabOrder = 2
     object tpgAction: TPageControl
       Left = 0
       Height = 401
@@ -211,7 +212,7 @@ object frmCtGenSQL: TfrmCtGenSQL
     BevelOuter = bvNone
     ClientHeight = 401
     ClientWidth = 282
-    TabOrder = 2
+    TabOrder = 3
     object combModels: TComboBox
       Left = 0
       Height = 25
@@ -232,6 +233,7 @@ object frmCtGenSQL: TfrmCtGenSQL
       Anchors = [akTop, akLeft, akBottom]
       ItemHeight = 0
       OnDblClick = cklbDbObjsDblClick
+      OnResize = cklbDbObjsResize
       PopupMenu = PopupMenu1
       TabOrder = 1
     end
@@ -245,7 +247,7 @@ object frmCtGenSQL: TfrmCtGenSQL
     BevelOuter = bvNone
     ClientHeight = 112
     ClientWidth = 856
-    TabOrder = 3
+    TabOrder = 4
     object Bevel1: TBevel
       Left = 8
       Height = 92
@@ -293,6 +295,7 @@ object frmCtGenSQL: TfrmCtGenSQL
       Height = 25
       Top = 64
       Width = 376
+      DropDownCount = 48
       ItemHeight = 17
       OnChange = combDBUserChange
       TabOrder = 2
@@ -339,19 +342,69 @@ object frmCtGenSQL: TfrmCtGenSQL
     Top = 116
     Width = 5
   end
+  object btnListMenu: TBitBtn
+    Left = 232
+    Height = 21
+    Hint = 'menu...'
+    Top = 484
+    Width = 24
+    Anchors = [akLeft, akBottom]
+    Glyph.Data = {
+      36040000424D3604000000000000360000002800000010000000100000000100
+      2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF003333336633333366333333663333
+      3366FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF003333336633333366333333663333
+      3366FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF003333336633333366333333663333
+      3366FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF003333336633333366333333663333
+      3366FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF003333330033333300333333003333
+      3300FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF003333330033333300333333003333
+      3300FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF003333336633333366333333663333
+      3366FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF003333336633333366333333663333
+      3366FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+    }
+    Layout = blGlyphTop
+    OnClick = btnListMenuClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 1
+    TabStop = False
+  end
   object PopupMenu1: TPopupMenu
     OnPopup = PopupMenu1Popup
-    Left = 80
-    Top = 144
-    object MN_CheckAll: TMenuItem
-      AutoCheck = True
-      Caption = 'Select/unselect all'
-      OnClick = MN_CheckAllClick
-    end
+    left = 80
+    top = 144
     object MN_CheckSelected: TMenuItem
       AutoCheck = True
-      Caption = 'Check/uncheck'
+      Caption = 'Check/uncheck (selected)'
       OnClick = MN_CheckSelectedClick
+    end
+    object MN_CheckAll: TMenuItem
+      AutoCheck = True
+      Caption = 'Check/uncheck (all)'
+      OnClick = MN_CheckAllClick
     end
     object MN_InverseSel: TMenuItem
       Caption = 'Inverse select'
@@ -375,8 +428,8 @@ object frmCtGenSQL: TfrmCtGenSQL
     end
   end
   object ActionList1: TActionList
-    Left = 112
-    Top = 144
+    left = 112
+    top = 144
     object EditSelectAll1: TEditSelectAll
       Category = 'Edit'
       Caption = 'Select &All'
@@ -385,21 +438,21 @@ object frmCtGenSQL: TfrmCtGenSQL
     end
   end
   object TimerInit: TTimer
-    Interval = 500
+    Interval = 300
     OnTimer = TimerInitTimer
-    Left = 144
-    Top = 144
+    left = 144
+    top = 144
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '.dbk'
     Filter = 'Database backup files(*.dbk)|*.dbk'
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
-    Left = 172
-    Top = 144
+    left = 172
+    top = 144
   end
   object PopupMenuSelDefDbType: TPopupMenu
-    Left = 480
-    Top = 304
+    left = 480
+    top = 304
     object MN_DefDbType_ORACLE: TMenuItem
       Caption = 'ORACLE'
       OnClick = MN_DefDbType_StandardClick
@@ -420,7 +473,7 @@ object frmCtGenSQL: TfrmCtGenSQL
   object OpenDialogDml: TOpenDialog
     DefaultExt = '.dmj'
     Filter = 'All supported files(*.dmj;*.dmx;*.dmh)|*.dmj;*.dmx;*.dmh|Json files(*.dmj)|*.dmj|XML files(*.dmx)|*.dmx|Binary files(*.dmh)|*.dmh'
-    Left = 168
-    Top = 184
+    left = 168
+    top = 184
   end
 end

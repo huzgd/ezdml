@@ -1,0 +1,9 @@
+{"version":1,"strings":[
+{"hash":121918158,"name":"tfrmcommdbconfig.caption","sourcebytes":[68,97,116,97,98,97,115,101,32,67,111,110,110,101,99,116,105,111,110],"value":"Database Connection"},
+{"hash":164219914,"name":"tfrmcommdbconfig.label1.caption","sourcebytes":[83,101,114,118,101,114,58],"value":"Server:"},
+{"hash":5728634,"name":"tfrmcommdbconfig.label2.caption","sourcebytes":[80,111,114,116,58],"value":"Port:"},
+{"hash":175686410,"name":"tfrmcommdbconfig.label3.caption","sourcebytes":[68,97,116,97,98,97,115,101,58],"value":"Database:"},
+{"hash":1339,"name":"tfrmcommdbconfig.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmcommdbconfig.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":322608,"name":"tfrmcommdbconfig.btnhelp.caption","sourcebytes":[72,101,108,112],"value":"Help"}
+]}

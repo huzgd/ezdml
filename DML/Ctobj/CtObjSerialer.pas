@@ -52,6 +52,7 @@ type
     FObjGroupNames: array of string;
     FCheckCounter: Integer;
     procedure SetCurCtVer(const Value: Integer); virtual;
+    procedure ValidCtVersion(const Value: Integer); virtual;
     procedure SetObjID(const Value: string); virtual;
     procedure SetParam(const Value: string); virtual;
     procedure SetSection(const Value: string); virtual;
@@ -176,8 +177,8 @@ type
   end;
    
 const
-  DEF_CURCTVER = 'CT31';
-  DEF_CURCTVER_VAL = 31;
+  DEF_CURCTVER = 'CT35';
+  DEF_CURCTVER_VAL = 35;
 var     
 {$IFnDEF FPC}    
   G_SysIsUtf8Encoding: Boolean = False; //系统是否UTF8编码？LAZARUS为TRUE，BDS为FALSE
@@ -186,7 +187,8 @@ var
 {$ENDIF}
 
 resourcestring
-  srEzdmlNewVersionNeeded = 'Data version not supported. You may need a newer version of EZDML.';
+  srEzdmlNewVersionNeeded = 'Data version not supported. You may need a newer version of EZDML.';  
+  srEzdmlNewerVersionPrompt = 'Warning: The version of loading data %d needs a higher version of EZDML (current data version: %d), continue loading may cause serious problems! Still continue?';
 
 implementation
 
@@ -509,12 +511,18 @@ begin
 end;
 
 procedure TCtObjSerialer.SetCurCtVer(const Value: Integer);
+begin              
+  if FCurCtVer <> Value then
+    ValidCtVersion(Value);
+  FCurCtVer := Value;
+end;
+
+procedure TCtObjSerialer.ValidCtVersion(const Value: Integer);
 begin
   if (Value>0) and (Value < 20) then
     raise Exception.Create('CtVer not supported: version is too old and is not supported now');
   if Value > DEF_CURCTVER_VAL then
     raise Exception.Create(srEzdmlNewVersionNeeded);
-  FCurCtVer := Value;
 end;
 
 procedure TCtObjSerialer.SetObjID(const Value: string);

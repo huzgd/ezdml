@@ -16,8 +16,10 @@ type
 
   TFrameCtTableList = class(TFrame)
     actCamelCaseToUnderline: TAction;
+    actCnWordSegment: TAction;
     actPasteAsCopy: TAction;
     actUnderlineToCamelCase: TAction;
+    MN_RESERVED5: TMenuItem;
     MNPasteAsCopy: TMenuItem;
     MN_CamelCasetoUnderline1: TMenuItem;
     MN_UnderlinetoCamelCase1: TMenuItem;
@@ -81,6 +83,7 @@ type
     actFindInGraph: TAction;
     MN_FindInGraph: TMenuItem;
     procedure actCamelCaseToUnderlineExecute(Sender: TObject);
+    procedure actCnWordSegmentExecute(Sender: TObject);
     procedure actPasteAsCopyExecute(Sender: TObject);
     procedure actUnderlineToCamelCaseExecute(Sender: TObject);
     procedure TimerTbFilterTimer(Sender: TObject);
@@ -134,6 +137,7 @@ type
     FRightClickNode: TTreeNode;
     FAltFocusNode: TTreeNode;
     FAltFocusTick: int64;
+    FLastMouseDownTick: int64;
     FSettingSelectedNode: boolean;
     FOnSelectedChange: TNotifyEvent;
     FReadOnlyMode: boolean;
@@ -180,6 +184,7 @@ type
     function GetCtNodeOfTreeNode(Node: TTreeNode): TCtMetaObject;
     function GetTreeNodeOfCtNode(ACtobj: TCtMetaObject): TTreeNode;   
     procedure FocusToTable(ATbName: string);
+    procedure FocusSibling(bUp: Boolean);
 
     procedure NewCtModelNode;
     procedure NewCtTableNode;
@@ -976,6 +981,11 @@ begin
   DoCapitalizeProc('CamelCaseToUnderline');
 end;
 
+procedure TFrameCtTableList.actCnWordSegmentExecute(Sender: TObject);
+begin
+  DoCapitalizeProc('CnWordSegment');
+end;
+
 procedure TFrameCtTableList.actPasteAsCopyExecute(Sender: TObject);
 begin
   actPasteTbExecute(nil);
@@ -989,11 +999,40 @@ end;
 procedure TFrameCtTableList.TreeViewCttbsChange(Sender: TObject; Node: TTreeNode);
 var
   vNode: TTreeNode;
+  I, iExp: Integer;
 begin
   FRightClickNode := nil;
   vNode := TreeViewCttbs.Selected;
   if Assigned(vNode) then
   begin
+    if vNode.Parent = nil then
+      if Abs(GetTickCount64 - FLastMouseDownTick) < 500 then
+      begin
+        iExp := 0;
+        for I:=0 to TreeViewCttbs.Items.Count - 1 do
+          if TreeViewCttbs.Items[I].Parent = nil then
+          begin
+            if TreeViewCttbs.Items[I].Expanded then
+            begin
+              Inc(iExp);
+            end;
+          end;
+
+        if iExp = 1 then
+          for I:=0 to TreeViewCttbs.Items.Count - 1 do
+            if TreeViewCttbs.Items[I].Parent = nil then
+            begin
+              if TreeViewCttbs.Items[I].Expanded then
+              begin
+                if TreeViewCttbs.Items[I] <> vNode then
+                  TreeViewCttbs.Items[I].Collapse(False);
+              end else
+              begin
+                if TreeViewCttbs.Items[I] = vNode then
+                  TreeViewCttbs.Items[I].Expand(False);
+              end;
+            end;
+      end;
     while vNode.Parent <> nil do
       vNode := vNode.Parent;
     if TObject(vNode.Data) is TCtDataModelGraph then
@@ -1061,7 +1100,25 @@ begin
       begin
         RefreshNode(Node);
         Abort;
+      end; 
+    if vCtNode is TCtMetaField then
+    begin
+      if not TCtMetaField(vCtNode).CheckCanRenameTo(str) then
+      begin
+        RefreshNode(Node);
+        Abort;
       end;
+      if TCtMetaField(vCtNode).OldName = '' then
+        TCtMetaField(vCtNode).OldName:=vCtNode.Name;
+    end;
+
+    if vCtNode is TCtDataModelGraph then
+      if not TCtDataModelGraph(vCtNode).CheckCanRenameTo(str) then
+      begin
+        RefreshNode(Node);
+        Abort;
+      end;
+
     vCtNode.Name := str;
     if cap <> '' then
     begin
@@ -1069,6 +1126,10 @@ begin
         TCtMetaField(vCtNode).DisplayName := cap
       else
         vCtNode.Caption := cap;
+    end;        
+    if vCtNode is TCtMetaField then
+    begin
+      DoTablePropsChanged(TCtMetaField(vCtNode).OwnerTable);
     end;
     if Assigned(FOnSelectedChange) then
       FOnSelectedChange(Self);
@@ -1739,6 +1800,29 @@ begin
   Self.SelectedCtNode := tb;
 end;
 
+procedure TFrameCtTableList.FocusSibling(bUp: Boolean);    
+var
+  Node, fNode: TTreeNode;
+begin
+  if TreeViewCttbs.Items.Count = 0 then
+    Exit;
+  Node := TreeViewCttbs.Selected;
+  if Node = nil then
+  begin                     
+    TreeViewCttbs.ClearSelection();
+    TreeViewCttbs.Selected := TreeViewCttbs.Items[0];
+    Exit;
+  end;
+  if bUp then
+    fNode := Node.GetPrevSibling
+  else
+    fNode :=Node.GetNextSibling;
+  if fNode = nil then
+    Exit;        
+  TreeViewCttbs.ClearSelection();
+  TreeViewCttbs.Selected := fNode;
+end;
+
 procedure TFrameCtTableList.SetOnShowNodeProp(const Value: TNotifyEvent);
 begin
   FOnShowNodeProp := Value;
@@ -1818,7 +1902,8 @@ begin
               tb := md.Tables[K];
               if ts.IndexOf(tb.Name)>=0 then
                 Continue;
-              ts.AddObject(tb.Name, tb);
+              ts.AddObject(tb.Name, tb);    
+              DoAutoCapProcess(tb, sType);
               with tb.MetaFields do
                 for J := 0 to Count - 1 do
                 begin
@@ -1853,6 +1938,7 @@ begin
           end;
         end;
 
+  finally   
     for I := 0 to ts.Count - 1 do
     begin
       tb := TCtMetaTable(ts.Objects[I]);
@@ -1861,15 +1947,14 @@ begin
     end;
     if ts.Count>0 then
     begin
-      if TreeViewCttbs.SelectionCount > 1 then
+      if (TreeViewCttbs.SelectionCount > 1) or (ts.Count>1) then
         RefreshTheTree
       else
-      begin                   
+      begin
         RefreshSelected;
         RefreshObj(TCtMetaObject(ts.Objects[0]));
       end;
     end;
-  finally
     ts.Free;
   end;
 
@@ -1898,7 +1983,38 @@ begin
   end;
 end;
 
-procedure TFrameCtTableList.actPasteTbExecute(Sender: TObject);   
+procedure TFrameCtTableList.actPasteTbExecute(Sender: TObject);
+
+  procedure CheckHasDiffTb(tb: TCtMetaTable);
+  var
+    ctb: TCtMetaTable;
+    n: integer;
+  begin
+    //如果本模型中没有，但其它模型有，且内容不一样：1 覆盖 2 改名
+    ctb := FGlobeDataModelList.GetTableOfName(tb.Name);
+    if ctb = nil then
+      Exit;
+    if ctb.MaybeSame(tb) then
+      Exit;
+    case Application.MessageBox(PChar(Format(srDmlPasteExistsTableFmt,[tb.Name])),
+      PChar(Application.Title), MB_YESNOCANCEL or MB_ICONWARNING) of
+      IDYES:
+        Exit;
+      IDNO:
+        begin
+          n := 1;
+          while HasSameNameTables(tb, tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n))) do
+            Inc(n);
+          tb.Name := tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));   
+          if tb.Caption <> '' then
+             tb.Caption :=  tb.Caption + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
+        end;
+      else
+        Abort;
+    end;
+  end;
+
+
   procedure RenameTbIfExists(tb: TCtMetaTable);
   var
     n: integer;
@@ -1908,14 +2024,19 @@ procedure TFrameCtTableList.actPasteTbExecute(Sender: TObject);
 
     if tb.IsTable then
       if CtTableList.ItemByName(tb.Name) = nil then
+      begin
+        CheckHasDiffTb(tb);
         Exit;
+      end;
     if not HasSameNameTables(tb, tb.Name) then
       Exit;
 
     n := 1;
     while HasSameNameTables(tb, tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n))) do
       Inc(n);
-    tb.Name := tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
+    tb.Name := tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));   
+    if tb.Caption <> '' then
+       tb.Caption :=  tb.Caption + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
   end;
 
   procedure RenameAllTbs(vTempTbs: TCtMetaTableList);
@@ -1932,7 +2053,9 @@ procedure TFrameCtTableList.actPasteTbExecute(Sender: TObject);
       n := 1;
       while HasSameNameTables(tb, tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n))) do
         Inc(n);
-      tb.Name := tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
+      tb.Name := tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n)); 
+      if tb.Caption <> '' then
+         tb.Caption :=  tb.Caption + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
 
       for J:=0 to vTempTbs.Count - 1 do
       begin
@@ -2059,6 +2182,7 @@ begin
           Inc(idx);
           CtTableList.Move(CtTableList.Count - 1, idx);
         end;
+        DoTablePropsChanged(tb);
       end;
       CtTableList.SaveCurrentOrder;
       RefreshTheTree;
@@ -2158,6 +2282,8 @@ begin
     end;
   end;
   if Button = mbLeft then
+  begin
+    FLastMouseDownTick := GetTickCount64;
     if ssAlt in Shift then
     begin
       if FAltFocusNode <> nil then
@@ -2174,6 +2300,7 @@ begin
           FAltFocusTick := GetTickCount64;
       end;
     end;
+  end;
 end;
 
 procedure TFrameCtTableList.CheckActions;
@@ -2243,15 +2370,18 @@ function TFrameCtTableList.CheckCtObjFilter(ACtObj: TCtMetaObject): boolean;
     if ACtObj is TCtMetaTable then
     begin
       S := TCtMetaTable(ACtObj).Name;
-      if FFilterMode = 1 then
+      if FFilterMode = 1 then //只检查表
       begin
         if Pos(AKeyword, LowerCase(S)) > 0 then
           Exit;
         S := TCtMetaTable(ACtObj).Caption;
         if Pos(AKeyword, LowerCase(S)) > 0 then
+          Exit;             
+        S := TCtMetaTable(ACtObj).NameCaption;
+        if Pos(AKeyword, LowerCase(S)) > 0 then
           Exit;
       end;
-      if FFilterMode = 2 then
+      if FFilterMode = 2 then //只检查字段，排除表（表已经在阶段1加了）
       begin
         if Pos(AKeyword, LowerCase(S)) > 0 then
         begin
@@ -2259,6 +2389,12 @@ function TFrameCtTableList.CheckCtObjFilter(ACtObj: TCtMetaObject): boolean;
           Exit;
         end;
         S := TCtMetaTable(ACtObj).Caption;
+        if Pos(AKeyword, LowerCase(S)) > 0 then
+        begin
+          Result := False;
+          Exit;
+        end;
+        S := TCtMetaTable(ACtObj).NameCaption;
         if Pos(AKeyword, LowerCase(S)) > 0 then
         begin
           Result := False;
@@ -2272,6 +2408,9 @@ function TFrameCtTableList.CheckCtObjFilter(ACtObj: TCtMetaObject): boolean;
               if Pos(AKeyword, LowerCase(S)) > 0 then
                 Exit;
               S := Items[I].DisplayName;
+              if Pos(AKeyword, LowerCase(S)) > 0 then
+                Exit;       
+              S := Items[I].NameCaption;
               if Pos(AKeyword, LowerCase(S)) > 0 then
                 Exit;
             end;
@@ -2323,7 +2462,9 @@ begin
     if TCtMetaField(Nd).KeyFieldType = cfktID then
       Result := 20
     else
+    begin
       Result := 2 + integer(TCtMetaField(Nd).DataType);
+    end;
   end;
 end;
 

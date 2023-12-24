@@ -1,0 +1,18 @@
+{"version":1,"strings":[
+{"hash":250070606,"name":"tfrmsqlsvrdbconfig.caption","sourcebytes":[83,81,76,83,101,114,118,101,114,32,67,111,110,110,101,99,116,105,111,110],"value":"SQLServer Connection"},
+{"hash":111561418,"name":"tfrmsqlsvrdbconfig.label1.caption","sourcebytes":[72,111,115,116,32,73,80,58],"value":"Host IP:"},
+{"hash":5728634,"name":"tfrmsqlsvrdbconfig.label2.caption","sourcebytes":[80,111,114,116,58],"value":"Port:"},
+{"hash":95060090,"name":"tfrmsqlsvrdbconfig.label3.caption","sourcebytes":[73,110,115,116,97,110,116,58],"value":"Instant:"},
+{"hash":214883,"name":"tfrmsqlsvrdbconfig.edtport.text","sourcebytes":[49,52,51,51],"value":"1433"},
+{"hash":1339,"name":"tfrmsqlsvrdbconfig.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmsqlsvrdbconfig.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":322608,"name":"tfrmsqlsvrdbconfig.btnhelp.caption","sourcebytes":[72,101,108,112],"value":"Help"},
+{"hash":175686410,"name":"tfrmsqlsvrdbconfig.label4.caption","sourcebytes":[68,97,116,97,98,97,115,101,58],"value":"Database:"},
+{"hash":71716014,"name":"tfrmsqlsvrdbconfig.label5.caption","sourcebytes":[78,111,116,101,58,32,76,101,97,118,101,32,117,115,101,114,45,110,97,109,101,32,101,109,112,116,121,32,102,111,114,32,105,110,116,101,103,114,97,116,101,100,32,115,101,99,117,114,105,116,121,32,97,117,116,104,101,110,116,105,99,97,116,105,111,110],"value":"Note: Leave user-name empty for integrated security authentication"},
+{"hash":54581930,"name":"tfrmsqlsvrdbconfig.rdbipaddr.caption","sourcebytes":[83,112,101,99,105,102,121,32,97,100,100,114,101,115,115,58],"value":"Specify address:"},
+{"hash":106218906,"name":"tfrmsqlsvrdbconfig.rbdodbcdsn.caption","sourcebytes":[79,68,66,67,32,68,83,78,58],"value":"ODBC DSN:"},
+{"hash":301082,"name":"tfrmsqlsvrdbconfig.label6.caption","sourcebytes":[68,83,78,58],"value":"DSN:"},
+{"hash":77164181,"name":"tfrmsqlsvrdbconfig.btnbrowsedsn.caption","sourcebytes":[66,114,111,119,115,101],"value":"Browse"},
+{"hash":79787546,"name":"tfrmsqlsvrdbconfig.rdbodbcconnstr.caption","sourcebytes":[79,68,66,67,32,67,111,110,110,101,99,116,105,111,110,32,83,116,114,105,110,103,58],"value":"ODBC Connection String:"},
+{"hash":34143054,"name":"tfrmsqlsvrdbconfig.lbodbctip.caption","sourcebytes":[78,111,116,101,58,32,66,121,32,100,101,102,97,117,108,116,32,69,90,68,77,76,32,117,115,101,32,70,114,101,101,84,68,83,32,116,111,32,99,111,110,110,101,99,116,32,83,81,76,32,83,101,114,118,101,114,46,32,89,111,117,32,99,97,110,32,115,119,105,116,99,104,32,116,111,32,79,68,66,67,32,98,121,32,99,104,97,110,103,105,110,103,32,116,104,101,32,100,114,105,118,101,114,32,99,111,110,102,105,103,32,105,110,32,109,97,105,110,32,115,101,116,116,105,110,103,115,32,100,105,97,108,111,103,32,40,97,32,114,101,115,116,97,114,116,32,119,105,108,108,32,98,101,32,110,101,101,100,101,100,41,46],"value":"Note: By default EZDML use FreeTDS to connect SQL Server. You can switch to ODBC by changing the driver config in main settings dialog (a restart will be needed)."}
+]}

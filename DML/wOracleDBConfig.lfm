@@ -58,22 +58,20 @@ object frmOraDBConfig: TfrmOraDBConfig
     TabOrder = 5
   end
   object btnOK: TButton
-    Left = 168
+    Left = 268
     Height = 27
     Top = 312
-    Width = 44
-    AutoSize = True
+    Width = 100
     Caption = 'OK'
     Default = True
     ModalResult = 1
     TabOrder = 6
   end
   object btnCancel: TButton
-    Left = 240
+    Left = 376
     Height = 27
     Top = 312
     Width = 64
-    AutoSize = True
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
@@ -110,12 +108,21 @@ object frmOraDBConfig: TfrmOraDBConfig
   end
   object Label4: TLabel
     Left = 17
-    Height = 104
+    Height = 84
     Top = 200
     Width = 439
     AutoSize = False
-    Caption = 'Note: EZDML for mac64/linux64/win64 needs oracle client / instant client for MacOS/Linux/Windows 64-bit, while EZDML for win32 needs instant client of Windows 32-bit. You can specify the location of libociei.dylib/.so/oci.dll in settings or just place it in search-path (windows: %PATH%. MacOS/Linux: /lib; $HOME/lib; /usr/local/lib; /usr/lib; $DYLD_LIBRARY_PATH; etc).'
+    Caption = 'Note: EZDML needs oracle client / instant-client to logon. You can specify the location of libociei.dylib/.so/oci.dll in main settings dialog (a restart will be needed).'
     ParentColor = False
     WordWrap = True
+  end
+  object btnHelp: TButton
+    Left = 20
+    Height = 25
+    Top = 312
+    Width = 74
+    Caption = 'Help'
+    OnClick = btnHelpClick
+    TabOrder = 8
   end
 end

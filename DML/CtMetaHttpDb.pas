@@ -9,7 +9,7 @@ interface
 
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, ImgList,
-  CtMetaData, CtMetaTable, CtMetaCustomDb, DB, uJson;
+  CtMetaData, CtMetaTable, CtMetaCustomDb, uJson;
 
 type
 
@@ -23,7 +23,8 @@ type
 
     function ExecCustomDbCmdEx(cmd, par1, par2, buf: string): string; virtual; //此方法不检查登录
 
-    procedure SetConnected(const Value: Boolean); override;
+    procedure SetConnected(const Value: Boolean); override;   
+    function GetOrigEngineType: string; override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -83,7 +84,7 @@ begin
 
     FAccessToken := map.getString('EzdmlToken');
     FEngineType := map.getString('EngineType');
-    DbSchema := map.getString('DbSchema');
+    DbSchema := GetDbQuotName(map.getString('DbSchema'), Self.EngineType);
     if FEngineType = '' then
       RaiseError('no_engine_type', 'connect');   
     FNeedGenCustomSql := map.optBoolean('NeedGenCustomSql');
@@ -98,6 +99,11 @@ begin
       FConnected := False;
     end;
   end;
+end;
+
+function TCtMetaHttpDb.GetOrigEngineType: string;
+begin
+  Result := 'HTTP_JDBC';
 end;
 
 function TCtMetaHttpDb.ShowDBConfig(AHandle: THandle): boolean;
@@ -193,7 +199,7 @@ begin
     qs := '';
   end;
 
-  Result := GetUrlData_Net(url, qs, '[SHOW_PROGRESS][WAIT_TICKS=2000]');
+  Result := GetUrlData_Net(url, qs, '[SHOW_PROGRESS][WAIT_TICKS=2000][READ_TIMEOUT=90000]');
 end;
 
 function TCtMetaHttpDb.GetDbNames: string;

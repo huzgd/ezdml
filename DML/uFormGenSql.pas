@@ -8,7 +8,7 @@ uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes,
   Graphics, Controls, Forms,
   Dialogs, ComCtrls, StdCtrls, CheckLst, Menus, StrUtils,
-  ExtCtrls, ActnList, StdActns,
+  ExtCtrls, ActnList, StdActns, Buttons,
   CtMetaTable, CTMetaData, CtMetaEzdmlFakeDb;
 
 type
@@ -19,6 +19,7 @@ type
     Bevel1: TBevel;
     btnDBLogon: TButton;
     btnSelDbType: TButton;
+    btnListMenu: TBitBtn;
     ckbProcOracleSeqs: TCheckBox;
     ckbSketchMode: TCheckBox;
     cklbDbObjs: TCheckListBox;
@@ -66,7 +67,10 @@ type
     ckbRecreateTable: TCheckBox;
     OpenDialogDml: TOpenDialog;
     combModels: TComboBox;
+    procedure btnListMenuClick(Sender: TObject);
     procedure cklbDbObjsDblClick(Sender: TObject);
+    procedure cklbDbObjsResize(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure MN_ModelTableInfoClick(Sender: TObject);
     procedure MN_DBTableInfoClick(Sender: TObject);
@@ -103,7 +107,13 @@ type
     FImpCurRowCount: integer;
     FCtDataModelList: TCtDataModelGraphList;
     FMetaObjList: TCtMetaObjectList;
+    FAllTbGraph: TCtDataModelGraph;
     FLastAutoSelDBUser: string;
+
+    //不知为何，Memo内容较多时，再次显示窗体时会报错，只好先保存再恢复
+    FSave_memSQL: string;
+    FSave_memExecSQL: string;
+    FSave_memError: string;
 
     procedure SetCtDataModelList(const Value: TCtDataModelGraphList);
     procedure SetMetaObjList(const Value: TCtMetaObjectList);
@@ -114,8 +124,8 @@ type
     FDefaultDbType: string;
     FCmpEzdmlFakeDb: TCtMetaEzdmlFakeDb;
 
-    function GenSQL(): TStringList;
-    function DBgenSQL(): TStringList;
+    function GenSQL: TStringList;
+    function DBgenSQL: TStringList;
 
     procedure ExecCommands;
 
@@ -174,10 +184,22 @@ begin
   cklbDbObjs.MultiSelect := True;
   FLinkDbNO := -1;
   FShowPhyFieldName := True;
+  
+  FAllTbGraph:= TCtDataModelGraph.Create;
+  FAllTbGraph.Name:='('+srdmlall+')';
+  FAllTbGraph.Tables.AutoFree:=False;
 
   PopupMenuSelDefDbType.Items.Clear;
   for I := 0 to High(CtMetaDBRegs) do
+  begin
+    if CtMetaDBRegs[I].DbEngineType = 'ODBC' then
+      Continue;
+    if CtMetaDBRegs[I].DbEngineType = 'HTTP_JDBC' then
+      Continue;
     AddDbTypeMenu(CtMetaDBRegs[I].DbEngineType);
+  end;
+
+  AddDbTypeMenu('HIVE');
   AddDbTypeMenu('STANDARD');
   AddDbTypeMenu('EZDMLFILE');
   RefreshDbInfo;
@@ -186,12 +208,37 @@ end;
 procedure TfrmCtGenSQL.FormDestroy(Sender: TObject);
 begin
   FRestoringTbList.Free;
+  FAllTbGraph.Free;
   FreeAndNil(FCmpEzdmlFakeDb);
 end;
 
 procedure TfrmCtGenSQL.cklbDbObjsDblClick(Sender: TObject);
 begin
   MN_DBTableInfoClick(nil);
+end;
+
+procedure TfrmCtGenSQL.cklbDbObjsResize(Sender: TObject);
+begin
+  btnListMenu.Left := cklbDbObjs.Width - 22 - btnListMenu.Width;
+end;
+
+procedure TfrmCtGenSQL.btnListMenuClick(Sender: TObject);
+begin
+  PopupMenu1.PopUp;
+end;
+
+procedure TfrmCtGenSQL.FormClose(Sender: TObject; var CloseAction: TCloseAction
+  );
+begin      
+  //不知为何，Memo内容较多时，再次显示窗体时会报错，只好先保存再恢复
+  FSave_memSQL := memSQL.Lines.Text;
+  memSQL.Lines.Clear;
+
+  FSave_memExecSQL := memExecSQL.Lines.Text;
+  memExecSQL.Lines.Clear;
+
+  FSave_memError := memError.Lines.Text;
+  memError.Lines.Clear;
 end;
 
 procedure TfrmCtGenSQL.MN_ModelTableInfoClick(Sender: TObject);
@@ -376,8 +423,8 @@ begin
     memExecSQL.Lines.Add('-- Disable constraints');
     for I := 0 to C - 1 do
     begin
-      tbn := MetaObjList.Items[I].Name;
-      if IsTableSelected(tbn) then
+      tbn := TCtMetaTable(MetaObjList.Items[I]).RealTableName;
+      if IsTableSelected(MetaObjList.Items[I].Name) then
       begin
         memExecSQL.Lines.Add('   Disable constraints of ' + tbn);
         S := '';
@@ -397,7 +444,7 @@ begin
 
     for I := 0 to C - 1 do
     begin
-      tbn := MetaObjList.Items[I].Name;
+      tbn := TCtMetaTable(MetaObjList.Items[I]).RealTableName;
 
       ProgressBar1.Position := (FImpCurRowCount + 1) * 100 div (FImpTotalRowCount + 1);
       FCurTipMessage := Format(srReadingDataFmt, [I + 1, C, tbn]);
@@ -413,7 +460,7 @@ begin
       if S <> '[DML_DATASET ' + tbn + ']' then
         raise Exception.Create('read table ' + tbn + ' error');
       try
-        if IsTableSelected(tbn) then
+        if IsTableSelected(MetaObjList.Items[I].Name) then
         begin
           memExecSQL.Lines.Add('-- Restore data of ' + tbn);
           memExecSQL.Lines.Add('   Deleting old rows...');
@@ -474,8 +521,8 @@ begin
     memExecSQL.Lines.Add('-- Enable constraints');
     for I := 0 to C - 1 do
     begin
-      tbn := MetaObjList.Items[I].Name;
-      if IsTableSelected(tbn) then
+      tbn := TCtMetaTable(MetaObjList.Items[I]).RealTableName;
+      if IsTableSelected(MetaObjList.Items[I].Name) then
       begin
         memExecSQL.Lines.Add('   Enable constraints of ' + tbn);
         S := '';
@@ -529,12 +576,23 @@ begin
   else
   begin
     edtDBLinkInfo.Text := FCtMetaDatabase.Database;
+    Self.Refresh;
     combDBUser.Items.Text := FCtMetaDatabase.GetDbUsers;
     combDBUser.Enabled := True;
     combDBUser.Color := clWindow;
     edtDBLinkInfo.Text := '[' + FCtMetaDatabase.EngineType + ']' +
       FCtMetaDatabase.Database;
   end;
+  if Assigned(FCtMetaDatabase) and (combDBUser.Text = '') and (G_LastMetaDbSchema<>'') then
+  begin
+    for I := 0 to combDBUser.Items.Count - 1 do
+      if UpperCase(combDBUser.Items[I]) = UpperCase(G_LastMetaDbSchema) then
+      begin
+        combDBUser.ItemIndex := I;
+        FLastAutoSelDBUser := combDBUser.Text;
+        Break;
+      end;
+  end;         
   if Assigned(FCtMetaDatabase) and (combDBUser.Text = '') then
   begin
     for I := 0 to combDBUser.Items.Count - 1 do
@@ -578,12 +636,25 @@ begin
     Caption := srRestoreDatabase;
 end;
 
-procedure TfrmCtGenSQL.TimerInitTimer(Sender: TObject);
+procedure TfrmCtGenSQL.TimerInitTimer(Sender: TObject);  
+var
+  I: integer;
 begin
   TimerInit.Enabled := False;
   if not Assigned(FCtMetaDatabase) then
-    //if CanAutoShowLogin then
+  begin
+    I := GetLastCtDbConn(True);
+    if I >= 0 then
+    begin
+      FLinkDbNo := I;   
+      RefreshDbInfo;
+    end
+    else
+    begin
+      //if CanAutoShowLogin then
       btnDBLogonClick(nil);
+    end;
+  end;
 end;
 
 procedure TfrmCtGenSQL._OnReadingDsProgress(Sender: TObject);
@@ -617,6 +688,10 @@ begin
 
   ProgressBar1.Position := 0;
   InitListObj;
+           
+  memSQL.Lines.Text:=FSave_memSQL ;
+  memExecSQL.Lines.Text:=FSave_memExecSQL ;
+  memError.Lines.Text:=FSave_memError ;
 
   MnShowPhyName.Checked := FShowPhyFieldName;
   ckbProcOracleSeqs.Checked := G_CreateSeqForOracle;
@@ -643,12 +718,23 @@ begin
 end;
 
 procedure TfrmCtGenSQL.InitListObj;
+  procedure CheckAddTbs(tbs: TCtMetaTableList);
+  var
+    I: Integer;
+  begin
+    for I:=0 to tbs.Count - 1 do
+    begin
+      if FAllTbGraph.Tables.ItemByName(tbs[I].Name) = nil then
+        FAllTbGraph.Tables.Add(tbs[I]);
+    end;
+  end;
 var
   i: integer;
   S: string;
 begin
   combModels.Tag := 0;
   combModels.Items.Clear;
+  FAllTbGraph.Tables.Clear;
   if Assigned(FCtDataModelList) then
   begin
     for i := 0 to FCtDataModelList.Count - 1 do
@@ -657,7 +743,9 @@ begin
       if FCtDataModelList[I].Caption <> '' then
         S := S + '(' + FCtDataModelList[I].Caption + ')';
       combModels.Items.AddObject(S, FCtDataModelList[I]);
-    end;
+      CheckAddTbs(FCtDataModelList[I].Tables);
+    end;       
+    combModels.Items.AddObject(FAllTbGraph.Name, FAllTbGraph);
     combModels.Enabled := True;
     combModels.ItemIndex := FCtDataModelList.IndexOf(FCtDataModelList.CurDataModel);
     combModels.Tag := 1;
@@ -772,7 +860,9 @@ begin
   if Assigned(FCmpEzdmlFakeDb) then
     FCmpEzdmlFakeDb.SetFakeEngineType(FDefaultDbType);
 
-  btnDBLogon.Enabled := False;
+  btnDBLogon.Enabled := False;        
+  btnBuildSQL.Enabled := False;
+  btnExecSQL.Enabled := False;
   combDBUser.Enabled := False;
 
   cklbDbObjs.Enabled := False;
@@ -800,64 +890,71 @@ begin
     if C = 0 then
       Exit;
     A := 0;
-    for I := 0 to cklbDbObjs.Items.Count - 1 do
-      if cklbDbObjs.Checked[I] then
-      begin
-        Inc(A);
-        ProgressBar1.Position := A * 100 div C;
-        LabelProg.Caption := Format(srGeneratingSqlFmt, [A, C, cklbDbObjs.Items[I]]);
-        Application.ProcessMessages;
-        if FAborted then
-          Exit;
-        CheckAbort(' ');
-        dmlLsTbObj := TCtMetaTable(cklbDbObjs.Items.Objects[I]);
-        if dmlLsTbObj.IsTable then
+    try
+      for I := 0 to cklbDbObjs.Items.Count - 1 do
+        if cklbDbObjs.Checked[I] then
         begin
-          bTbFound := False;
-          strtmp := dmlLsTbObj.Name;
-          ResTBSQL.Add('-- ' + strtmp);
-          if Assigned(FCmpEzdmlFakeDb) then
+          Inc(A);
+          ProgressBar1.Position := A * 100 div C;
+          LabelProg.Caption := Format(srGeneratingSqlFmt, [A, C, cklbDbObjs.Items[I]]);
+          Application.ProcessMessages;
+          if FAborted then
+            Exit;
+          CheckAbort(' ');
+          dmlLsTbObj := TCtMetaTable(cklbDbObjs.Items.Objects[I]);
+          if dmlLsTbObj.IsTable then
           begin
-            dmobj := FCmpEzdmlFakeDb.GetObjInfos(dbu, strtmp, '');
-            if Assigned(dmobj) and (dmobj is TCtMetaTable) then
+            bTbFound := False;
+            strtmp := dmlLsTbObj.RealTableName;
+            ResTBSQL.Add('-- ' + strtmp);
+            if Assigned(FCmpEzdmlFakeDb) then
             begin
-              dmlDBTbObj := dmobj as TCtMetaTable;
-              if AnsiSameText(dmlDBTbObj.Name, strtmp) then
+              dmobj := FCmpEzdmlFakeDb.GetObjInfos(dbu, strtmp, '');
+              if Assigned(dmobj) and (dmobj is TCtMetaTable) then
               begin
-                //数据库有对应表的处理
-                if ckbRecreateTable.Checked then
+                dmlDBTbObj := dmobj as TCtMetaTable;
+                if AnsiSameText(dmlDBTbObj.RealTableName, strtmp) then
                 begin
-                  //自动改名
-                  if FCmpEzdmlFakeDb.EngineType = 'SQLSERVER' then
-                    ResTbSQL.Add('exec   sp_rename ''' + strtmp +
-                      ''', ''' + strtmp + '_' + IntToStr(Round(Now * 100000) mod 100000) + ''';')
-                  else if FCmpEzdmlFakeDb.EngineType = 'ORACLE' then
-                    ResTbSQL.Add('rename ' + strtmp + ' to ' + strtmp +
-                      '_' + IntToStr(Round(Now * 100000) mod 100000) + ';')
+                  //数据库有对应表的处理
+                  if ckbRecreateTable.Checked then
+                  begin
+                    //自动改名
+                    if FCmpEzdmlFakeDb.EngineType = 'SQLSERVER' then
+                      ResTbSQL.Add('exec   sp_rename ''' + IfElse(FCmpEzdmlFakeDb.DbSchema='','dbo',FCmpEzdmlFakeDb.DbSchema) +'.'+strtmp +
+                        ''', ''' + strtmp + '_' + IntToStr(Round(Now * 100000) mod 100000) + ''';')
+                    else if FCmpEzdmlFakeDb.EngineType = 'ORACLE' then
+                      ResTbSQL.Add('rename ' + strtmp + ' to ' + strtmp +
+                        '_' + IntToStr(Round(Now * 100000) mod 100000) + ';')
+                    else
+                      ResTbSQL.Add('rename table ' + strtmp + ' to ' +
+                        strtmp + '_' + IntToStr(Round(Now * 100000) mod 100000) + ';');
+                  end
                   else
-                    ResTbSQL.Add('rename table ' + strtmp + ' to ' +
-                      strtmp + '_' + IntToStr(Round(Now * 100000) mod 100000) + ';');
-                end
-                else
-                begin
-                  bTbFound := True;
-                  ResTbSQL.Add(FCmpEzdmlFakeDb.GenObjSql(dmlLsTbObj, dmlDBTbObj, 1));
-                  ResFKSQL.Add(FCmpEzdmlFakeDb.GenObjSql(dmlLsTbObj, dmlDBTbObj, 2));
+                  begin
+                    bTbFound := True;
+                    ResTbSQL.Add(FCmpEzdmlFakeDb.GenObjSql(dmlLsTbObj, dmlDBTbObj, 1));
+                    ResFKSQL.Add(FCmpEzdmlFakeDb.GenObjSql(dmlLsTbObj, dmlDBTbObj, 2));
+                  end;
                 end;
               end;
             end;
-          end;
-          //没有该表则创建
-          if not bTbFound then
+            //没有该表则创建
+            if not bTbFound then
+            begin
+              ResTbSQL.Add(dmlLsTbObj.GenSqlEx(True, False, FDefaultDbType));
+              resFKSQL.Add(dmlLsTbObj.GenSqlEx(False, True, FDefaultDbType));
+            end;
+          end
+          else if dmlLsTbObj.IsSqlText then
           begin
-            ResTbSQL.Add(dmlLsTbObj.GenSqlEx(True, False, FDefaultDbType));
-            resFKSQL.Add(dmlLsTbObj.GenSqlEx(False, True, FDefaultDbType));
+            resFKSQL.Add(dmlLsTbObj.Memo);
           end;
-        end
-        else if dmlLsTbObj.IsSqlText then
-        begin
-          resFKSQL.Add(dmlLsTbObj.Memo);
         end;
+      except
+        on E:EAbort do
+        ;
+      else
+        raise;
       end;
 
   finally
@@ -865,6 +962,8 @@ begin
     combDBUser.Enabled := True;
     cklbDbObjs.Enabled := True;
     //btnOk.Enabled := True;
+    btnBuildSQL.Enabled := True;
+    btnExecSQL.Enabled := True;
     btnCancel.Caption := srCapClose;
   end;
 
@@ -904,6 +1003,8 @@ begin
 
   cklbDbObjs.Enabled := False;
   //btnOk.Enabled := False;
+  btnBuildSQL.Enabled := False;
+  btnExecSQL.Enabled := False;
   btnCancel.Caption := srCapCancel;
   FAborted := False;
   try
@@ -950,7 +1051,7 @@ begin
         if not TCtMetaTable(cklbDbObjs.Items.Objects[I]).IsTable then
           Continue;
         dmlobjtmp := ImportObjFromDB(dbu,
-          TCtMetaTable(cklbDbObjs.Items.Objects[I]).Name);
+          TCtMetaTable(cklbDbObjs.Items.Objects[I]).RealTableName);
         if (dmlobjtmp <> nil) then
           MetaObjListDB.Add(dmlobjtmp);
       end;
@@ -959,58 +1060,66 @@ begin
     A := 0;
     ResTbSQL := TStringList.Create;
     ResFKSQL := TStringList.Create;
-    for I := 0 to cklbDbObjs.Items.Count - 1 do
-      if cklbDbObjs.Checked[I] then
-      begin
-        Inc(A);
-        ProgressBar1.Position := 50 + A * 100 div (C + C);
-        LabelProg.Caption := Format(srGeneratingSqlFmt, [A, C, cklbDbObjs.Items[I]]);
-        Application.ProcessMessages;
-        if FAborted then
-          Break;
-        CheckAbort(' ');
+    try
 
-        dmlLsTbObj := TCtMetaTable(cklbDbObjs.Items.Objects[I]);
-        strtmp := dmlLsTbObj.Name;
-        ResTBSQL.Add('-- ' + strtmp);
-
-        bTbFound := False;
-        if dmlLsTbObj.IsTable then
-          for J := 0 to MetaObjListDB.Count - 1 do
-          begin
-            dmlDBTbObj := TCtMetaTable(MetaObjListDb[J]);
-            if AnsiSameText(dmlDBTbObj.Name, strtmp) then
-            begin
-              //数据库有对应表的处理
-              if ckbRecreateTable.Checked then
-              begin
-                //自动改名
-                if FCtMetaDatabase.EngineType = 'SQLSERVER' then
-                  ResTbSQL.Add('exec   sp_rename ''' + strtmp +
-                    ''', ''' + strtmp + '_' + IntToStr(Round(Now * 100000) mod 100000) + ''';')
-                else if FCtMetaDatabase.EngineType = 'ORACLE' then
-                  ResTbSQL.Add('rename ' + strtmp + ' to ' + strtmp +
-                    '_' + IntToStr(Round(Now * 100000) mod 100000) + ';')
-                else
-                  ResTbSQL.Add('rename table ' + strtmp + ' to ' +
-                    strtmp + '_' + IntToStr(Round(Now * 100000) mod 100000) + ';');
-              end
-              else
-              begin
-                bTbFound := True;
-                ResTbSQL.Add(FCtMetaDatabase.GenObjSql(dmlLsTbObj, dmlDBTbObj, 1));
-                ResFKSQL.Add(FCtMetaDatabase.GenObjSql(dmlLsTbObj, dmlDBTbObj, 2));
-              end;
-              Break;
-            end;
-          end;
-        //没有该表则创建
-        if not bTbFound then
+      for I := 0 to cklbDbObjs.Items.Count - 1 do
+        if cklbDbObjs.Checked[I] then
         begin
-          ResTbSQL.Add(FCtMetaDatabase.GenObjSql(dmlLsTbObj, nil, 1));
-          ResFKSQL.Add(FCtMetaDatabase.GenObjSql(dmlLsTbObj, nil, 2));
-        end;
-      end;
+          Inc(A);
+          ProgressBar1.Position := 50 + A * 100 div (C + C);
+          LabelProg.Caption := Format(srGeneratingSqlFmt, [A, C, cklbDbObjs.Items[I]]);
+          Application.ProcessMessages;
+          if FAborted then
+            Break;
+          CheckAbort(' ');
+
+          dmlLsTbObj := TCtMetaTable(cklbDbObjs.Items.Objects[I]);
+          strtmp := dmlLsTbObj.RealTableName;
+          ResTBSQL.Add('-- ' + strtmp);
+
+          bTbFound := False;
+          if dmlLsTbObj.IsTable then
+            for J := 0 to MetaObjListDB.Count - 1 do
+            begin
+              dmlDBTbObj := TCtMetaTable(MetaObjListDb[J]);
+              if AnsiSameText(dmlDBTbObj.RealTableName, strtmp) then
+              begin
+                //数据库有对应表的处理
+                if ckbRecreateTable.Checked then
+                begin
+                  //自动改名
+                  if FCtMetaDatabase.EngineType = 'SQLSERVER' then
+                    ResTbSQL.Add('exec   sp_rename ''' + IfElse(FCtMetaDatabase.DbSchema='','dbo',FCtMetaDatabase.DbSchema) +'.' + strtmp +
+                      ''', ''' + strtmp + '_' + IntToStr(Round(Now * 100000) mod 100000) + ''';')
+                  else if FCtMetaDatabase.EngineType = 'ORACLE' then
+                    ResTbSQL.Add('rename ' + strtmp + ' to ' + strtmp +
+                      '_' + IntToStr(Round(Now * 100000) mod 100000) + ';')
+                  else
+                    ResTbSQL.Add('rename table ' + strtmp + ' to ' +
+                      strtmp + '_' + IntToStr(Round(Now * 100000) mod 100000) + ';');
+                end
+                else
+                begin
+                  bTbFound := True;
+                  ResTbSQL.Add(FCtMetaDatabase.GenObjSql(dmlLsTbObj, dmlDBTbObj, 1));
+                  ResFKSQL.Add(FCtMetaDatabase.GenObjSql(dmlLsTbObj, dmlDBTbObj, 2));
+                end;
+                Break;
+              end;
+            end;
+          //没有该表则创建
+          if not bTbFound then
+          begin
+            ResTbSQL.Add(FCtMetaDatabase.GenObjSql(dmlLsTbObj, nil, 1));
+            ResFKSQL.Add(FCtMetaDatabase.GenObjSql(dmlLsTbObj, nil, 2));
+          end;
+        end;     
+    except
+      on E:EAbort do
+      ;
+    else
+      raise;
+    end;
 
     Result.AddStrings(ResTBSQL);
     Result.AddStrings(ResFKSQL);
@@ -1022,7 +1131,8 @@ begin
     btnDBLogon.Enabled := True;
     combDBUser.Enabled := True;
     cklbDbObjs.Enabled := True;
-    //btnOk.Enabled := True;
+    btnBuildSQL.Enabled := True;
+    btnExecSQL.Enabled := True;
     btnCancel.Caption := srCapClose;
   end;
 
@@ -1040,17 +1150,22 @@ var
 begin
   tpgAction.TabIndex := 0;
   bFinish := False;
+  sqlst := nil;
   try
     memSQL.Lines.Clear;
     Self.Refresh;
     if not Assigned(FCtMetaDatabase) or not FCtMetaDatabase.Connected then
     begin
       sqlst := GenSQL;
+      if sqlst = nil then
+        Exit;
       memSQL.Text := sqlst.Text;
     end
     else
     begin
-      sqlst := DBGenSQL;
+      sqlst := DBGenSQL;  
+      if sqlst = nil then
+        Exit;
       memSQL.Text := sqlst.Text;
     end;
     if not FAborted then
@@ -1066,8 +1181,9 @@ begin
       LabelProg.Caption := LabelProg.Caption + ' ' + srStrFinished
     else
       LabelProg.Caption := LabelProg.Caption + ' ' + srStrAborted;
+    if sqlst <> nil then
+      sqlst.Free;
   end;
-  sqlst.Free;
 end;
 
 procedure TfrmCtGenSQL.btnExecSQLClick(Sender: TObject);
@@ -1090,7 +1206,7 @@ begin
     FAborted := False;
     if (FCtMetaDatabase = nil) or (not FCtMetaDatabase.Connected) then
       exit;
-    FCtMetaDatabase.DbSchema := combDBUser.Text;
+    FCtMetaDatabase.DbSchema := GetDbQuotName(combDBUser.Text, FCtMetaDatabase.EngineType);
     (*if (FCtMetaDatabase is TCtMetaOracleDb) then
     begin
       OracleScript1.Session := TCtMetaOracleDb(FCtMetaDatabase).Session;
@@ -1507,6 +1623,8 @@ end;
 procedure TfrmCtGenSQL.combDBUserChange(Sender: TObject);
 begin
   FLastAutoSelDBUser := '';
+  if combDBUser.Text <> '' then
+    G_LastMetaDbSchema := combDBUser.Text;
 end;
 
 procedure TfrmCtGenSQL.combModelsChange(Sender: TObject);

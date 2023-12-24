@@ -9,7 +9,7 @@ interface
 
 uses
   LCLIntf, LCLType, Messages, SysUtils, Variants, Classes, Graphics, Controls, ImgList,
-  CtMetaData, CtMetaTable, DB, uJson;
+  CtMetaData, CtMetaTable, DB, memds, uJson;
 
 type
 
@@ -26,8 +26,6 @@ type
     function ExecCustomDbCmdMap(cmd, par1, par2, buf: string): TJSONObject; virtual;
     function ExecCustomDbCmd(cmd, par1, par2, buf: string): string; virtual; //子类必须实现此方法
 
-    function ConvertStrToJson(const str: string): TJSONObject; virtual;
-    function ConvertJsonToDataSet(AJson: TJSONObject): TDataSet; virtual;
     procedure RaiseError(msg, cmd: string);
   public
     constructor Create; override;
@@ -53,15 +51,23 @@ type
     function ObjectExists(ADbUser, AObjName: string): boolean; override;
   end;
 
+  { TCtMemDataSet }
+
+  TCtMemDataSet=class(TMemDataSet)
+  protected { IProviderSupport methods }
+    FSqlText: string;
+    function PSGetTableName: string; override;
+  end;
+     
+function ConvertStrToJson(const str: string): TJSONObject;
+function ConvertJsonToDataSet(AJson: TJSONObject): TDataSet;
 
 implementation
 
 uses
-  memds, WindowFuncs;
-
-{ TCtMetaCustomDb }
-
-function TCtMetaCustomDb.ConvertJsonToDataSet(AJson: TJSONObject): TDataSet;
+  WindowFuncs, CtSQLFormat;
+        
+function ConvertJsonToDataSet(AJson: TJSONObject): TDataSet;
   function GetDataTypeOfName(AName: string): TFieldType;
   begin
     if AName = 'Integer' then
@@ -82,7 +88,7 @@ function TCtMetaCustomDb.ConvertJsonToDataSet(AJson: TJSONObject): TDataSet;
     S: string;
   begin
     if data = '' then
-      Exit;    
+      Exit;
     if data = 'null' then
       Exit;
     S := WideCodeNarrow(data);
@@ -95,7 +101,7 @@ function TCtMetaCustomDb.ConvertJsonToDataSet(AJson: TJSONObject): TDataSet;
   end;
 
 var
-  ADataSet: TMemDataSet;
+  ADataSet: TCtMemDataSet;
   jCols, jRows: TJSONArray;
   mapA, mapR: TJSONObject;
   I, J: Integer;
@@ -105,7 +111,7 @@ begin
   if AJson = nil then
     Exit;
 
-  ADataSet := TMemDataSet.Create(nil);
+  ADataSet := TCtMemDataSet.Create(nil);
   Result := ADataSet;
 
   if ADataSet.Active then
@@ -162,13 +168,24 @@ begin
   ADataSet.First;
 end;
 
-function TCtMetaCustomDb.ConvertStrToJson(const str: string): TJSONObject;
+function ConvertStrToJson(const str: string): TJSONObject;
 begin
   Result := nil;
   if Str = '' then
     Exit;
   Result := TJSONObject.create(str); ;
 end;
+
+{ TCtMemDataSet }
+
+function TCtMemDataSet.PSGetTableName: string;
+begin
+  Result:='';
+  if FSqlText <> '' then
+    Result := TableNameOfSql(FSqlText);
+end;
+
+{ TCtMetaCustomDb }
 
 constructor TCtMetaCustomDb.Create;
 begin
@@ -230,9 +247,23 @@ begin
   ExecCustomDbCmdOk('ExecSql', ASql);
 end;
 
-function TCtMetaCustomDb.OpenTable(ASql, op: string): TDataSet;
+function TCtMetaCustomDb.OpenTable(ASql, op: string): TDataSet;  
+  function isSql: boolean;
+  var
+    S: String;
+  begin
+    S := ' '+LowerCase(ASql);
+    S:=StringReplace(S,#13,' ',[rfReplaceAll]);
+    S:=StringReplace(S,#10,' ',[rfReplaceAll]);
+    S:=StringReplace(S,#9,' ',[rfReplaceAll]);
+    if Pos(' select ',S) > 0 then
+      Result := True
+    else
+      Result := False;
+  end;
 var
   map: TJSONObject;
+  S: String;
 begin
   Result := nil;
   map := ExecCustomDbCmdMap('OpenTable', ASql, op, '');
@@ -240,36 +271,17 @@ begin
     Exit;
   try
     Result := ConvertJsonToDataSet(map);
+    if Result <> nil then
+    begin
+      if (Pos('[ISSQL]', op) > 0) or IsSql then
+        S := ASql
+      else
+        S := 'select * from ' + ASql;
+      TCtMemDataSet(Result).FSqlText:=S;
+    end;
   finally
     map.Free;
   end;
-
-
-(*
-
-var
-  map: TJSONObject;
-  ds: TDataSet;
-  S: string;
-begin
-  map := ExecCustomDbCmdMap('GetDbObjs', ADbUser, '', '');
-  if map = nil then
-    Exit;
-  ds := nil;
-  try
-    ds := ConvertJsonToDataSet(map);
-    ds.First;
-    while not ds.Eof do
-    begin
-      S := ds.Fields[0].AsString;
-      Result.Add(S);
-      ds.Next;
-    end;
-  finally
-    if ds <> nil then
-      ds.Free;
-    map.Free;
-  end;*)
 end;
 
 procedure TCtMetaCustomDb.RaiseError(msg, cmd: string);

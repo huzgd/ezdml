@@ -4,7 +4,12 @@ interface
 
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, ImgList,
-  CtMetaData, CtMetaTable, CtMetaFCLSqlDb, mysql57conn, DB, sqlDb;
+  CtMetaData, CtMetaTable, CtMetaFCLSqlDb, DB, sqlDb
+  {$ifdef WIN32}
+  , mysql57conn
+  {$else}
+  , mysql57conn2
+  {$endif}   ;
 
 type
 
@@ -40,7 +45,7 @@ type
 
 implementation
 
-uses Dialogs, Forms, dmlstrs;
+uses Dialogs, wCommonDBConfig, Forms, dmlstrs;
 
 { TCtMetaMysqlDb }
 
@@ -57,7 +62,13 @@ begin
   if FDbSchema = Value then
     Exit;
   if Value <> '' then
-    ExecSql('use ' + Value);
+  begin
+    try
+      ExecSql('use ' + GetDbQuotName(Value, Self.EngineType));
+    except
+      Application.HandleException(Self);
+    end;
+  end;
   FDbSchema := Value;
   inherited SetDbSchema(Value);
 end;
@@ -82,23 +93,7 @@ end;
 
 procedure TCtMetaMysqlDb.SetConnected(const Value: boolean);
 begin
-  try
-    inherited SetConnected(Value);
-  except
-    on E: Exception do
-    begin   
-{$ifdef WINDOWS}                                       
-      if Value and (Pos('mysql.dll', E.Message)>0) then
-      begin
-        raise Exception.Create(E.Message + #10 + srMysqlConnectTipWin);
-      end
-      else
-        raise;
-{$else}
-        raise;
-{$endif}
-    end;
-  end;
+  inherited SetConnected(Value);
 end;
 
 
@@ -117,15 +112,19 @@ end;
 
 function TCtMetaMysqlDb.ShowDBConfig(AHandle: THandle): boolean;
 var
-  S: String;
+  S: string;
 begin
-{$ifdef WINDOWS}
-  S := srMysqlConnectTip + #10 + srMysqlConnectTipWin;
-{$else}  
-  S := srMysqlConnectTip;
-{$endif}
-  ShowMessage(S);
-  Result := False;
+  S := Database;
+  if S = ''  then
+    S := 'localhost:3306@test';
+  S := TfrmCommDBConfig.DoDbConfig(S, Self.EngineType);
+  if S <> '' then
+  begin
+    Database := S;
+    Result := True;
+  end
+  else
+    Result := False;
 end;
 
 function TCtMetaMysqlDb.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer): string;
@@ -502,6 +501,7 @@ end;
 function TCtMetaMysqlDb.ObjectExists(ADbUser, AObjName: string): boolean;
 var
   po: integer;
+  S: String;
 begin
   Result := False;
   CheckConnected;
@@ -519,8 +519,11 @@ begin
   with FQuery do
   begin
     Clear;
-    Sql.Text := 'SELECT count(*) FROM information_schema.tables WHERE TABLE_NAME='''
-      + AObjName + ''' and TABLE_SCHEMA=''' + ADbUser + '''';
+    S := 'SELECT count(*) as OBJ_COUNT FROM information_schema.tables WHERE TABLE_NAME='''
+      + AObjName + '''';
+    if ADbUser <> '' then
+      S := S+' and TABLE_SCHEMA=''' + ADbUser + '''';
+    Sql.Text := S;
 
     Open;
     if not EOF then

@@ -780,23 +780,17 @@ end;
 
 procedure TfrmScriptIDE.actShowInExplorerExecute(Sender: TObject);
 var
-  S, fn: string;
+  fn: string;
 begin
   fn := Self.ActiveFile;
   if (fn = '') or not FileExists(fn) then
     fn := Application.ExeName;
-{$ifdef WINDOWS}
-  S := 'Explorer /select, "' + fn + '"';
-  ShellCmd(S);
-{$else}
-  S := ExtractFilePath(fn);
-  CtOpenDoc(S);
-{$endif}
+  CtBrowseFile(fn);
 end;
 
 procedure TfrmScriptIDE.actShowTempFileExecute(Sender: TObject);
 var
-  S, dir, fn: string;
+  dir, fn: string;
 begin
   fn := GetFileNameForcely;
 
@@ -807,13 +801,7 @@ begin
   end;
   if not DirectoryExists(dir) then
     ForceDirectories(dir);
-{$ifdef WINDOWS}
-  S := 'Explorer "' + dir + '"';
-  ShellCmd(S);
-{$else}
-  S := dir;
-  CtOpenDoc(S);
-{$endif}
+  CtOpenDir(dir);
 end;
 
 procedure TfrmScriptIDE.actSwitchLayoutExecute(Sender: TObject);
@@ -1331,7 +1319,8 @@ begin
     CheckRestoreTempPsp;
     S := ed.Lines.Text;
     S := StringReplace(S, #13#10, #10, [rfReplaceAll]);
-    S := Trim(S);
+    S := Trim(S);    
+  {$ifndef EZDML_LITE}
     if S <> Trim(STR_DEFAULT_PROGRAM_JS) then
     begin
       if (FDmlBaseScriptor <> nil) and (FDmlBaseScriptor.ScriptType = 'pas')
@@ -1352,7 +1341,8 @@ begin
         ActiveFile := '';
       end;
     end
-    else
+    else   
+  {$endif}
     begin
       ed.ClearAll;
       ed.Lines.Text := STR_DEFAULT_PROGRAM_PAS;
@@ -1546,8 +1536,12 @@ var
   fn: string;
 begin
   fn := AFileName;
-  if fn = '' then
+  if fn = '' then     
+  {$ifndef EZDML_LITE}
     fn := 'a.js';
+  {$else} 
+    fn := 'a.pas';
+  {$endif}
   if Assigned(FDmlBaseScriptor) then
     FreeAndNil(FDmlBaseScriptor);
   FDmlBaseScriptor := CreateScriptForFile(fn);

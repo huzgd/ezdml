@@ -37,6 +37,9 @@ type
 
 
 function ShiftToInt(s: TShiftState): integer;
+function CtStringToDateTime(s: string): TDateTime;
+function CtStringToBool(AVal: string): Boolean;
+function CtTrim(s: string): string;
 
 function IntToShift(i: integer): TShiftState;
 
@@ -66,6 +69,8 @@ function ModifyCompStr(const Strsrc, SubVal: string; const sCompS, sCompE: strin
   bCaseInsensitive: boolean = False): string;
 function AddOrModifyCompStr(const Strsrc, SubVal: string; const sCompS, sCompE: string;
   bCaseInsensitive: boolean = False): string;
+function RemoveCompStr(const Strsrc: string; const sCompS, sCompE: string;
+  bCaseInsensitive: Boolean = False): string;
 function TrimByStr(const src, trs: string): string;  
 function LastPos(SubStr, S: string): integer;
 
@@ -99,12 +104,16 @@ function URLDecode(const url: string): string;
 
 procedure ShellCmd(cmd: string; par: string = '');    
 function RunCmd(cmd: string; timeout: integer): string;
-procedure CtOpenDoc(adoc: string);
+procedure CtOpenDoc(adoc: string); 
+procedure CtOpenDir(dir: string);
+procedure CtBrowseFile(fn: string);
 
 function CtCopyFile(lpExistingFileName, lpNewFileName: PChar; bFailIfExists: BOOL): BOOL;
 
 function DmlStrLength(const S: string): integer;
 //转ANSI或GBK编码时的字符长（英文1B，中文2B）
+
+function DmlStrCut(const S: string; dLen: Integer): String;
 
 function CtUTF8Encode(const s: string): string;
 function CtUTF8Decode(const s: string): string;
@@ -129,6 +138,32 @@ function SccStrDecode(str: string): string;
                           
 function IfElse(const ABool, TrueVal, FalseVal: variant): variant;
 
+const
+  DEF_CT_DATETIME_FMTS: array[0..21] of String =(
+    'yyyy"-"mm"-"dd hh:nn:ss', //'yyyy-MM-dd HH:mm:ss',
+    'yyyy"/"mm"/"dd hh:nn:ss', //'yyyy/MM/dd HH:mm:ss',
+    'yyyy"年"mm"月"dd"日" hh"时"nn"分"ss"秒"', //'yyyy年MM月dd日 HH时mm分ss秒',  
+    'yyyymmddhhnnss', //'yyyyMMddHHmmss',
+    'yyyymmdd hh:nn:ss', //'yyyyMMdd HH:mm:ss',
+    'yyyy"-"mm"-"dd"T"hh:nn:ss', //'yyyy-MM-ddTHH:mm:ss',
+    'yyyy"/"mm"/"dd"T"hh:nn:ss', //'yyyy/MM/ddTHH:mm:ss'
+    'yyyy"-"mm"-"dd hh:nn', //'yyyy-MM-dd HH:mm',
+    'yyyy"/"mm"/"dd hh:nn', //'yyyy/MM/dd HH:mm',
+    'yyyy"-"mm"-"dd"T"hh:nn', //'yyyy-MM-ddTHH:mm',
+    'yyyy"/"mm"/"dd"T"hh:nn', //'yyyy/MM/ddTHH:mm',
+    'yyyymmdd t', //'yyyyMMdd HH:mm',
+    'yyyy"年"mm"月"dd"日" hh"时"nn"分"', //'yyyy年MM月dd日 HH时mm分',
+    'yyyy"年"mm"月"dd"日" hh:nn', //'yyyy年MM月dd日 HH:mm',
+    'yyyy"年"mm"月"dd"日"', //'yyyy年MM月dd日',
+    'yyyy"-"mm"-"dd', //'yyyy-MM-dd',
+    'yyyy"/"mm"/"dd', //'yyyy/MM/dd', 
+    'yyyymmdd', //'yyyyMMdd', 
+    'yyyy"年"mm"月"', //'yyyy年MM月',
+    'yyyymm', //'yyyyMM',
+    'hh:nn:ss', //'HH:mm:ss',
+    'hh:nn' //'HH:mm',
+  );
+
 var
   G_AppExeFolderPath: string = '';
   G_CtAppFormHandler: TCtAppFormHandler = nil;
@@ -136,7 +171,7 @@ var
   G_AppDefFontSize: integer = 0;
   G_AppFixWidthFontName: string = '';
   G_AppFixWidthFontSize: integer = 0;
-  G_DmlGraphFontName: string = '';     
+  G_DmlGraphFontName: string = '';
   GProc_Toast: procedure(const Msg: variant; closeTimeMs: integer);
 
 const
@@ -146,7 +181,7 @@ implementation
 
 uses
   dmlstrs, ezdmlstrs, Variants, Dialogs, LazUTF8, LConvEncoding, FileUtil,
-  Controls, StrUtils, process, IniFiles;
+  Controls, StrUtils, process, IniFiles, DateUtils;
                  
 function IfElse(const ABool, TrueVal, FalseVal: variant): variant;
 var
@@ -172,8 +207,7 @@ begin
   else
   begin
     S := UpperCase(VarToStr(ABool));
-    if (S = '0') or (S = '') or (S = 'N') or (S = 'NO') or (S = '否') or
-      (S = 'F') or (S = 'FALSE') or (S = '假') then
+    if not CtStringToBool(S) then
       Result := FalseVal
     else
     begin
@@ -185,7 +219,101 @@ begin
     end;
   end;
 end;
+       
+function CtStringToDateTime(s: string): TDateTime;
+var
+  I, L: Integer;
+  V: String;
+begin
+  Result := 0;
+  if Trim(S)='' then
+    Exit;
 
+  if Pos(':', S)=0 then
+  begin
+    if TryStrToDate(S, Result) then
+      Exit;
+    if Pos('-', S)> 0 then
+    begin
+      V:=StringReplace(S,'-','/',[rfReplaceAll]); 
+      if TryStrToDate(V, Result) then
+        Exit;
+    end
+    else if Pos('/', S)> 0 then
+    begin
+      V:=StringReplace(S,'/','-',[rfReplaceAll]);
+      if TryStrToDate(V, Result) then
+        Exit;
+    end;
+  end
+  else
+  begin
+    if TryStrToDateTime(S, Result) then
+      Exit;
+
+    if Pos('-', S)> 0 then
+    begin
+      V:=StringReplace(S,'-','/',[rfReplaceAll]);
+      if TryStrToDateTime(V, Result) then
+        Exit;
+    end
+    else if Pos('/', S)> 0 then
+    begin
+      V:=StringReplace(S,'/','-',[rfReplaceAll]);
+      if TryStrToDateTime(V, Result) then
+        Exit;
+    end;
+  end;
+
+  L := Length(DEF_CT_DATETIME_FMTS);
+  for I:=0 to L - 1 do
+  begin
+    try
+      Result := ScanDateTime(DEF_CT_DATETIME_FMTS[i], S);
+      if Result>0.0000000000001 then
+        Exit;
+    except
+    end;
+  end;
+end;
+
+function CtStringToBool(AVal: string): Boolean;
+begin
+  if LowerCase(AVal) = 'false' then
+    Result := False
+  else if LowerCase(AVal) = 'no' then
+    Result := False       
+  else if LowerCase(AVal) = 'n' then
+    Result := False
+  else if LowerCase(AVal) = 'f' then
+    Result := False
+  else if Trim(AVal) = '' then
+    Result := False
+  else if AVal = '0' then
+    Result := False      
+  else if AVal = '否' then
+    Result := False
+  else if AVal = '假' then
+    Result := False
+  else if LowerCase(AVal) = LowerCase(srBoolName_False) then
+    Result := False
+  else
+    Result := True;
+end;
+
+function CtTrim(s: string): string;
+var
+  po: Integer;
+begin
+  Result := s;
+  po := Pos(#0, s);
+  if po>0 then
+  begin
+    Result := Copy(s,1, po - 1);   
+    //CtAlert('zzzzzzzzz0: '+StringExtToWideCode(s));
+  end;
+  Result := Trim(Result);
+end;
 
 function SccStrEncode(str: string): string;
 begin
@@ -221,6 +349,8 @@ begin
   if Pos('#23', Result) > 0 then
     Result := StringReplace(Result, '#23', #23, [rfReplaceAll]);
 end;
+
+
 
 function ScaleDPISize(ASize: Integer): Integer;
 begin
@@ -576,8 +706,10 @@ end;
 
 procedure ShellCmd(cmd, par: string);
 begin
-{$ifdef WINDOWS}
+{$ifdef WINDOWS}    
+{$ifndef WIN32}
   cmd := CtUTF8Decode(cmd);
+{$endif}
 {$endif}
   SysUtils.ExecuteProcess(cmd, '', []);
 end;
@@ -640,6 +772,32 @@ begin
   end;
 end;
 
+procedure CtOpenDir(dir: string);
+var
+  S: String;
+begin
+{$ifdef WINDOWS}
+  S := 'Explorer "' + dir + '"';
+  ShellCmd(S);
+{$else}
+  S := dir;
+  CtOpenDoc(S);
+{$endif}
+end;
+
+procedure CtBrowseFile(fn: string);
+var
+  S: string;
+begin
+{$ifdef WINDOWS}
+  S := 'Explorer /select, "' + fn + '"';
+  ShellCmd(S);
+{$else}
+  S := ExtractFilePath(fn);
+  CtOpenDoc(S);
+{$endif}
+end;
+
 
 function CtCopyFile(lpExistingFileName, lpNewFileName: PChar; bFailIfExists: BOOL): BOOL;
 begin
@@ -667,6 +825,44 @@ begin
       Inc(Result, 2)
     else
       Inc(Result, 1);
+    Inc(CurP, Len);
+  end;
+end;
+
+function DmlStrCut(const S: string; dLen: Integer): String;
+var
+  CurP, EndP: PChar;
+  Len, cLen: integer;
+begin
+  Result := S;
+  if S = '' then
+    Exit;
+  CurP := PChar(Result);
+  EndP := CurP + length(Result);
+  cLen := 0;
+  while CurP < EndP do
+  begin
+    Len := UTF8CodepointSize(CurP);
+    if Len > 1 then
+    begin
+      if cLen <= dLen - 2 then
+        Inc(cLen, 2)
+      else
+      begin
+        Result := Copy(Result, 1, cLen);
+        Exit;
+      end;
+    end
+    else
+    begin
+      if cLen <= dLen - 1 then
+        Inc(cLen, 1)
+      else
+      begin
+        Result := Copy(Result, 1, cLen);
+        Exit;
+      end;
+    end;
     Inc(CurP, Len);
   end;
 end;
@@ -1025,6 +1221,35 @@ begin
   Result := ModifyCompStr(Strsrc, SubVal, sCompS, sCompE, bCaseInsensitive);
   if Result = '' then
     Result := Strsrc + sCompS + SubVal + sCompE;
+end;
+     
+function RemoveCompStr(const Strsrc: string; const sCompS, sCompE: string;
+  bCaseInsensitive: Boolean = False): string;
+var
+  L, P0, P1: Integer;
+  Str, Res: string;
+begin
+  Result := Strsrc;
+  Str := Strsrc;
+
+  if bCaseInsensitive then
+    P0 := Pos(UpperCase(sCompS), UpperCase(Str))
+  else
+    P0 := Pos(sCompS, Str);
+  if P0 = 0 then
+    Exit;
+
+  L := Length(sCompS);
+  Res := Copy(Str, 1, P0 - 1);
+  Str := Copy(Str, P0 + L, Length(Str));
+
+  if bCaseInsensitive then
+    P1 := Pos(UpperCase(sCompE), UpperCase(Str))
+  else
+    P1 := Pos(sCompE, Str);
+  if P1 = 0 then
+    Exit;
+  Result := Res + Copy(Str, P1 + Length(sCompE), Length(Str));
 end;
 
 function TrimByStr(const src, trs: string): string;
@@ -1534,6 +1759,7 @@ begin
     FFileHandle := feInvalidHandle;
   end;
 end;
+
 
 
 end.

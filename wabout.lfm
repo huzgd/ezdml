@@ -1,16 +1,16 @@
 object frmAbout: TfrmAbout
   Left = 554
-  Height = 322
+  Height = 374
   Top = 302
   Width = 470
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 322
+  ClientHeight = 374
   ClientWidth = 470
   OnCreate = FormCreate
   ParentFont = True
   Position = poMainFormCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.12.0'
   object Image1: TImage
     Left = 32
     Height = 64
@@ -1777,7 +1777,7 @@ object frmAbout: TfrmAbout
   object memoAcks: TMemo
     Cursor = crArrow
     Left = 40
-    Height = 127
+    Height = 183
     Top = 177
     Width = 400
     BorderStyle = bsNone
@@ -1789,6 +1789,8 @@ object frmAbout: TfrmAbout
       'BESEN Javascript, Benjamin ''BeRo'' Rosseaux'
       'uJSON, Jose Fabio Nascimento de Almeida'
       'SynEdit, sourceforge.net/projects/synedit'
+      'Indy, indyproject.org'
+      'FCL SqlDB'
       'Archicle, Mr.Chef, runinwind, xjg, zsedcbm, ...'
     )
     ParentColor = True

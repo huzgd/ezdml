@@ -8,5 +8,7 @@
 {"hash":1339,"name":"tfrmaddtblink.btnok.caption","sourcebytes":[79,75],"value":"OK"},
 {"hash":77089212,"name":"tfrmaddtblink.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
 {"hash":340043,"name":"tfrmaddtblink.lblinkinfo.caption","sourcebytes":[76,105,110,107],"value":"Link"},
-{"hash":30353492,"name":"tfrmaddtblink.ckbcreatenewfield.caption","sourcebytes":[67,114,101,97,116,101,32,110,101,119,32,102,105,101,108,100],"value":"Create new field"}
+{"hash":30353492,"name":"tfrmaddtblink.ckbcreatenewfield.caption","sourcebytes":[67,114,101,97,116,101,32,110,101,119,32,102,105,101,108,100],"value":"Create new field"},
+{"hash":4863637,"name":"tfrmaddtblink.btnclose.caption","sourcebytes":[67,108,111,115,101],"value":"Close"},
+{"hash":103869717,"name":"tfrmaddtblink.ckbcreatem2mtb.caption","sourcebytes":[67,114,101,97,116,101,32,109,97,110,121,45,116,111,45,109,97,110,121,32,114,101,108,97,116,105,111,110,32,116,97,98,108,101],"value":"Create many-to-many relation table"}
 ]}

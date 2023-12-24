@@ -2499,8 +2499,12 @@ end;
 
 procedure BESENCheckObjectCoercible(const v:TBESENValue); {$ifdef caninline}inline;{$endif}
 begin
- case v.ValueType of
-  bvtUNDEFINED,bvtNULL,bvtREFERENCE,bvtLOCAL:begin
+ case v.ValueType of  //modified by huz 20220527
+  bvtUNDEFINED:
+   BESENThrowTypeError('undefined object');
+  bvtNULL:
+   BESENThrowTypeError('null pointer');
+  bvtREFERENCE,bvtLOCAL:begin
    BESENThrowTypeError('CheckObjectCoercible failed');
   end;
  end;

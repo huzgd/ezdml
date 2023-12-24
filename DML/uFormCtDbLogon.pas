@@ -13,10 +13,12 @@ type
   { TfrmLogonCtDB }
 
   TfrmLogonCtDB = class(TForm)
+    btnHelp: TButton;
     Label1: TLabel;
     combDbType: TComboBox;
     Label2: TLabel;
     edtUserName: TEdit;
+    lbConnectingTip: TLabel;
     Label_Pwd: TLabel;
     edtPassword: TEdit;
     Label4: TLabel;
@@ -26,9 +28,12 @@ type
     btnDBCfg: TButton;
     ckbSavePwd: TCheckBox;
     ckbAutoLogin: TCheckBox;
+    PanelAutoLoginTip: TPanel;
     TimerAutoLogin: TTimer;
     btnLogonHist: TButton;
     PopupMenuLogonHist: TPopupMenu;
+    procedure btnCancelClick(Sender: TObject);
+    procedure btnHelpClick(Sender: TObject);
     procedure btnOKClick(Sender: TObject);
     procedure FormClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -37,6 +42,7 @@ type
     procedure btnDBCfgClick(Sender: TObject);
     procedure Label_PwdDblClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure lbConnectingTipClick(Sender: TObject);
     procedure TimerAutoLoginTimer(Sender: TObject);
     procedure ckbSavePwdClick(Sender: TObject);
     procedure btnLogonHistClick(Sender: TObject);
@@ -45,6 +51,7 @@ type
     FLogonHistories: TStringList;
     procedure _OnLogonHistMenuItemClicked(Sender: TObject);  
     procedure DoConnectDb(bForceReConnect: Boolean);
+    procedure DisableAutoLogin;
   public
     { Public declarations }
     procedure GetLastDbLogonInfo(dbTypeNeeded: Boolean);
@@ -57,15 +64,19 @@ function DoExecCtDbLogon(DbType, database, username, password: String;
   bSavePwd, bAutoLogin, bShowDialog: Boolean; opt: String): String;
 function GetLastCtDbConn(bMustConnected: Boolean = True): Integer;
 function GetLastCtDbType: string;
-function CanAutoShowLogin: Boolean;
+function GetLastCtDbIdentStr: string;
+function ExtractFileDbIdentStr(fn: string): string;
+function CanAutoShowLogin: Boolean;  
+function IsCtDbConnected: Boolean;
 function DoExecSql(sql, opts: string): TDataSet;
 
 var
   frmLogonCtDB: TfrmLogonCtDB;
+  F_DbAutoLogonDone: Boolean = False;
 
 implementation
 
-uses CtMetaTable, IniFiles, WindowFuncs;
+uses CtMetaTable, IniFiles, WindowFuncs, dmlstrs, ezdmlstrs;
 
 {$R *.lfm}
 
@@ -192,6 +203,32 @@ begin
   else
     Result := '';
 end;
+           
+function GetLastCtDbIdentStr: string;
+var
+  idx: Integer;
+begin
+  idx := GetLastCtDbConn(False);
+  if idx >= 0 then
+    Result := CtMetaDBRegs[idx].DbImpl.GetIdentStr
+  else
+    Result := '';
+end;
+
+function ExtractFileDbIdentStr(fn: string): string;
+var
+  po: Integer;
+begin
+  Result := '';
+  if Pos('db://', fn) <> 1 then
+    Exit;
+  fn := Copy(fn, 6, Length(fn));
+  po := Pos('/', fn);
+  if po>0 then
+  begin
+    Result := Copy(fn, 1, po-1);
+  end;
+end;
 
 function CanAutoShowLogin: Boolean;
 var
@@ -207,6 +244,14 @@ begin
       ini.Free;
     end;
   end;
+end;
+
+function IsCtDbConnected: Boolean;
+begin
+  if GetLastCtDbConn < 0 then
+    Result := False
+  else
+    Result := True;
 end;
 
 function DoExecSql(sql, opts: string): TDataSet;
@@ -261,13 +306,15 @@ begin
   if not ckbSavePwd.Checked then
     Exit;
 
-  ///if (GetAsyncKeyState(VK_SHIFT) and $8000) <> 0 then
-  ///  Exit;
+  if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+    Exit;
 
   I := combDbType.ItemIndex;
   if I < 0 then
     Exit;
   if CtMetaDBRegs[I].DbImpl = nil then
+    Exit;  
+  if F_DbAutoLogonDone then
     Exit;
 
   with CtMetaDBRegs[I].DbImpl do
@@ -281,9 +328,16 @@ begin
   end;
 
   btnOK.Enabled := False;
-  btnCancel.Enabled := False;
+  PanelAutoLoginTip.Visible:=True;
+  ckbSavePwd.Visible := False;
 
   TimerAutoLogin.Enabled := True;
+  F_DbAutoLogonDone := True;
+end;
+
+procedure TfrmLogonCtDB.lbConnectingTipClick(Sender: TObject);
+begin
+  FormClick(nil);
 end;
 
 procedure TfrmLogonCtDB.GetLastDbLogonInfo(dbTypeNeeded: Boolean);
@@ -415,7 +469,6 @@ var
   I: Integer;
 begin
   TimerAutoLogin.Enabled := False;
-
   try
 
     if not ckbAutoLogin.Checked then
@@ -423,8 +476,8 @@ begin
     if not ckbSavePwd.Checked then
       Exit;
 
-    ////if (GetAsyncKeyState(VK_SHIFT) and $8000) <> 0 then
-    ///  Exit;
+    if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+      Exit;
 
     I := combDbType.ItemIndex;
     if I < 0 then
@@ -441,13 +494,17 @@ begin
       if User = '' then
         Exit;
     end;
-
+                     
+    ckbSavePwd.Visible := False;
+    PanelAutoLoginTip.Show;
+    PanelAutoLoginTip.BringToFront;
     Self.btnOKClick(nil);
-  finally
+  finally                  
+    ckbSavePwd.Visible := True;
+    PanelAutoLoginTip.Visible := False;
     if ModalResult <> mrOk then
     begin
       btnOK.Enabled := True;
-      btnCancel.Enabled := True;
     end;
   end;
 end;
@@ -470,7 +527,7 @@ begin
     S := Copy(S, po + 1, Length(S));
 
     for I := 0 to High(CtMetaDBRegs) do
-      if (CtMetaDBRegs[I].DbImpl <> nil) and (CtMetaDBRegs[I].DbImpl.EngineType = sDb) then
+      if (CtMetaDBRegs[I].DbImpl <> nil) and (CtMetaDBRegs[I].DbImpl.OrigEngineType = sDb) then
       begin
         SetLogonHistoryToDb(S, CtMetaDBRegs[I].DbImpl);
         combDbType.ItemIndex := I;
@@ -497,7 +554,11 @@ begin
       Exit;
                                    
   CtCurMetaDbConn := nil;
-  CtMetaDBRegs[I].DbImpl.Connected := False;
+  try
+    CtMetaDBRegs[I].DbImpl.Connected := False;
+  except
+    //Application.HandleException(Self);
+  end;
   CtMetaDBRegs[I].DbImpl.Database := combDBName.Text;
   CtMetaDBRegs[I].DbImpl.User := edtUserName.Text;
   CtMetaDBRegs[I].DbImpl.Password := edtPassword.Text;
@@ -507,7 +568,12 @@ begin
     CtCurMetaDbName := CtMetaDBRegs[I].DbImpl.ClassName;
     FGlobeDataModelList.CurDataModel.DbConnectStr := CtCurMetaDbName;
   end;
-  CtMetaDBRegs[I].DbImpl.Connected := True; 
+  try   
+    CtMetaDBRegs[I].DbImpl.Connected := True;
+  finally
+    if not CtMetaDBRegs[I].DbImpl.Connected then
+      DisableAutoLogin;
+  end;
   CtCurMetaDbConn := CtMetaDBRegs[I].DbImpl;
 
   his := '';
@@ -524,7 +590,7 @@ begin
     else
       P := '';
     S := CtMetaDBRegs[I].DbImpl.User + '@' + CtMetaDBRegs[I].DbImpl.Database + P;
-    his := CtMetaDBRegs[I].DbImpl.EngineType + ':' + S;
+    his := CtMetaDBRegs[I].DbImpl.OrigEngineType + ':' + S;
 
     Ini.WriteString('DbConn', CtMetaDBRegs[I].DbImpl.ClassName, S);
     ini.WriteString('DbConn', 'CtCurMetaDbName', CtCurMetaDbName);
@@ -538,13 +604,28 @@ begin
   ModalResult := mrOk;
 end;
 
+procedure TfrmLogonCtDB.DisableAutoLogin;
+var
+  ini: TIniFile;
+begin
+  ckbAutoLogin.Checked := False;
+  ini := TIniFile.Create(GetConfFileOfApp);
+  try                                       
+    if ini.ReadBool('DbConn', 'AutoLogin', False) then
+      ini.WriteBool('DbConn', 'AutoLogin', False);
+  finally
+    ini.Free;
+  end;
+end;
+
 procedure TfrmLogonCtDB.btnLogonHistClick(Sender: TObject);
 var
   I, po: Integer;
   S: string;
   mn: TMenuItem;
   pt: TPoint;
-begin
+begin        
+  FormClick(nil);
   PopupMenuLogonHist.Items.Clear;
   for I := 0 to FLogonHistories.Count - 1 do
   begin
@@ -616,14 +697,20 @@ begin
 end;
 
 procedure TfrmLogonCtDB.FormClick(Sender: TObject);
-begin
-  if TimerAutoLogin.Enabled and ckbAutoLogin.Checked then
-    ckbAutoLogin.Checked := False;
+begin                             
+  if TimerAutoLogin.Enabled then
+    DisableAutoLogin;
+
+  TimerAutoLogin.Enabled := False;
+  ckbSavePwd.Visible := True;
+  PanelAutoLoginTip.Visible := False;
+  btnOK.Enabled := True;
 end;
 
 procedure TfrmLogonCtDB.btnOKClick(Sender: TObject);
 var
   I: Integer;
+  S: String;
 begin
   I := combDbType.ItemIndex;
   if I < 0 then
@@ -634,12 +721,45 @@ begin
   begin
     btnOK.Enabled := False;
     btnCancel.Enabled := False;
+    S := Caption;
     try
+      Caption := lbConnectingTip.Caption;
       DoConnectDb(True);
-    finally
+    finally                    
+      Caption := S;
       btnOK.Enabled := True;
       btnCancel.Enabled := True;
     end;
+  end;
+end;
+
+procedure TfrmLogonCtDB.btnHelpClick(Sender: TObject);
+var
+  S, V: string;
+begin
+  if not LangIsChinese then
+    S := 'ezdml.com/doc/dblogon.html'
+  else
+    S := 'ezdml.com/doc/dblogon_cn.html';
+  S:=S+'?db='+combDbType.Text;
+  V := Format(srEzdmlConfirmOpenUrlFmt, [S]);
+
+  if Application.MessageBox(PChar(V),
+    PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+    Exit;
+
+  S := 'http://www.'+S;
+  CtOpenDoc(PChar(S)); { *Converted from ShellExecute* }
+end;
+
+procedure TfrmLogonCtDB.btnCancelClick(Sender: TObject);
+begin
+  if TimerAutoLogin.Enabled then
+  begin
+    FormClick(nil);
+  end else
+  begin
+    ModalResult := mrCancel;
   end;
 end;
 

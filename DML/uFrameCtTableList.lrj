@@ -29,9 +29,11 @@
 {"hash":63602373,"name":"tframecttablelist.actcamelcasetounderline.caption","sourcebytes":[67,97,109,101,108,45,67,97,115,101,32,116,111,32,85,110,100,101,114,108,105,110,101],"value":"Camel-Case to Underline"},
 {"hash":261161749,"name":"tframecttablelist.actunderlinetocamelcase.caption","sourcebytes":[85,110,100,101,114,108,105,110,101,32,116,111,32,67,97,109,101,108,45,67,97,115,101],"value":"Underline to Camel-Case"},
 {"hash":249315657,"name":"tframecttablelist.actpasteascopy.caption","sourcebytes":[80,97,115,116,101,32,97,115,32,99,111,112,121],"value":"Paste as copy"},
+{"hash":23097796,"name":"tframecttablelist.actcnwordsegment.caption","sourcebytes":[67,104,105,110,101,115,101,32,119,111,114,100,32,115,101,103,109,101,110,116],"value":"Chinese word segment"},
 {"hash":128450513,"name":"tframecttablelist.mn_reserved1.caption","sourcebytes":[82,69,83,69,82,86,69,68,49],"value":"RESERVED1"},
 {"hash":128450514,"name":"tframecttablelist.mn_reserved2.caption","sourcebytes":[82,69,83,69,82,86,69,68,50],"value":"RESERVED2"},
 {"hash":128450515,"name":"tframecttablelist.mn_reserved3.caption","sourcebytes":[82,69,83,69,82,86,69,68,51],"value":"RESERVED3"},
 {"hash":128450516,"name":"tframecttablelist.mn_reserved4.caption","sourcebytes":[82,69,83,69,82,86,69,68,52],"value":"RESERVED4"},
+{"hash":128450517,"name":"tframecttablelist.mn_reserved5.caption","sourcebytes":[82,69,83,69,82,86,69,68,53],"value":"RESERVED5"},
 {"hash":10799477,"name":"tframecttablelist.mn_capitalize.caption","sourcebytes":[67,97,112,105,116,97,108,105,122,101],"value":"Capitalize"}
 ]}

@@ -10,7 +10,8 @@ uses
   LCLIntf, LCLType, LMessages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   DMLObjs, DMLGraph, ComCtrls, ActnList, ImgList,
   Menus, StdCtrls, Dialogs, uWaitWnd,
-  {uDMLTableProp, uDMLObjProp, }uColorStyles, Grids, ValEdit, Buttons, ExtCtrls
+  {uDMLTableProp, uDMLObjProp, }uColorStyles, Grids, ValEdit, Buttons, ExtCtrls,
+  ColorBox
 {$IFDEF USE_ORACLE}, Oracle, DMLOracleDb, Buttons, ExtCtrls, Grids, ValEdit{$ENDIF};
 
 type
@@ -30,12 +31,21 @@ type
     actBatCopyInsertSQL: TAction;
     actBatCopyUpdateSQL: TAction;
     actBatCopyFieldNameComma: TAction;
-    actBatCopyJoinSelectSQL: TAction;
+    actBatCopyExplicitJoinSQL: TAction;
+    actBatCopyDropSQL: TAction;
+    actBatCopyImplicitJoinSQL: TAction;
+    actCnWordSegment: TAction;
+    actChatGPT: TAction;
+    actShowHideList: TAction;
     actPasteAsCopy: TAction;
     actRun: TAction;
     btnShowInGraph: TBitBtn;
+    colobBgColor: TColorBox;
     ImageList2: TImageList;
     MenuItem1: TMenuItem;
+    MenuItem10: TMenuItem;
+    MNRun_SqlTool: TMenuItem;
+    MNCnWordSegment: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     MenuItem4: TMenuItem;
@@ -43,6 +53,10 @@ type
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
+    MenuItem9: TMenuItem;
+    MNRun_GenData: TMenuItem;
+    MNRun_GenCode: TMenuItem;
+    MNRun_GenSQL: TMenuItem;
     MN_PasteAsCopy: TMenuItem;
     MNAddLink1: TMenuItem;
     MN_GenSql: TMenuItem;
@@ -63,6 +77,8 @@ type
     MN_CamelCasetoUnderline: TMenuItem;
     MN_UnderlinetoCamelCase: TMenuItem;
     MN_ConvertChinesetoPinYin: TMenuItem;
+    PopupMenuRunGens: TPopupMenu;
+    SpeedButtonChatGPT: TSpeedButton;
     StatusBar1: TStatusBar;
     ActionList2: TActionList;
     actPan: TAction;
@@ -80,6 +96,8 @@ type
     N35: TMenuItem;
     H2: TMenuItem;
     TimerDelayCmd: TTimer;
+    ToolButtonDMLSp0: TToolButton;
+    ToolButtonSHideList: TToolButton;
     ToolButtonRun: TToolButton;
     ToolButtonFullScrn: TToolButton;
     Z2: TMenuItem;
@@ -180,19 +198,23 @@ type
     procedure actAutoCapitalizeExecute(Sender: TObject);
     procedure actBatCopyCreateSQLExecute(Sender: TObject);
     procedure actBatCopyDescTextExecute(Sender: TObject);
+    procedure actBatCopyDropSQLExecute(Sender: TObject);
     procedure actBatCopyExcelTextExecute(Sender: TObject);
     procedure actBatCopyFieldNameCommaExecute(Sender: TObject);
     procedure actBatCopyFieldNameExecute(Sender: TObject);
     procedure actBatCopyFieldNTypeExecute(Sender: TObject);
+    procedure actBatCopyImplicitJoinSQLExecute(Sender: TObject);
     procedure actBatCopyInsertSQLExecute(Sender: TObject);
-    procedure actBatCopyJoinSelectSQLExecute(Sender: TObject);
+    procedure actBatCopyExplicitJoinSQLExecute(Sender: TObject);
     procedure actBatCopySelectSQLExecute(Sender: TObject);
     procedure actBatCopyTbNameExecute(Sender: TObject);
     procedure actBatCopyUpdateSQLExecute(Sender: TObject);
     procedure actCamelCaseToUnderlineExecute(Sender: TObject);
     procedure actCapLowercaseExecute(Sender: TObject);
     procedure actCapUppercaseExecute(Sender: TObject);
+    procedure actChatGPTExecute(Sender: TObject);
     procedure actCheckWithMyDictExecute(Sender: TObject);
+    procedure actCnWordSegmentExecute(Sender: TObject);
     procedure actConvertChnToPyExecute(Sender: TObject);
     procedure actExchangeDispCommExecute(Sender: TObject);
     procedure actExchangeNameDispExecute(Sender: TObject);
@@ -203,6 +225,13 @@ type
     procedure actRunExecute(Sender: TObject);
     procedure actUnderlineToCamelCaseExecute(Sender: TObject);
     procedure btnShowInGraphClick(Sender: TObject);
+    procedure colobBgColorChange(Sender: TObject);
+    procedure colobBgColorCloseUp(Sender: TObject);
+    procedure colobBgColorGetColors(Sender: TCustomColorBox; Items: TStrings);
+    procedure MNRun_GenCodeClick(Sender: TObject);
+    procedure MNRun_GenDataClick(Sender: TObject);
+    procedure MNRun_GenSQLClick(Sender: TObject);
+    procedure MNRun_SqlToolClick(Sender: TObject);
     procedure PopupMenu1Popup(Sender: TObject);
     procedure actSelectAllExecute(Sender: TObject);
     procedure actExportXlsExecute(Sender: TObject);
@@ -292,7 +321,10 @@ type
     Proc_OnLinkObj: function(Obj1, Obj2: TDMLObj): Integer of object; //-1无 0line 1FK one2many 2FK_one2one 3ArrowLine 4Line
     Porc_OnStatusMsg: procedure(Msg: string; tp: Integer) of object;      
     Proc_DoCapitalize: procedure(sType: string) of object;
-    Proc_DoBatCopy: procedure(sType: string) of object;
+    Proc_DoBatCopy: procedure(sType: string) of object;       
+    Proc_OnObjColorChanged: procedure(Obj: TDMLObj; cl: Integer) of object;   
+    Proc_GetObjPropVal: function(Obj: TDMLObj; prop, def: string): string of object; 
+    Proc_DoSelectChanged: procedure() of object;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ShowTbProp(obj: TDMLTableObj);
@@ -364,7 +396,6 @@ begin
       DMLGraph.DMLDrawer.DrawerWidth := 1500;
     DMLGraph.DMLDrawer.DrawerHeight := Screen.Width * 3 div 2;
   end;
-  InitCustColorDialog;
 end;
 
 destructor TFrameDML.Destroy;
@@ -399,7 +430,14 @@ begin
     begin
       if DMLGraph.IsBestFitScale then
       begin
-        DMLGraph.SetViewXYSc(xx - DMLGraph.DMLDrawer.DrawerWidth / 2, yy - DMLGraph.DMLDrawer.DrawerHeight / 2, Forms.Screen.PixelsPerInch/96);
+        if not VE(DMLGraph.ViewScale, Forms.Screen.PixelsPerInch/96) then
+          DMLGraph.SetViewXYSc(xx - DMLGraph.DMLDrawer.DrawerWidth / 2, yy - DMLGraph.DMLDrawer.DrawerHeight / 2, Forms.Screen.PixelsPerInch/96)
+        else if DMLGraph.IsBestFit then
+        begin
+          DMLGraph.Reset;
+        end
+        else
+          DMLGraph.BestFit;
       end
       else
         DMLGraph.BestFit;
@@ -532,6 +570,117 @@ begin
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 2, 0);
 end;
 
+procedure TFrameDML.colobBgColorChange(Sender: TObject);
+var
+  I: Integer;
+  cl: TColor;
+begin    
+  if colobBgColor.Tag <> 0 then
+    Exit;
+  cl:=colobBgColor.Selected;
+  if (colobBgColor.Text = srDmlCustomColor) or (Sender = actSetEntityColor) then
+  begin
+    InitCustColorDialog;
+    with DMLGraph.DMLObjs do
+      for I := 0 to Count - 1 do
+        if Items[I].Selected then
+        begin
+          ColorDialog1.Color := Items[I].FillColor;
+          Break;
+        end;
+    if not ColorDialog1.Execute then
+      Exit;
+    cl := ColorDialog1.Color;
+  end;
+  with DMLGraph.DMLObjs do
+    for I := Count - 1 downto 0 do
+      if Items[I].Selected then
+      begin
+        if cl <> clBlack then
+        begin
+          Items[I].FillColor := cl;
+          Items[I].UserPars := AddOrModifyCompStr(Items[I].UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
+        end
+        else
+        begin
+          Items[I].FillColor := DMLGraph.DMLDrawer.DefaultObjectColor;
+          Items[I].UserPars := AddOrModifyCompStr(Items[I].UserPars, '0', '[CUSTOM_BKCOLOR=', ']');
+        end;
+        if Assigned(Proc_OnObjColorChanged) then
+          Proc_OnObjColorChanged(Items[I], cl);
+      end;
+  if Assigned(DMLGraph.OnMoveObj) then
+    DMLGraph.OnMoveObj(DMLGraph);
+  SetDMLModified;
+  DMLGraph.Refresh;
+end;
+
+procedure TFrameDML.colobBgColorCloseUp(Sender: TObject);
+begin
+  colobBgColor.Visible:=False;
+end;
+
+procedure TFrameDML.colobBgColorGetColors(Sender: TCustomColorBox;
+  Items: TStrings);
+var
+  I: Integer;
+  procedure AddCL(cls: string);
+  var
+    cl: Integer;
+  begin
+    cl:=StrToIntDef('$'+cls, 0);
+    Items.InsertObject(I, 'EzColor' + IntToStr(I), TObject(PtrInt(cl)));
+    Inc(I);
+  end;
+begin
+  I := Items.IndexOf('Black');
+  if I >= 0 then
+    Items.Delete(I);
+  Items.InsertObject(0,srDmlDefaultColor, TObject(PtrInt(0)));
+
+  I:=1;
+  AddCL('ccccff');
+  AddCL('d9e6ff');
+  AddCL('ccffff');
+  AddCL('ccffcc');
+  AddCL('ffffcc');
+  AddCL('ffcccc');
+  AddCL('ffccff');
+  AddCL('e6e6e6');
+
+  AddCL('eeeeff');
+  AddCL('f0f7ff');
+  AddCL('eeffff');
+  AddCL('eeffee');
+  AddCL('ffffee');
+  AddCL('ffeeee');
+  AddCL('ffeeff');
+  AddCL('f6f6f6');
+
+  Items.AddObject(srDmlCustomColor, TObject(PtrInt($DDDDDD)));
+end;
+
+
+procedure TFrameDML.MNRun_GenCodeClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  3, 2);
+end;
+
+procedure TFrameDML.MNRun_GenDataClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  3, 3);
+end;
+
+procedure TFrameDML.MNRun_GenSQLClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  3, 1);
+end;
+
+procedure TFrameDML.MNRun_SqlToolClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  3, 4);
+end;
+
 procedure TFrameDML.actResetObjLinksExecute(Sender: TObject);
 var
   C, I, J, oLV: Integer;
@@ -554,9 +703,11 @@ begin
         if Items[I].Selected then
         begin
           if Items[I] is TDMLEntityObj then
-          begin          
+          begin
+            Items[I].AutoSize:=True;
             Items[I].BLeft := 0;
             Items[I].BTop := 0;
+            Items[I].CheckResize;
             ls := TDMLEntityObj(Items[I]).Links;
             for J := 0 to ls.Count - 1 do
             begin
@@ -603,9 +754,19 @@ begin
   DoCapitalizeProc('UpperCase');
 end;
 
+procedure TFrameDML.actChatGPTExecute(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 8, 0);
+end;
+
 procedure TFrameDML.actCheckWithMyDictExecute(Sender: TObject);
 begin
   DoCapitalizeProc('CheckMyDict');
+end;
+
+procedure TFrameDML.actCnWordSegmentExecute(Sender: TObject);
+begin
+  DoCapitalizeProc('CnWordSegment');
 end;
 
 procedure TFrameDML.actConvertChnToPyExecute(Sender: TObject);
@@ -643,6 +804,11 @@ begin
   DoBatCopyProc('DescText');
 end;
 
+procedure TFrameDML.actBatCopyDropSQLExecute(Sender: TObject);
+begin
+  DoBatCopyProc('DropSQL');
+end;
+
 procedure TFrameDML.actBatCopyExcelTextExecute(Sender: TObject);
 begin
   DoBatCopyProc('ExcelText');
@@ -663,14 +829,19 @@ begin
   DoBatCopyProc('FieldAndType');
 end;
 
+procedure TFrameDML.actBatCopyImplicitJoinSQLExecute(Sender: TObject);
+begin
+  DoBatCopyProc('ImplicitJoinSelectSQL');
+end;
+
 procedure TFrameDML.actBatCopyInsertSQLExecute(Sender: TObject);
 begin
   DoBatCopyProc('InsertSQL');
 end;
 
-procedure TFrameDML.actBatCopyJoinSelectSQLExecute(Sender: TObject);
+procedure TFrameDML.actBatCopyExplicitJoinSQLExecute(Sender: TObject);
 begin
-  DoBatCopyProc('JoinSelectSQL');
+  DoBatCopyProc('ExplicitJoinSelectSQL');
 end;
 
 procedure TFrameDML.actBatCopySelectSQLExecute(Sender: TObject);
@@ -721,10 +892,20 @@ end;
 
 procedure TFrameDML.DMLGraphKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-begin
+begin    
+  if (ssCtrl in Shift) and (ssShift in Shift) and not (ssAlt in Shift) then
+  begin
+    case Key of
+      VK_UP:
+        PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  4, 2);
+      VK_DOWN:
+        PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  4, 1);
+    end;
+  end;
   case Key of
     VK_DELETE:
-      actDeleteObj.Execute;
+      if actDeleteObj.Visible then
+        actDeleteObj.Execute;
     VK_RETURN:
       actDMLObjProp.Execute;
     67: //'C'
@@ -929,9 +1110,12 @@ end;
 
 procedure TFrameDML.DMLGraphSelectObj(Sender: TObject);
 var
-  C, ec, lc: Integer;
+  C, ec, lc, fc: Integer;
   I: Integer;
+  S: String;
 begin
+  if Assigned(Proc_DoSelectChanged) then
+    Proc_DoSelectChanged;
   C := DMLGraph.DMLObjs.SelectedCount;
   if C > 1 then
   begin
@@ -969,7 +1153,16 @@ begin
           SetStatusBarMsg(Format(srDmlSelectedTableFieldFmt, [Get_PhyTbName, Field[SelectedFieldIndex - 1].Get_PhyName]), 2);
         end
         else
-          SetStatusBarMsg(Format(srDmlSelectedTableInfoFmt, [Get_PhyTbName, FieldCount]), 2);
+        begin
+          fc := FieldCount;
+          if Assigned(Proc_GetObjPropVal) then
+          begin
+            S := IntToStr(fc);
+            S := Proc_GetObjPropVal(DMLGraph.DMLObjs.SelectedObj, 'FieldCount', S);
+            fc := StrToIntDef(S, fc);
+          end;
+          SetStatusBarMsg(Format(srDmlSelectedTableInfoFmt, [Get_PhyTbName, fc]), 2);
+        end;
       end
     else
       SetStatusBarMsg(srDmlSelectedObj + DMLGraph.DMLObjs.SelectedObj.Name, 2);
@@ -1162,7 +1355,7 @@ begin
   actBatCopyFieldNType.Enabled := (C > 0);
   actBatCopyCreateSQL.Enabled := (C > 0);
   actBatCopySelectSQL.Enabled := (C > 0);       
-  actBatCopyJoinSelectSQL.Enabled := (C > 0);
+  actBatCopyExplicitJoinSQL.Enabled := (C > 0);
   actBatCopyInsertSQL.Enabled := (C > 0);
   actBatCopyUpdateSQL.Enabled := (C > 0);
   actBatCopyFieldNameComma.Enabled := (C > 0);
@@ -1213,7 +1406,7 @@ begin
       o.LinkType := dmllDirect
     else if tp = 5 then
       o.LinkType := dmllOppDirect;
-    o.CheckPosition;
+    o.ResetPositionEx;
 
     if Assigned(Proc_OnObjAddOrRemove) then
       Proc_OnObjAddOrRemove(o, 1);
@@ -1515,10 +1708,10 @@ begin
   DMLGraph.Refresh;
 end;
 
-procedure TFrameDML.actSetEntityColorExecute(Sender: TObject);
+procedure TFrameDML.actSetEntityColorExecute(Sender: TObject);   
 var
   C, I: Integer;
-begin
+begin            
   C := DMLGraph.DMLObjs.SelectedCount;
   if C = 0 then
     Exit;
@@ -1526,30 +1719,28 @@ begin
     for I := 0 to Count - 1 do
       if Items[I].Selected then
       begin
-        ColorDialog1.Color := Items[I].FillColor;
+        colobBgColor.Tag := 1;
+        colobBgColor.Selected := Items[I].FillColor;
+        colobBgColor.Tag := 0;
         Break;
       end;
-  if not ColorDialog1.Execute then
-    Exit;
-  with DMLGraph.DMLObjs do
-    for I := Count - 1 downto 0 do
-      if Items[I].Selected then
-      begin
-        if ColorDialog1.Color <> clBlack then
-        begin
-          Items[I].FillColor := ColorDialog1.Color;
-          Items[I].UserPars := AddOrModifyCompStr(Items[I].UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
-        end
-        else
-        begin
-          Items[I].FillColor := DMLGraph.DMLDrawer.DefaultObjectColor;
-          Items[I].UserPars := AddOrModifyCompStr(Items[I].UserPars, '0', '[CUSTOM_BKCOLOR=', ']');
-        end;
-      end;
-  if Assigned(DMLGraph.OnMoveObj) then
-    DMLGraph.OnMoveObj(DMLGraph);
-  SetDMLModified;
-  DMLGraph.Refresh;
+
+  colobBgColor.Left := ToolButtonDML10.Left;  
+{$ifdef WINDOWS}
+  colobBgColor.Top := ToolButtonDML10.Top; 
+  colobBgColor.Width := 1;
+  colobBgColor.SendToBack;
+  colobBgColor.Visible:=True;
+  colobBgColor.DroppedDown:=True;
+{$else}                  
+{$ifdef DARWIN}
+  colobBgColorChange(actSetEntityColor);
+{$else}   
+  colobBgColor.Top := ToolButtonDML10.Top + ToolButtonDML10.Height;
+  colobBgColor.Visible:=True;
+  DelayCmd(2)
+{$endif}
+{$endif}
 end;
 
 procedure TFrameDML.actShowFieldTypeExecute(Sender: TObject);
@@ -1702,6 +1893,14 @@ begin
       Exit;
     end;
     actDMLObjProp.Execute;
+    Exit;
+  end;      
+  if tg = 2 then
+  begin
+    if not colobBgColor.Visible then
+      colobBgColor.Visible:=True;
+    colobBgColor.DroppedDown:=True;
+    Exit;
   end;
 end;
 
@@ -2096,6 +2295,8 @@ var
     Inc(I);
   end;
 begin
+  if ColorDialog1.Tag = 1 then
+    Exit;
   cols := '';
   I := 0;
   AddCL('ccccff');
@@ -2116,6 +2317,7 @@ begin
   AddCL('ffeeff');
   AddCL('f6f6f6');
   ColorDialog1.CustomColors.Text := Trim(cols);
+  ColorDialog1.Tag := 1;
 end;
 
 procedure TFrameDML.vlePropertyValidate(Sender: TObject; ACol,

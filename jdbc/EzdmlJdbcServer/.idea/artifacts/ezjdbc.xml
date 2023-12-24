@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ezjdbc">
+    <output-path>$PROJECT_DIR$/out/artifacts/ezjdbc</output-path>
+    <root id="archive" name="ezjdbc.jar">
+      <element id="module-output" name="EzdmlJdbcServer" />
+    </root>
+  </artifact>
+</component>

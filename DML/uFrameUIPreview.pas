@@ -6,8 +6,8 @@ interface
 
 uses
   LCLIntf, LCLType, LMessages, Classes, SysUtils, Forms, Controls, ComCtrls, ExtCtrls, Grids, StdCtrls,
-  ActnList, Graphics, Menus, Buttons, CtMetaTable, DmlScriptControl, Types,
-  uFormUISheet;
+  ActnList, Graphics, Menus, Buttons, CtMetaTable, DmlScriptControl, Types, Dialogs,
+  uFrameUISheet;
 
 type
 
@@ -34,6 +34,8 @@ type
     actCatFieldMoveUp: TAction;
     actCatFieldMoveDown: TAction;
     actCatFieldProp: TAction;
+    actBackToList: TAction;
+    actInsertNewField: TAction;
     actPageSize: TAction;
     actShowSheet: TAction;
     actModifyItem: TAction;
@@ -47,7 +49,11 @@ type
     actPostItem: TAction;
     actPrevPage: TAction;
     actRefresh: TAction;
-    btnToggleUIPreview: TBitBtn;
+    btnShowEmptyNotes: TSpeedButton;
+    btnToggleUISettings: TBitBtn;
+    btnUIShapePhone: TBitBtn;
+    btnUIShapePC: TBitBtn;
+    btnUIShapePad: TBitBtn;
     ckbAutoMerge: TCheckBox;
     ckbAutoTrim: TCheckBox;
     ckbColSortable: TCheckBox;
@@ -60,6 +66,7 @@ type
     ckbQueryable: TCheckBox;
     ckbRequired: TCheckBox;
     ckbSearchable: TCheckBox;
+    ckbExportable: TCheckBox;
     ckbShowFilterBox: TCheckBox;
     combAggregateFun: TComboBox;
     combEditorType: TComboBox;
@@ -78,9 +85,17 @@ type
     edtLabelText: TEdit;
     edtMaxLength: TEdit;
     edtName: TEdit;
+    edtTestDataNullPercent: TEdit;
     HeaderControlSummary: THeaderControl;
+    Image1: TImage;
+    Image2: TImage;
     ImageList1: TImageList;
     ImageListColTitle: TImageList;
+    lbDesignNotes: TLabel;
+    Label58: TLabel;
+    Label59: TLabel;
+    lbMobNavTitle: TLabel;
+    lbStatusTime: TLabel;
     Label13: TLabel;
     Label14: TLabel;
     Label16: TLabel;
@@ -104,9 +119,34 @@ type
     Label7: TLabel;
     ListBoxFieldCategory: TListBox;
     ListBoxFields: TListBox;
+    MemoDesignNotesAll: TMemo;
     memoDropDownItems: TMemo;
+    memoDesignNotes: TMemo;
     memoTestDataRules: TMemo;
     MenuItem1: TMenuItem;
+    MNSc_CopyFieldName: TMenuItem;
+    MNGrid_CopyFieldName: TMenuItem;
+    MNGrid_CopyCell: TMenuItem;
+    MNGrid_Exportable: TMenuItem;
+    MNGrid_ShowFilterBox: TMenuItem;
+    MNGrid_Aggr_None: TMenuItem;
+    MenuItem16: TMenuItem;
+    MNGrid_Aggr_TextSum: TMenuItem;
+    MNGrid_Aggr_StdDev: TMenuItem;
+    MNGrid_Aggr_Min: TMenuItem;
+    MNGrid_Aggr_Max: TMenuItem;
+    MNGrid_Aggr_Avg: TMenuItem;
+    MNGrid_Aggr_Count: TMenuItem;
+    MNGrid_Aggr_Sum: TMenuItem;
+    MNGrid_TextAggrFun: TMenuItem;
+    MenuItem12: TMenuItem;
+    MenuItem13: TMenuItem;
+    MenuItem15: TMenuItem;
+    MenuItem9: TMenuItem;
+    MNGrid_TestData_Auto: TMenuItem;
+    MNGrid_TestDataType: TMenuItem;
+    MNSC_TestData_Auto: TMenuItem;
+    MNSC_TestDataType: TMenuItem;
     MNCF_Remove: TMenuItem;
     MNCF_MoveUp: TMenuItem;
     MNCF_MoveDn: TMenuItem;
@@ -173,6 +213,9 @@ type
     MNGrid_Vis_4: TMenuItem;
     MNGrid_Queryable: TMenuItem;
     MNSc_Vis_Hidden: TMenuItem;
+    PaintBoxUIShape: TPaintBox;
+    PanelMobileHeader: TPanel;
+    PanelSheetContainer: TPanel;
     PanelToggleMaximize: TPanel;
     PanelFieldProps: TPanel;
     PanelTopDesign: TPanel;
@@ -180,8 +223,11 @@ type
     PanelDataGridCard: TPanel;
     PanelDataQuery: TPanel;
     PanelFastSearch: TPanel;
-    PanelLeft: TPanel;
-    PanelSheetContainer: TPanel;
+    sbtnMobNavEdit: TSpeedButton;
+    sbtnMobNavSave: TSpeedButton;
+    sbtnMobNavSearch: TSpeedButton;
+    sbtnMobNavDel: TSpeedButton;
+    ScrollBoxUIPanels: TScrollBox;
     PanelSummary: TPanel;
     PopupMenuCatFields: TPopupMenu;
     PopupMenuGrid: TPopupMenu;
@@ -189,40 +235,54 @@ type
     PopupMenuScControl: TPopupMenu;
     ScrollBoxFieldProps: TScrollBox;
     ScrollBoxDataCard: TScrollBox;
+    Shape1: TShape;
+    Shape2: TShape;
     SpdBtnAddField: TSpeedButton;
     SpdBtnDelField: TSpeedButton;
     SpdBtnDownField: TSpeedButton;
     SpdBtnUpField: TSpeedButton;
+    sbtnMobNavBack: TSpeedButton;
+    sbtnMobNavAdd: TSpeedButton;
+    btnToggleDesignNotes: TSpeedButton;
     SplitterTopPanel: TSplitter;
-    SplitterSheetContainer: TSplitter;
+    StaticTextUIScrollBR: TStaticText;
+    TimerDesignNotesEdit: TTimer;
     TimerRowSelect: TTimer;
     TimerScDelayCmd: TTimer;
-    ToolBar1: TToolBar;
+    ToolBarGrid: TToolBar;
     ToolButton1: TToolButton;
     ToolButton10: TToolButton;
     ToolButton11: TToolButton;
-    ToolButton12: TToolButton;
+    ToolButtonSpb2: TToolButton;
+    ToolButtonSpb3: TToolButton;
     ToolButton13: TToolButton;
     ToolButton14: TToolButton;
-    ToolButton15: TToolButton;
+    ToolButtonSpb0: TToolButton;
     ToolButton16: TToolButton;
-    ToolButton17: TToolButton;
-    ToolButton19: TToolButton;
+    ToolButtonSpb1: TToolButton;
+    ToolButton18: TToolButton;
+    ToolButtonSpb4: TToolButton;
     ToolButton2: TToolButton;
     ToolButton20: TToolButton;
+    ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
     ToolButton6: TToolButton;
     ToolButton7: TToolButton;
     ToolButton8: TToolButton;
     ToolButton9: TToolButton;
+    procedure actBackToListExecute(Sender: TObject);
+    procedure actCanceItemExecute(Sender: TObject);
     procedure actCatAddFieldExecute(Sender: TObject);
     procedure actCatFieldMoveDownExecute(Sender: TObject);
     procedure actCatFieldMoveUpExecute(Sender: TObject);
     procedure actCatFieldPropExecute(Sender: TObject);
     procedure actCatRemoveFieldExecute(Sender: TObject);
     procedure actCustItem1Execute(Sender: TObject);
+    procedure actExcelExpExecute(Sender: TObject);
+    procedure actInsertNewFieldExecute(Sender: TObject);
     procedure actPageSizeExecute(Sender: TObject);
+    procedure actPostItemExecute(Sender: TObject);
     procedure actViewItemExecute(Sender: TObject);
     procedure actModifyItemExecute(Sender: TObject);
     procedure actNewItemExecute(Sender: TObject);
@@ -230,7 +290,12 @@ type
     procedure actQueryExecute(Sender: TObject);
     procedure actCardViewExecute(Sender: TObject);
     procedure actShowSheetExecute(Sender: TObject);
-    procedure btnToggleUIPreviewClick(Sender: TObject);
+    procedure btnShowEmptyNotesClick(Sender: TObject);
+    procedure btnToggleDesignNotesClick(Sender: TObject);
+    procedure btnToggleUISettingsClick(Sender: TObject);
+    procedure btnUIShapePadClick(Sender: TObject);
+    procedure btnUIShapePCClick(Sender: TObject);
+    procedure btnUIShapePhoneClick(Sender: TObject);
     procedure EditFastSearchEnter(Sender: TObject);
     procedure EditFastSearchExit(Sender: TObject);
     procedure edtNameExit(Sender: TObject);
@@ -244,12 +309,20 @@ type
     procedure ListBoxFieldCategoryClick(Sender: TObject);
     procedure ListBoxFieldsClick(Sender: TObject);
     procedure ListBoxFieldsDblClick(Sender: TObject);
+    procedure MemoDesignNotesAllChange(Sender: TObject);
+    procedure MemoDesignNotesAllExit(Sender: TObject);
     procedure MNCard_BackToGridClick(Sender: TObject);
+    procedure MNGrid_Aggr_SumClick(Sender: TObject);
     procedure MNGrid_Align_Click(Sender: TObject);
     procedure MNGrid_CopyAllClick(Sender: TObject);
+    procedure MNGrid_CopyCellClick(Sender: TObject);
     procedure MNGrid_CopyColClick(Sender: TObject);
+    procedure MNGrid_CopyFieldNameClick(Sender: TObject);
+    procedure MNGrid_TestData_Click(Sender: TObject);
     procedure MNSc_Align_Click(Sender: TObject);
+    procedure MNSc_CopyFieldNameClick(Sender: TObject);
     procedure MNSC_Editor_Click(Sender: TObject);
+    procedure MNSC_TestData_Click(Sender: TObject);
     procedure MNSC_VisClick(Sender: TObject);
     procedure MNSC_MoveDownClick(Sender: TObject);
     procedure MNSc_MoveToBottomClick(Sender: TObject);
@@ -264,8 +337,10 @@ type
     procedure MNSC_PropertiesClick(Sender: TObject);
     procedure MNSc_PropClick(Sender: TObject);
     procedure MN_ShowHiddenFieldsClick(Sender: TObject);
+    procedure PaintBoxUIShapePaint(Sender: TObject);
     procedure PanelDataCardEnter(Sender: TObject);
     procedure PanelDataCardExit(Sender: TObject);
+    procedure PanelDataGridCardResize(Sender: TObject);
     procedure PanelDataQueryEnter(Sender: TObject);
     procedure PanelDataQueryExit(Sender: TObject);
     procedure PanelDataQueryResize(Sender: TObject);
@@ -276,8 +351,11 @@ type
     procedure PanelSheetViewEnter(Sender: TObject);
     procedure PanelSheetViewExit(Sender: TObject);
     procedure PanelSheetViewResize(Sender: TObject);
+    procedure sbtnMobNavAddClick(Sender: TObject);
+    procedure sbtnMobNavEditClick(Sender: TObject);
+    procedure sbtnMobNavSaveClick(Sender: TObject);
     procedure ScrollBoxDataCardResize(Sender: TObject);
-    procedure SplitterSheetContainerMoved(Sender: TObject);
+    procedure ScrollBoxUIPanelsResize(Sender: TObject);
     procedure SplitterTopPanelMoved(Sender: TObject);
     procedure StringGridDataClick(Sender: TObject);
     procedure StringGridDataColRowMoved(Sender: TObject; IsColumn: boolean;
@@ -291,10 +369,11 @@ type
       Shift: TShiftState; X, Y: integer);
     procedure StringGridDataPrepareCanvas(Sender: TObject; aCol, aRow: integer;
       aState: TGridDrawState);
+    procedure TimerDesignNotesEditTimer(Sender: TObject);
     procedure TimerRowSelectTimer(Sender: TObject);
     procedure TimerScDelayCmdTimer(Sender: TObject);
-    procedure ToolBar1ChangeBounds(Sender: TObject);
-  private
+  private               
+    FCtMetaTable: TCtMetaTable;
     FLastTbJson: string;
     FLastTableName: string;
     FLastScControlName: string;
@@ -308,11 +387,10 @@ type
     FSheetContainer: TWinControl;
     FSkipGridRefreshTick: int64;   
     FSkipCatRefreshTick: int64;
+    FSkipDesNotesRefreshTick: int64;
     FRefreshUpdateing: boolean;
     FShowHiddenFields: boolean;
-    FShowSheetOnInit: boolean;
     FShowSearchOnInit: boolean;
-    FCtMetaTable: TCtMetaTable;
     FMetaField: TCtMetaField;
     FDataQueryControls: TDmlScriptControlList;
     FDataCardControls: TDmlScriptControlList;
@@ -320,7 +398,6 @@ type
     FSheetEditControls: TDmlScriptControlList;
                                           
     FTopSplitPercent: Double;
-    FSheetSplitPercent: Double;
 
     FGridSortColumn: string;
     FGridSortType: integer; //0none 1asc 2desc
@@ -328,6 +405,8 @@ type
     FFocusedCatIndex: integer;
 
     FScMenuPopupPoint: TPoint;
+    FUIOperateType: Integer;
+    FUIShapeType: Integer;
 
     StringGridData: TStringGrid;
 
@@ -335,6 +414,8 @@ type
     procedure DoUIPropChanged(Field, prop, Value, par1, par2, opt: string);
     function GetTopPanelVisible: boolean;
     procedure SetTopPanelVisible(AValue: boolean);
+    procedure SetUIOperateType(AValue: Integer);
+    procedure SetUIShapeType(AValue: Integer);
     function _OnScriptControlEvent(Sender: TObject; ScCtrl: TDmlScriptControl;
       evt, par1, par2: string): string;
     function _OnCardScControlEvent(Sender: TObject; ScCtrl: TDmlScriptControl;
@@ -350,14 +431,20 @@ type
     procedure CheckCardGridCtrls;
     procedure CheckSheetActs;
     procedure RefreshCatFields;
+    procedure RefreshUIShape;
     procedure FocusCatField(AField: string);
     procedure InitCatField(AField: TCtMetaField);
+    procedure RefreshDesignNotes;
+    procedure FocusFieldDesignNotes(AField: string);
+    procedure ScanDesignNotes;
     procedure SaveCatFieldProp(Sender: TObject);
     procedure NotifyTbPropChanged;
+    procedure DoSetFieldTestDataRule(fd: TCtMetaField; tp: String); 
+    procedure ExportGridToCsv(fn: string);
   public
     Proc_OnUIPropChanged:
     procedure(Field, prop, Value, par1, par2, opt: string) of object;
-    FfrmUIPrvSheet: TfrmUIPrvSheet;
+    FFrameUIPrvSheet: TFrameUIPrvSheet;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -376,11 +463,16 @@ type
       AScControls: TDmlScriptControlList; AOpt: string);
 
     procedure RefreshUI;
+    procedure SetUITypes(Shap, Oper: Integer);
 
     property ReadOnlyMode: boolean read FReadOnlyMode write FReadOnlyMode;
     property SheetContainer: TWinControl read FSheetContainer write FSheetContainer;
     property OnSheetVisibleChanged: TNotifyEvent read FOnSheetVisibleChanged write FOnSheetVisibleChanged;
     property TopPanelVisible: boolean read GetTopPanelVisible write SetTopPanelVisible;
+    //UI类型：1PC 2PAD 3PHONE
+    property UIShapeType: Integer read FUIShapeType write SetUIShapeType;
+    //操作类型：1列表 2查看 3修改 4新增
+    property UIOperateType: Integer read FUIOperateType write SetUIOperateType;
   end;
 
 implementation
@@ -389,7 +481,8 @@ implementation
 
 
 uses
-  dmlstrs, WindowFuncs, ClipBrd, INIFiles, CtTestGridData, PvtInput, CtTestDataGen, uFormSelectFields;
+  dmlstrs, WindowFuncs, ClipBrd, INIFiles, CtTestGridData, PvtInput,
+  CtTestDataGen, uFormSelectFields, uFormDBDataRule, CtMetaData;
 
 
 { TFrameUIPreview }
@@ -458,10 +551,28 @@ begin
 end;
 
 procedure TFrameUIPreview.StringGridDataDblClick(Sender: TObject);
+var
+  col: Integer;
+  rct: TRect;
 begin
-  if (GetKeyState(VK_CONTROL) and $80)<> 0 then
+  col := StringGridData.Col;
+  if col >= 1 then              
+    if StringGridData.Row=1 then
+    begin
+      rct := StringGridData.Selection;
+      if (rct.Left = col) and (rct.Right = col) then
+        if (rct.Top = 1) and (rct.Bottom = StringGridData.RowCount - 1) then
+        begin    
+          MNGrid_PropertiesClick(nil);
+          Exit;
+        end;
+    end;
+  if (GetKeyState(VK_CONTROL) and $80) = 0 then
   begin             
-    actShowSheet.Execute;
+    //actShowSheet.Execute;
+    TimerScDelayCmd.Enabled := False;
+    TimerScDelayCmd.Tag := 6;
+    TimerScDelayCmd.Enabled := True;
   end
   else
     MNGrid_PropertiesClick(nil);
@@ -550,7 +661,9 @@ begin
         MNGrid_Searchable.Checked := fd.Searchable;
         MNGrid_Queryable.Checked := fd.Queryable;
         MNGrid_Vis_Hidden.Checked := fd.IsHidden;
-        MNGrid_Sortable.Checked := fd.ColSortable;
+        MNGrid_Sortable.Checked := fd.ColSortable;    
+        MNGrid_ShowFilterBox.Checked := fd.ShowFilterBox;
+        MNGrid_Exportable.Checked := fd.Exportable;
 
         if (fd.Visibility >= 0) and (fd.Visibility <= 3) then
           MNGrid_Visibility.Items[fd.Visibility].Checked := True;
@@ -566,7 +679,9 @@ begin
         MNGrid_Vis_Hidden.Checked := False;
         MNGrid_Vis_0.Checked := True;
         MNGrid_Align_0.Checked := True;
-        MNGrid_Sortable.Checked := False;
+        MNGrid_Sortable.Checked := False;     
+        MNGrid_ShowFilterBox.Checked := False;
+        MNGrid_Exportable.Checked := False;
         bEnb := False;
       end;
     end
@@ -577,10 +692,14 @@ begin
     MNGrid_Searchable.Enabled := bEnb;
     MNGrid_Queryable.Enabled := bEnb;
     MNGrid_Vis_Hidden.Enabled := bEnb;
-    MNGrid_Sortable.Enabled := bEnb;
+    MNGrid_Sortable.Enabled := bEnb;  
+    MNGrid_ShowFilterBox.Enabled := bEnb;
+    MNGrid_Exportable.Enabled := bEnb;
     MNGrid_Vis4_RemoveFromGrid.Enabled := bEnb;
-    MNGrid_Visibility.Enabled := bEnb;
-    MNGrid_TextAlignment.Enabled := bEnb;
+    MNGrid_Visibility.Enabled := bEnb;      
+    MNGrid_TestDataType.Enabled := bEnb;
+    MNGrid_TextAlignment.Enabled := bEnb;   
+    MNGrid_TextAggrFun.Enabled := bEnb;
     MNGrid_MoveToFront.Enabled := bEnb;
     MNGrid_MoveToBack.Enabled := bEnb;
     PopupMenuGrid.PopUp(pt.X, pt.Y);
@@ -600,6 +719,12 @@ begin
     StringGridData.Canvas.Font.Color := $AAAAAA
   else if tg = 2 then
     StringGridData.Canvas.Font.Color := $668888;
+end;
+
+procedure TFrameUIPreview.TimerDesignNotesEditTimer(Sender: TObject);
+begin
+  TimerDesignNotesEdit.Enabled := False;
+  ScanDesignNotes;
 end;
 
 
@@ -654,7 +779,8 @@ begin
     else if S = 'sheet_btn:' + srCapOk then
       actViewItem.Execute
     else if S = 'sheet_btn:' + srCapCancel then
-      actViewItem.Execute
+      //actViewItem.Execute                    
+      actShowSheet.Execute
     else if S = 'sheet_btn:' + srCapClose then
       actShowSheet.Execute
     else if S = 'sheet_btn:' + srCapDelete then
@@ -662,14 +788,13 @@ begin
       if Application.MessageBox(PChar(srConfirmDeleteCurRec), PChar(srCapDelete), MB_OKCANCEL or MB_ICONWARNING) = IDOK then
         actShowSheet.Execute;
     end;
+  end;  
+  if vTag = 6 then
+  begin
+    actShowSheet.Execute;
   end;
 end;
 
-procedure TFrameUIPreview.ToolBar1ChangeBounds(Sender: TObject);
-begin
-  PanelToggleMaximize.Left := ToolBar1.Left + ToolBar1.Width - PanelToggleMaximize.Width - 1;
-  PanelToggleMaximize.Top := ToolBar1.Top + 3;
-end;
 
 procedure TFrameUIPreview.DoUIPropChanged(Field, prop, Value, par1, par2, opt: string);
 begin
@@ -677,7 +802,14 @@ begin
     Exit;
   if Field = '' then
     Exit;
-  FocusCatField(Field);
+  FIniting := True;
+  try
+    FocusCatField(Field);
+  finally
+    FIniting := False;
+  end;
+  if prop='selected' then
+    FocusFieldDesignNotes(Field);
   if Assigned(Proc_OnUIPropChanged) then
   begin
     if Pos('[DONT_REFRESH_GRID]', opt) > 0 then
@@ -707,6 +839,20 @@ begin
     SplitterTopPanel.Visible := True;
     SplitterTopPanel.Top := PanelTopDesign.Top + PanelTopDesign.Height;
   end;
+end;
+
+procedure TFrameUIPreview.SetUIOperateType(AValue: Integer);
+begin
+  if FUIOperateType=AValue then Exit;
+  FUIOperateType:=AValue;  
+  RefreshUIShape;
+end;
+
+procedure TFrameUIPreview.SetUIShapeType(AValue: Integer);
+begin
+  if FUIShapeType=AValue then Exit;
+  FUIShapeType:=AValue;
+  RefreshUIShape;
 end;
 
 function TFrameUIPreview._OnScriptControlEvent(Sender: TObject;
@@ -790,7 +936,8 @@ function TFrameUIPreview._OnScriptControlEvent(Sender: TObject;
 
     MNSc_CtrlName.Enabled := bEnb;
     MNSC_Visibility.Enabled := bEnb;
-    MNSC_EditorType.Enabled := bEnb;
+    MNSC_EditorType.Enabled := bEnb; 
+    MNSC_TestDataType.Enabled := bEnb;
     MNSC_TextAlignment.Enabled := bEnb;
     MNSc_Vis_Hidden.Enabled := bEnb;
     MNSC_Readonly.Enabled := bEnb;
@@ -876,10 +1023,10 @@ begin
     Self.SetSheetFocusRowIndex(ScCtrl.Index);
   if (evt = 'LabelDblClick') or (evt = 'ControlDblClick') then
   begin
-    if not FfrmUIPrvSheet.Visible then
+    if not FFrameUIPrvSheet.Visible then
       actShowSheet.Execute
     else
-      FfrmUIPrvSheet.ReCalSizes;
+      FFrameUIPrvSheet.ReCalSizes;
   end;
 end;
 
@@ -960,16 +1107,119 @@ begin
   end;
 end;
 
-procedure TFrameUIPreview.CheckSheetActs;    
+procedure TFrameUIPreview.CheckSheetActs;
+  function FindVisTb(AToolBar: TToolBar; AName: string): TToolButton;
+  var
+    I: Integer;
+    tb: TToolButton;
+  begin    
+    Result := nil;
+    for I:=0 to AToolBar.ButtonCount - 1 do
+    begin
+      tb := AToolBar.Buttons[I];
+      if tb.Name=AName then
+      begin
+        if tb.Visible then
+          Result := tb;
+        Exit;
+      end
+      else if (tb.Action <> nil) and (tb.Action.Name=AName) then 
+      begin
+        if TAction(tb.Action).Visible then
+          Result := tb;
+        Exit;
+      end;
+    end;
+  end;
+  procedure SortTbs;
+  const
+    STB_NAMES:array[0..21] of String=(
+      'actBackToList',
+      'ToolButtonSpb0',
+      'actModifyItem',
+      'actDeleteItem',
+      'actPrint',
+      'actNewItem',
+      'actViewItem',
+      'ToolButtonSpb1',
+      'actQuery',
+      'actExcelExp',
+      'ToolButtonSpb2',
+      'actFirstPage',
+      'actPrevPage',
+      'actNextPage',
+      'actLastPage',
+      'actPageSize',
+      'ToolButtonSpb3',
+      'actRefresh',
+      'ToolButtonSpb4',
+      'PanelFastSearch',
+      'actPostItem',
+      'actCanceItem');
+  var
+    I, X: Integer;
+    tb: TToolButton;
+  begin
+    X := 0;
+    for I:=0 to High(STB_NAMES) do
+    begin
+      tb := FindVisTb(ToolBarGrid, STB_NAMES[I]);
+      if tb <> nil then
+      begin
+        tb.Left := X;
+        X := X+tb.Width;
+      end;
+    end;
+  end;
 var
   S: String;
+  bShtMode, bEdit: Boolean;
 begin
-  S := '';
-  if FfrmUIPrvSheet.Visible then
-    S:= FfrmUIPrvSheet.ViewType;
-  actNewItem.Checked := (S='new');
-  actModifyItem.Checked := (S='modify');
-  actViewItem.Checked := (S='view');
+  S := '';             
+  bShtMode := False;
+  bEdit := False;
+  if FFrameUIPrvSheet.Visible then
+  begin
+    S:= FFrameUIPrvSheet.ViewType;
+    bShtMode := True;   
+    if (S='new') or (S='modify') then
+      bEdit := True;
+  end;
+
+  actBackToList.Visible := bShtMode and not bEdit;
+  ToolButtonSpb0.Visible := bShtMode and not bEdit;
+  actModifyItem.Visible := bShtMode and not bEdit;
+  actDeleteItem.Visible := bShtMode and not bEdit;
+  actPrint.Visible := bShtMode and not bEdit;
+
+
+  actNewItem.Visible := not bShtMode;
+  actViewItem.Visible := not bShtMode;
+  ToolButtonSpb1.Visible := not bShtMode;
+
+  actQuery.Visible := not bShtMode;
+  actExcelExp.Visible := not bShtMode;
+  ToolButtonSpb2.Visible := not bShtMode;
+
+  actFirstPage.Visible := not bShtMode;
+  actPrevPage.Visible := not bShtMode;
+  actNextPage.Visible := not bShtMode;
+  actLastPage.Visible := not bShtMode;
+  actPageSize.Visible := not bShtMode;
+  ToolButtonSpb3.Visible := not bShtMode;
+
+  actRefresh.Visible := not bShtMode;
+
+  ToolButtonSpb4.Visible := not bShtMode;
+  PanelFastSearch.Visible := not bShtMode;
+
+
+  actPostItem.Visible := bShtMode and bEdit;
+  actCanceItem.Visible := bShtMode and bEdit;
+         
+  actInsertNewField.Enabled := not FReadOnlyMode;
+
+  SortTbs;
 end;
 
 procedure TFrameUIPreview.RefreshCatFields;
@@ -984,8 +1234,9 @@ var
 3Card
 4Query
 5Fast search
-6Required
-7Hidden
+6Exportalbe
+7Required
+8Hidden
 }
     Result := True;
     if cat<=0 then
@@ -999,8 +1250,10 @@ var
     if (cat=4) and fd.Queryable then
       Exit;
     if (cat=5) and fd.Searchable then
+      Exit;     
+    if (cat=6) and fd.Exportable then
       Exit;
-    if (cat=6) then
+    if (cat=7) then
     begin    
       if fd.Required then
         Exit;
@@ -1010,7 +1263,7 @@ var
           Exit;
       end;
     end;
-    if (cat=7) and (fd.IsHidden or not fd.CanDisplay('grid,sheet,card')) then
+    if (cat=8) and (fd.IsHidden or not fd.CanDisplay('grid,sheet,card')) then
       Exit;
     Result := False;
   end;
@@ -1036,13 +1289,17 @@ begin
   sFn := '';
   if sIdx >= 0 then
   begin
-    if ListBoxFields.Selected[sIdx] then
-    begin
-      fd := TCtMetaField(ListBoxFields.Items.Objects[sIdx]);
-      sFn := fd.Name;
-    end
-    else
+    try
+      if ListBoxFields.Selected[sIdx] then
+      begin
+        fd := TCtMetaField(ListBoxFields.Items.Objects[sIdx]);
+        sFn := fd.Name;
+      end
+      else
+        sIdx := -1;
+    except
       sIdx := -1;
+    end;
   end;
 
   ListBoxFields.Items.Clear;            
@@ -1068,6 +1325,130 @@ begin
   end
   else
     InitCatField(nil);
+end;
+
+procedure TFrameUIPreview.RefreshUIShape;    
+  procedure SetListUIVisible(bVis: Boolean);
+  begin
+    if not bVis then
+    begin
+      ScrollBoxDataCard.Visible := False;
+      StringGridData.Visible := False;
+      PanelSummary.Visible := False;
+      actCardView.Checked := False;
+      ToolBarGrid.Visible := (FUIShapeType = 1);
+      PanelDataQuery.Visible := False;
+    end
+    else
+    begin
+      if FUIShapeType > 1 then
+      begin
+        ScrollBoxDataCard.Visible := True;      
+        PanelDataQuery.Visible := False;
+        StringGridData.Visible := False;
+        PanelSummary.Visible := False;
+        ToolBarGrid.Visible := False;
+        actCardView.Checked := True;
+      end
+      else
+      begin
+        ToolBarGrid.Visible := True;        
+        PanelDataQuery.Visible := actQuery.Checked;
+        ScrollBoxDataCard.Visible := False;
+        PanelSummary.Visible := HeaderControlSummary.Sections.Count > 0;
+        StringGridData.Visible := True;
+        actCardView.Checked := False;
+      end;
+      CheckCardGridCtrls;
+    end;
+  end;
+begin              
+    //UI类型：1PC 2PAD 3PHONE
+  case FUIShapeType of
+    2:
+      begin
+        PanelDataGridCard.Width := 800;
+        PanelDataGridCard.Height := 600;
+      end;                             
+    3:
+      begin
+        PanelDataGridCard.Width := 360;
+        PanelDataGridCard.Height := 640;
+      end;
+    else
+      begin
+        PanelDataGridCard.Width := 1024;
+        PanelDataGridCard.Height := 640;  
+        PanelMobileHeader.Visible:=False;
+      end;
+  end;
+                    
+  case FUIShapeType of
+    2, 3:
+      begin
+        lbStatusTime.Caption := FormatDateTime('h:nn AM/PM', Now);
+        lbMobNavTitle.Caption := Self.FCtMetaTable.UIDisplayName;     
+        sbtnMobNavAdd.Visible := (FUIOperateType = 1);
+        sbtnMobNavEdit.Visible := (FUIOperateType = 2);   
+        sbtnMobNavDel.Visible := (FUIOperateType = 2);
+        sbtnMobNavSave.Visible := (FUIOperateType >= 3);
+        sbtnMobNavSearch.Visible := (FUIOperateType = 1);
+        PanelMobileHeader.Visible:=True;
+      end;
+  end;
+
+  PaintBoxUIShape.Refresh;
+               
+    //操作类型：1列表 2查看 3修改 4新增
+  case FUIOperateType of
+    1:
+      begin        
+        SetListUIVisible(True);
+        if FFrameUIPrvSheet.Visible then
+        begin
+          FFrameUIPrvSheet.Visible := False;
+          PanelSheetContainer.Visible := False;
+          if Assigned(SheetContainer) then
+            SheetContainer.Visible := False;
+          if Assigned(OnSheetVisibleChanged) then
+            OnSheetVisibleChanged(Self);
+          CheckSheetActs;
+        end
+      end;
+     2, 3, 4:
+       begin
+        SetListUIVisible(False);
+
+        case FUIOperateType of
+          2:
+            begin
+              CreateControlList(FCtMetaTable, FSheetViewControls, '[VIEW_MODE]');       
+              FFrameUIPrvSheet.ViewType := 'view';
+              FFrameUIPrvSheet.ActivePage := 1;
+            end;
+          3:
+            begin
+              CreateControlList(FCtMetaTable, FSheetEditControls, '');
+              FFrameUIPrvSheet.ViewType := 'modify';
+              FFrameUIPrvSheet.ActivePage := 0;
+            end;
+          4:
+            begin
+              CreateControlList(FCtMetaTable, FSheetEditControls, '[NEW_MODE]');   
+              FFrameUIPrvSheet.ViewType := 'new';
+              FFrameUIPrvSheet.ActivePage := 0;
+            end;
+        end;
+        FFrameUIPrvSheet.Visible := True;
+        if Assigned(SheetContainer) then
+          SheetContainer.Visible := True;
+        if Assigned(OnSheetVisibleChanged) then
+          OnSheetVisibleChanged(Self);
+        FFrameUIPrvSheet.ReCalSizes;
+        FFrameUIPrvSheet.TimerResize.Enabled := True;    
+        CheckSheetActs;
+       end;
+  end;
 end;
 
 procedure TFrameUIPreview.FocusCatField(AField: string);
@@ -1166,7 +1547,8 @@ begin
     ckbEditorReadOnly.Checked := FMetaField.EditorReadOnly;
     ckbEditorEnabled.Checked := FMetaField.EditorEnabled;
     ckbIsHidden.Checked := FMetaField.IsHidden;
-    memoDropDownItems.Lines.Text := FMetaField.DropDownItems;
+    memoDropDownItems.Lines.Text := FMetaField.DropDownItems;  
+    memoDesignNotes.Lines.Text := FMetaField.DesignNotes;
 
     combVisibilty.Text := GetCtDropDownTextOfValue(IntToStr(FMetaField.Visibility),
       srFieldVisibiltys);
@@ -1174,7 +1556,8 @@ begin
     edtColWidth.Text := IntToStrSp(FMetaField.ColWidth);
     edtMaxLength.Text := IntToStrSp(FMetaField.MaxLength);
     ckbSearchable.Checked := FMetaField.Searchable;
-    ckbQueryable.Checked := FMetaField.Queryable;
+    ckbQueryable.Checked := FMetaField.Queryable;      
+    ckbExportable.Checked := FMetaField.Exportable;
     combValueFormat.Text := GetCtDropDownTextOfValue(FMetaField.ValueFormat,
       srFieldValueFormats);
 
@@ -1195,7 +1578,11 @@ begin
     ckbRequired.Checked := FMetaField.Required;
     combTestDataType.Text := GetFullTextOfValue(FMetaField.TestDataType,
       GetDataGenRules.GetItemNameCaptions);
-    memoTestDataRules.Text := FMetaField.TestDataRules;
+    memoTestDataRules.Text := FMetaField.TestDataRules; 
+    if FMetaField.TestDataNullPercent=0 then
+      edtTestDataNullPercent.Text := ''
+    else
+      edtTestDataNullPercent.Text := IntToStr(FMetaField.TestDataNullPercent);
     if Trim(memoTestDataRules.Text) = '' then
       if GetDataGenRules.ItemByCaption(FMetaField.TestDataType) <> nil then
       begin
@@ -1203,9 +1590,268 @@ begin
           GetDataGenRules.ItemByCaption(FMetaField.TestDataType).Content;
       end;
     memoTestDataRules.Modified := False;
-
+           
+    if not FIniting and Assigned(FMetaField) then
+    begin
+      if Assigned(Proc_OnUIPropChanged) then
+      begin
+        FSkipGridRefreshTick := GetTickCount;
+        FSkipCatRefreshTick := GetTickCount;
+        Proc_OnUIPropChanged(FMetaField.Name, 'selected', '1', '', '', '');
+      end;
+    end;
   finally
     FFieldPropIniting := False;
+  end;
+end;
+
+procedure TFrameUIPreview.RefreshDesignNotes;
+begin
+  if FSkipDesNotesRefreshTick <> 0 then
+    if Abs(GetTickCount64 - FSkipDesNotesRefreshTick) > 800 then
+      FSkipDesNotesRefreshTick := 0;
+  if FSkipDesNotesRefreshTick = 0 then
+  begin
+    MemoDesignNotesAll.Lines.Text := FCtMetaTable.GetFullDesignNotes(btnShowEmptyNotes.Down);
+    MemoDesignNotesAll.Modified:=False;
+  end;
+  MemoDesignNotesAll.ReadOnly:=Self.ReadOnlyMode; 
+  btnShowEmptyNotes.Visible:= MemoDesignNotesAll.Visible;
+  TimerDesignNotesEdit.Enabled:=False;
+end;
+
+procedure TFrameUIPreview.FocusFieldDesignNotes(AField: string);
+  function IsFieldStart(ALine, AName: string): boolean;
+  var
+    po: Integer;
+    S1: string;
+  begin
+    Result := False;
+    po := Pos('. ', ALine);
+    if po=0 then
+      Exit;
+    S1 := Copy(ALine, 1, po-1);
+    if TryStrToInt(S1, po) then
+      if ALine = S1 + '. '+ AName then
+        Result := True;
+  end;
+var
+  ss: TStrings;
+  S, T: String;
+  I, po: Integer;
+  fd: TCtMetaField;
+  VA, VL, VS: WideString;
+begin
+  fd := FCtMetaTable.MetaFields.FieldByName(AField);
+  T := fd.NameCaption;
+  VA := '';
+  ss := MemoDesignNotesAll.Lines;
+  for I:=1 to ss.Count - 1 do
+  begin
+    S := ss[I];
+    if IsFieldStart(S, T) then
+    begin
+      VA := ss.LineBreak + S+ ss.LineBreak;
+      Break;
+    end;
+  end;
+  if VA='' then
+    Exit;
+  VL := ss.LineBreak;
+  VS := ss.Text+ ss.LineBreak;
+  po := Pos(VA, VS);
+  if po=0 then
+    Exit;
+  MemoDesignNotesAll.SelStart:=po + Length(VL) -1;
+  MemoDesignNotesAll.SelLength:=Length(VA)-Length(VL)-Length(VL);
+end;
+
+procedure TFrameUIPreview.ScanDesignNotes;
+var
+  ss: TStrings;
+  rowNo, rowCount: Integer;
+  rowS: string;
+  function NextLine: string;
+  begin
+    Inc(rowNo);
+    Result := '';
+    rowS := '';
+    if rowNo>=rowCount then
+      Exit;
+    rowS := ss[rowNo];
+    Result := rowS;
+  end;
+
+  function IsFieldRow(ALine: string): TCtMetaField;
+  var
+    I, po, vi: Integer;
+    S1, S2: string;
+    fd: TCtMetaField;
+  begin
+    Result := nil;
+    po := Pos('. ', ALine);
+    if po=0 then
+      Exit;
+    S1 := Copy(ALine, 1, po-1);
+    if not TryStrToInt(S1, vi) then
+      Exit;
+    S2 := Trim(Copy(ALine, po+2, Length(ALine)));
+    for I:=0 to FCtMetaTable.MetaFields.Count - 1 do
+    begin
+      fd := FCtMetaTable.MetaFields[I];
+      if fd.DataLevel = ctdlDeleted then
+        Continue;
+      if fd.NameCaption = S2 then
+      begin
+        Result := fd;
+        Exit;
+      end;
+    end;
+  end;
+
+  function GetNextFieldRowNo: Integer;
+  var
+    I: Integer;
+  begin
+    Result := -1;
+    for I:=rowNo + 1 to rowCount - 1 do
+    begin
+      if IsFieldRow(ss[I]) <> nil then
+      begin
+        Result := I;
+        Exit;
+      end;
+    end;
+  end;
+
+  function ReadNextPart(var sDN, sMm: string): boolean;
+  var
+    Ix: Integer;
+    bComment: boolean;
+  begin
+    ix := GetNextFieldRowNo;
+    if ix=-1 then
+      ix := rowCount;
+    sDN := '';
+    sMm := '';
+    bComment := False;
+    while rowNo<ix-1 do
+    begin
+      NextLine;
+      if not bComment then
+        if (Trim(rowS) = '['+srComments+']')
+          or (Trim(LowerCase(rowS)) = '[comments]')
+          or (Trim(LowerCase(rowS)) = '[memo]')
+          or (Trim(LowerCase(rowS)) = ':memo') then
+        begin
+          bComment := True;
+          Continue;
+        end;   
+      if not bComment then
+      begin
+        sDN := sDN + rowS+ ss.LineBreak;
+      end
+      else
+      begin
+        sMm := sMm + rowS+ ss.LineBreak;
+      end;
+    end;
+    sDN := TrimRight(sDN);   
+    sMm := TrimRight(sMm);
+  end;
+
+  function ReadNextField(var sDN, sMm: string): TCtMetaField;
+  var
+    I: Integer;   
+    fd: TCtMetaField;
+  begin
+    Result := nil;      
+    while rowNo<rowCount do
+    begin
+      NextLine;
+      fd := IsFieldRow(rowS);
+      if fd <> nil then
+      begin
+        Result := fd;
+        Break;
+      end;
+    end;
+    if fd <> nil then
+      ReadNextPart(sDN, sMm);
+  end;
+
+var
+  S, S1, S2, vLastField: string;
+  fd: TCtMetaField;
+  bChg: Integer;
+begin
+  //扫描设计说明文本
+  TimerDesignNotesEdit.Enabled := False;
+  if Self.ReadOnlyMode then
+    Exit;
+  if not MemoDesignNotesAll.Modified then
+    Exit;              
+  if not MemoDesignNotesAll.Visible then
+    Exit;
+  if FIniting then
+    Exit;
+  if FCtMetaTable=nil then
+    Exit;
+  MemoDesignNotesAll.Modified := False;
+  ss := MemoDesignNotesAll.Lines;
+  rowNo := -1;
+  rowCount := ss.Count;
+
+  //第一行应该是表名
+  S := NextLine;
+  if Trim(S)<>Trim(FCtMetaTable.NameCaption) then
+    Exit;
+         
+  //第二行应该是分隔线=======
+  S := NextLine;
+  if Copy(S,1,4)<>'====' then
+    Exit;
+         
+  bChg := 0;
+  vLastField := '';
+
+  //表说明和注释
+  ReadNextPart(S1, S2);  
+  if (Trim(FCtMetaTable.DesignNotes)<>Trim(S1)) or
+    (Trim(FCtMetaTable.Memo) <> Trim(S2)) then
+  begin              
+    FCtMetaTable.DesignNotes:=S1;
+    FCtMetaTable.Memo:=S2;
+    bChg := bChg + 2;
+  end;
+
+  while rowNo<rowCount do
+  begin //读取字段
+    fd := ReadNextField(S1, S2);
+    if fd=nil then
+      Break;
+    if (Trim(fd.DesignNotes)<>Trim(S1)) or
+      (Trim(fd.Memo) <> Trim(S2)) then
+    begin
+      fd.DesignNotes:=S1;
+      fd.Memo:=S2;
+      bChg := bChg + 1;
+      vLastField := fd.Name;
+    end;
+  end;
+
+  if bChg > 1 then
+  begin        
+    FSkipDesNotesRefreshTick := GetTickCount64;
+    NotifyTbPropChanged;
+  end
+  else if bChg=1 then
+  begin
+    if Assigned(Proc_OnUIPropChanged) then
+    begin
+      FSkipDesNotesRefreshTick := GetTickCount64;
+      Proc_OnUIPropChanged(vLastField, 'field_changed', '', '', '', '');
+    end;
   end;
 end;
 
@@ -1221,7 +1867,7 @@ var
 
   procedure SaveFieldEx(vMetaField: TCtMetaField);
   var
-    S, S1, S2: string;
+    S, S1, S2, T, sRuleTp, sRuleCt: string;
   begin
     if vMetaField=nil then
       Exit;
@@ -1256,7 +1902,9 @@ var
     if Sender = ckbIsHidden then
       vMetaField.IsHidden := ckbIsHidden.Checked;
     if Sender = memoDropDownItems then
-      vMetaField.DropDownItems := memoDropDownItems.Lines.Text;
+      vMetaField.DropDownItems := memoDropDownItems.Lines.Text;   
+    if Sender = memoDesignNotes then
+      vMetaField.DesignNotes := memoDesignNotes.Lines.Text;
 
     if Sender = combVisibilty then
       vMetaField.Visibility :=
@@ -1271,7 +1919,9 @@ var
     if Sender = ckbSearchable then
       vMetaField.Searchable := ckbSearchable.Checked;
     if Sender = ckbQueryable then
-      vMetaField.Queryable := ckbQueryable.Checked;
+      vMetaField.Queryable := ckbQueryable.Checked;       
+    if Sender = ckbExportable then
+      vMetaField.Exportable := ckbExportable.Checked;
     if Sender = combValueFormat then
       vMetaField.ValueFormat :=
         GetCtDropDownValueOfText(combValueFormat.Text, srFieldValueFormats);
@@ -1305,7 +1955,9 @@ var
       vMetaField.AutoTrim := ckbAutoTrim.Checked;
     if Sender = ckbRequired then
       vMetaField.Required := ckbRequired.Checked;
-
+                                          
+    if Sender = edtTestDataNullPercent then
+      FMetaField.TestDataNullPercent := StrToIntDef(edtTestDataNullPercent.Text, 0);
     if Sender = combTestDataType then
     begin
       S := combTestDataType.Text;
@@ -1319,7 +1971,9 @@ var
           begin
             combTestDataType.SetFocus;
             Abort;
-          end;
+          end;                   
+        sRuleTp := vMetaField.TestDataType;
+        sRuleCt := vMetaField.TestDataRules;
         vMetaField.TestDataType := S;
         if GetDataGenRules.ItemByCaption(vMetaField.TestDataType) <> nil then
         begin
@@ -1328,7 +1982,27 @@ var
         end
         else
           memoTestDataRules.Text := '';
-        vMetaField.TestDataRules := '';
+        vMetaField.TestDataRules := '';  
+        if S = 'from_db' then
+        begin
+          T := ShowDBDataRule(FCtMetaTable, vMetaField.Name);
+          if T <> '' then
+          begin
+            if ListBoxFields.SelCount = 1 then
+              memoTestDataRules.Text := T;
+            vMetaField.TestDataRules := T;
+          end
+          else
+          begin                               
+            if ListBoxFields.SelCount = 1 then
+            begin
+              combTestDataType.Text := sRuleTp;
+              memoTestDataRules.Text := sRuleCt;
+            end;
+            vMetaField.TestDataType := sRuleTp;
+            vMetaField.TestDataRules := sRuleCt;
+          end;
+        end;
         memoTestDataRules.Modified := False;
       end;
     end;
@@ -1388,6 +2062,106 @@ begin
   end;
 end;
 
+procedure TFrameUIPreview.DoSetFieldTestDataRule(fd: TCtMetaField; tp: String);
+var
+  S, T, sRuleTp, sRuleCt: String;
+  vMetaField: TCtMetaField;
+begin
+  if fd=nil then
+    Exit;
+  vMetaField := fd;
+  S := tp;
+  if Pos(':', S) > 1 then
+    S := Copy(S, 1, Pos(':', S) - 1);
+  if vMetaField.TestDataType = S then
+    Exit;
+
+  if Trim(vMetaField.TestDataRules) <> '' then
+    if Application.MessageBox(PChar(srClearTestDataRuleWarning),
+      PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+    begin
+      Exit;
+    end;
+
+  sRuleTp := vMetaField.TestDataType;
+  sRuleCt := vMetaField.TestDataRules;
+
+  vMetaField.TestDataType := S;
+  vMetaField.TestDataRules := '';
+  if S = 'from_db' then
+  begin
+    T := ShowDBDataRule(FCtMetaTable, vMetaField.Name);
+    if T <> '' then
+    begin
+      vMetaField.TestDataRules := T;
+    end
+    else
+    begin
+      vMetaField.TestDataType := sRuleTp;
+      vMetaField.TestDataRules := sRuleCt;
+      Exit;
+    end;
+  end;
+
+  vMetaField.SetCtObjModified(True);
+  Proc_OnUIPropChanged(vMetaField.Name, 'field_changed', '', '', '', '');
+end;
+
+procedure TFrameUIPreview.ExportGridToCsv(fn: string);
+  function EncodeCsv(s: string): string;
+  var
+    bCode: Boolean;
+  begin
+    Result :=s;
+    bCode := False;
+    if Pos(',', Result)>0 then
+      bCode := True;  
+    if Pos(#13, Result)>0 then
+      bCode := True; 
+    if Pos(#10, Result)>0 then
+      bCode := True;
+    if Pos('"', Result)>0 then
+    begin
+      bCode := True;
+      Result := StringReplace(Result, '"', '""', [rfReplaceAll]);
+    end;
+    if bCode then
+      Result := '"'+Result+'"';
+  end;
+var
+  x, y, cCount, rCount: Integer;
+  xl: TStringList;
+  S, V: String;
+begin
+  xl := TStringList.Create;
+  try
+    cCount := StringGridData.ColCount;
+    rCount := StringGridData.RowCount;
+
+    for y:=0 to rCount -1 do
+    begin
+      S:='';
+      for x:=1 to cCount - 1 do
+      begin
+        V := StringGridData.Cells[x, y];
+        V := EncodeCsv(V);
+        S:=S+V;
+        if x<cCount-1 then
+          S:=S+',';
+      end;
+      S:=CtUtf8Decode(S);
+      xl.Add(S);
+    end;
+    xl.SaveToFile(fn);
+  finally
+    xl.Free;
+  end;
+
+  if Application.MessageBox(PChar(srConfirmOpenXlsAfterExport),
+    PChar(Application.Title), MB_OKCANCEL) = IDOK then
+     CtOpenDoc(PChar(fn));
+end;
+
 procedure TFrameUIPreview.PanelSheetEditResize(Sender: TObject);
 begin
   FSheetEditControls.RealignControls;
@@ -1425,9 +2199,9 @@ end;
 
 procedure TFrameUIPreview._OnSheetSizeChange(Sender: TObject);
 begin
-  if not FfrmUIPrvSheet.Visible then
+  if not FFrameUIPrvSheet.Visible then
     Exit;
-  with FfrmUIPrvSheet do
+  with FFrameUIPrvSheet do
   begin
     if ActivePage = 0 then
       FSheetEditControls.CheckGenControls
@@ -1438,10 +2212,9 @@ end;
 
 procedure TFrameUIPreview._OnSheetVisChange(Sender: TObject);
 begin
-  actShowSheet.Checked := FfrmUIPrvSheet.Visible;
-  if FfrmUIPrvSheet.Visible then
+  actShowSheet.Checked := FFrameUIPrvSheet.Visible;
+  if FFrameUIPrvSheet.Visible then
     _OnSheetSizeChange(nil);
-  FShowSheetOnInit := FfrmUIPrvSheet.Visible;
   CheckSheetActs;
 end;
 
@@ -1453,6 +2226,55 @@ end;
 procedure TFrameUIPreview.PanelDataCardExit(Sender: TObject);
 begin
   FDataCardControls.ShowFocus := False;
+end;
+
+procedure TFrameUIPreview.PanelDataGridCardResize(Sender: TObject);
+var
+  spL, spT, spR, spB: Integer;
+begin
+  StaticTextUIScrollBR.Left := PanelDataGridCard.Width div 4;
+  StaticTextUIScrollBR.Top := PanelDataGridCard.Height + WindowFuncs.ScaleDPISize(150);
+
+  case FUIShapeType of
+    2:
+      begin
+        spL := 25;
+        spT := 15;
+        spR := 40;
+        spB := 15;
+      end;
+    3:
+      begin
+        spL := 10;
+        spT := 30;
+        spR := 10;
+        spB := 40;
+      end;
+    else
+      begin
+        PanelDataGridCard.Width := 1024;
+        PanelDataGridCard.Height := 640; 
+        spL := 20;
+        spT := 20;
+        spR := 20;
+        spB := 80;
+      end;
+  end;
+
+  PaintBoxUIShape.Left := PanelDataGridCard.Left - ScaleDPISize(spL);
+  PaintBoxUIShape.Top := PanelDataGridCard.Top - ScaleDPISize(spT);
+  PaintBoxUIShape.Width := PanelDataGridCard.Width + ScaleDPISize(spL + spR);
+  PaintBoxUIShape.Height := PanelDataGridCard.Height + ScaleDPISize(spT + spB);
+
+  MemoDesignNotesAll.Top := PanelDataGridCard.Top;     
+  MemoDesignNotesAll.Left := PaintBoxUIShape.Left + PaintBoxUIShape.Width + ScaleDPISize(20);
+  MemoDesignNotesAll.Height := PanelDataGridCard.Height;
+
+  btnToggleDesignNotes.Left := MemoDesignNotesAll.Left;
+  btnToggleDesignNotes.Top := MemoDesignNotesAll.Top - btnToggleDesignNotes.Height - ScaleDPISize(4);
+
+  btnShowEmptyNotes.Left := MemoDesignNotesAll.Left;
+  btnShowEmptyNotes.Top := MemoDesignNotesAll.Top+MemoDesignNotesAll.Height+ScaleDPISize(2);
 end;
 
 procedure TFrameUIPreview.PanelDataQueryEnter(Sender: TObject);
@@ -1470,6 +2292,27 @@ begin
 
 end;
 
+procedure TFrameUIPreview.actExcelExpExecute(Sender: TObject);
+begin
+  with TSaveDialog.Create(Self) do
+  try
+    Filter := 'Csv file(*.csv)|*.csv';
+    Options := Options + [ofOverwritePrompt];
+    DefaultExt := 'csv';
+    if Execute then
+      ExportGridToCsv(FileName);
+  finally
+    Free;
+  end;
+end;
+
+procedure TFrameUIPreview.actInsertNewFieldExecute(Sender: TObject);
+begin 
+  if ReadOnlyMode then
+    Exit;
+  DoUIPropChanged('(CurField)', 'insert_new_field', '', '', '', '');
+end;
+
 procedure TFrameUIPreview.actCatAddFieldExecute(Sender: TObject);
 
   procedure SetFieldCat(fd: TCtMetaField);
@@ -1482,9 +2325,10 @@ procedure TFrameUIPreview.actCatAddFieldExecute(Sender: TObject);
 2Sheet
 3Card
 4Query
-5Fast search
-6Required
-7Hidden
+5Fast search  
+6Exportalbe
+7Required
+8Hidden
 }
     cat := FFocusedCatIndex;
     if cat <= 0 then
@@ -1530,14 +2374,20 @@ procedure TFrameUIPreview.actCatAddFieldExecute(Sender: TObject);
       if not fd.Searchable then
         fd.Searchable:= True;
       Exit;
-    end;       
+    end;
     if cat=6 then
+    begin
+      if not fd.Exportable then
+        fd.Exportable:= True;
+      Exit;
+    end;
+    if cat=7 then
     begin
       if not fd.IsRequired then
         fd.Required:= True;
       Exit;
     end;           
-    if cat=7 then
+    if cat=8 then
     begin
       if not fd.IsHidden then
         fd.IsHidden:= True;
@@ -1582,6 +2432,17 @@ begin
   end;
 
   NotifyTbPropChanged;
+end;
+
+procedure TFrameUIPreview.actCanceItemExecute(Sender: TObject);
+begin
+  actShowSheet.Execute;
+end;
+
+procedure TFrameUIPreview.actBackToListExecute(Sender: TObject);
+begin
+  if UIOperateType > 1 then
+    actShowSheet.Execute;
 end;
 
 procedure TFrameUIPreview.actCatFieldMoveDownExecute(Sender: TObject);
@@ -1694,14 +2555,20 @@ procedure TFrameUIPreview.actCatRemoveFieldExecute(Sender: TObject);
       if fd.Searchable then
         fd.Searchable:= False;
       Exit;
-    end;
+    end;     
     if cat=6 then
+    begin
+      if fd.Exportable then
+        fd.Exportable:= False;
+      Exit;
+    end;
+    if cat=7 then
     begin
       if fd.IsRequired then
         fd.Required:= False;
       Exit;
     end;
-    if cat=7 then
+    if cat=8 then
     begin
       if fd.IsHidden then
         fd.IsHidden:= False;
@@ -1747,61 +2614,24 @@ begin
   actRefresh.Execute;
 end;
 
+procedure TFrameUIPreview.actPostItemExecute(Sender: TObject);
+begin
+  actShowSheet.Execute;
+end;
+
 procedure TFrameUIPreview.actViewItemExecute(Sender: TObject);
-begin                      
-  if FfrmUIPrvSheet.Visible then
-  begin
-    if FfrmUIPrvSheet.ViewType = 'view' then
-    begin 
-      actShowSheet.Execute;
-      Exit;
-    end;
-  end;
-  CreateControlList(FCtMetaTable, FSheetViewControls, '[VIEW_MODE]');
-  FfrmUIPrvSheet.ActivePage := 1;
-  if not FfrmUIPrvSheet.Visible then
-    actShowSheet.Execute;
-  FfrmUIPrvSheet.ReCalSizes;    
-  FfrmUIPrvSheet.ViewType := 'view'; 
-  CheckSheetActs;
+begin
+  UIOperateType := 2;
 end;
 
 procedure TFrameUIPreview.actModifyItemExecute(Sender: TObject);
-begin
-  if FfrmUIPrvSheet.Visible then
-  begin
-    if FfrmUIPrvSheet.ViewType = 'modify' then
-    begin
-      actShowSheet.Execute;
-      Exit;
-    end;
-  end;
-  CreateControlList(FCtMetaTable, FSheetEditControls, '');
-  FfrmUIPrvSheet.ActivePage := 0;
-  if not FfrmUIPrvSheet.Visible then
-    actShowSheet.Execute;
-  FfrmUIPrvSheet.ReCalSizes;     
-  FfrmUIPrvSheet.ViewType := 'modify';  
-  CheckSheetActs;
+begin             
+  UIOperateType := 3;
 end;
 
 procedure TFrameUIPreview.actNewItemExecute(Sender: TObject);
-begin
-  if FfrmUIPrvSheet.Visible then
-  begin
-    if FfrmUIPrvSheet.ViewType = 'new' then
-    begin
-      actShowSheet.Execute;
-      Exit;
-    end;
-  end;
-  CreateControlList(FCtMetaTable, FSheetEditControls, '[NEW_MODE]');
-  FfrmUIPrvSheet.ActivePage := 0;
-  if not FfrmUIPrvSheet.Visible then
-    actShowSheet.Execute;
-  FfrmUIPrvSheet.ReCalSizes; 
-  FfrmUIPrvSheet.ViewType := 'new';
-  CheckSheetActs;
+begin     
+  UIOperateType := 4;
 end;
 
 procedure TFrameUIPreview.actRefreshExecute(Sender: TObject);
@@ -1846,37 +2676,50 @@ begin
 end;
 
 procedure TFrameUIPreview.actShowSheetExecute(Sender: TObject);
-begin
-  if FfrmUIPrvSheet.Visible then
-  begin
-    FfrmUIPrvSheet.Visible := False;
-    SplitterSheetContainer.Visible := False;
-    PanelSheetContainer.Visible := False;
-    if Assigned(SheetContainer) then
-      SheetContainer.Visible := False;  
-    if Assigned(OnSheetVisibleChanged) then
-      OnSheetVisibleChanged(Self);
-  end
+begin                    
+    //操作类型：1列表 2查看 3修改 4新增
+  if UIOperateType = 3 then
+    UIOperateType := 2
+  else if UIOperateType > 1 then
+    UIOperateType := 1
   else
   begin
-    FfrmUIPrvSheet.Visible := True;   
-    if Assigned(SheetContainer) then
-      SheetContainer.Visible := True;
-    if PanelSheetContainer = SheetContainer then
-    begin
-      SplitterSheetContainer.Visible := True;
-      SplitterSheetContainer.Left := PanelSheetContainer.Left + PanelSheetContainer.Width + 2;
-    end;
-    if Assigned(OnSheetVisibleChanged) then
-      OnSheetVisibleChanged(Self);
-    FfrmUIPrvSheet.TimerResize.Enabled := True;
+    UIOperateType := 2;
   end;
-  CheckSheetActs;
 end;
 
-procedure TFrameUIPreview.btnToggleUIPreviewClick(Sender: TObject);
+procedure TFrameUIPreview.btnShowEmptyNotesClick(Sender: TObject);
+begin
+  Self.ScanDesignNotes;
+  //btnShowEmptyNotes.Down := not btnShowEmptyNotes.Down;
+  RefreshDesignNotes;
+end;
+
+procedure TFrameUIPreview.btnToggleDesignNotesClick(Sender: TObject);
+begin
+  MemoDesignNotesAll.Visible:=not MemoDesignNotesAll.Visible;
+  btnShowEmptyNotes.Visible:= MemoDesignNotesAll.Visible;
+  btnToggleDesignNotes.Down:= MemoDesignNotesAll.Visible;
+end;
+
+procedure TFrameUIPreview.btnToggleUISettingsClick(Sender: TObject);
 begin
   TopPanelVisible := not TopPanelVisible;
+end;
+
+procedure TFrameUIPreview.btnUIShapePadClick(Sender: TObject);
+begin
+  UIShapeType := 2;
+end;
+
+procedure TFrameUIPreview.btnUIShapePCClick(Sender: TObject);
+begin
+  UIShapeType := 1;
+end;
+
+procedure TFrameUIPreview.btnUIShapePhoneClick(Sender: TObject);
+begin
+  UIShapeType := 3;
 end;
 
 procedure TFrameUIPreview.EditFastSearchEnter(Sender: TObject);
@@ -1901,9 +2744,6 @@ begin
   if Self.Height >= 200 then
     if (FTopSplitPercent>=0.05) and (FTopSplitPercent<=0.95) then
       PanelTopDesign.Height := Round(Self.Height * FTopSplitPercent);
-  if Self.Width > 200 then
-    if (FSheetSplitPercent>=0.1) and (FSheetSplitPercent<0.9) then
-      PanelSheetContainer.Width := Round(Self.Width * FSheetSplitPercent);
 end;
 
 
@@ -1968,15 +2808,13 @@ procedure TFrameUIPreview.ListBoxFieldCategoryClick(Sender: TObject);
 3Card
 4Query
 5Fast search
-6Required
-7Hidden
+6Exportable
+7Required
+8Hidden
 }
     if cat<=0 then
-    begin                                
-      if not StringGridData.Visible then
-        Self.actCardView.Execute;
-      if FfrmUIPrvSheet.Visible then
-        actShowSheet.Execute;
+    begin
+      SetUITypes(1, 1);
       if PanelDataQuery.Visible then
         actQuery.Execute;
       if not FShowHiddenFields then
@@ -1984,11 +2822,8 @@ procedure TFrameUIPreview.ListBoxFieldCategoryClick(Sender: TObject);
       Exit;
     end;
     if cat=1 then
-    begin                        
-      if not StringGridData.Visible then
-        Self.actCardView.Execute;
-      if FfrmUIPrvSheet.Visible then
-        actShowSheet.Execute;
+    begin
+      SetUITypes(1, 1);
       if PanelDataQuery.Visible then
         actQuery.Execute;
       if FShowHiddenFields then
@@ -1997,26 +2832,20 @@ procedure TFrameUIPreview.ListBoxFieldCategoryClick(Sender: TObject);
     end;
     if cat=2 then
     begin
-      if not FfrmUIPrvSheet.Visible then
-        actShowSheet.Execute;
+      UIOperateType := 3;
       Exit;
     end;
     if cat=3 then
     begin                        
-      if StringGridData.Visible then
-        Self.actCardView.Execute;
-      if FfrmUIPrvSheet.Visible then
-        actShowSheet.Execute;     
-      if PanelDataQuery.Visible then
-        actQuery.Execute;
+      if UIShapeType = 1 then 
+        SetUITypes(2, 1)
+      else
+        UIOperateType := 1;
       Exit;
     end;
     if cat = 4 then
     begin
-      if not StringGridData.Visible then
-        Self.actCardView.Execute;
-      if FfrmUIPrvSheet.Visible then
-        actShowSheet.Execute;
+      SetUITypes(1, 1);
       if not PanelDataQuery.Visible then
         actQuery.Execute;                 
       if FShowHiddenFields then
@@ -2024,11 +2853,8 @@ procedure TFrameUIPreview.ListBoxFieldCategoryClick(Sender: TObject);
       Exit;
     end;
     if cat =5 then
-    begin
-      if not StringGridData.Visible then
-        Self.actCardView.Execute;
-      if FfrmUIPrvSheet.Visible then
-        actShowSheet.Execute;
+    begin            
+      SetUITypes(1, 1);
       if PanelDataQuery.Visible then
         actQuery.Execute;                   
       if FShowHiddenFields then
@@ -2037,8 +2863,21 @@ procedure TFrameUIPreview.ListBoxFieldCategoryClick(Sender: TObject);
     end;  
     if cat=6 then
     begin
-      if not FfrmUIPrvSheet.Visible then
-        actShowSheet.Execute;
+      SetUITypes(1, 1);
+      Exit;
+    end;     
+    if cat=7 then
+    begin
+      UIOperateType := 3;
+      Exit;
+    end;
+    if cat=8 then
+    begin
+      SetUITypes(1, 1);
+      if PanelDataQuery.Visible then
+        actQuery.Execute;
+      if not FShowHiddenFields then
+        MN_ShowHiddenFieldsClick(nil);
       Exit;
     end;
   end;
@@ -2068,9 +2907,77 @@ begin
   actCatFieldProp.Execute;
 end;
 
+procedure TFrameUIPreview.MemoDesignNotesAllChange(Sender: TObject);
+begin
+  TimerDesignNotesEdit.Enabled := False;
+  if FIniting then
+    Exit;
+  TimerDesignNotesEdit.Enabled := True;
+end;
+
+procedure TFrameUIPreview.MemoDesignNotesAllExit(Sender: TObject);
+begin
+  ScanDesignNotes;
+end;
+
 procedure TFrameUIPreview.MNCard_BackToGridClick(Sender: TObject);
 begin
   actCardView.Execute;
+end;
+
+procedure TFrameUIPreview.MNGrid_Aggr_SumClick(Sender: TObject);
+  function MultiColSelected(R: TRect): boolean;
+  begin
+    Result := False;
+    if r.Left = r.Right then
+      Exit;
+    if r.Left = 1 then
+      if r.Right = StringGridData.ColCount - 1 then
+        if r.Top = r.Bottom then
+          Exit;
+    Result := True;
+  end;
+
+var
+  I, Index: integer;
+  r: TRect;
+  hnt: String;
+begin
+  if ReadOnlyMode then
+    Exit;
+  if Sender = nil then
+    Exit;
+  if FRefreshUpdateing then
+    Exit;
+  hnt := TMenuItem(Sender).Hint;
+
+  r := StringGridData.Selection;
+  if MultiColSelected(r) then
+  begin
+    FRefreshUpdateing := True;
+    try
+      for I := r.Left to r.Right do
+      begin
+        Index := I;
+        if Index >= 1 then
+        begin
+          DoUIPropChanged(GetGridFieldName(Index),
+            'AggregateFun', hnt, '', '', '');
+        end;
+      end;
+    finally
+      FRefreshUpdateing := False;
+    end;
+    RefreshUI;
+    Exit;
+  end;
+
+  Index := StringGridData.Col;
+  if Index >= 1 then
+  begin
+    DoUIPropChanged(GetGridFieldName, 'AggregateFun',
+      hnt, '', '', '');
+  end;
 end;
 
 procedure TFrameUIPreview.MNGrid_Align_Click(Sender: TObject);
@@ -2152,10 +3059,49 @@ begin
     end;
     Ts := ss.Text;
     if Ts <> '' then
+    begin
       Clipboard.AsText := Ts;
+    end;
   finally
     ss.Free;
   end;
+end;
+
+procedure TFrameUIPreview.MNGrid_CopyCellClick(Sender: TObject);
+var          
+  x, y: integer;
+  r: TRect;
+  Ts: string;
+  bFirst: Boolean;
+begin           
+  r := StringGridData.Selection;
+  if (r.Right>r.Left) or (r.Bottom > r.Top) then
+  begin
+    Ts := '';
+    for y:=r.Top to r.Bottom do
+    begin
+      bFirst := True;
+      for x:=r.Left to r.Right do
+      begin
+       if bFirst then
+         bFirst := False
+       else
+         Ts := Ts+#9;
+       Ts := Ts + StringGridData.Cells[x, y];
+      end;
+      Ts := Ts + #13#10;
+    end;  
+    Clipboard.AsText := Ts;
+    Exit;
+  end;
+
+  if StringGridData.Col < 0 then
+    Exit;         
+  if StringGridData.Row < 0 then
+    Exit;
+  Ts := StringGridData.Cells[StringGridData.Col, StringGridData.Row];
+  if Ts <> '' then
+    Clipboard.AsText := Ts;
 end;
 
 procedure TFrameUIPreview.MNGrid_CopyColClick(Sender: TObject);
@@ -2166,9 +3112,62 @@ begin
   if StringGridData.Col < 0 then
     Exit;
   ss := StringGridData.Cols[StringGridData.Col];
+  //Ts := StringGridData.Columns[StringGridData.Col].Title.Caption;
   Ts := ss.Text;
-  if Ts <> '' then
-    Clipboard.AsText := Ts;
+  Clipboard.AsText := Ts;
+end;
+
+procedure TFrameUIPreview.MNGrid_CopyFieldNameClick(Sender: TObject);
+var
+  fd: TCtMetaField;
+begin
+  if StringGridData.Col < 0 then
+    Exit;
+  fd := Self.GetGridField(StringGridData.Col);
+  if fd <> nil then
+    Clipboard.AsText := fd.NameCaption;
+end;
+
+procedure TFrameUIPreview.MNGrid_TestData_Click(Sender: TObject);
+var
+  Index: integer;
+  fd: TCtMetaField;
+  tp: String;
+begin
+  if ReadOnlyMode then
+    Exit;
+  if Sender = nil then
+    Exit;
+  if FRefreshUpdateing then
+    Exit;
+  tp := TMenuItem(Sender).Hint;
+
+  Index := StringGridData.Col;
+  if Index >= 1 then
+  begin
+    fd := GetGridField(Index);
+    DoSetFieldTestDataRule(fd, tp);
+  end;
+end;
+         
+procedure TFrameUIPreview.MNSC_TestData_Click(Sender: TObject);
+var
+  tp: string;
+  fd: TCtMetaField;
+begin
+  if ReadOnlyMode then
+    Exit;
+  if Sender = nil then
+    Exit;           
+  if FCtMetaTable = nil then
+    Exit;
+  if FLastScControlName='' then
+    Exit;
+  fd := FCtMetaTable.MetaFields.FieldByName(FLastScControlName);
+  if fd = nil then
+    Exit;
+  tp := TMenuItem(Sender).Hint;
+  DoSetFieldTestDataRule(fd, tp);
 end;
 
 procedure TFrameUIPreview.MNSc_Align_Click(Sender: TObject);
@@ -2183,6 +3182,16 @@ begin
   DoUIPropChanged(FLastScControlName, 'TextAlignment', IntToStr(tag), '', '', '');
 end;
 
+procedure TFrameUIPreview.MNSc_CopyFieldNameClick(Sender: TObject);  var
+  fd: TCtMetaField;
+begin
+  if StringGridData.Col < 0 then
+    Exit;
+  fd := FCtMetaTable.MetaFields.FieldByName(FLastScControlName);
+  if fd <> nil then
+    Clipboard.AsText := fd.NameCaption;
+end;
+
 procedure TFrameUIPreview.MNSC_Editor_Click(Sender: TObject);
 var
   hnt: string;
@@ -2194,6 +3203,7 @@ begin
   hnt := TMenuItem(Sender).Hint;
   DoUIPropChanged(FLastScControlName, 'EditorType', hnt, '', '', '');
 end;
+
 
 procedure TFrameUIPreview.MNSC_VisClick(Sender: TObject);
 var
@@ -2315,7 +3325,8 @@ begin
   if Index >= 1 then
   begin
     S := '';
-    if TMenuItem(Sender).Hint <> 'Hidden' then
+    v := TMenuItem(Sender).Hint;
+    if (v <> 'Hidden') and (v <> 'Sortable') and (v <> 'ShowFilterBox') then
       S := '[DONT_REFRESH_GRID]';
     DoUIPropChanged(GetGridFieldName, TMenuItem(Sender).Hint,
       'toggle', '', '', S);
@@ -2441,9 +3452,73 @@ begin
   actRefresh.Execute;
 end;
 
+procedure TFrameUIPreview.PaintBoxUIShapePaint(Sender: TObject);
+var
+  w, h, cx, cy, dw, rd: Integer;
+begin
+  with PaintBoxUIShape do
+  begin          
+    Canvas.Brush.Style := bsSolid;
+    Canvas.Brush.Color := clGray;
+    Canvas.Pen.Color := Canvas.Brush.Color;
+    rd := WindowFuncs.ScaleDPISize(24);
+    w:=Width;
+    h:=Height;
+    if FUIShapeType=1 then
+    begin
+      h:=h-ScaleDPISize(50);      
+      Canvas.RoundRect(0,0,w, h, rd, rd);
+
+      cx := w div 2;
+      dw := w div 40;
+      Canvas.FillRect(cx - dw, h, cx+dw, h + ScaleDPISize(20));
+
+      dw := w div 8;
+      rd := WindowFuncs.ScaleDPISize(5);
+      Canvas.RoundRect(cx - dw, h + ScaleDPISize(20), cx+dw, h + ScaleDPISize(36), rd, rd);
+    end
+    else if FUIShapeType=2 then
+    begin
+      Canvas.RoundRect(0,0,w, h, rd, rd);
+
+      Canvas.Pen.Color := clWhite;
+      cx := ScaleDPISize(12);
+      cy := h div 2;
+      dw := ScaleDPISize(3);
+      Canvas.Ellipse(cx - dw, cy-dw, cx+dw+1, cy+dw+1);
+    end
+    else if FUIShapeType=3 then
+    begin
+      Canvas.RoundRect(0,0,w, h, rd, rd);
+
+      Canvas.Pen.Color := clWhite;
+      cx := w div 2;
+      cy := ScaleDPISize(15);
+      dw := ScaleDPISize(3);
+      Canvas.Ellipse(cx - dw, cy-dw, cx+dw+1, cy+dw+1);
+    end;
+  end;
+end;
+
 procedure TFrameUIPreview.PanelSheetViewResize(Sender: TObject);
 begin
   FSheetViewControls.RealignControls;
+end;
+
+procedure TFrameUIPreview.sbtnMobNavAddClick(Sender: TObject);
+begin
+  actNewItem.Execute;
+end;
+
+procedure TFrameUIPreview.sbtnMobNavEditClick(Sender: TObject);
+begin
+  actModifyItem.Execute;
+end;
+
+
+procedure TFrameUIPreview.sbtnMobNavSaveClick(Sender: TObject);
+begin
+  actPostItem.Execute;
 end;
 
 procedure TFrameUIPreview.ScrollBoxDataCardResize(Sender: TObject);
@@ -2451,14 +3526,12 @@ begin
   PanelDataCard.Width := ScrollBoxDataCard.ClientWidth - 2;
 end;
 
-procedure TFrameUIPreview.SplitterSheetContainerMoved(Sender: TObject);
+procedure TFrameUIPreview.ScrollBoxUIPanelsResize(Sender: TObject);
 begin
-  if Self.Width < 150 then
-    Exit;
-  if PanelSheetContainer.Width < 50 then
-    Exit;
-  FSheetSplitPercent := PanelSheetContainer.Width/Self.Width;
+  //PanelToggleMaximize.Left := Self.ClientWidth - PanelToggleMaximize.Width - btnToggleUISettings.Width - 1;
+  PanelToggleMaximize.Top := ScrollBoxUIPanels.Top + 3;
 end;
+
 
 procedure TFrameUIPreview.SplitterTopPanelMoved(Sender: TObject);
 begin
@@ -2501,15 +3574,57 @@ constructor TFrameUIPreview.Create(AOwner: TComponent);
     finally
       ss.Free;
     end;
+  end;
 
+  procedure InitTestDataTypeMenus(bSc: Boolean);
+  var
+    ss: TStringList;
+    S, V: string;
+    I, po: Integer;
+    mn: TMenuItem;
+  begin
+    ss:= TStringList.create;
+    try
+      ss.Text := GetDataGenRules.GetItemNameCaptions;
+      for I:=0 to ss.Count - 1 do
+      begin
+        S:=ss[I];
+        if Trim(S)='' then
+          Continue;
+        po := Pos('=', S);
+        if po>0 then
+        begin
+          V := Copy(S, po+1, Length(S));
+          S := Copy(S, 1, po-1);
+        end
+        else
+          V := S;
+        mn:= TMenuItem.Create(Self);
+        mn.Caption := V;
+        mn.Hint := S;
+        if bSc then
+        begin
+          mn.OnClick:=MNSC_TestData_Click;
+          MNSC_TestDataType.Add(mn);
+        end
+        else
+        begin             
+          mn.OnClick:=MNGrid_TestData_Click;
+          MNGrid_TestDataType.Add(mn);
+        end;
+      end;
+    finally
+      ss.Free;
+    end;
   end;
 begin
   inherited Create(AOwner);
-  FTopSplitPercent := 0.3;
-  FSheetSplitPercent := 0.3;
+  FTopSplitPercent := 0.7;
+  FUIShapeType := 1;
+  FUIOperateType := 1;
 
-  FfrmUIPrvSheet := TfrmUIPrvSheet.Create(Self);
-  with FfrmUIPrvSheet do
+  FFrameUIPrvSheet := TFrameUIPrvSheet.Create(Self);
+  with FFrameUIPrvSheet do
   begin
     PanelSheetEdit.OnEnter := PanelSheetEditEnter;
     PanelSheetEdit.OnExit := PanelSheetEditExit;
@@ -2545,12 +3660,13 @@ begin
 
   ListBoxFieldCategory.Items.Text := srUIFieldCategory;
 
-  InitEditorTypeMenus;
+  InitEditorTypeMenus;         
+  InitTestDataTypeMenus(False);
+  InitTestDataTypeMenus(True);
 
-  FShowSheetOnInit := False;
-  FShowHiddenFields := True;
+  FShowHiddenFields := False;
   FShowSearchOnInit := False;
-  FGridPageSize := 20;
+  FGridPageSize := 25;
 
   FDataQueryControls := TDmlScriptControlList.Create;
   FDataCardControls := TDmlScriptControlList.Create;
@@ -2573,8 +3689,8 @@ begin
 
   FDataQueryControls.ParentWnd := PanelDataQuery;
   FDataCardControls.ParentWnd := PanelDataCard;
-  FSheetViewControls.ParentWnd := FfrmUIPrvSheet.PanelSheetView;
-  FSheetEditControls.ParentWnd := FfrmUIPrvSheet.PanelSheetEdit;
+  FSheetViewControls.ParentWnd := FFrameUIPrvSheet.PanelSheetView;
+  FSheetEditControls.ParentWnd := FFrameUIPrvSheet.PanelSheetEdit;
 
   FSheetViewControls.LabelDraggable := True;
   FSheetEditControls.LabelDraggable := True;
@@ -2615,18 +3731,30 @@ begin
     try
       S := 'UIPreview' + secEx;
       FShowHiddenFields := ini.ReadBool(S, 'ShowHiddenFields', FShowHiddenFields);
-      FShowSheetOnInit := ini.ReadBool(S, 'ShowSheetOnInit', FShowSheetOnInit);
       MN_ShowHiddenFields.Checked := FShowHiddenFields;
       FShowSearchOnInit := ini.ReadBool(S, 'ShowSearchPanel', FShowSearchOnInit);
-      PanelSheetContainer.Width := ini.ReadInteger(S, 'SheetPanelWidth', PanelSheetContainer.Width);     
       FGridPageSize := ini.ReadInteger(S, 'ListPageSize', FGridPageSize);
-      FTopSplitPercent := ini.ReadFloat(S, 'TopSplitPercent', FTopSplitPercent);         
-      FSheetSplitPercent := ini.ReadFloat(S, 'SheetSplitPercent', FSheetSplitPercent);
-      FFocusedCatIndex := ini.ReadInteger(S, 'FocusedCatIndex', 0);     
-      TopPanelVisible := ini.ReadBool(S, 'TopPanelVisible', TopPanelVisible);
+      FTopSplitPercent := ini.ReadFloat(S, 'TopSplitPercent', FTopSplitPercent);
+      FFocusedCatIndex := ini.ReadInteger(S, 'FocusedCatIndex', 1);
+      TopPanelVisible := ini.ReadBool(S, 'TopPanelVisible', False);
+
+      FUIShapeType := ini.ReadInteger(S, 'UIShapeType', 1);
+      FUIOperateType := ini.ReadInteger(S, 'UIOperateType', 1);
+      if MemoDesignNotesAll.Visible <> ini.ReadBool(S, 'DesignNotesVisible', True) then
+      begin
+        MemoDesignNotesAll.Visible := not MemoDesignNotesAll.Visible;
+        btnToggleDesignNotes.Down:= MemoDesignNotesAll.Visible;
+      end;
     finally
       ini.Free;
     end;
+  end
+  else
+  begin
+    TopPanelVisible := False;
+    FFocusedCatIndex := 1;
+    FUIShapeType := 1;
+    FUIOperateType := 1;
   end;
 end;
 
@@ -2640,14 +3768,14 @@ begin
   try
     S := 'UIPreview' + secEx;
     ini.WriteBool(S, 'ShowHiddenFields', FShowHiddenFields);
-    ini.WriteBool(S, 'ShowSheetOnInit', FShowSheetOnInit);    
     ini.WriteBool(S, 'ShowSearchPanel', FShowSearchOnInit);
-    ini.WriteInteger(S, 'SheetPanelWidth', PanelSheetContainer.Width);
     ini.WriteInteger(S, 'ListPageSize', FGridPageSize);     
     ini.WriteFloat(S, 'TopSplitPercent', FTopSplitPercent);
-    ini.WriteFloat(S, 'SheetSplitPercent', FSheetSplitPercent); 
     ini.WriteInteger(S, 'FocusedCatIndex', FFocusedCatIndex);   
-    ini.WriteBool(S, 'TopPanelVisible', TopPanelVisible);
+    ini.WriteBool(S, 'TopPanelVisible', TopPanelVisible);    
+    ini.WriteInteger(S, 'UIShapeType', FUIShapeType);
+    ini.WriteInteger(S, 'UIOperateType', FUIOperateType);  
+    ini.WriteBool(S, 'DesignNotesVisible', MemoDesignNotesAll.Visible);
   finally
     ini.Free;
   end;
@@ -2682,13 +3810,13 @@ begin
     Exit;
   FIniting := True;
   try
-    Self.FfrmUIPrvSheet.Init;
+    Self.FFrameUIPrvSheet.Init;
     if SheetContainer <> nil then
-      if FfrmUIPrvSheet.Parent = nil then
+      if FFrameUIPrvSheet.Parent = nil then
       begin
-        FfrmUIPrvSheet.BorderStyle := bsNone;
-        FfrmUIPrvSheet.Parent := SheetContainer;
-        FfrmUIPrvSheet.Align := alClient;
+        FFrameUIPrvSheet.BorderStyle := bsNone;
+        FFrameUIPrvSheet.Parent := SheetContainer;
+        FFrameUIPrvSheet.Align := alClient;
       end;
     if Self.FReadOnlyMode then
     begin
@@ -2702,6 +3830,7 @@ begin
       FSheetViewControls.LabelDraggable := True;
       FSheetEditControls.LabelDraggable := True;
     end;
+
 
     FLastTbJson := S;
     if FLastTableName <> FCtMetaTable.Name then
@@ -2721,6 +3850,7 @@ begin
     end;
     _OnGridUIScrolled(nil);
 
+    RefreshDesignNotes;
 
     ListBoxFieldCategory.ItemIndex := FFocusedCatIndex;
     RefreshCatFields;
@@ -2745,14 +3875,14 @@ begin
         actQuery.Execute;
       end;
     end;
+    RefreshUIShape;
 
-    if FShowSheetOnInit then
-      if not FfrmUIPrvSheet.Visible then
-        actShowSheet.Execute;
-    if FfrmUIPrvSheet.Visible then
-      FfrmUIPrvSheet.ReCalSizes;
+    if FFrameUIPrvSheet.Visible then
+      FFrameUIPrvSheet.ReCalSizes;
 
     Self.FrameResize(nil);
+    CheckSheetActs;
+    PanelDataGridCard.Visible := True;
   finally
     FIniting := False;
   end;
@@ -2760,11 +3890,11 @@ end;
 
 procedure TFrameUIPreview.HideProps;
 begin
-  if FfrmUIPrvSheet.Visible then
+  if FFrameUIPrvSheet.Visible then
   begin
-    FfrmUIPrvSheet.OnHide := nil;
-    FfrmUIPrvSheet.Hide;
-    FfrmUIPrvSheet.OnHide := _OnSheetVisChange;   
+    FFrameUIPrvSheet.OnHide := nil;
+    FFrameUIPrvSheet.Hide;
+    FFrameUIPrvSheet.OnHide := _OnSheetVisChange;   
     if Assigned(SheetContainer) then
       SheetContainer.Visible := False;
     if Assigned(OnSheetVisibleChanged) then
@@ -2865,7 +3995,9 @@ var
 begin
   ss := TStringList.Create;
   try
-    RC := FGridPageSize; //最多生成20个查询项
+    RC := FGridPageSize; //最多生成50个卡片
+    if RC > 50 then
+      RC := 50;
     for Y := 0 to RC - 1 do
     begin
       title := GetDisplayableFieldDesc(0, 1, Y);
@@ -3128,22 +4260,23 @@ begin
   if Pos('[QUERY_FIELDS]', AOpt) > 0 then
     btns := 'Control="Panel_Buttons";Name="btnsQuery";Caption=" ";Items="' +
       srCapSearch + ',' + srCapReset + '"'
-  else if Pos('[VIEW_MODE]', AOpt) > 0 then
+  {else if Pos('[VIEW_MODE]', AOpt) > 0 then
     btns := 'Control="Panel_Buttons";Name="_UIPreview_OperPanel_View";Caption=" ";Items="'
       +
       srCapNew + ',' + srCapModify + ',' + srCapDelete + ',' + srCapClose+ '"'
   else
     btns := 'Control="Panel_Buttons";Name="_UIPreview_OperPanel_Edit";Caption=" ";Items="'
       +
-      srCapOk + ',' + srCapCancel + '"';
+      srCapOk + ',' + srCapCancel + '"';}
+  else
+    btns := '';
   btns := btns + ';Params="[NO_FOCUS][NO_DRAG][FULLWIDTH]"';
 
   fds := ATable.MetaFields;
   ss := TStringList.Create;
   try
     if Pos('[QUERY_FIELDS]', AOpt) = 0 then
-      ss.Add('Control="Label";Caption="' + ATable.UIDisplayName +
-        '";Params="[FULLWIDTH][LARGE][NO_FOCUS][NO_DRAG]"');
+      ;//ss.Add('Control="Label";Caption="' + ATable.UIDisplayName + '";Params="[FULLWIDTH][LARGE][NO_FOCUS][NO_DRAG]"');
     for I := 0 to fds.Count - 1 do
     begin
       fd := fds.Items[I];
@@ -3184,8 +4317,9 @@ begin
         end;
       end;
     if ss.Count > 0 then
-    begin
-      ss.Add(btns);
+    begin       
+      if Pos('[QUERY_FIELDS]', AOpt) > 0 then
+        ss.Add(btns);
     end;
     S := ss.Text;
     if AScControls.LastTextDesc = S then
@@ -3208,7 +4342,21 @@ end;
 procedure TFrameUIPreview.RefreshUI;
 begin
   FSkipGridRefreshTick := 0;
+  FSkipCatRefreshTick := 0;
+  FSkipDesNotesRefreshTick := 0;
   InitByTable(Self.FCtMetaTable, Self.ReadOnlyMode);
+end;
+
+procedure TFrameUIPreview.SetUITypes(Shap, Oper: Integer);
+begin         
+  if FUIShapeType=Shap then
+    if FUIOperateType = Oper then
+      Exit;
+  //UI类型：1PC 2PAD 3PHONE
+  FUIShapeType := Shap;
+  //操作类型：1列表 2查看 3修改 4新增
+  FUIOperateType := Oper;
+  RefreshUIShape;
 end;
 
 

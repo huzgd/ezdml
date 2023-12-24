@@ -3,6 +3,14 @@ unit wMainDml;
 {$MODE Delphi}
 {$WARN 5057 off : Local variable "$1" does not seem to be initialized}
 {$WARN 4105 off : Implicit string type conversion with potential data loss from "$1" to "$2"}
+                   
+{$define EZDML_CHATGPT}
+{$ifdef EZDML_LITE}    
+{$undef EZDML_CHATGPT}
+{$endif}
+{$ifdef WIN32}
+{$undef EZDML_CHATGPT}
+{$endif}
 
 interface
 
@@ -11,7 +19,10 @@ uses
   Graphics, Controls, Forms,
   Dialogs, Menus, ComCtrls, StdCtrls, ExtCtrls, WindowFuncs, {XPMan,}
   uFrameCtTableDef, CtMetaTable, CTMetaData, CtObjSerialer, CtObjXmlSerial, wDmlHelp,
-  BESENCharset, //这玩意不先引用一下的话，在MAC下编译会说找不到
+  {$ifndef EZDML_LITE}
+  BESENCharset,
+  DmlJsScript,
+  {$endif}
   uWaitWnd, ActnList, StdActns, Buttons, FileUtil, CtObjJsonSerial;
 
 const
@@ -29,12 +40,30 @@ type
     actHttpServer: TAction;
     actCheckUpdates: TAction;
     actFullScreen: TAction;
+    actGenerateTestData: TAction;
+    actImportExcel: TAction;
+    actChatGPT: TAction;
+    actSaveToDb: TAction;
+    actLoadFromDb: TAction;
+    actRefresh: TAction;
+    actShowHideList: TAction;
     actToggleTableView: TAction;
     actShowDescText: TAction;
     actSettings: TAction;
     ImageListSwitchOnOff: TImageList;
     lbNewVerInfo: TLabel;
     MainMenu1: TMainMenu;
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    MNChatGPT1: TMenuItem;
+    MNImportExcel: TMenuItem;
+    MNImportFile: TMenuItem;
+    MNSaveToDb: TMenuItem;
+    MNLoadFromDb: TMenuItem;
+    MN_Refresh: TMenuItem;
+    MnGenerateTestData: TMenuItem;
+    MN_ShowHideList: TMenuItem;
     MN_ToggleTableView: TMenuItem;
     MN_FullScreen: TMenuItem;
     MN_CheckUpdates: TMenuItem;
@@ -42,7 +71,6 @@ type
     MnGenerateLastCode: TMenuItem;
     MN_Settings: TMenuItem;
     MN_FindHex: TMenuItem;
-    MNImportFile: TMenuItem;
     MN_editGlobalScript: TMenuItem;
     PanelNewVerHint: TPanel;
     Shape1: TShape;
@@ -124,19 +152,28 @@ type
     actAboutEzdml: TAction;
     OpenDialogImp: TOpenDialog;
     procedure actCharCodeToolExecute(Sender: TObject);
+    procedure actChatGPTExecute(Sender: TObject);
     procedure actCheckUpdatesExecute(Sender: TObject);
     procedure actEditGlobalScriptExecute(Sender: TObject);
     procedure actFullScreenExecute(Sender: TObject);
     procedure actGenerateLastCodeExecute(Sender: TObject);
+    procedure actGenerateTestDataExecute(Sender: TObject);
     procedure actHttpServerExecute(Sender: TObject);
+    procedure actImportExcelExecute(Sender: TObject);
     procedure actImportFileExecute(Sender: TObject);
+    procedure actLoadFromDbExecute(Sender: TObject);
     procedure actOpenLastFile1Execute(Sender: TObject);
+    procedure actRefreshExecute(Sender: TObject);
+    procedure actSaveToDbExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
     procedure actShowDescTextExecute(Sender: TObject);
+    procedure actShowHideListExecute(Sender: TObject);
     procedure actToggleTableViewExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure lbNewVerInfoClick(Sender: TObject);
+    procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure TimerInitTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -204,13 +241,15 @@ type
     FFileLockMutex: TCtMutex;
     FFileWorking: boolean;
     FStartMaximized: Boolean;
+    FCheckingFileDate: boolean;
 
     FFullScrnSaveBound: TRect;
 
     procedure _OnDMLObjProgress(Sender: TObject; const Prompt: string;
       Cur, All: integer; var bContinue: boolean);
     procedure _OnRecentFileClick(Sender: TObject);
-    procedure _OnAppActivate(Sender: TObject);
+    procedure _OnAppActivate(Sender: TObject);    
+    procedure _OnDbFileMemoChanged(Sender: TObject; fn: string);
 
     procedure PromptOpenFile(fn: string; bDisableTmpFiles: boolean = False);
     procedure LoadFromFile(fn: string);
@@ -219,6 +258,9 @@ type
     procedure SaveToFile(fn: string);
     procedure PromptSaveFile;
     procedure CheckCaption;
+                      
+    procedure LoadFromDbFile(fn: string);
+    function CheckDbFileState(fn: string; bForce: Boolean): Integer;
 
     procedure LoadIni;
     procedure SaveIni;
@@ -231,9 +273,13 @@ type
     procedure _OnCustomToolsClick(Sender: TObject);
 
     function CheckCurFileDateSizeChanged: boolean;
-    function IsTmpFile(fn: string): boolean;
+    function IsTmpFile(fn: string): boolean;     
+    function IsDbFile(fn: string): boolean;
+    function IsDbHistFile(fn: string): boolean;
     function GetStatusPanelFileName(fn: string): string;
-    function GetTmpDirForFile(fn: string): string;
+    function GetTmpDirForFile(fn: string): string;       
+    function ExtractDmlFileDir(fn: string): string;
+    function ExtractDmlFileName(fn: string): string;
     function GetFastTmpFileName(fn: string): string; //快速加载用的临时文件名
     function GetLastTmpFileName(fn: string): string; //最后一次的临时文件名
     function GetNewTmpFileName(fn: string): string;
@@ -245,6 +291,9 @@ type
 
     procedure CheckForUpdates(bForceNow: boolean);
     procedure CheckShowNewVersionInfo(bForceNow: boolean);
+
+    function GetDmlFileDate(fn: string; var vFileDate: TDateTime): boolean;    
+    function GetDmlFileDateAndSize(fn: string; var vFileSize: Integer; var vFileDate: TDateTime): boolean;
   protected
     procedure CreateWnd; override;
     procedure _WMZ_CUSTCMD(var msg: TMessage); message WMZ_CUSTCMD;
@@ -306,6 +355,14 @@ const
     '  Result := defRes;' + #13#10 +
     'end;' + #13#10 +
     '' + #13#10 +
+    '//Generate test Data Insert SQL for an exists database-table. defRes is the default result.'
+    + #13#10 +
+    '//生成插入测试数据的SQL，传入表对象、SQL类型（DQL_DML_SQL TEST_DATA_INSERT_SQL GET_MAX_KEY_SQL TEST_DATA_UPDATE_FK_SQL）、默认生成的结果、数据库类型、参数1、参数2、选项，返回自定义结果' + #13#10 +
+    'function OnEzdmlGenDataSqlEvent(tb: TCtMetaTable; sqlType, defRes, param1, param2, dbType, options: string): string;' + #13#10 +
+    'begin' + #13#10 +
+    '  Result := defRes;' + #13#10 +
+    'end;' + #13#10 +
+    '' + #13#10 +
     '//Reserved custom events' + #13#10 +
     '//自定义命令事件' + #13#10 +
     'function OnEzdmlCmdEvent(cmd, param1, param2: String; parobj1, parobj2: TObject): string;'
@@ -325,14 +382,15 @@ uses
   uFormImpTable, uFormGenSql, uFormCtDML, CtMetaOracleDb, CtMetaPdmImporter,
   CtMetaOdbcDb,
   ocidyn, mysql57dyn, mssqlconn, dblib, sqlite3dyn, CtMetaCustomDb,
-  postgres3dyn, NetUtil,
+  {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf,{$endif}
+  postgres3dyn, NetUtil, uFormEzdmlDbFile,
   ezdmlstrs, dmlstrs, DMLObjs, IniFiles, AutoNameCapitalize, uDMLSqlEditor,
   wAbout, wSettings, uFormCtTableProp,
   uFormGenCode, uJSON, DmlScriptPublic, DmlGlobalPasScript, CtMetaSqliteDb, FindHexDlg,
-  ide_editor, uPSComponent, DmlPasScript, LCLTranslator,
+  ide_editor, uPSComponent, DmlPasScript, LCLTranslator, wExcelImp, uFormCtDbLogon,
  {$IFDEF DARWIN}  MacOSAll,{$ENDIF}
   CtMetaSqlsvrDb, CtMetaMysqlDb, CtMetaPostgreSqlDb, LCLProc, CtMetaHttpDb, uFormHttpSvr,
-  CtTestDataGen, DmlScriptControl;
+  CtTestDataGen, uFormGenData, DmlScriptControl, MessageBoxOnTop;
 
 {$R *.lfm}
 
@@ -414,10 +472,16 @@ function EzdmlExecAppCmd(Cmd, param1, param2: string): string;
   function SaveDmlGraphFile(dmlName, fn: string): string;
   var
     dml: TCtDataModelGraph;
+    bBrf: boolean;
   begin
     if dmlName = '(CUR_DATA_MODEL)' then
+    with frmMainDml.FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML do
     begin
-      Result := frmMainDml.FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.SaveDmlImage(fn);
+      bBrf := DMLGraph.DMLObjs.BriefMode;
+      DMLGraph.DMLObjs.BriefMode := Pos('(BRIEF)', fn) > 0;
+      Result := SaveDmlImage(fn);
+      DMLGraph.DMLObjs.BriefMode := bBrf;
+      DMLGraph.Refresh;
       Exit;
     end;
 
@@ -428,6 +492,8 @@ function EzdmlExecAppCmd(Cmd, param1, param2: string): string;
           dml := FGlobeDataModelList.CurDataModel;
         Init(dml, True, True);
         FFrameCtDML.DMLGraph.ViewScale := 1;
+        if Pos('(BRIEF)', fn) > 0 then
+          FFrameCtDML.DMLGraph.DMLObjs.BriefMode := True;
         Result := FFrameCtDML.SaveDmlImage(fn);
       finally
         Free;
@@ -504,7 +570,10 @@ begin
     if (ext = '.dmx') or (ext = '.xml') then
       Result := TCtObjXmlSerialer.Create(fn, fmCreate)
     else if (ext = '.dmj') or (ext = '.json') then
-      Result := TCtObjJsonSerialer.Create(fn, fmCreate)
+    begin
+      Result := TCtObjJsonSerialer.Create(fn, fmCreate);
+      //TCtObjJsonSerialer(Result).WriteEmptyVals:=True;
+    end
     else
       Result := TCtObjFileStream.Create(fn, fmCreate);
   end
@@ -543,47 +612,12 @@ begin
   end;
 end;
 
-function GetFileAges(fn: string; var vFileDate: TDateTime): boolean;
-var
-  age: longint;
-begin
-  Result := False;
-  age := FileAge(fn);
-  if age = -1 then
-    Exit;
-  vFileDate := FileDateToDateTime(age);
-  Result := True;
-  {
-var
-  Handle: THandle;
-  FindData: TWin32FindData;
-  LocalFileTime: TFileTime;
-  Res: Integer;
-begin
-  Result := False;
-  vFileDate := Now;
-  vCreateDate := vFileDate;
-  Handle := FindFirstFile(PChar(Fn), FindData);
-  if Handle <> INVALID_HANDLE_VALUE then
-  begin
-    Result := True;
-    Windows.FindClose(Handle);
-
-    FileTimeToLocalFileTime(FindData.ftLastWriteTime, LocalFileTime);
-    FileTimeToDosDateTime(LocalFileTime, LongRec(Res).Hi,
-      LongRec(Res).Lo);
-    vFileDate := FileDateToDateTime(res);
-    FileTimeToLocalFileTime(FindData.ftCreationTime, LocalFileTime);
-    FileTimeToDosDateTime(LocalFileTime, LongRec(res).Hi,
-      LongRec(res).Lo);
-    vCreateDate := FileDateToDateTime(res);
-  end;    }
-end;
-
 function SetFileAges(fn: string; vFileDate: TDateTime): boolean;
 var
   age: longint;
 begin
+  if not FileExists(fn) then
+    raise Exception.Create('File not found to set age: '+ fn);
   age := DateTimeToFileDate(vFileDate);
   Result := (FileSetDate(fn, age) = 0);
   {var
@@ -786,8 +820,11 @@ begin
   end;
 
   try
-    CheckCaption;
-    CheckForUpdates(False);
+    CheckCaption;     
+    if CanClose then
+    begin
+      CheckForUpdates(False);
+    end;
   except
   end;
 end;
@@ -833,6 +870,12 @@ begin
   finally
     ini.Free;
   end;
+end;
+
+procedure TfrmMainDml.Shape1MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  lbNewVerInfoClick(nil);
 end;
 
 procedure TfrmMainDml.FormCreate(Sender: TObject);
@@ -881,10 +924,14 @@ begin
     actFileSave.Caption := Self.actSaveFile.Caption;
     actFileSave.OnExecute := Self.actSaveFile.OnExecute;
     actFullScreen.OnExecute := Self.actFullScreen.OnExecute;
-    actFullScreen.Visible := True;
+    actFullScreen.Visible := True;       
+    actShowHideList.OnExecute := Self.actShowHideList.OnExecute;
+    actShowHideList.Visible := True;
     Porc_OnStatusMsg := Self.SetStatusBarMsg;
   end;
-
+            
+  frmEzdmlDbFile := TfrmEzdmlDbFile.Create(Self);
+  frmEzdmlDbFile.Proc_OnDbFileMemoChanged := _OnDbFileMemoChanged;
 
   if GetCtMetaDBReg('ORACLE')^.DbImpl = nil then
   begin
@@ -921,8 +968,11 @@ begin
     db := TCtMetaHttpDb.Create;
     GetCtMetaDBReg('HTTP_JDBC')^.DbImpl := db;
   end;
-
-
+              
+  {$ifndef EZDML_CHATGPT}
+  actChatGPT.Visible := False;
+  FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Tag := 1;
+  {$endif}
   LoadIni;
 
 
@@ -1164,6 +1214,8 @@ begin
       G_HugeModeTableCount);
     G_CreateSeqForOracle := ini.ReadBool('Options', 'CreateSeqForOracle',
       G_CreateSeqForOracle);
+    G_BigIntForIntKeys := ini.ReadBool('Options', 'BigIntForIntKeys',
+      G_BigIntForIntKeys);
     G_QuotReservedNames := ini.ReadBool('Options', 'QuotReservedNames',
       G_QuotReservedNames);
     G_QuotAllNames := ini.ReadBool('Options', 'QuotAllNames', G_QuotAllNames);
@@ -1178,12 +1230,28 @@ begin
       ini.ReadBool('Options', 'AddColCommentToCreateTbSql', G_AddColCommentToCreateTbSql);
 
     G_CreateIndexForForeignkey :=
-      ini.ReadBool('Options', 'CreateIndexForForeignkey', G_CreateIndexForForeignkey);
+      ini.ReadBool('Options', 'CreateIndexForForeignkey', G_CreateIndexForForeignkey);    
+    G_CreateForeignkeys :=
+      ini.ReadBool('Options', 'CreateForeignkeys', G_CreateForeignkeys);    
+    G_HiveVersion :=
+      ini.ReadInteger('Options', 'HiveVersion', G_HiveVersion);  
+    G_MysqlVersion :=
+      ini.ReadInteger('Options', 'MysqlVersion', G_MysqlVersion);     
+    G_RetainAfterCommit :=
+      ini.ReadBool('Options', 'RetainAfterCommit', G_RetainAfterCommit);
     G_EnableCustomPropUI := ini.ReadBool('Options', 'EnableCustomPropUI',
       G_EnableCustomPropUI); 
     G_CustomPropUICaption := ini.ReadString('Options', 'CustomPropUICaption', '');   
     G_EnableAdvTbProp := ini.ReadBool('Options', 'EnableAdvTbProp',
-      G_EnableAdvTbProp);
+      G_EnableAdvTbProp);     
+    G_EnableTbPropGenerate := ini.ReadBool('Options', 'EnableTbPropGenerate',
+      G_EnableTbPropGenerate);     
+    G_EnableTbPropRelations := ini.ReadBool('Options', 'EnableTbPropRelations',
+      G_EnableTbPropRelations);
+    G_EnableTbPropData := ini.ReadBool('Options', 'EnableTbPropData',
+      G_EnableTbPropData);
+    G_EnableTbPropUIDesign := ini.ReadBool('Options', 'EnableTbPropUIDesign',
+      G_EnableTbPropUIDesign);
     G_BackupBeforeAlterColumn :=
       ini.ReadBool('Options', 'BackupBeforeAlterColumn', G_BackupBeforeAlterColumn);
     G_TableDialogViewModeByDefault :=
@@ -1205,6 +1273,7 @@ begin
       //Windows.SetEnvironmentVariable('_NS_OCIDLL', PAnsiChar(S));
     end;
     S := ini.ReadString('Options', 'NLSLang', '');
+    G_OracleNlsLang := S;
     if S <> '' then
     begin
       SetEnvVar('NLS_LANG', S);
@@ -1262,13 +1331,18 @@ begin
       SQLiteDefaultLibrary := S;
     end;
 
+    G_LastMetaDbSchema := ini.ReadString('Options', 'LastMetaDbSchema', '');
+
 
     //S := ini.ReadString('Options', 'LANG', '');
     //if S<>'' then
     //  SetDefaultLang(S);
 
     FMainSplitterPos := ini.ReadInteger('MainForm', 'MainSplitterPos', FMainSplitterPos);
-    FStartMaximized := ini.ReadBool('MainForm', 'Maximized', False);
+    FStartMaximized := ini.ReadBool('MainForm', 'Maximized', False); 
+  {$ifdef EZDML_CHATGPT}
+    G_ChatGPTKey := ini.ReadString('Options', 'ChatGPTKey', '');
+  {$endif}
   finally
     ini.Free;
   end;
@@ -1297,7 +1371,7 @@ begin
   else
   begin
     dir := GetTmpDirForFile(fn);
-    fn := ExtractFileName(fn);
+    fn := ExtractDmlFileName(fn);
     fn := ChangeFileExt(fn, '') + '(0).~dmh0';
     fn := FolderAddFileName(dir, fn);
     Result := fn;
@@ -1318,7 +1392,7 @@ begin
   if not DirectoryExists(dir) then
     Exit;
 
-  fn := ExtractFileName(fn);
+  fn := ExtractDmlFileName(fn);
   fn := ChangeFileExt(fn, '.~dmh');
   fn := FolderAddFileName(dir, fn);
   fn := GetLastUsedFileName(fn);
@@ -1336,7 +1410,7 @@ begin
     dir := GetTmpDirForFile(fn);
     if not DirectoryExists(dir) then
       ForceDirectories(dir);
-    fn := ExtractFileName(fn);
+    fn := ExtractDmlFileName(fn);
     fn := ChangeFileExt(fn, '.~dmh');
     fn := FolderAddFileName(dir, fn);
     fn := GetUnusedTmpFileName(fn);
@@ -1362,12 +1436,50 @@ begin
     Result := ExtractFileDir(fn)
   else
   begin
-    dir := ExtractFileDir(fn);
+    dir := ExtractDmlFileDir(fn);
     dir := StringReplace(dir, ':\', DirectorySeparator, []);
     dir := StringReplace(dir, ':', DirectorySeparator, []);
     Result := FolderAddFileName(GetAppDefTempPath(), dir);
   end;
   Result := TrimFileName(Result);
+end;
+
+function TfrmMainDml.ExtractDmlFileDir(fn: string): string;
+var
+  ptr, eng, usr, db, doc, fid: String;
+begin
+  if IsDbFile(fn) then
+  begin
+    if ParseDbFileName(fn, ptr, eng, usr, db, doc, fid) then
+    begin
+      Result := ptr;       
+      if eng <>'' then
+        Result := Result + DirectorySeparator + eng;
+      if db <>'' then
+        Result := Result + DirectorySeparator + db;
+      if usr <>'' then
+        Result := Result + DirectorySeparator + usr;
+      if doc <>'' then
+        Result := Result + DirectorySeparator + doc;     
+      if fid <>'' then
+        Result := Result + '.his' + DirectorySeparator + fid;
+      Result := ExtractFileDir(Result);
+    end
+    else  
+      Result := ExtractFileDir(fn);
+  end
+  else
+    Result := ExtractFileDir(fn);
+end;
+
+function TfrmMainDml.ExtractDmlFileName(fn: string): string;
+begin
+  if IsDbFile(fn) then
+  begin
+    if DirectorySeparator <> '/' then
+      fn := StringReplace(fn,'/', DirectorySeparator, [rfReplaceAll]);
+  end;
+  Result := ExtractFileName(fn);
 end;
 
 procedure TfrmMainDml.ImportFromFile(fn: string);
@@ -1418,6 +1530,89 @@ begin
   CheckCaption;
 end;
 
+procedure TfrmMainDml.LoadFromDbFile(fn: string);
+var
+  fs: TCtObjMemJsonSerialer;
+begin
+  CheckCanEditMeta;
+  if FFileWorking then
+    Exit;
+  if Assigned(FWaitWnd) then
+    raise Exception.Create('wait wnd busy');
+
+  FFileWorking := True;
+  try
+    FCtDataModelList.Pack;
+    frmEzdmlDbFile.Caption := actLoadFromDb.Caption;
+    frmEzdmlDbFile.IsSaveMode:=False; 
+    if not frmEzdmlDbFile.PrepareToLoadFile(fn) then
+      raise Exception.Create('DB file not ready: '+fn);
+
+    SetStatusBarMsg(Format(srEzdmlOpeningFileFmt, [GetStatusPanelFileName(fn)]));
+    Self.Refresh;
+
+    FProgressAll := 0;
+    FProgressCur := 0;
+    FWaitWnd := TfrmWaitWnd.Create(Self);
+    fs := TCtObjMemJsonSerialer.Create(True);
+    FFrameCtTableDef.IsInitLoading := False;
+    try
+      fs.RootName := 'DataModels';
+      fs.CurCtVer :=0;
+
+      FWaitWnd.Init(srEzdmlOpenFile + ' ' + frmEzdmlDbFile.ResultFileName, srEzdmlOpening,
+        srEzdmlAbortOpening);
+
+      if Assigned(GProc_OnEzdmlCmdEvent) then
+      begin
+        GProc_OnEzdmlCmdEvent('MAINFORM', 'DB_FILE_LOAD', frmEzdmlDbFile.ResultFileName, Self, nil);
+      end;
+
+      frmEzdmlDbFile.LoadFromDbFile(fs.Stream, frmEzdmlDbFile.ResultFileID);
+      fs.Stream.Seek(0, soFromBeginning);
+      try
+        FFrameCtTableDef.Init(nil, True);
+      except
+      end;
+
+      FFrameCtTableDef.IsInitLoading := True;
+      FCtDataModelList.LoadFromSerialer(fs);
+      FCurDmlFileName := '';
+
+    finally
+      fs.Free;
+      FWaitWnd.Release;
+      FWaitWnd := nil;
+      FFrameCtTableDef.IsInitLoading := False;
+      FFrameCtTableDef.Init(FCtDataModelList, False);
+    end;
+
+    SetStatusBarMsg(GetStatusPanelFileName(fn));
+    FCurFileName := fn;
+    FCurDmlFileName := fn;
+    Self.RememberFileDateSize;
+    FAutoSaveCounter := 0;
+    CheckCaption;
+
+  finally
+    FFileWorking := False;
+  end;
+  if Assigned(GProc_OnEzdmlCmdEvent) then
+  begin
+    GProc_OnEzdmlCmdEvent('MAINFORM', 'DB_FILE_LOADED', FCurFileName, Self, nil);
+  end;
+end;
+
+function TfrmMainDml.CheckDbFileState(fn: string; bForce: Boolean): Integer;
+var
+  fileSize: Integer;
+  fileDate: TDateTime;
+begin
+  //检查数据库文件状态
+  //返回：0未连接 1连接失败 2不存在 3存在
+  Result := frmEzdmlDbFile.CheckDbFileState(fn, fileSize, fileDate, bForce);
+end;
+
 function TfrmMainDml.IsTmpFile(fn: string): boolean;
 var
   ext: string;
@@ -1427,6 +1622,34 @@ begin
   ext := LowerCase(ext);
   if (ext = '.~dmh') or (ext = '.~dmh0') then
     Result := True;
+  if IsDbFile(fn) then
+  begin    
+    if IsDbHistFile(fn) then //历史文件？
+    begin
+      Result := True;
+      Exit;
+    end;
+    Result := False;
+  end;
+end;
+
+function TfrmMainDml.IsDbFile(fn: string): boolean;
+begin
+  Result := False;
+  if Pos('db://', fn)=1 then
+    Result := True;
+end;
+
+function TfrmMainDml.IsDbHistFile(fn: string): boolean;
+var
+  ptr, eng, usr, db, doc, fid: string;
+begin
+  Result := False;
+  if not IsDbFile(fn) then
+    Exit;
+  if ParseDbFileName(fn, ptr, eng, usr, db, doc, fid) then
+    if fid <> '' then //历史文件？
+      Result := True
 end;
 
 function CompareStream(// 比较两个流是否相等
@@ -1529,8 +1752,24 @@ begin
         end;
       end;
       if fn <> '' then
-        if GetFileAges(FCurFileName, vFileDate) then
+      begin
+        //数据库文件，如果数据库断开取不到文件时间，直接设置上一次的时间并退出
+        if IsDbFile(FCurFileName) then
+        begin
+          if CheckDbFileState(FCurFileName, False) <= 2 then  //数据库断开？
+          begin
+            SetFileAges(fn, FCurFileDate);
+            Exit;
+          end;
+          if not GetDmlFileDate(FCurFileName, vFileDate) then  //取不到数据库文件日期？
+          begin
+            SetFileAges(fn, FCurFileDate);
+            Exit;
+          end;
+        end;
+        if GetDmlFileDate(FCurFileName, vFileDate) then
           SetFileAges(fn, vFileDate);
+      end;
     end;
   except
   end;
@@ -1586,17 +1825,16 @@ var
 begin
   ini := TIniFile.Create(GetConfFileOfApp);
   try
-    ini.EraseSection('RecentFiles');
-    for I := 0 to FRecentFiles.Count - 1 do
-      ini.WriteString('RecentFiles', IntToStr(I + 1), FRecentFiles[I]);
-    ini.WriteString('RecentFiles', 'CurFileName', FCurFileName);
+    if FCurFileName = '' then
+      ini.WriteString('RecentFiles', 'CurFileName', FCurFileName);
     FMainSplitterPos := Self.FFrameCtTableDef.PanelCttbTree.Width;
     if FMainSplitterPos > 20 then
       ini.WriteInteger('MainForm', 'MainSplitterPos', FMainSplitterPos);
     if Self.WindowState = wsMaximized then
       ini.WriteBool('MainForm', 'Maximized', True)
     else
-      ini.WriteBool('MainForm', 'Maximized', False);
+      ini.WriteBool('MainForm', 'Maximized', False);    
+    ini.WriteString('Options', 'LastMetaDbSchema', G_LastMetaDbSchema);
   finally
     ini.Free;
   end;
@@ -1615,7 +1853,7 @@ begin
       raise Exception.Create('wait wnd busy');
     try
       if not FIsAutoSaving then
-        if not FFrameCtTableDef.FFrameDMLGraph.Visible then
+        if not FFrameCtTableDef.PanelDMLGraph.Visible then
           if FFrameCtTableDef.FFrameCtTableList.TreeViewCttbs.CanFocus then
             FFrameCtTableDef.FFrameCtTableList.TreeViewCttbs.SetFocus;
     except
@@ -1650,7 +1888,7 @@ begin
         FCtDataModelList.SaveToSerialer(fs);
 
       finally
-        if not FIsAutoSaving then
+        if Assigned(FWaitWnd) then
           FWaitWnd.Release;
         FWaitWnd := nil;
         Screen.Cursor := crDefault;
@@ -1673,18 +1911,44 @@ procedure TfrmMainDml.SetRecentFile(fn: string);
 var
   I: integer;
   S: string;
+  ini: TIniFile;
 begin
+  if fn = '' then
+    Exit;
   if IsTmpFile(fn) then
     Exit;
-  S := LowerCase(fn);
-  for I := 0 to FRecentFiles.Count - 1 do
-    if LowerCase(FRecentFiles[I]) = S then
+
+  ini := TIniFile.Create(GetConfFileOfApp);
+  try
+    I := 0;
+    FRecentFiles.Clear;
+    while True do
     begin
-      FRecentFiles.Delete(I);
-      Break;
+      Inc(I);
+      S := ini.ReadString('RecentFiles', IntToStr(I), '');
+      if S = '' then
+        Break;
+      FRecentFiles.Add(S);
     end;
-  FRecentFiles.Insert(0, fn);
-  SaveIni;
+
+    S := LowerCase(fn);
+    for I := 0 to FRecentFiles.Count - 1 do
+      if LowerCase(FRecentFiles[I]) = S then
+      begin
+        FRecentFiles.Delete(I);
+        Break;
+      end;
+    FRecentFiles.Insert(0, fn);
+
+
+    ini.EraseSection('RecentFiles');
+    for I := 0 to FRecentFiles.Count - 1 do
+      ini.WriteString('RecentFiles', IntToStr(I + 1), FRecentFiles[I]);
+
+    ini.WriteString('RecentFiles', 'CurFileName', FCurFileName);
+  finally
+    ini.Free;
+  end;
   RecreateRecentMn;
 end;
 
@@ -1692,6 +1956,8 @@ procedure TfrmMainDml.SetStatusBarMsg(msg: string; tp: integer);
 begin
   if (tp < 0) or (tp >= StatusBar1.Panels.Count) then
     tp := 0;
+  if (tp=0) and (msg='') then
+    msg := ExtractDmlFileName(Self.FCurFileName);
   if StatusBar1.Panels[tp].Text <> msg then
   begin
     StatusBar1.Panels[tp].Text := msg;
@@ -1703,13 +1969,22 @@ procedure TfrmMainDml.TimerAutoSaveTimer(Sender: TObject);
 begin
   if csDestroying in Self.ComponentState then
     Exit;
-  if FIsAutoSaving or (FAutoSaveMinutes = 0) then
+  if FIsAutoSaving then
+    Exit;        
+  if FCheckingFileDate then
+    Exit;
+  if Application.ModalLevel > 0 then
+    Exit;
+  if IsDbFile(FCurFileName) and not IsDbHistFile(FCurFileName) then
+    _OnAppActivate(nil);
+
+  if (FAutoSaveMinutes = 0) then
     Exit;
   //hw := GetForegroundWindow;
   // if GetWindowThreadProcessId(hw, nil) <> MainThreadID then
   //  Exit;
   Inc(FAutoSaveCounter);
-  if FAutoSaveCounter < FAutoSaveMinutes then
+  if (FAutoSaveCounter / 6) < FAutoSaveMinutes then
     Exit;
   if Assigned(FWaitWnd) then
     Exit;
@@ -1772,6 +2047,17 @@ begin
     except
       Exit;
     end;
+
+    if IsDbFile(fn) and not IsDbHistFile(fn) then
+    begin
+      if CheckDbFileState(fn, True) <= 2 then
+      begin
+        if IsCtDbConnected then
+          actLoadFromDb.Execute;
+        Exit;
+      end;
+    end;
+
     if TryLoadFromTmpFile(fn) then
     begin
     end
@@ -1813,16 +2099,18 @@ end;
 
 function TfrmMainDml.TryLoadFromTmpFile(sfn: string): boolean;
 var
-  fn: string;
+  fn, S, usr, memo: string;
   bCheck: boolean;
+  iBtns: Integer;
   vFileDate1, vFileDate2: TDateTime;
 begin
   Result := False;
   if not FSaveTempFileOnExit then
     Exit;
 
-  if not FileExists(sfn) then
-    Exit;
+  if not IsDBFile(sfn) then
+    if not FileExists(sfn) then
+      Exit;
   fn := GetFastTmpFileName(sfn);
   if fn = '' then
     Exit;
@@ -1830,8 +2118,8 @@ begin
     Exit;
 
   bCheck := False;
-  if GetFileAges(sfn, vFileDate1) and
-    GetFileAges(fn, vFileDate2) then
+  if GetDmlFileDate(sfn, vFileDate1) and
+    GetDmlFileDate(fn, vFileDate2) then
   begin
     if Abs(vFileDate1 - vFileDate2) > 2 / 24 / 60 / 60 then
       bCheck := True;
@@ -1839,13 +2127,32 @@ begin
   else
     bCheck := True;
   if bCheck then
-    case (Application.MessageBox(PChar(Format(srEzdmlTmpFileIgnoredFmt, [fn])),
-        PChar(srEzdmlOpenFile), MB_OK or MB_ICONWARNING)) of
+  begin
+    iBtns := MB_OK;
+    S := Format(srEzdmlTmpFileIgnoredFmt, [fn]);
+    if IsDbFile(sfn) then
+    begin
+      usr:='';
+      memo:='';
+      if frmEzdmlDbFile <> nil then
+        if frmEzdmlDbFile.GetDbFileModifierInfo(sfn, usr, memo) then
+        begin
+          S := Format(srEzdmlDbTmpFileIgnoredFmt, [fn, usr, memo]);
+          iBtns := MB_OKCANCEL;
+        end;
+    end;
+    case (Application.MessageBox(PChar(S),
+        PChar(srEzdmlOpenFile), iBtns or MB_ICONWARNING)) of
       idOk: fn := sfn;
       else
         Abort;
     end;
-  LoadFromFile(fn);
+  end;
+
+  if IsDBFile(fn) then
+    LoadFromDbFile(fn)
+  else
+    LoadFromFile(fn);
   FCurFileName := sfn;
   FCurDmlFileName := FCurFileName;
   RememberFileDateSize;
@@ -1888,6 +2195,7 @@ begin
   GProc_OnEzdmlGenDbSqlEvent := nil;
   GProc_OnEzdmlGenFieldTypeDescEvent := nil;
   GProc_OnEzdmlGenAlterFieldEvent := nil;
+  GProc_OnEzdmlGenDataSqlEvent := nil;
   GProc_OnEzdmlCmdEvent := nil;
   if Assigned(FGlobalScriptor) then
     FreeAndNil(FGlobalScriptor);
@@ -1994,13 +2302,20 @@ begin
   "desc": "2021-04-11 V3.09: new version, bugs fixed",
   "detail_url": "http://www.ezdml.com/"
 }
-    opt := '[SHOW_PROGRESS]';
     if bForceNow then
-      opt := opt + '[WAIT_TICKS=0]'
+    begin
+      opt := '[SHOW_PROGRESS]';
+      opt := opt + '[WAIT_TICKS=0]';
+      opt := opt + '[MSG=' + srEzdmlCheckingForUpdates + ']';
+    end
     else
-      opt := opt + '[WAIT_TICKS=2000]';
-    opt := opt + '[MSG=' + srEzdmlCheckingForUpdates + ']';
+      opt := '';
     try
+      try    
+        if not bForceNow then
+          Self.Hide;
+      except
+      end;
       jstr := GetUrlData_Net(url, '', opt);
       if jstr = '' then
         Exit;
@@ -2029,16 +2344,21 @@ end;
 
 procedure TfrmMainDml.CheckShowNewVersionInfo(bForceNow: boolean);
 var
-  sCurVer, sNewVer, sLastPromptVer, sDesc: string;
+  sCurVer, sNewVer, sLastPromptVer, sDesc: string;    
+  fCurVer, fNewVer: Double;
   ini: TIniFile;
 begin
   if not bForceNow and not G_CheckForUpdates then
     Exit;
   ini := TIniFile.Create(GetConfFileOfApp);
   try
-    sCurVer := srEzdmlVersionNum;
+    sCurVer := srEzdmlVersionNum;       
+    fCurVer := StrToFloat(sCurVer);
+
     sNewVer := ini.ReadString('Updates', 'NewVerNum', '');
-    if (sNewVer = '') or (sNewVer = sCurVer) then
+    fNewVer := StrToFloatDef(sNewVer, fCurVer);
+
+    if (sNewVer = '') or (sNewVer = sCurVer) or (fNewVer < fCurVer) then
     begin
       if not bForceNow then
         Exit;
@@ -2071,6 +2391,42 @@ begin
   finally
     ini.Free;
   end;
+end;
+
+function TfrmMainDml.GetDmlFileDate(fn: string; var vFileDate: TDateTime
+  ): boolean;
+var
+  vFileSize: Integer;
+begin
+  Result := GetDmlFileDateAndSize(fn, vFileSize, vFileDate);
+end;
+
+function TfrmMainDml.GetDmlFileDateAndSize(fn: string; var vFileSize: Integer;
+  var vFileDate: TDateTime): boolean;
+var
+  age: longint;
+begin
+  Result := False;  
+  vFileSize := 0;
+  vfileDate := Now;
+
+  if IsDbFile(fn) then
+  begin
+    if IsDbHistFile(fn) then
+      Exit;
+    if frmEzdmlDbFile.CheckDbFileState(fn, vfileSize, vfileDate, True) > 2 then
+    begin
+      Result := True;
+    end;
+    Exit;
+  end;
+
+  age := FileAge(fn);
+  if age = -1 then
+    Exit;
+  vFileDate := FileDateToDateTime(age);   
+  vFileSize := GetDocFileSize(fn);
+  Result := True;
 end;
 
 function TfrmMainDml.IsShortcut(var Message: TLMKey): boolean;
@@ -2117,22 +2473,106 @@ begin
 end;
 
 procedure TfrmMainDml._OnAppActivate(Sender: TObject);
+  procedure CloseSubForms;
+  var
+    I, L: Integer;
+    frm: TForm;
+    cFrms: array of TForm;
+  begin
+    L := 0;
+    SetLength(cFrms, L);
+    for I:= Screen.FormCount - 1 downto 0 do
+    begin
+      frm := Screen.Forms[I];
+      if frm <> Self then
+      begin
+        L := L+1;
+        SetLength(cFrms, L);
+        cFrms[L-1] := frm;
+      end;
+    end;
+
+    EditMetaForceRelease;
+    for I:=0 to L - 1 do
+    begin
+      frm := cFrms[I];
+      if frm is TfrmCtTableProp then
+        TfrmCtTableProp(frm).ForceRelease
+      else
+        frm.Close;
+    end;
+  end;
+var
+  S, usr, memo: String;
 begin
   if FFileWorking then
+    Exit;     
+  if Application.ModalLevel > 0 then
     Exit;
-  if CheckCurFileDateSizeChanged then
-  begin
-    if Application.MessageBox(PChar(srEzdmlPromptReloadOnFileDateSizeChanged),
-      PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
-    begin
-      Self.RememberFileDateSize;
+  if FCheckingFileDate then
+    Exit;
+  FCheckingFileDate := True;
+  try
+
+    try
+      if not CheckCurFileDateSizeChanged then
+        Exit;
+    except
       Exit;
     end;
+
+    if IsDbFile(FCurFileName) and not IsDbHistFile(FCurFileName) then
+    begin
+      if frmEzdmlDbFile = nil then
+        Exit;
+      if not frmEzdmlDbFile.GetDbFileModifierInfo(FCurFileName, usr, memo) then
+        Exit;
+      S := Format(srEzdmlPromptReloadDbFileChanged, [usr, memo]);
+      //if Application.MessageBox(PChar(S),
+      //  PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+      //begin
+      //  Self.RememberFileDateSize;
+      //  Exit;
+      //end;  
+      if ShowMessageOnTop(S, Application.Title) <> mrOk then
+      begin
+        Self.RememberFileDateSize;
+        Exit;
+      end;
+
+      SaveDmlToTmpFile;
+    end
+    else
+    begin
+      //if Application.MessageBox(PChar(srEzdmlPromptReloadOnFileDateSizeChanged),
+      //  PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+      //begin
+      //  Self.RememberFileDateSize;
+      //  Exit;
+      //end;
+      if ShowMessageOnTop(srEzdmlPromptReloadOnFileDateSizeChanged, Application.Title) <> mrOk then
+      begin
+        Self.RememberFileDateSize;
+        Exit;
+      end;
+
+    end;
+
+    CloseSubForms;
 
     FCtDataModelList.Clear;
     FFrameCtTableDef.Init(FCtDataModelList, True);
     PromptOpenFile(FCurFileName, True);
+
+  finally
+    FCheckingFileDate := False;
   end;
+end;
+
+procedure TfrmMainDml._OnDbFileMemoChanged(Sender: TObject; fn: string);
+begin
+  if ExtractDmlFileName(fn)=ExtractDmlFileName(FCurFileName) then
+    RememberFileDateSize;
 end;
 
 procedure TfrmMainDml._OnCustomToolsClick(Sender: TObject);
@@ -2210,12 +2650,38 @@ procedure TfrmMainDml._WMZ_CUSTCMD(var msg: TMessage);
 var
   tb: TCtMetaTable;
 begin
-  if msg.wParam = 1 then
+  if msg.wParam = 1 then  //打开文件
   begin
     PromptOpenFile(FGlobeOpeningFile);
-    FGlobeOpeningFile := '';
+    FGlobeOpeningFile := '';     
+    Exit;
+  end;           
+  if msg.wParam = 2 then  //切换模型图/表属性
+  begin
+    actToggleTableView.Execute;
+    Exit;
   end;
-  if msg.wParam = 2 then
+  if msg.wParam = 3 then  //生成代码
+  begin
+    if msg.LParam = 1 then
+      actGenerateDatabase.Execute    
+    else if msg.LParam = 2 then
+      actGenerateCode.Execute      
+    else if msg.LParam = 3 then
+      actGenerateTestData.Execute
+    else if msg.LParam = 4 then
+      actSqlTool.Execute;
+    Exit;
+  end;
+  if msg.wParam = 4 then  //跳到下一个模型图
+  begin
+    if msg.lParam = 1 then
+      FFrameCtTableDef.FFrameCtTableList.FocusSibling(False)
+    else if msg.lParam = 2 then
+      FFrameCtTableDef.FFrameCtTableList.FocusSibling(True); 
+    Exit;
+  end;  
+  if msg.wParam = 5 then //从查看表属性转到修改
   begin
     Application.ProcessMessages;
     Application.Idle(True);
@@ -2232,17 +2698,25 @@ begin
           FFrameCtTableDef._OnCtTablePropChange(2, tb, nil, '');
         end;
       end;
-  end;
-  if msg.wParam = 2 then
+    Exit;
+  end;    
+  if msg.wParam = 6 then  //修改表属性事件：检查是否需要刷新
   begin
-    actToggleTableView.Execute;
-  end;       
-  if msg.wParam = 3 then
-  begin      
-    if (GetKeyState(VK_CONTROL) and $80)=0 then
-      actGenerateCode.Execute
-    else
-      actGenerateLastCode.Execute;
+    tb := TCtMetaTable(G_WMZ_CUSTCMD_Object);
+    G_WMZ_CUSTCMD_Object := nil;
+    if (tb<>nil) and (FFrameCtTableDef.GetCurTable = tb) then
+      FFrameCtTableDef.RefreshProp;
+    Exit;
+  end;
+  if msg.wParam = 7 then  //显示设置
+  begin
+    actSettings.Execute;
+    Exit;
+  end;    
+  if msg.wParam = 8 then  //ChatGPT
+  begin
+    actChatGPT.Execute;
+    Exit;
   end;
 end;
 
@@ -2351,33 +2825,72 @@ begin
   // if not Assigned(Proc_ShowCtDmlSearch) then
   //   Exit;
   //Proc_ShowCtDmlSearch(FGlobeDataModelList, nil);
+  if not FFrameCtTableDef.PanelDMLGraph.Visible then
+    Exit;
   FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actFindObject.Execute;
 end;
 
-procedure TfrmMainDml.actGenerateCodeExecute(Sender: TObject);
+procedure TfrmMainDml.actGenerateCodeExecute(Sender: TObject);  
+var
+  tbs: TCtMetaTableList;
 begin
   EzdmlMenuActExecuteEvt('Model_GenerateCode');
   CheckCanEditMeta;
   if not Assigned(frmCtGenCode) then
     frmCtGenCode := TfrmCtGenCode.Create(Self);
   frmCtGenCode.CtDataModelList := FCtDataModelList;
-
-  if frmCtGenCode.ShowModal = mrOk then
-  begin
+                                                 
+  tbs := nil;
+  try             
+    if FFrameCtTableDef.PanelDMLGraph.Visible then
+      if FFrameCtTableDef.FFrameDMLGraph.GetSelectedTable <> nil then
+      begin
+        tbs := TCtMetaTableList.Create;
+        tbs.AutoFree := False;
+        FFrameCtTableDef.FFrameDMLGraph.CountSelectedTables(tbs);
+        if tbs.Count > 0 then
+          frmCtGenCode.MetaObjList := tbs;
+      end;
+    if frmCtGenCode.ShowModal = mrOk then
+    begin
+    end;
+    frmCtGenCode.CtDataModelList := FCtDataModelList;
+  finally
+    if tbs <> nil then
+      tbs.Free;
   end;
 end;
 
-procedure TfrmMainDml.actGenerateDatabaseExecute(Sender: TObject);
+procedure TfrmMainDml.actGenerateDatabaseExecute(Sender: TObject);   
+var
+  tbs: TCtMetaTableList;
 begin
   EzdmlMenuActExecuteEvt('Model_GenerateDatabase');
   CheckCanEditMeta;
   if not Assigned(frmCtGenSQL) then
     frmCtGenSQL := TfrmCtGenSQL.Create(Self);
-  frmCtGenSQL.CtDataModelList := FCtDataModelList;
-  frmCtGenSQL.SetWorkMode(0);
 
-  if frmCtGenSQL.ShowModal = mrOk then
-  begin
+  tbs := nil;
+  try                                          
+    frmCtGenSQL.CtDataModelList := FCtDataModelList;
+    if FFrameCtTableDef.PanelDMLGraph.Visible then
+      if FFrameCtTableDef.FFrameDMLGraph.GetSelectedTable <> nil then
+      begin
+        tbs := TCtMetaTableList.Create;
+        tbs.AutoFree := False;
+        FFrameCtTableDef.FFrameDMLGraph.CountSelectedTables(tbs);
+        if tbs.Count > 0 then
+          frmCtGenSQL.MetaObjList := tbs;
+      end;
+    frmCtGenSQL.SetWorkMode(0);
+
+    if frmCtGenSQL.ShowModal = mrOk then
+    begin
+    end;       
+    frmCtGenSQL.CtDataModelList := FCtDataModelList;
+  finally
+    if tbs <> nil then
+      tbs.Free;
   end;
 end;
 
@@ -2476,9 +2989,19 @@ begin
 end;
 
 procedure TfrmMainDml.actOpenFileExecute(Sender: TObject);
+var
+  bDb: Boolean;
 begin
   EzdmlMenuActExecuteEvt('File_Open');
-  if OpenDialog1.Execute then
+  bDb := False;
+  if FCurFileName <> '' then
+    if IsDbFile(FCurFileName) then   
+      bDb := True;
+  if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+    bDb := not bDb;
+  if bDb then
+    actLoadFromDb.Execute
+  else if OpenDialog1.Execute then
   begin
     PromptOpenFile(OpenDialog1.FileName);
   end;
@@ -2513,6 +3036,117 @@ begin
     end;
 end;
 
+procedure TfrmMainDml.actRefreshExecute(Sender: TObject);
+begin
+  FFrameCtTableDef.FFrameCtTableList.actRefresh.Execute;
+end;
+
+procedure TfrmMainDml.actSaveToDbExecute(Sender: TObject);  
+var
+  fs: TCtObjMemJsonSerialer;
+  po: Integer;
+  fn, S: string;
+begin
+  EzdmlMenuActExecuteEvt('File_SaveToDb');
+  CheckCanEditMeta;
+
+  try
+    if not FFrameCtTableDef.PanelDMLGraph.Visible then
+      if FFrameCtTableDef.FFrameCtTableList.TreeViewCttbs.CanFocus then
+        FFrameCtTableDef.FFrameCtTableList.TreeViewCttbs.SetFocus;
+  except
+  end;
+
+  FCtDataModelList.Pack;
+
+  frmEzdmlDbFile.Caption := actSaveToDb.Caption;
+  frmEzdmlDbFile.IsSaveMode := True;
+
+  S := Format(srNewDiagramNameFmt, [1]);
+  FCtDataModelList.Pack;
+  if FCtDataModelList.Count > 0 then
+    S := FCtDataModelList.Items[0].Name;
+  S := S+'_'+FormatDateTime('yyyymmdd_hhnn', Now);
+  if FCurFileName <> '' then
+  begin
+    S := FCurFileName;
+    if Self.IsTmpFile(S) then
+    begin
+      po := Pos('://', S);
+      if po>0 then
+        S:= Copy(S, po+3, Length(S));
+      S := ExtractFileName(S);
+    end;
+  end;
+
+  fn := S;
+  if fn <> '' then
+  begin
+    fn := ExtractFileName(fn);
+    fn := ChangeFileExt(fn,'');
+  end;
+  frmEzdmlDbFile.edtFileName.Text := fn;
+  if frmEzdmlDbFile.ShowModal <> mrOk then
+  begin
+    if FCurFileName <> '' then
+    begin
+      FAutoSaveCounter := 0;
+      if not FCtDataModelList.IsHuge then
+        SaveDmlToTmpFile;
+    end;
+    Exit;
+  end;
+
+  FProgressAll := 0;
+  FProgressCur := 0;
+  FWaitWnd := TfrmWaitWnd.Create(Self);
+  fs := TCtObjMemJsonSerialer.Create(False);
+  try
+    fs.RootName := 'DataModels';
+
+    FWaitWnd.Init(srEzdmlSaveFile + ' ' + frmEzdmlDbFile.ResultFileName, srEzdmlSaving,
+      srEzdmlAbortSaving);
+
+    if Assigned(GProc_OnEzdmlCmdEvent) then
+    begin
+      GProc_OnEzdmlCmdEvent('MAINFORM', 'DB_FILE_SAVE', frmEzdmlDbFile.ResultFileName, Self, nil);
+    end;
+
+    FCtDataModelList.SaveToSerialer(fs);
+    fs.EndJsonWrite;
+    fs.Stream.Seek(0, soFromBeginning);
+    if not frmEzdmlDbFile.SaveDataToDbFile(fs.Stream, frmEzdmlDbFile.ResultFileName, True) then
+      Exit;
+    frmEzdmlDbFile.ListViewFiles.Items.Clear;
+
+    FCurFileName := 'db://'+GetLastCtDbIdentStr+'/'+frmEzdmlDbFile.ResultFileName;
+    RememberFileDateSize;
+  finally
+    fs.Free;
+    FWaitWnd.Release;
+    FWaitWnd := nil;
+  end;
+
+  if not FCtDataModelList.IsHuge then
+    SaveDmlToTmpFile;
+  FAutoSaveCounter := 0;
+  CheckCaption;
+
+  S := Format(srEzdmlDbFileSavedFmt, [frmEzdmlDbFile.ResultFileName]);
+  SetStatusBarMsg(Format(srEzdmlDbFileSavedFmt, [frmEzdmlDbFile.ResultFileName]));
+  SetRecentFile(FCurFileName);
+  if Assigned(GProc_OnEzdmlCmdEvent) then
+  begin
+    GProc_OnEzdmlCmdEvent('MAINFORM', 'DB_FILE_SAVED', frmEzdmlDbFile.ResultFileName, Self, nil);
+  end;
+                                          
+  if Application.MessageBox(PChar(S),
+    PChar(Application.Title),
+    MB_YESNOCANCEL or MB_ICONINFORMATION) <> idYes then
+    Exit;
+  actGenerateDatabaseExecute(nil);
+end;
+
 procedure TfrmMainDml.actSettingsExecute(Sender: TObject);
 begin
   EzdmlMenuActExecuteEvt('Tools_Settings');
@@ -2531,6 +3165,11 @@ procedure TfrmMainDml.actShowDescTextExecute(Sender: TObject);
 begin
   if FFrameCtTableDef.FFrameCtTableProp.Showing then
     FFrameCtTableDef.FFrameCtTableProp.actShowDescText.Execute;
+end;
+
+procedure TfrmMainDml.actShowHideListExecute(Sender: TObject);
+begin
+  FFrameCtTableDef.ShowLeftTree := not FFrameCtTableDef.ShowLeftTree;
 end;
 
 procedure TfrmMainDml.actToggleTableViewExecute(Sender: TObject);
@@ -2557,6 +3196,7 @@ begin
   else
   begin
     FFrameCtTableDef.FFrameCtTableList.actFindInGraph.Execute;
+    FFrameCtTableDef.TryFocusGraph;
   end;
 end;
 
@@ -2668,7 +3308,15 @@ begin
     Self.StatusBar1.Visible := True;
     Self.BoundsRect := FFullScrnSaveBound;
   end;
-  {$ENDIF}
+  {$ENDIF}   
+  if FFrameCtTableDef.PanelCttbTree.Visible then
+  begin
+    FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actShowHideList.ImageIndex := FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actShowHideList.Tag;
+  end
+  else
+  begin
+    FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actShowHideList.ImageIndex := FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actShowHideList.Tag + 1;
+  end;
 end;
 
 procedure TfrmMainDml.actGenerateLastCodeExecute(Sender: TObject);
@@ -2685,6 +3333,37 @@ begin
   end;
 end;
 
+procedure TfrmMainDml.actGenerateTestDataExecute(Sender: TObject);   
+var
+  tbs: TCtMetaTableList;
+begin
+  EzdmlMenuActExecuteEvt('Model_GenerateTestData');
+  CheckCanEditMeta;
+  if not Assigned(frmCtGenData) then
+    frmCtGenData := TfrmCtGenData.Create(Self);
+  frmCtGenData.CtDataModelList := FCtDataModelList;
+      
+  tbs := nil;
+  try
+    if FFrameCtTableDef.PanelDMLGraph.Visible then
+      if FFrameCtTableDef.FFrameDMLGraph.GetSelectedTable <> nil then
+      begin
+        tbs := TCtMetaTableList.Create;
+        tbs.AutoFree := False;
+        FFrameCtTableDef.FFrameDMLGraph.CountSelectedTables(tbs);
+        if tbs.Count > 0 then
+          frmCtGenData.MetaObjList := tbs;
+      end;
+    if frmCtGenData.ShowModal = mrOk then
+    begin
+    end;
+    frmCtGenData.CtDataModelList := FCtDataModelList;
+  finally
+    if tbs <> nil then
+      tbs.Free;
+  end;
+end;
+
 procedure TfrmMainDml.actHttpServerExecute(Sender: TObject);
 begin
   EzdmlMenuActExecuteEvt('Tools_HttpServer');
@@ -2693,11 +3372,34 @@ begin
   FfrmHttpServer.ShowModal;
 end;
 
+procedure TfrmMainDml.actImportExcelExecute(Sender: TObject);
+begin
+  with TfrmExcelImp.Create(Self) do
+  try
+    FCtTbList := Self.FCtDataModelList.CurDataModel.Tables;
+    if ShowModal = mrOk then
+    begin
+      FFrameCtTableDef.FFrameCtTableList.RefreshTheTree;
+      FFrameCtTableDef.RefreshProp;
+    end;
+  finally
+    Release;
+  end;
+end;
+
 procedure TfrmMainDml.actCharCodeToolExecute(Sender: TObject);
 begin
   if FFindHexDlg = nil then
     FFindHexDlg := TfrmFindHex.Create(Self);
   FFindHexDlg.ShowModal;
+end;
+
+procedure TfrmMainDml.actChatGPTExecute(Sender: TObject);
+begin       
+  {$ifdef EZDML_CHATGPT}
+  if ShowChatGPTForm then
+    FFrameCtTableDef.FFrameCtTableList.actRefresh.Execute;  
+  {$endif}
 end;
 
 procedure TfrmMainDml.actCheckUpdatesExecute(Sender: TObject);
@@ -2713,6 +3415,32 @@ begin
   begin
     PromptOpenFile(OpenDialogImp.FileName);
   end;
+end;
+
+procedure TfrmMainDml.actLoadFromDbExecute(Sender: TObject);
+var
+  fn: String;
+begin
+  CheckCanEditMeta;  
+  if FFileWorking then
+    Exit;   
+  if Assigned(FWaitWnd) then
+    raise Exception.Create('wait wnd busy');
+
+  FFileWorking := True;
+  try
+    frmEzdmlDbFile.Caption := actLoadFromDb.Caption;
+    frmEzdmlDbFile.IsSaveMode:=False;
+    if frmEzdmlDbFile.ShowModal <> mrOk then
+      Exit;
+             
+    fn := 'db://'+GetLastCtDbIdentStr+'/'+frmEzdmlDbFile.ResultFileName;
+
+  finally        
+    FFileWorking := False;
+  end;
+
+  PromptOpenFile(fn);
 end;
 
 procedure TfrmMainDml.actQuickStartExecute(Sender: TObject);
@@ -2741,11 +3469,29 @@ end;
 procedure TfrmMainDml.actSaveFileAsExecute(Sender: TObject);
 var
   bSaveUCodeJson: boolean;
+  po: Integer;
+  S: String;
 begin
   EzdmlMenuActExecuteEvt('File_SaveAs');
   CheckCanEditMeta;
+
+  S := Format(srNewDiagramNameFmt, [1]);
+  FCtDataModelList.Pack;
+  if FCtDataModelList.Count > 0 then
+    S := FCtDataModelList.Items[0].Name;
+  S := S+'_'+FormatDateTime('yyyymmdd_hhnn', Now);
   if FCurFileName <> '' then
-    SaveDialog1.FileName := FCurFileName;
+  begin
+    S := FCurFileName;
+    if Self.IsTmpFile(S) then
+    begin
+      po := Pos('://', S);
+      if po>0 then
+        S:= Copy(S, po+3, Length(S));
+      S := ExtractFileName(S);
+    end;
+  end;
+  SaveDialog1.FileName := S;
   if SaveDialog1.Execute then
   begin
     bSaveUCodeJson := stringsAsUtf8Encode;
@@ -2770,6 +3516,10 @@ begin
       stringsAsUtf8Encode := bSaveUCodeJson;
     end;
 
+    FAutoSaveCounter := 0;
+    SaveDmlToTmpFile;
+    SetStatusBarMsg(srEzdmlSaved + GetStatusPanelFileName(FCurFileName) + ' ' + TimeToStr(Now));
+
     FCurDmlFileName := FCurFileName;
     SetRecentFile(FCurFileName);
     if Assigned(GProc_OnEzdmlCmdEvent) then
@@ -2783,32 +3533,51 @@ procedure TfrmMainDml.actSaveFileExecute(Sender: TObject);
 begin
   EzdmlMenuActExecuteEvt('File_Save');
   CheckCanEditMeta;
-  if FCurFileName <> '' then
-  begin
-    SaveToFile(FCurFileName);
+  if (FCurFileName <> '') and not IsTmpFile(FCurFileName) and not IsDbFile(FCurFileName) then
+  begin   
+    if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+    begin
+      actSaveToDb.Execute;
+      Exit;
+    end;
+    SaveToFile(FCurFileName);     
+    FAutoSaveCounter := 0;
+    if not FCtDataModelList.IsHuge then
+      SaveDmlToTmpFile;
+    SetStatusBarMsg(srEzdmlSaved + GetStatusPanelFileName(FCurFileName) + ' ' + TimeToStr(Now));
     if Assigned(GProc_OnEzdmlCmdEvent) then
     begin
       GProc_OnEzdmlCmdEvent('MAINFORM', 'FILE_SAVE', FCurDmlFileName, Self, nil);
     end;
   end
+  else if Pos('db://', FCurFileName) = 1 then
+  begin                 
+    if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+    begin
+      actSaveFileAs.Execute;
+      Exit;
+    end;
+    actSaveToDb.Execute;
+  end
   else
+  begin
+    if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+    begin
+      actSaveToDb.Execute;
+      Exit;
+    end;
     actSaveFileAs.Execute;
+  end;
 end;
 
 procedure TfrmMainDml.actShowFileInExplorerExecute(Sender: TObject);
 var
-  S, fn: string;
+  fn: string;
 begin
   fn := FCurFileName;
   if (fn = '') or not FileExists(fn) then
     fn := Application.ExeName;
-{$ifdef WINDOWS}
-  S := 'Explorer /select, "' + fn + '"';
-  ShellCmd(S);
-{$else}
-  S := ExtractFilePath(fn);
-  CtOpenDoc(S);
-{$endif}
+  CtBrowseFile(fn);
 end;
 
 procedure TfrmMainDml.actAboutEzdmlExecute(Sender: TObject);
@@ -2837,35 +3606,23 @@ end;
 
 procedure TfrmMainDml.actBrowseCustomToolsExecute(Sender: TObject);
 var
-  S, fn: string;
+  dir: string;
 begin
-  fn := GetFolderPathOfAppExe('CustomTools');
-{$ifdef WINDOWS}
-  S := 'Explorer "' + fn + '"';
-  ShellCmd(S);
-{$else}
-  S := fn;
-  CtOpenDoc(S);
-{$endif}
+  dir := GetFolderPathOfAppExe('CustomTools');
+  CtOpenDir(dir);
 end;
 
 procedure TfrmMainDml.actBrowseScriptsExecute(Sender: TObject);
 var
-  S, fn: string;
+  dir: string;
 begin
-  fn := GetFolderPathOfAppExe('Templates');
-{$ifdef WINDOWS}
-  S := 'Explorer "' + fn + '"';
-  ShellCmd(S);
-{$else}
-  S := ExtractFilePath(fn);
-  CtOpenDoc(S);
-{$endif}
+  dir := GetFolderPathOfAppExe('Templates');
+  CtOpenDir(dir);
 end;
 
 procedure TfrmMainDml.actShowTmprFileExecute(Sender: TObject);
 var
-  S, dir, fn: string;
+  dir, fn: string;
 begin
   fn := FCurFileName;
   if fn = '' then
@@ -2877,24 +3634,13 @@ begin
     dir := GetAppDefTempPath;
   end;
   if not DirectoryExists(dir) then
-    ForceDirectories(dir);
-{$ifdef WINDOWS}
-  S := 'Explorer "' + dir + '"';
-  ShellCmd(S);
-{$else}
-  S := dir;
-  CtOpenDoc(S);
-{$endif}
+    ForceDirectories(dir);  
+  CtOpenDir(dir);
 end;
 
 procedure TfrmMainDml.actSqlToolExecute(Sender: TObject);
 begin
-  if FDmlSqlEditorForm = nil then
-  begin
-    FDmlSqlEditorForm := TfrmDmlSqlEditor.Create(Application);
-    FDmlSqlEditorForm.PanelTbs.Tag := 1;
-  end;
-  FDmlSqlEditorForm.ShowModal;
+  ShowSqlEditorNew;
 end;
 
 procedure TfrmMainDml.actTogglePhyViewExecute(Sender: TObject);
@@ -2928,6 +3674,29 @@ begin
     Exit;
   if (FCurFileSize = 0) and (FCurFileDate = 0) then
     Exit;
+              
+  if IsDbFile(FCurFileName) then
+  begin
+    sz := 0;
+    vfileDate := Now;
+    if frmEzdmlDbFile.CheckDbFileState(FCurFileName, sz, vfileDate, False) <= 2 then
+    begin
+      Exit;
+    end;
+
+    if sz <> Self.FCurFileSize then
+    begin
+      Result := True;
+      Exit;
+    end;
+    if Abs(vFileDate - FCurFileDate) > 2 / 24 / 60 / 60 then
+    begin
+      Result := True;
+      Exit;
+    end;
+    Exit;
+  end;
+
   if not FileExists(FCurFileName) then
     Exit;
 
@@ -2938,7 +3707,7 @@ begin
     Exit;
   end;
 
-  if GetFileAges(FCurFileName, vFileDate) then
+  if GetDmlFileDate(FCurFileName, vFileDate) then
   begin
     if Abs(vFileDate - FCurFileDate) > 2 / 24 / 60 / 60 then
     begin
@@ -2950,64 +3719,130 @@ end;
 
 
 procedure TfrmMainDml.PromptOpenFile(fn: string; bDisableTmpFiles: boolean);
+  function HasDbTmpFile: Boolean;
+  var
+    S: String;
+  begin
+    Result := False;
+    S := GetFastTmpFileName(fn);
+    if S = '' then
+      Exit;
+    if not FileExists(S) then
+      Exit;
+    Result := True;
+  end;
+  procedure LoadDbTmpFile;
+  var
+    S: String;
+  begin
+    S := GetFastTmpFileName(fn);
+    if S = '' then
+      raise Exception.Create(Format(srEzdmlFileNotFoundFmt, [fn]));
+    if not FileExists(S) then
+      raise Exception.Create(Format(srEzdmlFileNotFoundFmt, [S]));   
+    LoadFromFile(S);
+  end;
+  procedure LoadFromDFile(dfn: string);
+  begin
+    if IsDbFile(dfn) then
+    begin                         
+      LoadFromDbFile(dfn);
+    end
+    else
+      LoadFromFile(dfn);
+  end;
 var
   vOldMds: TCtDataModelGraphList;
   I: integer;
+  dbTmp: Boolean;
 begin
   if FFileWorking then
     Exit;
+    
+  CheckCanEditMeta;
+  FCtDataModelList.Pack;
 
-  if not FileExists(fn) then
+  if FCtDataModelList.TableCount > 0 then
+    case Application.MessageBox(PChar(ExtractFileName(fn) + ' ' +
+        srEzdmlConfirmClearOnOpen),
+        PChar(srEzdmlOpenFile), MB_OKCANCEL or MB_ICONWARNING) of
+      idOk:
+        if FCurFileName <> '' then
+        begin
+          if not FSaveTempFileOnExit then
+          begin
+            PromptSaveFile;
+          end
+          else
+            SaveDMLFastTmpFile;
+        end;
+      idNo:
+      begin
+        Exit;
+        //vOldMds := TCtDataModelGraphList.Create;
+        //vOldMds.AssignFrom(FCtDataModelList);
+      end
+      else
+        Exit;
+    end;
+
+  dbTmp := False;
+  if IsDbFile(fn) then
+  begin
+    I := CheckDbFileState(fn, True);
+    if I < 2 then
+    begin   
+      if not IsTmpFile(fn) and not bDisableTmpFiles then
+      begin
+        if HasDbTmpFile then
+        begin
+          if Application.MessageBox(PChar(fn + ' ' +
+            srEzdmlConfirmOpenDbTmpFile),
+            PChar(srEzdmlOpenFile), MB_OKCANCEL or MB_ICONWARNING) <> IDOK then
+            Abort;
+          dbTmp := True;
+        end
+        else
+          Abort;
+      end
+      else
+        Abort;
+    end;
+    if I = 2 then
+    begin
+      RemoveRecentFile(fn);
+      raise Exception.Create(Format(srEzdmlFileNotFoundFmt, [fn]));
+    end;
+  end
+  else if not FileExists(fn) then
   begin
     RemoveRecentFile(fn);
     raise Exception.Create(Format(srEzdmlFileNotFoundFmt, [fn]));
   end;
 
-  CheckCanEditMeta;
-
   TryLockFile(fn);
-  FCtDataModelList.Pack;
   vOldMds := nil;
   try
-    if FCtDataModelList.TableCount > 0 then
-      case Application.MessageBox(PChar(ExtractFileName(fn) + ' ' +
-          srEzdmlConfirmClearOnOpen),
-          PChar(srEzdmlOpenFile), MB_YESNOCANCEL or MB_ICONWARNING) of
-        idYes:
-          if FCurFileName <> '' then
-          begin
-            if not FSaveTempFileOnExit then
-            begin
-              PromptSaveFile;
-            end
-            else
-              SaveDMLFastTmpFile;
-          end;
-        idNo:
-        begin
-          vOldMds := TCtDataModelGraphList.Create;
-          vOldMds.AssignFrom(FCtDataModelList);
-        end
-        else
-          Exit;
+    if not IsDbFile(fn) then
+      if LowerCase(ExtractFileExt(fn)) = '.pdm' then
+      begin
+        ImportFromFile(fn);
+        Exit;
       end;
-
-    if LowerCase(ExtractFileExt(fn)) = '.pdm' then
-    begin
-      ImportFromFile(fn);
-      Exit;
-    end;
     if not IsTmpFile(fn) and not bDisableTmpFiles then
     begin
-      if TryLoadFromTmpFile(fn) then
+      if dbTmp then
+        LoadDbTmpFile
+      else if TryLoadFromTmpFile(fn) then
       begin
       end
       else
-        LoadFromFile(fn);
+        LoadFromDFile(fn);
     end
     else
-      LoadFromFile(fn);
-    FCurDmlFileName := fn;
+      LoadFromDFile(fn);
+    if not dbTmp then
+      FCurDmlFileName := fn;
 
     if Assigned(vOldMds) then
     begin
@@ -3015,8 +3850,9 @@ begin
         FCtDataModelList.NewModelItem.AssignFrom(vOldMds[I]);
       FFrameCtTableDef.Init(FCtDataModelList, False);
     end;
-
-    SetRecentFile(fn);
+       
+    if not dbTmp then
+      SetRecentFile(fn);
   finally
     if Assigned(vOldMds) then
       vOldMds.Free;
@@ -3122,8 +3958,11 @@ begin
   for I := 0 to FRecentFiles.Count - 1 do
   begin
     fn := FRecentFiles[I];
-    mn := TMenuItem.Create(Self);
-    mn.Caption := ExtractFileName(fn);
+    mn := TMenuItem.Create(Self);     
+    if IsDbFile(fn) then              
+      mn.Caption := '@'+ExtractDmlFileName(fn)
+    else
+      mn.Caption := ExtractFileName(fn);
     mn.Hint := fn;
     mn.Tag := I;
     mn.OnClick := _OnRecentFileClick;
@@ -3132,49 +3971,79 @@ begin
 end;
 
 procedure TfrmMainDml.RememberFileDateSize;
-var
+var        
+  vFileSize: Integer;
   vFileDate: TDateTime;
 begin
   if FCurFileName = '' then
     Exit;
   if IsTmpFile(FCurFileName) then
-    Exit;
-  FCurFileSize := GetDocFileSize(FCurFileName);
+    Exit;      
+  FCurFileSize := 0;
   FCurFileDate := Now;
-  if GetFileAges(FCurFileName, vFileDate) then
-    FCurFileDate := vFileDate;
+  if not GetDmlFileDateAndSize(FCurFileName, vFileSize, vFileDate) then
+    Exit;  
+  FCurFileSize := vfileSize;
+  FCurFileDate := vfileDate;
 end;
 
 procedure TfrmMainDml.RemoveRecentFile(fn: string);
 var
-  I: integer;
+  I, idx: integer; 
+  ini: TIniFile;
   S: string;
-begin
+begin           
+  if fn = '' then
+    Exit;
   S := LowerCase(fn);
+  idx := -1;
   for I := 0 to FRecentFiles.Count - 1 do
     if LowerCase(FRecentFiles[I]) = S then
     begin
-      FRecentFiles.Delete(I);
-      SaveIni;
-      RecreateRecentMn;
-      Exit;
+      idx := I;
+      Break;
     end;
+  if idx<0 then
+    Exit;
+
+  FRecentFiles.Delete(idx);
+      
+  ini := TIniFile.Create(GetConfFileOfApp);
+  try
+    ini.EraseSection('RecentFiles');
+    for I := 0 to FRecentFiles.Count - 1 do
+      ini.WriteString('RecentFiles', IntToStr(I + 1), FRecentFiles[I]);
+
+    ini.WriteString('RecentFiles', 'CurFileName', FCurFileName);
+  finally
+    ini.Free;
+  end;
+  RecreateRecentMn;
 end;
 
 initialization
   G_CreateSeqForOracle := False;
   G_GenSqlSketchMode := False;
   G_BackupBeforeAlterColumn := False;
-  G_QuotReservedNames := True;
+  G_BigIntForIntKeys := False;
+  G_QuotReservedNames := False;
   G_QuotAllNames := False;
   G_LogicNamesForTableData := False;
   G_MaxRowCountForTableData := 25;
   G_WriteConstraintToDescribeStr := True;
-  G_FieldGridShowLines := False;
+  G_FieldGridShowLines := True;
   G_AddColCommentToCreateTbSql := True;
+  G_CreateForeignkeys := True;
   G_CreateIndexForForeignkey := False;
+  G_HiveVersion := 2;                         
+  G_MysqlVersion := 5;
+  G_RetainAfterCommit := True;
   G_EnableCustomPropUI := False;       
   G_EnableAdvTbProp := False;
+  G_EnableTbPropGenerate := True;
+  G_EnableTbPropRelations := True;
+  G_EnableTbPropData := False;
+  G_EnableTbPropUIDesign := False;
   G_TableDialogViewModeByDefault := False;
   G_CheckForUpdates := True;
 

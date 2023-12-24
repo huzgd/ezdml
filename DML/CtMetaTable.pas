@@ -38,7 +38,8 @@ Hint[提示]                                 String
 Memo[备注]                                 String
 DefaultValue[缺省值]                       String
 Nullable[是否可为空]                       Bool
-DataLength[最大长度]                        Integer
+DataLength[最大长度]                       Integer
+FieldWeight[字段权重]                      Integer
 Url[链接]                                  String
 ResType[资源类型]                          String
 Formula[公式]                              String
@@ -65,6 +66,7 @@ ColWidth     Integer
 MaxLength    Integer
 Searchable   Bool
 Queryable    Bool
+Exportable   Bool
 InitValue    String
 ValueMin     String
 ValueMax     String
@@ -192,7 +194,9 @@ type
     cfddNone,
     cfddFixed,
     cfddEditable,
-    cfddAppendable
+    cfddAppendable,
+    cfddAutoComplete,
+    cfddAutoCompleteFixed
     );
 
   TCtFieldFixColType =
@@ -230,6 +234,11 @@ type
   TOnEzdmlGenAlterFieldEvent = function(action: string; tb: TCtMetaTable;
     designField, dbField: TCtMetaField; defRes, dbType, options: string): string of
     object;
+           
+  //生成表数据的SQL，传入表对象、SQL类型、默认生成的SQL结果、参数1、参数2、数据库类型、选项，返回自定义结果SQL
+  TOnEzdmlGenDataSqlEvent = function(tb: TCtMetaTable;
+    sqlType, defRes, param1, param2, dbType, options: string): string of
+    object;
 
   //自定义命令事件
   TOnEzdmlCmdEvent = function(cmd, param1, param2: string;
@@ -266,7 +275,9 @@ type
 
   TCtMetaTable = class(TCtMetaObject)
   private
-  protected
+  protected               
+    FBgColor: integer;
+    FPhysicalName: string;
     FCellTreeId: integer;
     FGraphDesc: string;
     FCustomConfigs: string;
@@ -274,19 +285,31 @@ type
     FUIDisplayText: string;
     FBusinessLogic: string;
     FExtraProps: string;
-    FExtraSQL: string;
+    FExtraSQL: string;      
+    FListSQL: string;
+    FViewSQL: string;
     FGenCode: boolean;
     FGenDatabase: boolean;
     FMetaFields: TCTMetaFieldList;
     FOwnerList: TCtMetaTableList;
-    FUILogic: string;
+    FUILogic: string;      
+    FDesignNotes: string;
+    FGroupName: string;
+    FOwnerCategory: string;
+    FPartitionInfo: string;
+    FSQLAlias: string;
+    FSQLOrderByClause: string;
+    FSQLWhereClause: string;
     function GetExcelText: string;
     function GetMetaFields: TCTMetaFieldList;
-    function GetDescribe: string;
+    function GetDescribe: string;    
+    function GetSketchyDescribe: string;
     function GetUIDisplayName: string;
     procedure SetDescribe(const Value: string);
     function GetKeyFieldName: string;
-    procedure SetExcelText(AValue: string);
+    procedure SetExcelText(AValue: string);   
+    function GetRealTableName: string;   
+    procedure AssignTbPropsFrom(tb: TCtMetaTable); virtual;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -297,6 +320,8 @@ type
     procedure SyncPropFrom(ACtTable: TCtMetaTable); virtual;
     procedure LoadFromSerialer(ASerialer: TCtObjSerialer); override;
     procedure SaveToSerialer(ASerialer: TCtObjSerialer); override;
+
+    function MaybeSame(ATb: TCtMetaTable): boolean;
 
     function GetTableComments: string; virtual;
     function GetPrimaryKeyNames(AQuotDbType: string = ''): string;
@@ -320,13 +345,26 @@ type
     function GenSql(dbType: string = ''): string; virtual;
     function GenSqlWithoutFK: string; virtual;
     function GenFKSql: string; virtual;
+    function GenDropSql(dbType: string = ''): string; virtual;
     function GenDqlDmlSql(dbType: string = ''; sqlType: string = ''): string; virtual;
-    function GenSelectSql(maxRowCount: integer; dbType: string = ''): string; virtual;
+    function GenTestDataInsertSql(row: Integer; dbType: string = '';
+      opt: string = ''; dbEngine: TCtMetaDatabase = nil): string; virtual;
+    function GenSelectRandRelateKeySql(fd: TCtMetaField; maxrow: Integer; dbType: string = '';
+      opt: string = ''; dbEngine: TCtMetaDatabase = nil): string; virtual;
+    function GenSelectSqlNoDb(maxRowCount: integer; dbType: string): string; virtual;
+    function GenSelectSql(maxRowCount: integer; dbType: string = ''; dbEngine: TCtMetaDatabase = nil): string; virtual;
+   function GenSelectSqlEx(maxRowCount: integer; selFields, whereCls, groupBy, orderBy, dbType: string;
+      dbEngine: TCtMetaDatabase = nil): string; virtual;   
+    function GenJoinSqlWhere(bTable: TCtMetaTable; aAlias, bAlias: string; bFKsOnly: Boolean): string; virtual;
 
     function GetCustomConfigValue(AName: string): string; virtual;
     procedure SetCustomConfigValue(AName, AValue: string); virtual;
 
-    function GetDemoJsonData(ARowIndex: Integer; AOpt, AFields: string): string; virtual;
+    function GetDemoJsonData(ARowIndex: Integer; AOpt, AFields: string): string; virtual; 
+    //总的设计说明（包含字段的）
+    function GetFullDesignNotes(includeEmptyFields: boolean): string; virtual;
+                        
+    function HasUIDesignProps: Boolean;
 
     property OwnerList: TCtMetaTableList read FOwnerList;
 
@@ -336,6 +374,9 @@ type
     property CellTreeId: integer read FCellTreeId write FCellTreeId;
     //名称
     property Name;
+    //物理表名
+    property RealTableName: string read GetRealTableName;
+    property PhysicalName: string read FPhysicalName write FPhysicalName;
     //在界面上显示的名称
     property UIDisplayName: string read GetUIDisplayName;
     property UIDisplayText: string read FUIDisplayText write FUIDisplayText;
@@ -356,14 +397,22 @@ type
 
     //描述字
     property Describe: string read GetDescribe write SetDescribe;
+    //粗略描述字（仅物理名+逻辑类型）
+    property SketchyDescribe: string read GetSketchyDescribe;
     //Excel字串
     property ExcelText: string read GetExcelText write SetExcelText;
 
-                     
+
+    //背景色
+    property BgColor: integer read FBgColor write FBgColor;
     //是否生成数据库
     property GenDatabase: boolean read FGenDatabase write FGenDatabase;
     //是否生成代码
-    property GenCode: boolean read FGenCode write FGenCode;
+    property GenCode: boolean read FGenCode write FGenCode; 
+    //视图SQL
+    property ViewSQL: string read FViewSQL write FViewSQL;  
+    //列表SQL
+    property ListSQL: string read FListSQL write FListSQL;
     //额外的数据库SQL
     property ExtraSQL: string read FExtraSQL write FExtraSQL;
     //前端界面逻辑
@@ -378,6 +427,20 @@ type
     //脚本配置
     property ScriptRules: string read FScriptRules write FScriptRules;
 
+    //过滤条件
+    property SQLWhereClause: string read FSQLWhereClause write FSQLWhereClause;
+    //排序字段 
+    property SQLOrderByClause: string read FSQLOrderByClause write FSQLOrderByClause;
+    //别名
+    property SQLAlias: string read FSQLAlias write FSQLAlias;
+    //所属分类
+    property OwnerCategory: string read FOwnerCategory write FOwnerCategory;
+    //分组
+    property GroupName: string read FGroupName write FGroupName;
+    //分区信息
+    property PartitionInfo: string read FPartitionInfo write FPartitionInfo;    
+    //设计说明
+    property DesignNotes: string read FDesignNotes write FDesignNotes;
   end;
 
 
@@ -386,6 +449,9 @@ type
 
 
   { CT数据表列表 }
+
+  { TCtMetaTableList }
+
   TCtMetaTableList = class(TCtMetaObjectList)
   private
     FOwnerModel: TCtDataModelGraph;
@@ -398,11 +464,15 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
-
+                                    
+    function ItemByName(AName: string; bCaseSensive: Boolean = False): TCtObject; override;   
+    function TableByName(AName: string; bCaseSensive: Boolean = False): TCtMetaTable; virtual;
     function NewTableItem(tp: string = ''): TCtMetaTable; virtual;
 
     procedure LoadFromSerialer(ASerialer: TCtObjSerialer); override;
     procedure SaveToSerialer(ASerialer: TCtObjSerialer); override;
+
+    procedure LoadFromDMLText(AText: string);
 
     property Items[Index: integer]: TCtMetaTable read GetItem write PutItem; default;
     property OwnerModel: TCtDataModelGraph read FOwnerModel;
@@ -424,6 +494,8 @@ type
   private
     FBusinessLogic: string;
     FDBCheck: string;
+    FDesensitised: boolean;
+    FDesignNotes: string;
     FExplainText: string;
     FAutoMerge: boolean;
     FAutoTrim: boolean;
@@ -431,18 +503,23 @@ type
     FColSortable: boolean;
     FDropDownSQL: string;
     FEditorProps: string;
+    FExportable: boolean;
     FFixColType: TCtFieldFixColType;
     FHideOnEdit: boolean;
     FHideOnList: boolean;
     FHideOnView: boolean;
-    FItemColCount: integer;
+    FIsFactMeasure: boolean;
+    FItemColCount: integer;      
+    FFieldWeight: integer;
     FRequired: boolean;
     FSheetGroup: string;
     FShowFilterBox: boolean;
+    FTestDataNullPercent: Integer;
     FTestDataRules: string;
     FTestDataType: string;
     FTextClipSize: integer;
-    FUILogic: string;
+    FUILogic: string;              
+    FOldName: string;
     FIsHidden: boolean;
     procedure SetRelateTable(AValue: string);
   protected
@@ -529,10 +606,13 @@ type
 
     function GetCustomConfigValue(AName: string): string;
     procedure SetCustomConfigValue(AName, AValue: string);
+    function CheckCanRenameTo(ANewName: string): Boolean;
 
-    function HasValidComplexIndex: boolean;
-
+    function HasValidComplexIndex: boolean;      
+    function IsLobField(dbType: string): boolean;
+    function IsFK: boolean;
     function IsPhysicalField: boolean;
+
     function PossibleKeyFieldType: TCtKeyFieldType;
     function CanDisplay(tp: string): boolean;
     function IsRequired: boolean;
@@ -540,15 +620,22 @@ type
     function PossibleEditorType: string;
     function PossibleTextAlign: TCtTextAlignment;
 
-    function PossibleDemoDataRule: string;
+    function PossibleDemoDataRule: string;                                               
     function GenDemoData(ARowIndex: integer; AOpt: string; ADataSet: TDataSet): string;
+    function GenDemoDataEx(ARowIndex: integer; AOpt: string; ADataSet: TDataSet): string;
+    function GetSqlQuotValue(AVal, ADbType: string; ADbEngine: TCtMetaDatabase): string;
     function GetDemoItemList(bTextOnly: boolean = True): string;
     function ExtractDropDownItemsFromMemo: string;
+                                                
+    function CheckMaxMinDemoInt(val: integer): integer;
+    function CheckMaxMinDemoFloat(val: double): double;
 
     function GetRelateTableObj: TCtMetaTable;
     function GetRelateTableField: TCtMetaField;
     function GetRelateTableTitleField: TCtMetaField;
     function GetRelateTableDemoJson(ARowIndex: Integer; AOpt: string): string;
+
+    function HasUIDesignProps: Boolean;
 
     property OwnerList: TCtMetaFieldList read FOwnerList;
     property OwnerTable: TCtMetaTable read GetOwnerTable;
@@ -589,7 +676,9 @@ type
     property DataLength: integer read FDataLength write FDataLength;
     //精度
     property DataScale: integer read FDataScale write FDataScale;
-
+            
+    //设计说明
+    property DesignNotes: string read FDesignNotes write FDesignNotes;
     //链接
     property Url: string read FUrl write FUrl;
     //资源类型
@@ -661,7 +750,9 @@ type
     property ItemColCount: integer read FItemColCount write FItemColCount;
     //DML图形描述
     property GraphDesc: string read FGraphDesc write FGraphDesc;
-
+                
+    //字段权重（0正常，大于0高亮，小于0灰色，小于-9隐藏）
+    property FieldWeight: integer read FFieldWeight write FFieldWeight;
     //显示级别
     //0自动、1摘要、2列表、3表单
     property Visibility: integer read FVisibility write FVisibility;
@@ -676,7 +767,11 @@ type
     //是否可搜索
     property Searchable: boolean read FSearchable write FSearchable;
     //是否可查询
-    property Queryable: boolean read FQueryable write FQueryable;
+    property Queryable: boolean read FQueryable write FQueryable;   
+    //是否可导出
+    property Exportable: boolean read FExportable write FExportable;
+    //是否为事实度量值
+    property IsFactMeasure: boolean read FIsFactMeasure write FIsFactMeasure;
 
     //初始值
     property InitValue: string read FInitValue write FInitValue;
@@ -690,10 +785,14 @@ type
     property ValueMax: string read FValueMax write FValueMax;
     //是否自动去除文字两头空格
     property AutoTrim: boolean read FAutoTrim write FAutoTrim;
+    //是否脱敏
+    property Desensitised: boolean read FDesensitised write FDesensitised;
     //生成测试数据类型
     property TestDataType: string read FTestDataType write FTestDataType;
     //生成测试数据规则
-    property TestDataRules: string read FTestDataRules write FTestDataRules;
+    property TestDataRules: string read FTestDataRules write FTestDataRules;  
+    //生成测试空值百分比（为0为无空值）
+    property TestDataNullPercent: Integer read FTestDataNullPercent write FTestDataNullPercent;
     //前端界面逻辑
     property UILogic: string read FUILogic write FUILogic;
     //后端业务逻辑
@@ -702,6 +801,8 @@ type
     property ExtraProps: string read FExtraProps write FExtraProps;
     //自定义配置
     property CustomConfigs: string read FCustomConfigs write FCustomConfigs;
+    //旧名称（修改字段名时使用，以便更新所有引用字段）
+    property OldName: string read FOldName write FOldName;
   end;
 
   { CT数据字段列表 }
@@ -734,6 +835,9 @@ type
   end;
 
   { 数据模型图 }
+
+  { TCtDataModelGraph }
+
   TCtDataModelGraph = class(TCtMetaObject)
   private
     FOwnerList: TCtDataModelGraphList;
@@ -762,7 +866,8 @@ type
     procedure LoadFromSerialer(ASerialer: TCtObjSerialer); override;
     procedure SaveToSerialer(ASerialer: TCtObjSerialer); override;
 
-    function IsHuge: boolean;
+    function IsHuge: boolean;    
+    function CheckCanRenameTo(ANewName: string): Boolean;
 
     property ID; //       : Integer       read FID           write FID          ;
     property Name; //     : String        read FName         write FName        ;
@@ -843,16 +948,21 @@ type
     FPassword: string;
     FUser: string;
     FEngineType: string;
-    FDbSchema: string;
+    FDbSchema: string;         
+    FExtraOpt: string;
     function GetDbSchema: string; virtual;
     procedure SetDbSchema(const Value: string); virtual;
     function GetConnected: boolean; virtual;
-    procedure SetConnected(const Value: boolean); virtual;
+    procedure SetConnected(const Value: boolean); virtual;  
+    function GetOrigEngineType: string; virtual;
   public
     constructor Create; virtual;
     destructor Destroy; override;
 
     function ShowDBConfig(AHandle: THandle): boolean; virtual;
+
+    //获取唯一标识ID（用户名@连接类型_HASH值）
+    function GetIdentStr: string;
 
     //库、用户、对象列表，一行一个
     function GetDbNames: string; virtual;
@@ -873,12 +983,14 @@ type
     function ObjectExists(ADbUser, AObjName: string): boolean; virtual;
     function IsDiffField(Fd1, Fd2: TCtMetaField): boolean; virtual;
   public
+    property OrigEngineType: string read GetOrigEngineType; //原始连接类型（有些连接如HTTP的EngineType会变）
     property EngineType: string read FEngineType;
     property Database: string read FDatabase write FDatabase;
     property User: string read FUser write FUser;
     property Password: string read FPassword write FPassword;
     property DbSchema: string read GetDbSchema write SetDbSchema;
     property Connected: boolean read GetConnected write SetConnected;
+    property ExtraOpt: string read FExtraOpt write FExtraOpt;
   end;
 
   TCtMetaDatabaseClass = class of TCtMetaDatabase;
@@ -890,7 +1002,8 @@ type
   end;
   PCtMetaDBReg = ^TCtMetaDBReg;
 
-
+                                            
+function IsValidTableName(AName: string; bPrompt: boolean): boolean;
 function CheckCanRenameTable(ATb: TCtMetaTable; AName: string; bAbort: boolean): boolean;
 function HasSameNameTables(ATb: TCtMetaTable; AName: string): boolean;
 
@@ -898,7 +1011,8 @@ function HasSameNameTables(ATb: TCtMetaTable; AName: string): boolean;
 function IsEditingMeta: boolean;
 procedure CheckCanEditMeta;
 procedure EditMetaAcquire(AObj: TCtMetaObject; AForm: TWinControl);
-procedure EditMetaRelease(AObj: TCtMetaObject; AForm: TWinControl);   
+procedure EditMetaRelease(AObj: TCtMetaObject; AForm: TWinControl);
+procedure EditMetaForceRelease;
 function GetMetaEditingWin: TWinControl;
 
 procedure BeginTbPropUpdate(Tb: TCtMetaTable);
@@ -918,10 +1032,11 @@ function GetCtFieldDataTypeNameList(ADbType: string): TCtFieldDataTypeNames;
 function GetCtFieldPhyTypeName(ADbType: string; AFieldType: TCtFieldDataType;
   ADataLen: integer): string;
 
-function CheckStringMaxLen(DbType: string; var res: string; len: integer): boolean;
+function CheckStringMaxLen(DbType, custTpName: string; var res: string; len: integer): boolean;
 function CheckCustDataTypeReplaces(Str: string): string;
 
-function IsReservedKeyworkd(str: string): boolean;
+function IsReservedKeyworkd(str: string): boolean;    
+function IsSymbolName(AName: string): boolean;
 
 function GetDbQuotName(AName, dbType: string): string;
 function GetIdxName(ATbn, AFieldName: string): string;
@@ -933,6 +1048,9 @@ function ReplaceSingleQuotmark(val: string): string;
 function NeedGenFKIndexesSQL(tb: TCtMetaTable): boolean;
 
 function RemoveCtSQLComment(const ASQL: string; KeepHints: boolean = False): string;
+                                                     
+function GetDbQuotString(AStr, dbType: string): string;
+function DBSqlStringToDateTime(AStr, ADbType: string): string;
 
 procedure EzdmlMenuActExecuteEvt(actName: string; Sender: TObject = nil);
 
@@ -970,7 +1088,8 @@ var
   CtCustDataTypeReplaces: array of string;
   CtTbNamePrefixDefs: array of string;
   CtCustFieldDataGenRules: array of string;
-  FGlobeDataModelList: TCtDataModelGraphList;
+  FGlobeDataModelList: TCtDataModelGraphList;   
+  G_LastMetaDbSchema: string;
   G_CheckForUpdates: boolean;
   G_CreateSeqForOracle: boolean;
   G_GenSqlSketchMode: boolean;
@@ -983,20 +1102,32 @@ var
   G_WriteConstraintToDescribeStr: boolean;
   G_FieldGridShowLines: boolean;
   G_AddColCommentToCreateTbSql: boolean;
+  G_CreateForeignkeys: boolean;
   G_CreateIndexForForeignkey: boolean;
+  G_HiveVersion: Integer;             
+  G_MysqlVersion: Integer;
+  G_RetainAfterCommit: boolean;
   G_EnableCustomPropUI: boolean;
   G_CustomPropUICaption: string;  
   G_EnableAdvTbProp: boolean;
+  G_EnableTbPropGenerate: boolean;
+  G_EnableTbPropRelations: boolean;
+  G_EnableTbPropData: boolean;
+  G_EnableTbPropUIDesign: boolean;
   G_Reserved_Keywords: TStrings;
   G_TableDialogViewModeByDefault: boolean;
   CtFieldTextColor_Id: TColor = clFuchsia;
-  CtFieldTextColor_Rid: TColor = clBlue;
+  CtFieldTextColor_Rid: TColor = clBlue;   
+  CtFieldTextColor_Low: TColor = clGray;
+  CtFieldTextColor_Lowest: TColor = clSilver;
   G_FieldItemListKeys: TStrings;
+  G_BigIntForIntKeys: boolean = true;
 
   GProc_OnEzdmlGenTbSqlEvent: TOnEzdmlGenTbSqlEvent;
   GProc_OnEzdmlGenDbSqlEvent: TOnEzdmlGenDbSqlEvent;
   GProc_OnEzdmlGenFieldTypeDescEvent: TOnEzdmlGenFieldTypeDescEvent;
-  GProc_OnEzdmlGenAlterFieldEvent: TOnEzdmlGenAlterFieldEvent;
+  GProc_OnEzdmlGenAlterFieldEvent: TOnEzdmlGenAlterFieldEvent;    
+  GProc_OnEzdmlGenDataSqlEvent: TOnEzdmlGenDataSqlEvent;
   GProc_OnEzdmlCmdEvent: TOnEzdmlCmdEvent;
 
   DEF_CTMETAFIELD_DATATYPE_NAMES_CHN: TCtFieldDataTypeNames;
@@ -1106,6 +1237,22 @@ const
     'FUNCTION',
     'EVENT',
     '[OTHER]'
+    );          
+  DEF_CTMETAFIELD_DATATYPE_NAMES_HIVE: TCtFieldDataTypeNames = (
+    '[UNKNOWN]',
+    'string',
+    'int',
+    'double',
+    'timestamp',
+    'boolean',
+    'tinyint',
+    'binary',
+    'map',
+    'CALCULATE',
+    'array',
+    'FUNCTION',
+    'EVENT',
+    '[OTHER]'
     );
   DEF_CTMETAFIELD_DATATYPE_NAMES_STD: TCtFieldDataTypeNames = (
     '[UNKNOWN]',
@@ -1158,14 +1305,14 @@ const
 
   DEF_CTMETAFIELD_DATATYPE_NAMES_ALIAS: TCtFieldDataTypeNames = (
     '',
-    'string,char,nchar,varchar,nvarchar,longvarchar,varchar2,nvarchar2,text,ntext,clob,nclob,long,tinytext,mediumtext,longtext,str,guid,uuid,字符,文本,文字',
+    'string,char,nchar,varchar,nvarchar,longvarchar,varchar2,nvarchar2,text,ntext,clob,nclob,long,tinytext,mediumtext,longtext,str,guid,uuid,uniqueidentifier,字符,文本,文字',
     'integer,smallint,int,bigint,mediumint,seq,seri,整数,整形,自然数,序列,自增',
     'float,double,real,decimal,number,numeric,money,smallmoney,dec,fixed,浮点,精度,实数,货币,金额,小数',
     'datetime,date,time,timestamp,year,smalldatetime,日期,时间,日历',
     'boolean,bit,bool,布尔,真假',
     'enum,set,tinyint,枚举,集合',
     'blob,bfile,binary,varbinary,longvarbinary,image,raw,longraw,tinyblob,mediumblob,longblob,文件,二进制,图像,原始',
-    'geoloc,mdsys.geoloc,xmltype,对象,复杂',
+    'geoloc,mdsys.geoloc,xmltype,json,对象,复杂',
     '',
     '',
     '',
@@ -1364,6 +1511,60 @@ begin
   end;
   Result := Trim(Result);
 end;
+            
+function DBSqlStringToDateTime(AStr, ADbType: string): string;
+begin
+  Result := AStr;
+  if Trim(Result)='' then
+    Exit;
+  if LowerCase(Trim(Result))='null' then
+    Exit;
+  if Pos('/', Result)>0 then
+    Result := StringReplace(Result, '/', '-', [rfReplaceAll]);
+  if ADbType = 'ORACLE' then
+  begin
+    if Pos(':', Result) = 0 then
+      Result := 'to_date(''' + Result + ''',''yyyy-mm-dd'')'
+    else
+      Result := 'to_date(''' + Result + ''',''yyyy-mm-dd HH24:mi:ss'')';
+  end
+  else if ADbType = 'SQLSERVER' then
+  begin
+    if Pos(':', Result) = 0 then
+      Result := 'convert(datetime,''' + Result + ''',23)'
+    else
+      Result := 'convert(datetime,''' + Result + ''',120)';
+  end
+  else if ADbType = 'MYSQL' then
+  begin
+    if Pos(':', Result) = 0 then
+      Result := 'STR_TO_DATE(''' + Result + ''',''%Y-%m-%d'')'
+    else
+      Result := 'STR_TO_DATE(''' + Result + ''',''%Y-%m-%d %H:%i:%s'')';
+  end
+  else if ADbType = 'POSTGRESQL' then
+  begin
+    if Pos(':', Result) = 0 then
+      Result := 'to_timestamp(''' + Result + ''',''yyyy-MM-dd'')'
+    else
+      Result := 'to_timestamp(''' + Result + ''',''yyyy-MM-dd HH24:mi:ss'')';
+  end       
+  else if ADbType = 'H2' then
+  begin
+    if Pos(':', Result) = 0 then
+      Result := 'parsedatetime(''' + Result + ''',''yyyy-MM-dd'')'
+    else
+      Result := 'parsedatetime(''' + Result + ''',''yyyy-MM-dd hh:mm:ss'')';
+  end
+  else if ADbType = 'SQLITE' then
+  begin
+    Result := '''' + Result + '''';
+  end
+  else
+  begin
+    Result := '''' + Result + '''';
+  end;
+end;
 
 procedure EzdmlMenuActExecuteEvt(actName: string; Sender: TObject);
 begin
@@ -1490,6 +1691,24 @@ begin
   FGlobeDataModelList.SyncTableProps(Tb);
 end;
 
+
+function IsValidTableName(AName: string; bPrompt: boolean): boolean;  
+var
+  S: string;
+begin     
+  Result := True;
+  if (Pos('.', AName)>0) or (Pos(' ', AName)>0)
+     or (Pos('/', AName)>0) or (Pos('\', AName)>0)
+     or (Pos('(', AName)>0) or (Pos(')', AName)>0) then
+  begin
+    S := Format(srInvalidTbNameError, [AName]);
+    if bPrompt then
+      Application.MessageBox(PChar(S), PChar(Application.Title),
+        MB_OK or MB_ICONERROR);
+    Result := False;
+  end;
+end;
+
 function CheckCanRenameTable(ATb: TCtMetaTable; AName: string; bAbort: boolean): boolean;
 var
   S: string;
@@ -1497,6 +1716,13 @@ begin
   Result := True;
   if UpperCase(ATb.Name) = UpperCase(AName) then
     Exit;
+  if not IsValidTableName(AName, True) then
+  begin
+    Result := False;
+    if bAbort then
+      Abort;
+    Exit;
+  end;
   if HasSameNameTables(ATb, AName) then
   begin
     S := Format(srRenameToExistsError, [AName]);
@@ -1618,6 +1844,12 @@ begin
   raise Exception.Create('Failed to release editing window');
 end;
 
+procedure EditMetaForceRelease;
+begin
+  G_EditingMetaForm := nil;
+  G_EditingMetaObj := nil;
+end;
+
 function IsConChar(ch: char): boolean;
 begin
   if (ch >= 'a') and (ch <= 'z') then
@@ -1704,7 +1936,7 @@ begin
   end;
 end;
 
-function CheckStringMaxLen(DbType: string; var res: string; len: integer): boolean;
+function CheckStringMaxLen(DbType, custTpName: string; var res: string; len: integer): boolean;
 begin
   Result := False;
   if dbType = 'POSTGRESQL' then
@@ -1716,6 +1948,8 @@ begin
       else if len > 8000 then
       begin
         res := 'text';
+        if Trim(custTpName) <> '' then
+          res := custTpName;
         Result := True;
       end;
     end;
@@ -1727,7 +1961,9 @@ begin
       if res = 'VARCHAR' then
         res := 'VARCHAR(MAX)'
       else
-        res := 'TEXT';
+        res := 'TEXT'; 
+      if Trim(custTpName) <> '' then
+        res := custTpName;
       Result := True;
     end;
   end
@@ -1735,7 +1971,9 @@ begin
   begin
     if len > 4000 then
     begin
-      res := 'CLOB';
+      res := 'CLOB';  
+      if Trim(custTpName) <> '' then
+        res := custTpName;
       Result := True;
     end;
   end
@@ -1743,7 +1981,9 @@ begin
   begin
     if len > 65532 then
     begin
-      res := 'LONGTEXT';
+      res := 'LONGTEXT';  
+      if Trim(custTpName) <> '' then
+        res := custTpName;
       Result := True;
     end;
   end
@@ -1751,13 +1991,27 @@ begin
   begin
     if len > 8000 then
     begin
-      res := 'TEXT';
+      res := 'TEXT';   
+      if Trim(custTpName) <> '' then
+        res := custTpName;
+      Result := True;
+    end;
+  end    
+  else if dbType = 'HIVE' then
+  begin
+    if len > 65535 then
+    begin
+      res := 'string';   
+      if Trim(custTpName) <> '' then
+        res := custTpName;
       Result := True;
     end;
   end
   else if len > 8000 then
   begin
-    res := 'TEXT';
+    res := 'TEXT';  
+    if Trim(custTpName) <> '' then
+      res := custTpName;
     Result := True;
   end
   else if Pos('TEXT', UpperCase(res)) > 0 then
@@ -1770,7 +2024,7 @@ end;
 
 function IsSymbolName(AName: string): boolean;
 const
-  Def_SymbolNames = '~!@#$%^&*()-+=|\:;,.<>/';
+  Def_SymbolNames = '~!@#$%^&*()-+=|\:;,."''<>/';
 var
   I: integer;
   S: string;
@@ -1795,30 +2049,82 @@ begin
   end
   else if IsReservedKeyworkd(AName) then
   begin
-    if G_QuotReservedNames then
-    ; //Result := UpperCase(AName);
+    if not G_QuotReservedNames and not G_QuotAllNames then
+      Exit;
   end
   else if IsSymbolName(AName) then
   begin
   end
   else
     Exit;
-  if not G_QuotReservedNames and not G_QuotAllNames then
-    Exit;
 
-  if dbType = 'MYSQL' then
-    Result := '`' + Result + '`'
+  if (dbType = 'MYSQL') or (dbType = 'HIVE') then
+  begin
+    if Pos('`', Result) <> 1 then
+      Result := '`' + Result + '`';
+  end
   else if dbType = 'ORACLE' then
-    Result := '"' + Result + '"'
+  begin
+    if Pos('"', Result) <> 1 then
+      Result := '"' + Result + '"';
+  end
   else if dbType = 'SQLSERVER' then
-    Result := '[' + Result + ']'
+  begin
+    if Pos('[', Result) <> 1 then
+      Result := '[' + Result + ']';
+  end
   else
-    Result := '"' + Result + '"';
+  begin
+    if Pos('"', Result) <> 1 then
+      Result := '"' + Result + '"';
+  end;
+end;
+
+function GetDbQuotString(AStr, dbType: string): string;
+const
+  DEF_DB_CV_KEY_CHARS: array[0..3] of String = ('\', '''', #13, #10);
+  DEF_DB_CV_KEY_CHARS_REP_ORACLE: array[0..3] of String = ('\', '''''', ''' || chr(13) || ''', ''' || chr(10) || ''');
+  DEF_DB_CV_KEY_CHARS_REP_MYSQL: array[0..3] of String = ('\\', '''''', '\r', '\n');
+  DEF_DB_CV_KEY_CHARS_REP_SQLSERVER: array[0..3] of String = ('\', '''''', ''' + char(13) + ''', ''' + char(10) + ''');
+  DEF_DB_CV_KEY_CHARS_REP_POSTGRESQL: array[0..3] of String = (''' || chr(92) || ''', '''''', ''' || chr(13) || ''', ''' || chr(10) || ''');
+  DEF_DB_CV_KEY_CHARS_REP_SQLITE: array[0..3] of String = (''' || char(92) || ''', '''''', ''' || char(13) || ''', ''' || char(10) || ''');
+  DEF_DB_CV_KEY_CHARS_REP_STD: array[0..3] of String = ('\', '''''', #13, #10);
+var
+  I: Integer;
+  S: String;
+begin
+  if AStr = '' then
+    Result := 'null'
+  else
+  begin
+    Result := AStr;
+    for I:=0 to High(DEF_DB_CV_KEY_CHARS) do
+    begin
+      if Pos(DEF_DB_CV_KEY_CHARS[I], Result) > 0 then
+      begin
+        if dbType='ORACLE' then
+          S := DEF_DB_CV_KEY_CHARS_REP_ORACLE[I]
+        else if dbType='MYSQL' then
+          S := DEF_DB_CV_KEY_CHARS_REP_MYSQL[I]   
+        else if dbType='SQLSERVER' then
+          S := DEF_DB_CV_KEY_CHARS_REP_SQLSERVER[I]
+        else if dbType='POSTGRESQL' then
+          S := DEF_DB_CV_KEY_CHARS_REP_POSTGRESQL[I]
+        else if dbType='SQLITE' then
+          S := DEF_DB_CV_KEY_CHARS_REP_SQLITE[I]
+        else
+          S := DEF_DB_CV_KEY_CHARS_REP_STD[I];
+               
+        Result := StringReplace(Result, DEF_DB_CV_KEY_CHARS[I], S, [rfReplaceAll]);
+      end;
+    end;
+    Result := '''' + Result + '''';
+  end;
 end;
 
 function NeedGenFKIndexesSQL(tb: TCtMetaTable): boolean;
 begin
-  Result := G_CreateIndexForForeignkey;
+  Result := G_CreateForeignkeys and G_CreateIndexForForeignkey;
 end;
 
 function ReplaceSingleQuotmark(val: string): string;
@@ -2057,18 +2363,23 @@ var
   t: TCtFieldDataType;
 begin
   for t := Low(TCtFieldDataType) to High(TCtFieldDataType) do
-    if (AName = DEF_CTMETAFIELD_DATATYPE_NAMES_ENG[t])
-      or (AName = DEF_CTMETAFIELD_DATATYPE_NAMES_CHN[t]) then
+    if (UpperCase(AName) = UpperCase(DEF_CTMETAFIELD_DATATYPE_NAMES_ENG[t]))
+      or (UpperCase(AName) = UpperCase(DEF_CTMETAFIELD_DATATYPE_NAMES_CHN[t])) then
     begin
       Result := t;
       Exit;
     end;
+  if LowerCase(AName)='boolean' then
+  begin
+    Result := cfdtBool;
+    Exit;
+  end;
   Result := cfdtUnknow;
 end;
 
 function GetPossibleCtFieldTypeOfName(AName: string): TCtFieldDataType;
 var
-  AllCtFieldDataTypeNames: array[0..6] of TCtFieldDataTypeNames;
+  AllCtFieldDataTypeNames: array[0..7] of TCtFieldDataTypeNames;
   t: TCtFieldDataType;
   I: integer;
   ft: string;
@@ -2082,7 +2393,8 @@ begin
   AllCtFieldDataTypeNames[3] := DEF_CTMETAFIELD_DATATYPE_NAMES_SQLSERVER;
   AllCtFieldDataTypeNames[4] := DEF_CTMETAFIELD_DATATYPE_NAMES_SQLITE;
   AllCtFieldDataTypeNames[5] := DEF_CTMETAFIELD_DATATYPE_NAMES_POSTGRESQL;
-  AllCtFieldDataTypeNames[6] := DEF_CTMETAFIELD_DATATYPE_NAMES_STD;
+  AllCtFieldDataTypeNames[6] := DEF_CTMETAFIELD_DATATYPE_NAMES_HIVE;
+  AllCtFieldDataTypeNames[7] := DEF_CTMETAFIELD_DATATYPE_NAMES_STD;
   for I := 0 to High(AllCtFieldDataTypeNames) do
     for t := Low(TCtFieldDataType) to High(TCtFieldDataType) do
       if (AName = LowerCase(AllCtFieldDataTypeNames[I][t])) then
@@ -2147,7 +2459,9 @@ begin
   else if ADbType = 'SQLITE' then
     Result := DEF_CTMETAFIELD_DATATYPE_NAMES_SQLITE
   else if ADbType = 'POSTGRESQL' then
-    Result := DEF_CTMETAFIELD_DATATYPE_NAMES_POSTGRESQL
+    Result := DEF_CTMETAFIELD_DATATYPE_NAMES_POSTGRESQL      
+  else if ADbType = 'HIVE' then
+    Result := DEF_CTMETAFIELD_DATATYPE_NAMES_HIVE
   else
     Result := DEF_CTMETAFIELD_DATATYPE_NAMES_STD;
 end;
@@ -2157,25 +2471,49 @@ function GetCtFieldPhyTypeName(ADbType: string; AFieldType: TCtFieldDataType;
 var
   ft_names: TCtFieldDataTypeNames;
   I, po: integer;
-  S, V: string;
+  S, V, U: string;
 begin
   Result := DEF_CTMETAFIELD_DATATYPE_NAMES_ENG[AFieldType];
-  for I := 0 to High(CtCustFieldTypeDefs) do
+
+  U := '';
+  if ADbType <> '' then
   begin
-    po := Pos(':', CtCustFieldTypeDefs[I]);
-    S := Copy(CtCustFieldTypeDefs[I], 1, po - 1);
-    V := Copy(CtCustFieldTypeDefs[I], po + 1, Length(CtCustFieldTypeDefs[I]));
-    if UpperCase(Result) = UpperCase(S) then
+    for I := 0 to High(CtCustFieldTypeDefs) do
     begin
-      Result := V;
-      if ADataLen > 0 then
+      po := Pos(':', CtCustFieldTypeDefs[I]);
+      S := Copy(CtCustFieldTypeDefs[I], 1, po - 1);
+      V := Copy(CtCustFieldTypeDefs[I], po + 1, Length(CtCustFieldTypeDefs[I]));
+      if UpperCase(Result+'_'+ADbType) = UpperCase(S) then
       begin
-        po := Pos('(', Result);
-        if po > 0 then
-          Result := Copy(Result, 1, po - 1);
+        U := V;
+        Break;
       end;
-      Exit;
     end;
+  end;
+  if U = '' then
+  begin
+    for I := 0 to High(CtCustFieldTypeDefs) do
+    begin
+      po := Pos(':', CtCustFieldTypeDefs[I]);
+      S := Copy(CtCustFieldTypeDefs[I], 1, po - 1);
+      V := Copy(CtCustFieldTypeDefs[I], po + 1, Length(CtCustFieldTypeDefs[I]));
+      if UpperCase(Result) = UpperCase(S) then
+      begin
+        U := V;
+        Break;
+      end;
+    end;
+  end;
+  if U <> '' then
+  begin
+    Result := U;
+    if ADataLen > 0 then
+    begin
+      po := Pos('(', Result);
+      if po > 0 then
+        Result := Copy(Result, 1, po - 1);
+    end;
+    Exit;
   end;
   ft_names := GetCtFieldDataTypeNameList(ADbType);
   Result := ft_names[AFieldType];
@@ -2211,6 +2549,14 @@ begin
         po := Pos('(', Result);
         if po > 0 then
           Result := Copy(Result, 1, po - 1);
+      end;
+      if ADbType <> 'LOGIC_TYPE' then
+      begin          
+        po := Pos(':', Result);
+        if po>0 then
+        begin
+          Result := Copy(Result, po + 1, Length(Result));
+        end;
       end;
       Exit;
     end;
@@ -2284,7 +2630,9 @@ var
   S: string;
 begin
   Result := cfdtUnknow;
-  S := GetCtCustFieldPhyTypeName('', AName, 1);
+  if IsSymbolName(AName) then
+    Exit;
+  S := GetCtCustFieldPhyTypeName('LOGIC_TYPE', AName, 1);
   if (S <> '') and (S <> AName) then
     Result := GetCtFieldDataTypeOfAliasEx(S, True);
   if Result = cfdtUnknow then
@@ -2391,6 +2739,7 @@ begin
   inherited;   
   FGenDatabase := True;
   FGenCode := True;
+  FBgColor := 0;
 end;
 
 destructor TCtMetaTable.Destroy;
@@ -2401,18 +2750,31 @@ end;
 procedure TCtMetaTable.Reset;
 begin
   inherited;
+  FPhysicalName := '';
+
   FCellTreeId := 0;
   FGraphDesc := '';
   FScriptRules := '';
   FUIDisplayText := '';
   FCustomConfigs := '';
 
+  FBgColor := 0;
   FGenDatabase := True;   
   FGenCode := True;
+  FViewSQL := '';
+  FListSQL := '';
   FExtraSQL := '';
   FUILogic := '';
   FBusinessLogic := '';
   FExtraProps := '';
+
+  FDesignNotes       := '';
+  FGroupName        := '';
+  FOwnerCategory    := '';
+  FPartitionInfo    := '';
+  FSQLAlias         := '';
+  FSQLOrderByClause := '';
+  FSQLWhereClause   := '';
 
   if Assigned(FMetaFields) then
     FMetaFields.Clear;
@@ -2423,18 +2785,7 @@ begin
   inherited;
   if ACtObj is TCtMetaTable then
   begin
-    FCellTreeId := TCtMetaTable(ACtObj).FCellTreeId;
-    FGraphDesc := TCtMetaTable(ACtObj).FGraphDesc;
-    FScriptRules := TCtMetaTable(ACtObj).FScriptRules;  
-    FUIDisplayText := TCtMetaTable(ACtObj).FUIDisplayText;
-    FCustomConfigs := TCtMetaTable(ACtObj).FCustomConfigs;
-
-    FGenDatabase := TCtMetaTable(ACtObj).FGenDatabase;
-    FGenCode := TCtMetaTable(ACtObj).FGenCode;
-    FExtraSQL := TCtMetaTable(ACtObj).FExtraSQL;
-    FUILogic := TCtMetaTable(ACtObj).FUILogic;
-    FBusinessLogic := TCtMetaTable(ACtObj).FBusinessLogic;
-    FExtraProps := TCtMetaTable(ACtObj).FExtraProps;
+    AssignTbPropsFrom(TCtMetaTable(ACtObj));
 
     if Assigned(TCTMetaTable(ACtObj).FMetaFields) then
       MetaFields.AssignFrom(TCTMetaTable(ACtObj).FMetaFields);
@@ -2459,6 +2810,8 @@ procedure TCtMetaTable.LoadFromSerialer(ASerialer: TCtObjSerialer);
       end;
   end;
 
+var
+  S: String;
 begin
   BeginSerial(ASerialer, True);
   try
@@ -2480,6 +2833,39 @@ begin
       ASerialer.ReadStrings('BusinessLogic', FBusinessLogic);
       ASerialer.ReadStrings('ExtraProps', FExtraProps);
     end;
+    if ASerialer.CurCtVer >= 32 then
+    begin
+      ASerialer.ReadStrings('PhysicalName', FPhysicalName);
+      ASerialer.ReadStrings('ViewSQL', FViewSQL);
+      ASerialer.ReadStrings('ListSQL', FListSQL);
+    end;
+
+    if ASerialer.CurCtVer >= 33 then
+    begin
+      ASerialer.ReadInteger('BgColor', FBgColor);
+    end
+    else
+    begin
+      S := Trim(ExtractCompStr(FGraphDesc+#10, #10'BkColor=', #10));
+      if S <> '' then
+      begin
+        FBgColor := StrToIntDef(S, 0);
+        FGraphDesc := ModifyCompStr(FGraphDesc+#10, 'XXX', #10'BkColor=', #10);
+        FGraphDesc := StringReplace(FGraphDesc, #10'BkColor=XXX', '', []);
+      end;
+    end;
+
+    if ASerialer.CurCtVer >= 34 then
+    begin
+      ASerialer.ReadStrings('DesignNotes', FDesignNotes);
+      ASerialer.ReadString('GroupName', FGroupName);
+      ASerialer.ReadString('OwnerCategory', FOwnerCategory);
+      ASerialer.ReadStrings('PartitionInfo', FPartitionInfo);
+      ASerialer.ReadString('SQLAlias', FSQLAlias);
+      ASerialer.ReadStrings('SQLOrderByClause', FSQLOrderByClause);
+      ASerialer.ReadStrings('SQLWhereClause', FSQLWhereClause);
+    end;
+
     ASerialer.BeginChildren('MetaFields');
     try
       MetaFields.LoadFromSerialer(ASerialer);
@@ -2515,6 +2901,20 @@ begin
     ASerialer.WriteStrings('BusinessLogic', FBusinessLogic);
     ASerialer.WriteStrings('ExtraProps', FExtraProps);
 
+    ASerialer.WriteStrings('PhysicalName', FPhysicalName);
+    ASerialer.WriteStrings('ViewSQL', FViewSQL);
+    ASerialer.WriteStrings('ListSQL', FListSQL);
+                                      
+    ASerialer.WriteInteger('BgColor', BgColor);
+
+    ASerialer.WriteStrings('DesignNotes', FDesignNotes);
+    ASerialer.WriteString('GroupName', FGroupName);
+    ASerialer.WriteString('OwnerCategory', FOwnerCategory);
+    ASerialer.WriteStrings('PartitionInfo', FPartitionInfo);
+    ASerialer.WriteString('SQLAlias', FSQLAlias);
+    ASerialer.WriteStrings('SQLOrderByClause', FSQLOrderByClause);
+    ASerialer.WriteStrings('SQLWhereClause', FSQLWhereClause);
+
     if Assigned(MetaFields) then
     begin
       //创建时间与主表相近（15分钟内）则清空
@@ -2534,6 +2934,22 @@ begin
   end;
 end;
 
+function TCtMetaTable.MaybeSame(ATb: TCtMetaTable): boolean;
+var
+  S1, S2: String;
+begin      
+  Result := False;
+  if ATb=nil then
+    Exit;
+
+  S1 := LowerCase(Describe);
+  S1 := StringReplace(S1, '\r\n','\n', [rfReplaceAll]);
+  S2 := LowerCase(ATb.Describe);
+  S2 := StringReplace(S2, '\r\n','\n', [rfReplaceAll]);
+  if S1 = S2 then
+    Result := True;
+end;
+
 
 function TCtMetaTable.GetMetaFields: TCTMetaFieldList;
 begin
@@ -2546,6 +2962,189 @@ begin
   Result := FMetaFields;
 end;
 
+function TCtMetaTable.GetRealTableName: string;
+begin
+  if Trim(FPhysicalName) <> '' then
+    Result := Trim(FPhysicalName)
+  else
+    Result := Trim(Name);
+end;
+
+procedure TCtMetaTable.AssignTbPropsFrom(tb: TCtMetaTable);
+begin
+  if tb=nil then
+    Exit;
+
+  FPhysicalName := tb.FPhysicalName;
+  FCellTreeId := tb.FCellTreeId;
+  FGraphDesc := tb.FGraphDesc;
+  FScriptRules := tb.FScriptRules;
+  FUIDisplayText := tb.FUIDisplayText;
+  FCustomConfigs := tb.FCustomConfigs;
+
+  FBgColor := tb.FBgColor;
+  FGenDatabase := tb.FGenDatabase;
+  FGenCode := tb.FGenCode;
+  FViewSQL := tb.FViewSQL;
+  FListSQL := tb.FListSQL;
+  FExtraSQL := tb.FExtraSQL;
+  FUILogic := tb.FUILogic;
+  FBusinessLogic := tb.FBusinessLogic;
+  FExtraProps := tb.FExtraProps;
+
+  FDesignNotes := tb.FDesignNotes;
+  FGroupName := tb.FGroupName;
+  FOwnerCategory := tb.FOwnerCategory;
+  FPartitionInfo := tb.FPartitionInfo;
+  FSQLAlias := tb.FSQLAlias;
+  FSQLOrderByClause := tb.FSQLOrderByClause;
+  FSQLWhereClause := tb.FSQLWhereClause;
+
+end;
+
+function TCtMetaTable.GetSketchyDescribe: string;
+
+  function CheckDesName(nm: string): string;
+  begin
+    Result := nm;
+    if Pos(' ', Result) > 0 then
+      Result := StringReplace(Result, ' ', '#32', [rfReplaceAll]);
+    if Pos(#9, Result) > 0 then
+      Result := StringReplace(Result, #9, '#9', [rfReplaceAll]);
+    if Pos('(', Result) > 0 then
+      Result := StringReplace(Result, '(', '#40', [rfReplaceAll]);
+    if Pos(')', Result) > 0 then
+      Result := StringReplace(Result, ')', '#41', [rfReplaceAll]);
+  end;
+
+var
+  I, L, LM: integer;
+  S, T, FT: string;
+  Infos: TStringList;
+  f: TCtMetaField;
+begin
+  if not IsTable then
+  begin
+    Result := Name;
+    Exit;
+  end;
+  Infos := TStringList.Create;
+  try
+    L := 0;
+    for I := 0 to MetaFields.Count - 1 do
+      if MetaFields[I].DataLevel <> ctdlDeleted then
+      begin
+        f := MetaFields[I];  
+        if not f.IsPhysicalField then
+          Continue;
+        S := f.Name;
+        if L < Length(S) then
+          L := Length(S);
+      end;
+    LM := 0;
+    for I := 0 to MetaFields.Count - 1 do
+      if MetaFields[I].DataLevel <> ctdlDeleted then
+      begin
+        f := MetaFields[I];
+        if not f.IsPhysicalField then
+          Continue;
+        S := ExtStr(f.Name, L);     
+        if f.DataType in [cfdtInteger, cfdtBool, cfdtEnum] then
+          FT := DEF_CTMETAFIELD_DATATYPE_NAMES_ENG[cfdtInteger]
+        else
+          FT := f.GetLogicDataTypeName;
+
+        if LM < Length(S + ' ' + FT) then
+          LM := Length(S + ' ' + FT);
+
+        S := S + ' ' + FT;
+
+        Infos.Add(S);
+      end;
+    //Infos.Add('');
+
+    S := RealTableName;
+    if LM < Length(S) then
+      LM := Length(S);
+    T := ExtStr('-', LM, '-');
+    Infos.Insert(0, T);
+    Infos.Insert(0, S);
+
+    Result := Infos.Text;
+  finally
+    infos.Free;
+  end;
+end;
+
+function TCtMetaTable.GetFullDesignNotes(includeEmptyFields: boolean): string;
+var
+  ss: TStringList;
+  procedure adds(ds: string);
+  begin
+    ss.Add(Trim(ds));
+  end;
+var
+  I, nn: Integer;
+  fd: TCtMetaField;
+begin
+  Result := '';
+
+  ss:= TStringList.Create;
+  try
+    adds(NameCaption);
+    I := DmlStrLength(NameCaption);
+    if I>32 then
+      I := 32;
+    adds(ExtStr('====', I, '='));
+
+    if Trim(Self.DesignNotes) <> '' then      
+    begin
+      adds(Self.DesignNotes);  
+      if Trim(Self.Memo) <> '' then
+        adds('');
+    end;  
+    if Trim(Self.Memo) <> '' then
+    begin
+      adds('['+srComments+']');
+      adds(Self.Memo);
+    end;  
+    adds('');
+
+    nn := 0;
+    for I := 0 to MetaFields.Count - 1 do
+    begin
+      fd := MetaFields[I];
+      if fd.DataLevel = ctdlDeleted then
+        Continue;
+      if not includeEmptyFields then
+        if Trim(fd.DesignNotes) = '' then
+          if Trim(fd.Memo) = '' then
+            Continue;
+
+      Inc(nn);
+      //adds(ExtStr('----', 32, '-'));
+      adds(IntToStr(nn)+'. '+fd.NameCaption);
+
+      if Trim(fd.DesignNotes) <> '' then
+      begin
+        adds(fd.DesignNotes); 
+        if Trim(fd.Memo) <> '' then
+          adds('');
+      end;  
+      if Trim(fd.Memo) <> '' then
+      begin
+        adds('['+srComments+']');
+        adds(fd.Memo);
+      end;           
+      adds('');
+    end;
+
+    Result := ss.Text;
+  finally
+    ss.Free;
+  end;
+end;
+
 function TCtMetaTable.GetExcelText: string;
 var
   I: integer;
@@ -2555,7 +3154,17 @@ var
   ft: TCtFieldDataType;
 begin
   S := NameCaption;
-  S := S + #13#10 + ExtStr('-', WindowFuncs.DmlStrLength(S) - 1, '-');
+  if Trim(Self.Memo) <> '' then
+  begin
+    DN := Self.Memo;
+    DN := StringReplace(DN, #13#10, '#10', [rfReplaceAll]);
+    DN := StringReplace(DN, #13, '#10', [rfReplaceAll]);
+    DN := StringReplace(DN, #10, '#10', [rfReplaceAll]);
+    DN := StringReplace(DN, #9, '#9', [rfReplaceAll]);
+    S := S + #13#10 + DN;
+  end;
+
+  S := S + #13#10 + ExtStr('-', WindowFuncs.DmlStrLength(NameCaption) - 1, '-');
 
   T := srFieldName;
   T := T + #9 + srLogicName;
@@ -2737,6 +3346,11 @@ end;
 function TCtMetaTable.GenSqlEx(bCreatTb: boolean; bFK: boolean; dbType: string;
   dbEngine: TCtMetaDatabase): string;
 
+  function Get_FieldTypeStrEE(AField: TCtMetaField): string;
+  begin
+    Result := AField.GetFieldTypeDesc(True, dbType);
+  end;
+             
   function GetSqlDbSchemaName: string;
   begin
     if dbEngine = nil then
@@ -2749,14 +3363,30 @@ function TCtMetaTable.GenSqlEx(bCreatTb: boolean; bFK: boolean; dbType: string;
     end;
   end;
 
-  function Get_FieldTypeStrEE(AField: TCtMetaField): string;
-  begin
-    Result := AField.GetFieldTypeDesc(True, dbType);
-  end;
-
   function GetQuotName(AName: string): string;
   begin
     Result := GetDbQuotName(AName, dbType);
+  end;
+           
+  function GetQuotTbName(AName: string): string;
+  begin
+    Result := GetDbQuotName(AName, dbType);   
+    if Trim(OwnerCategory) <> '' then
+      Result := OwnerCategory+'.'+Result
+    else if dbEngine <> nil then
+    begin
+      if dbEngine.EngineType='SQLSERVER' then
+      begin
+        if dbEngine.DbSchema <> '' then
+          Result := dbEngine.DbSchema+'.'+Result
+        else
+          Result := 'dbo.'+Result;
+      end;
+    end
+    else if dbType='SQLSERVER' then
+    begin
+      Result := 'dbo.'+Result;
+    end;
   end;
 
   function GetIndexPrefixInfo(AField: TCtMetaField): string;
@@ -2799,7 +3429,7 @@ function TCtMetaTable.GenSqlEx(bCreatTb: boolean; bFK: boolean; dbType: string;
 
 var
   I, J, C: integer;
-  vTbn, S, T, sComment, sPK, sFK, sIdx, sChk, sFdEx, sFPN: string;
+  vTbn, S, T, sNull, sComment, sPK, sFK, sIdx, sChk, sFdEx, sFPN: string;
   Infos: TStringList;
   f: TCtMetaField;
   pkAdded: boolean;
@@ -2810,7 +3440,7 @@ begin
     T := '';
     pkAdded := False;
 
-    S := Name;
+    S := RealTableName;
     if not IsNameOk(S) then
     begin
       if T <> '' then
@@ -2821,6 +3451,8 @@ begin
     for I := 0 to MetaFields.Count - 1 do
       if MetaFields[I].DataLevel <> ctdlDeleted then
       begin
+        if not MetaFields[I].IsPhysicalField then
+          Continue;
         S := MetaFields[I].Name;
         if not IsNameOk(S) then
         begin
@@ -2841,16 +3473,32 @@ begin
 
     if T <> '' then
     begin
-      Infos.Add('/*');
-      Infos.Add(T);
-      Infos.Add('*/');
+      if dbType='HIVE' then
+      begin
+        with TStringList.Create do
+        try
+          Text := T;
+          for I:=0 to Count - 1 do
+            Strings[I] := '-- '+ Strings[I];
+          T := Text;
+        finally
+          Free;
+        end;   
+        Infos.Add(Trim(T));
+      end
+      else
+      begin
+        Infos.Add('/*');
+        Infos.Add(T);
+        Infos.Add('*/');
+      end;
     end;
 
-    vTbn := Name;
+    vTbn := RealTableName;
     if vTbn = '' then
       vTbn := Caption;
 
-    vTbn := GetQuotName(vTbn);
+    vTbn := GetQuotTbName(vTbn);
 
     S := 'create table  ' + vTbn;
     if Dbtype = 'SQLITE' then
@@ -2887,7 +3535,7 @@ begin
           sComment := sComment + #13#10;
         sComment := sComment + 'EXEC sp_addextendedproperty ''MS_Description'', ''' +
           ReplaceSingleQuotmark(T) + ''', ''user'', ' + GetSqlDbSchemaName +
-          ', ''table'', ' + vTbn + ', NULL, NULL;';
+          ', ''table'', ' + GetQuotName(RealTableName) + ', NULL, NULL;';
       end
       else if dbType = 'MYSQL' then
       begin
@@ -2916,7 +3564,11 @@ begin
       S := S + ' ' + T;
       if F.DefaultValue <> '' then
       begin
-        S := S + F.GetFieldDefaultValDesc(dbType);
+        if (dbType = 'HIVE') and (G_HiveVersion < 3) then
+        begin  //hive2不支持缺省值
+        end
+        else
+          S := S + F.GetFieldDefaultValDesc(dbType);
         //          if dbType = 'SQLSERVER' then     //似乎sqlserver 也支持default 0
         //          begin
         //          if Trim(F.DefaultValue) <> DEF_VAL_auto_increment  then
@@ -2927,12 +3579,17 @@ begin
         //ALTER TABLE dbo.doc_exz ADD CONSTRAINT col_b_def DEFAULT 50 FOR column_b ;
 
       end;
-      S := S + F.GetNullableStr(dbType);
+      sNull := F.GetNullableStr(dbType);
+      if Trim(sNull) = '' then
+        if dbEngine <> nil then
+          if Pos('[GSQL_FIELD_NULL]', dbEngine.ExtraOpt) > 0 then
+            sNull := ' null';
+      S := S + sNull;
 
       T := F.GetFieldComments;
       if T <> '' then
       begin
-        if dbType = 'MYSQL' then
+        if (dbType = 'MYSQL') or (dbType = 'HIVE') then
         begin
           S := S + ' comment ''' + ReplaceSingleQuotmark(T) + '''';
         end
@@ -2952,29 +3609,42 @@ begin
             sComment := sComment +
               'EXEC sp_addextendedproperty ''MS_Description'', ''' +
               ReplaceSingleQuotmark(T) + ''', ''user'', ' +
-              GetSqlDbSchemaName + ', ''table'', ' + vTbn +
+              GetSqlDbSchemaName + ', ''table'', ' + GetQuotName(RealTableName) +
               ', ''column'', ' + sFPN + ';';
           end;
-          if G_AddColCommentToCreateTbSql then
+          if G_AddColCommentToCreateTbSql and (dbType <> 'HIVE') and (F.DisplayName <> '') and (F.DisplayName <> F.Name) then
           begin
-            if F.Nullable and (F.DefaultValue <> '') then
+            if F.Nullable and (F.DefaultValue <> '') and (sNull = '') then
               S := S + ' null';
-            S := S + ' '#9'/*' + ReplaceSingleQuotmark(T) + '*/';
+            S := S + '  /*' + ReplaceSingleQuotmark(F.DisplayName) + '*/';
           end;
         end;
       end;
 
-      T := GetIdxName(Self.Name, f.Name);
+      T := GetIdxName(Self.RealTableName, f.Name);
       if F.KeyFieldType = cfktId then
       begin
         if dbType = 'SQLITE' then
         begin
-          //mysql主键在字段中直接定义
+          //SQLITE主键在字段中直接定义
+          //removed by huz 20230617: 改在字段中直接定义
+          if not pkAdded then
+          begin
+            pkAdded := True;
+            //CONSTRAINT xxx PRIMARY KEY (xxx)
+            sFdEx := sFdEx + ',' + #13#10 + ExtStr(' ', 6) +
+              ExtStr('constraint', 16)+' ' + GetQuotName('PK_' + T)
+               + ' primary key (' + GetPrimaryKeyNames(dbType) + ')';
+          end;
         end
-        else if (dbType = 'MYSQL') and (Trim(F.DefaultValue) =
+        else
+        if (dbType = 'MYSQL') and (Trim(F.DefaultValue) =
           DEF_VAL_auto_increment) then
         begin
           //mysql自增型主键改在字段中直接定义
+        end               
+        else if (dbType = 'HIVE') and (G_HiveVersion < 3) then
+        begin  //hive2不支持主外键
         end
         else if not pkAdded then
         begin
@@ -2986,11 +3656,16 @@ begin
             ' primary key (' + GetPrimaryKeyNames(dbType) + ');';
         end;
         if (F.RelateTable <> '')
-          and (F.RelateField <> '') then
+          and (F.RelateField <> '') and (Pos('{Link:', F.RelateField)=0) then
         begin
-          if dbType = 'SQLITE' then
+          {if dbType = 'SQLITE' then
           begin
-            //mysql外键在字段中直接定义
+            //SQLITE外键在字段中直接定义
+            //removed by huz 20230617: 改在独立语句中
+          end
+          else}
+          if (dbType = 'HIVE') and (G_HiveVersion < 3) then
+          begin  //hive2不支持主外键
           end
           else
           begin
@@ -3007,7 +3682,7 @@ begin
       else
       begin
         if (F.KeyFieldType = cfktRid) and (F.RelateTable <> '')
-          and (F.RelateField <> '') then
+          and (F.RelateField <> '') and (Pos('{Link:', F.RelateField)=0) and G_CreateForeignkeys then
         begin
           if dbType = 'SQLITE' then
           begin
@@ -3026,6 +3701,9 @@ begin
               ExtStr('constraint', 16) + ' ' + GetQuotName('IDU_' + T)
               + ' foreign key(' + sFPN + GetIndexPrefixInfo(F) + ')'
               + ' references ' + F.RelateTable + '(' + F.RelateField + ')';
+          end
+          else if (dbType = 'HIVE') and (G_HiveVersion < 3) then
+          begin  //hive2不支持主外键
           end
           else
           begin
@@ -3047,6 +3725,19 @@ begin
             sFdEx := sFdEx + ',' + #13#10 + ExtStr(' ', 6) +
               ExtStr('UNIQUE', 16) + ' ' + GetQuotName('IDU_' + T) + '(' + sFPN +
               GetIndexPrefixInfo(F) + ')';
+          end 
+          else if (dbType = 'HIVE') then
+          begin  //hive不支持唯一索引，转成普通索引
+            if sIdx <> '' then
+              sIdx := sIdx + #13#10;
+            sIdx := sIdx + 'create index ' + GetQuotName('IDU_' + T) +
+              ' on table ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ')'#13#10 +
+              ' as ''org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'' with deferred rebuild;';
+            if G_HiveVersion >= 3 then
+            begin
+              sIdx := sIdx + #13#10; //hive3支持唯一约束
+              sIdx := sIdx + 'alter table ' + vTbn + ' add constraint ' + GetQuotName('UNQ_' + T) + ' unique (' +  sFPN + GetIndexPrefixInfo(F) + ') disable novalidate;';
+            end;
           end
           else
           begin
@@ -3059,16 +3750,30 @@ begin
         else if F.IndexType = cfitNormal then
         begin
           if sIdx <> '' then
-            sIdx := sIdx + #13#10;
-          sIdx := sIdx + 'create index ' + GetQuotName('IDX_' + T) +
-            ' on ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ');';
+            sIdx := sIdx + #13#10;      
+          if (dbType = 'HIVE') then
+          begin  //hive
+            sIdx := sIdx + 'create index ' + GetQuotName('IDU_' + T) +
+              ' on table ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ')'#13#10 +
+              ' as ''org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'' with deferred rebuild;';
+          end
+          else
+            sIdx := sIdx + 'create index ' + GetQuotName('IDX_' + T) +
+              ' on ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ');';
         end
         else if (F.KeyFieldType = cfktRid) and NeedGenFKIndexesSQL(Self) then
         begin
           if sIdx <> '' then
             sIdx := sIdx + #13#10;
-          sIdx := sIdx + 'create index ' + GetQuotName('IDX_' + T) +
-            ' on ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ');';
+          if (dbType = 'HIVE') then
+          begin  //hive
+            sIdx := sIdx + 'create index ' + GetQuotName('IDU_' + T) +
+              ' on table ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ')'#13#10 +
+              ' as ''org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'' with deferred rebuild;';
+          end
+          else
+            sIdx := sIdx + 'create index ' + GetQuotName('IDX_' + T) +
+              ' on ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ');';
         end;
             
         if Trim(F.DBCheck) <> '' then
@@ -3097,7 +3802,7 @@ begin
           Continue;
         if (Pos(',', F.IndexFields) = 0) and (Pos('(', F.IndexFields) = 0) then
           Continue;
-        T := GetIdxName(Self.Name, f.Name);
+        T := GetIdxName(Self.RealTableName, f.Name);
         if Pos('(', F.IndexFields) > 0 then
           sFPN := f.IndexFields
         else
@@ -3118,7 +3823,13 @@ begin
         end;
         if sFPN = '' then
           Continue;
-        if F.IndexType = cfitUnique then
+        if (dbType = 'HIVE') then
+        begin  //hive不支持唯一索引
+          sIdx := sIdx + 'create index ' + GetQuotName('IDX_' + T) +
+            ' on table ' + vTbn + '(' + sFPN + ')'#13#10+
+            ' as ''org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'' with deferred rebuild;';
+        end
+        else  if F.IndexType = cfitUnique then
         begin
           if sIdx <> '' then
             sIdx := sIdx + #13#10;
@@ -3139,14 +3850,14 @@ begin
 
     if dbType = 'ORACLE' then
     begin
-      if Copy(Self.Name, 1, 3) = 'TT_' then
+      if Copy(Self.RealTableName, 1, 3) = 'TT_' then
         S := S + #13#10')'#13#10'on commit delete rows;'
-      else if Copy(Self.Name, 1, 3) = 'TS_' then
+      else if Copy(Self.RealTableName, 1, 3) = 'TS_' then
         S := S + #13#10')'#13#10'on commit preserve rows;'
       else
         S := S + #13#10');';
     end
-    else if dbType = 'MYSQL' then
+    else if (dbType = 'MYSQL') or (dbType = 'HIVE') then
     begin
       T := Self.GetTableComments;
       if T <> '' then
@@ -3177,7 +3888,7 @@ begin
         Infos.Add(sComment);
       if dbType = 'ORACLE' then
         if G_CreateSeqForOracle and IsSeqNeeded then
-          Infos.Add('create sequence SEQ_' + Self.Name + ';');
+          Infos.Add('create sequence SEQ_' + Self.RealTableName + ';');
       //额外的SQL
       if Self.ExtraSQL <> '' then
         Infos.Add(Self.ExtraSQL);
@@ -3202,12 +3913,50 @@ begin
   Result := GenSqlEx(False, True);
 end;
 
+function TCtMetaTable.GenDropSql(dbType: string): string;
+var
+  vTbn: String;
+begin
+  vTbn := RealTableName;
+  if vTbn = '' then
+    vTbn := Caption;
+  vTbn := GetDbQuotName(vTbn, dbType);
+  Result := 'drop table '+vTbn+';';
+end;
+
 function TCtMetaTable.GenSelectSql(maxRowCount: integer;
-  dbType: string): string;
+  dbType: string; dbEngine: TCtMetaDatabase): string;
+begin
+  Result := GenSelectSqlEx(maxRowCount, '', '', '', '', dbType, dbEngine);
+end;
+
+function TCtMetaTable.GenSelectSqlEx(maxRowCount: integer;
+  selFields, whereCls, groupBy, orderBy, dbType: string; dbEngine: TCtMetaDatabase = nil): string;
 
   function GetQuotName(AName: string): string;
   begin
     Result := GetDbQuotName(AName, dbType);
+  end;
+     
+  function GetQuotTbName(AName: string): string;
+  begin
+    Result := GetDbQuotName(AName, dbType);
+    if Trim(OwnerCategory) <> '' then
+      Result := OwnerCategory+'.'+Result
+    else if dbEngine <> nil then
+    begin
+      if dbEngine.EngineType='SQLSERVER' then
+      begin
+        if dbEngine.DbSchema <> '' then
+          Result := dbEngine.DbSchema+'.'+Result
+        else
+          Result := 'dbo.'+Result;
+      end;
+    end
+    else if dbType='SQLSERVER' then
+    begin
+      Result := 'dbo.'+Result;
+    end;
   end;
 
 var
@@ -3218,12 +3967,12 @@ var
 begin
   Infos := TStringList.Create;
   try
-    S := Name;
+    S := RealTableName;
 
-    vTbn := Name;
+    vTbn := RealTableName;
     if vTbn = '' then
       vTbn := Caption;
-    vTbn := GetQuotName(vTbn);
+    vTbn := GetQuotTbName(vTbn);
 
     exLen := 8;
     for I := 0 to MetaFields.Count - 1 do
@@ -3270,23 +4019,61 @@ begin
       if dbType = 'ORACLE' then
         S := S + ','#13#10'  t.rowid';
 
+    if Trim(selFields) <> '' then
+      S := selFields;
+
     Infos.Add(S);
     Infos.Add(' from ' + vTbn + ' t');
-    Infos.Add('where 1=1');
+    if Trim(whereCls)='' then
+    begin
+      if dbType='HIVE' then               
+        Infos.Add('where 1=1')
+      else
+        Infos.Add('where 1=1/*_SQL_WHERE*/')
+    end
+    else
+      Infos.Add('where ('+whereCls+')');
 
     if maxRowCount > 0 then
     begin
       if dbType = 'ORACLE' then
-        Infos.Add('  and rownum < ' + IntToStr(maxRowCount));
+      begin
+        if Trim(whereCls)='' then
+          Infos.Add('  and rownum <= ' + IntToStr(maxRowCount))
+        else
+          Infos.Add('  and (rownum <= ' + IntToStr(maxRowCount) + ')');
+      end;
     end;
 
-    if Self.KeyFieldName <> '' then
-      Infos.Add('order by ' + Self.KeyFieldName);
+    if Trim(groupBy) <> '' then
+      Infos.Add('group by ' + groupBy);
+
+    if Trim(orderBy) <> '' then
+      Infos.Add('order by ' + orderBy)
+    else if orderBy = '' then
+    begin
+      f := Self.GetPrimaryKeyField;
+      if f <> nil then
+        if f.DataType <> cfdtInteger then
+          f := nil;
+      {if f=nil then
+      begin
+        S := GetPossibleKeyName(cfktModifyDate);
+        if S = '' then
+          S := GetPossibleKeyName(cfktCreateDate);
+        if S <> '' then
+          f := Self.MetaFields.FieldByName(S);
+      end; }
+      if f <> nil then
+      begin
+        Infos.Add('order by ' + f.Name + ' desc');
+      end;
+    end;
 
     if maxRowCount > 0 then
     begin
       if (dbType = 'MYSQL') or (dbType = 'POSTGRESQL')
-        or (dbType = 'SQLITE') then
+        or (dbType = 'SQLITE') or (dbType = 'HIVE') then
         Infos.Add('limit ' + IntToStr(maxRowCount));
     end;
 
@@ -3302,6 +4089,65 @@ begin
   begin
     Result := GProc_OnEzdmlGenTbSqlEvent(Self, False, False, Result,
       dbType, '[GEN_SELECT_SQL][MAXROWCOUNT:' + IntToStr(maxRowCount) + ']');
+  end;
+end;
+
+function TCtMetaTable.GenJoinSqlWhere(bTable: TCtMetaTable; aAlias,
+  bAlias: string; bFKsOnly: Boolean): string;
+var
+  K: Integer;
+  fd: TCtMetaField;
+  tbN, S: String;
+begin
+  Result := '';
+  if bTable = nil then
+    Exit;
+  tbN := Self.RealTableName;
+  if aAlias = '' then
+    aAlias := tbN;
+  if bAlias = '' then
+    bAlias := bTable.RealTableName;
+  for K:=0 to bTable.MetaFields.Count -1 do
+  begin
+    fd := bTable.MetaFields.Items[K];
+    if fd.DataLevel = ctdlDeleted then
+      Continue;
+    if bFKsOnly then
+    begin
+      if not fd.IsPhysicalField then
+        Continue;
+      if (fd.KeyFieldType <> cfktId) and (fd.KeyFieldType <> cfktRid) then
+        Continue;
+    end;
+    if (UpperCase(fd.RelateTable)=UpperCase(tbN)) and (fd.RelateField<>'') then
+    begin
+      S := bAlias + '.'+fd.Name+' = '+ aAlias + '.' +fd.RelateField;
+      if Result <> '' then
+        Result :=  Result + ' and ';
+      Result :=  Result + S;
+    end;
+  end;
+       
+  tbN := bTable.RealTableName;
+  for K:=0 to Self.MetaFields.Count -1 do
+  begin
+    fd := Self.MetaFields.Items[K];
+    if fd.DataLevel = ctdlDeleted then
+      Continue;
+    if bFKsOnly then
+    begin
+      if not fd.IsPhysicalField then
+        Continue;
+      if (fd.KeyFieldType <> cfktId) and (fd.KeyFieldType <> cfktRid) then
+        Continue;
+    end;
+    if (UpperCase(fd.RelateTable)=UpperCase(tbN)) and (fd.RelateField<>'') then
+    begin
+      S := aAlias + '.'+fd.Name+' = '+ bAlias + '.' +fd.RelateField;
+      if Result <> '' then
+        Result :=  Result + ' and ';
+      Result :=  Result + S;
+    end;
   end;
 end;
 
@@ -3327,6 +4173,20 @@ begin
   Result := '';
   if Assigned(Proc_GetTableDemoDataJson) then
     Result := Proc_GetTableDemoDataJson(Self, ARowIndex, AOpt, AFields);
+end;
+
+function TCtMetaTable.HasUIDesignProps: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I:=0 to MetaFields.Count - 1 do
+    if MetaFields.Items[I].DataLevel <> ctdlDeleted then
+      if MetaFields.Items[I].HasUIDesignProps then
+      begin
+        Result := True;
+        Exit;
+      end;
 end;
 
 function TCtMetaTable.GenSql(dbType: string): string;
@@ -3425,7 +4285,11 @@ begin
       end;
     //Infos.Add('');
 
-    S := GetDesName(Name, Caption);
+    S := Trim(Name);
+    if Trim(PhysicalName) <> '' then
+      if Trim(PhysicalName) <> Name then
+        S:=S + ':' + Trim(PhysicalName);
+    S := GetDesName(S, Trim(Caption));
     if LM < Length(S) then
       LM := Length(S);
     T := ExtStr('-', LM, '-');
@@ -3746,7 +4610,7 @@ var
 
 var
   vPhy, vNam, vMem, vTp, vCstr: string;
-  J, cspo: integer;
+  J, po, cspo: integer;
   bNewF: boolean;
 begin
   if not IsTable then
@@ -3777,7 +4641,19 @@ begin
     if Copy(T, 1, 2) = '--' then
     begin
       FT := '';
-      SetDesName(S, FName, FCaption, FMemo, FT);
+      vPhy := '';
+      SetDesName(S, vPhy, FCaption, FMemo, FT);
+      po := Pos(':', vPhy);
+      if po>0 then
+      begin
+        FName := Trim(Copy(vPhy, 1, po -1));
+        FPhysicalName := Trim(Copy(vPhy, po+1, Length(vPhy)));
+      end
+      else
+      begin
+        FName := vPhy;
+        FPhysicalName := '';
+      end;
       if (FCaption = '') and (FT <> '') then
         FCaption := FT;
     end
@@ -3842,9 +4718,18 @@ begin
       end;
 
       if vMem = '' then
+      begin
         if f.DataType = cfdtFunction then
           if f.IndexType <> cfitNone then
             vMem := f.IndexFields;
+      end
+      else if f.DataType = cfdtFunction then
+      begin
+        if f.IndexType <> cfitNone then
+          if bNewF then
+            if f.IndexFields = '' then
+              f.IndexFields := vMem;
+      end;
       f.Memo := vMem;
 
       Inc(I);
@@ -3873,6 +4758,7 @@ begin
     tmpList.AssignFrom(Self.MetaFields);
 
     inherited AssignFrom(ACtTable);
+    AssignTbPropsFrom(ACtTable);
     Self.GraphDesc := S;
     FCellTreeId := ACtTable.FCellTreeId;
 
@@ -3920,9 +4806,9 @@ var
 begin
   Infos := TStringList.Create;
   try
-    S := Name;
+    S := RealTableName;
 
-    vTbn := Name;
+    vTbn := RealTableName;
     if vTbn = '' then
       vTbn := Caption;
     vTbn := GetQuotName(vTbn);
@@ -4011,7 +4897,11 @@ begin
           Continue;
         Inc(C);
         vFdn := f.Name;
-        if C = aFC then
+        if dbType='HIVE' then
+        begin
+          S := S + '  :v_' + ExtStr(vFdn + ',', exLen) + ' --' + vFdn + #13#10;
+        end
+        else if C = aFC then
           S := S + '  :v_' + ExtStr(vFdn, exLen) + ' /*' + vFdn + '*/'
         else
           S := S + '  :v_' + ExtStr(vFdn + ',', exLen) + ' /*' + vFdn + '*/'#13#10;
@@ -4051,28 +4941,21 @@ begin
           Continue;
         Inc(C);
 
-        vFdn := f.GenDemoData(1, '', nil);
-        vFdn := '''' + vFdn + '''';
-        if F.DefaultValue <> '' then
-          vFdn := F.DefaultValue
-        else if F.DataType = cfdtDate then
-          vFdn := '''' + FormatDateTime('yyyy-mm-dd hh:nn:ss', Now -
-            20 + Random(10) + I + Cos(Random(10) + Time)) + ''''
-        else if F.DataType = cfdtInteger then
-          vFdn := IntToStr(Random(10))
-        else if F.DataType = cfdtEnum then
-          vFdn := IntToStr(Random(5))
-        else if F.DataType = cfdtFloat then
-          vFdn := Format('%f', [Abs(Sin(Random(10) + I + Time) * 100)])
-        else if F.DataType = cfdtBool then
+        if F.IsFK and F.Nullable then
+          vFdn := 'null'
+        else if F.DataType = cfdtBlob then
+          vFdn := 'null'
+        else
         begin
-          if (Random(10) mod 3) = 0 then
-            vFdn := '1'
-          else
-            vFdn := '0';
+          vFdn := f.GenDemoData(1, '[VALUE_ONLY]', nil);
+          vFdn := f.GetSqlQuotValue(vFdn, dbType, nil);
         end;
 
-        if C = aFC then
+        if dbType='HIVE' then
+        begin
+          S := S + '  ' + ExtStr(vFdn + ',', exLen) + ' --' + f.Name + #13#10;
+        end
+        else if C = aFC then
           S := S + '  ' + ExtStr(vFdn, exLen) + ' /*' + f.Name + '*/'
         else
           S := S + '  ' + ExtStr(vFdn + ',', exLen) + ' /*' + f.Name + '*/'#13#10;
@@ -4195,7 +5078,233 @@ begin
     Result := infos.Text;
   finally
     infos.Free;
+  end;   
+  if Assigned(GProc_OnEzdmlGenDataSqlEvent) then
+  begin
+    Result := GProc_OnEzdmlGenDataSqlEvent(Self, 'DQL_DML_SQL', Result, '', '', dbType, '[SQL_TYPE:' + sqlType + ']');
   end;
+end;
+
+function TCtMetaTable.GenTestDataInsertSql(row: Integer; dbType: string; opt: string; dbEngine: TCtMetaDatabase): string;
+
+  function GetQuotName(AName: string): string;
+  begin
+    Result := GetDbQuotName(AName, dbType);
+  end;
+      
+  function GetQuotTbName(AName: string): string;
+  begin
+    Result := GetDbQuotName(AName, dbType);
+    if Trim(OwnerCategory) <> '' then
+      Result := OwnerCategory+'.'+Result
+    else if dbEngine <> nil then
+    begin
+      if dbEngine.EngineType='SQLSERVER' then
+      begin
+        if dbEngine.DbSchema <> '' then
+          Result := dbEngine.DbSchema+'.'+Result
+        else
+          Result := 'dbo.'+Result;
+      end;
+    end
+    else if dbType='SQLSERVER' then
+    begin
+      Result := 'dbo.'+Result;
+    end;
+  end;
+
+var
+  I, C, exLen, aFC: integer;
+  vTbn, vFdn, S: string;
+  f: TCtMetaField;
+begin
+  vTbn := RealTableName;
+  if vTbn = '' then
+    vTbn := Caption;
+  vTbn := GetQuotTbName(vTbn);
+
+  exLen := 8;
+  for I := 0 to MetaFields.Count - 1 do
+  begin
+    f := MetaFields[I];
+    if not F.IsPhysicalField then
+      Continue;
+    if Length(F.Name) > exLen then
+      exLen := Length(F.Name);
+  end;
+  if exLen > 24 then
+    exLen := 24;
+
+  C := 0;
+  for I := 0 to MetaFields.Count - 1 do
+  begin
+    f := MetaFields[I];
+    if not F.IsPhysicalField then
+      Continue;
+    Inc(C);
+  end;
+  aFC := C;
+
+  S := 'insert into ' + vTbn + '(';
+  C := 0;
+  for I := 0 to MetaFields.Count - 1 do
+  begin
+    f := MetaFields[I];
+    if not F.IsPhysicalField then
+      Continue;
+    if F.KeyFieldType=cfktId then
+      if Trim(F.DefaultValue) = DEF_VAL_auto_increment then  
+        Continue;
+    Inc(C);
+    if (C > 1) then
+      S := S + ', ';
+    vFdn := GetQuotName(f.Name);
+    S := S + vFdn;
+  end;
+  S := S+ ')'#13#10;
+  S := S+'values(';
+  C := 0;
+  for I := 0 to MetaFields.Count - 1 do
+  begin
+    f := MetaFields[I];
+    if not F.IsPhysicalField then
+      Continue;    
+    if F.KeyFieldType=cfktId then
+      if Trim(F.DefaultValue) = DEF_VAL_auto_increment then
+        Continue;
+    Inc(C);
+                             
+    if F.IsFK and (F.KeyFieldType<>cfktId) then
+    begin
+      vFdn := 'null';
+      if Pos('[REF_FK_VALUES]', opt)>0 then
+      begin
+        vFdn := '/*_FK:'+Self.RealTableName+'.'+F.Name+'*/null';
+      end;
+    end   
+    else if (F.KeyFieldType=cfktId) and (F.DataType=cfdtInteger) then
+    begin
+      if (Pos('[GEN_PK_BY_SEQ]', opt) > 0) and (dbType='ORACLE') then
+        vFdn := 'seq_'+Self.RealTableName+'.nextval'
+      //else if (Pos('[GEN_PK_BY_SEQ]', opt) > 0) and (dbType='POSTGRESQL') then
+      //  vFdn := 'nextval(seq_'+Self.RealTableName+')'
+      else
+        vFdn := IntToStr(row+1) + '/*_PK:'+RealTableName+'.'+F.Name+'*/';
+    end           
+    else if F.DataType = cfdtBlob then
+      vFdn := 'null'
+    else if (F.KeyFieldType=cfktId) and (F.DataType=cfdtString)
+      and (Trim(F.TestDataType) = '') and (Trim(F.TestDataRules) = '')then
+    begin
+      vFdn := LowerCase(CtGenGUID);
+      vFdn := f.GetSqlQuotValue(vFdn, dbType, dbEngine);
+    end
+    else
+    begin
+      vFdn := f.GenDemoData(row, '[VALUE_ONLY]', nil);
+      if vFdn = '_null' then
+        vFdn := 'null'
+      else
+      begin
+        case f.PossibleKeyFieldType of
+          cfktComment:
+          begin
+            vFdn := vFdn+'[GEN_BY_EZDML]';
+          end;
+          cfktDataLevel:
+          begin
+            if StrToIntDef(vFdn, 0) <> 0 then
+              if Random(20)>4 then
+                vFdn := '0';
+          end;
+        end;
+        vFdn := f.GetSqlQuotValue(vFdn, dbType, dbEngine);
+      end;
+    end;
+
+    if (C > 1) then
+      S := S + ', ';
+    S := S + vFdn;
+  end;
+  S := S+ ');';
+
+  Result := S;
+
+  if Assigned(GProc_OnEzdmlGenDataSqlEvent) then
+  begin
+    Result := GProc_OnEzdmlGenDataSqlEvent(Self, 'TEST_DATA_INSERT_SQL', Result, IntToStr(row), '', dbType, opt);
+  end;
+end;
+
+function TCtMetaTable.GenSelectRandRelateKeySql(fd: TCtMetaField; maxrow: Integer;
+  dbType: string; opt: string; dbEngine: TCtMetaDatabase): string;
+
+  function GetQuotName(AName: string): string;
+  begin
+    Result := GetDbQuotName(AName, dbType);
+  end;
+
+  function GetQuotTbName(AName: string): string;
+  begin
+    Result := GetDbQuotName(AName, dbType);
+    if Trim(OwnerCategory) <> '' then
+      Result := OwnerCategory+'.'+Result
+    else if dbEngine <> nil then
+    begin
+      if dbEngine.EngineType='SQLSERVER' then
+      begin
+        if dbEngine.DbSchema <> '' then
+          Result := dbEngine.DbSchema+'.'+Result
+        else
+          Result := 'dbo.'+Result;
+      end;
+    end
+    else if dbType='SQLSERVER' then
+    begin
+      Result := 'dbo.'+Result;
+    end;
+  end;
+
+var
+  vTbn, vFdn, S: string;
+begin
+  vTbn := fd.RelateTable;
+  vTbn := GetQuotTbName(vTbn);
+  vFdn := GetQuotName(fd.RelateField);
+  if maxRow <= 0 then
+    maxRow := 1;
+
+  if dbType ='ORACLE' then
+  begin
+    S := 'select '+vFdn+' from(select '+vFdn+' from '+vTbn+' where '+vFdn+' is not null order by dbms_random.value) where rownum <= '+IntToStr(maxRow);
+  end else if dbType ='SQLSERVER' then
+  begin
+    S := 'select top '+IntToStr(maxRow)+' '+vFdn+' from '+vTbn+' where '+vFdn+' is not null order by NEWID()';
+  end else if (dbType ='MYSQL') or (dbType ='HIVE') then
+  begin
+    S := 'select '+vFdn+' from '+vTbn+' where '+vFdn+' is not null order by rand() limit '+IntToStr(maxRow);
+  end else if dbType ='POSTGRESQL' then
+  begin
+    S := 'select '+vFdn+' from '+vTbn+' where '+vFdn+' is not null order by random() limit '+IntToStr(maxRow);
+  end else if dbType ='SQLITE' then
+  begin
+    S := 'select '+vFdn+' from '+vTbn+' where '+vFdn+' is not null order by random() limit '+IntToStr(maxRow);
+  end else
+  begin
+    S := 'select '+vFdn+' from '+vTbn+' where '+vFdn+' is not null /*order by random() limit '+IntToStr(maxRow)+'*/';
+  end;
+  Result := S;
+
+  if Assigned(GProc_OnEzdmlGenDataSqlEvent) then
+  begin
+    Result := GProc_OnEzdmlGenDataSqlEvent(Self, 'SELECT_RAND_RELATE_KEY_SQL', Result, fd.Name, IntToStr(maxRow), dbType, opt);
+  end;
+end;
+
+function TCtMetaTable.GenSelectSqlNoDb(maxRowCount: integer; dbType: string
+  ): string;
+begin
+  Result := GenSelectSql(maxRowCount, dbType, nil);
 end;
 
 function TCtMetaTable.GetTableComments: string;
@@ -4203,10 +5312,10 @@ begin
   Result := Memo;
   if Result <> '' then
   begin
-    if (Name <> '') and (Caption <> '') and (Name <> Caption) then
+    if (Name <> '') and (Caption <> '') and (Name <> Caption) and (RealTableName <> Caption) then
       Result := Caption + ' ' + Result;
   end
-  else if (Name <> Caption) and (Caption <> '') then
+  else if (Name <> Caption) and (Caption <> '') and (Caption <> RealTableName)then
     Result := Caption;
 end;
 
@@ -4269,10 +5378,10 @@ var
   fd: TCtMetaField;
 begin
   Result := False;
-  MetaFields.Pack;
-  if MetaFields.Count <> 2 then
+  MetaFields.Pack;   
+  if MetaFields.Count < 2 then
     Exit;
-  for I:=0 to MetaFields.Count - 1 do
+  for I:=0 to 1 do
   begin
     fd := MetaFields.Items[I];
     if not fd.IsPhysicalField then
@@ -4284,6 +5393,13 @@ begin
     if Trim(fd.RelateField)='' then
       Exit;
   end;
+  if Pos('/*[m2m_link]*/', LowerCase(Self.Memo))>0 then
+  begin
+    Result := True;
+    Exit;
+  end;
+  if MetaFields.Count <> 2 then
+    Exit;
   Result := True;
 end;
 
@@ -4425,6 +5541,53 @@ begin
   inherited;
 end;
 
+function TCtMetaTableList.ItemByName(AName: string; bCaseSensive: Boolean
+  ): TCtObject;
+var
+  I: Integer;
+begin
+  Result:=inherited ItemByName(AName, bCaseSensive);
+  if Result = nil then
+  begin
+    if AName='' then
+      Exit;
+    if bCaseSensive then
+    begin
+      for I := 0 to Count - 1 do
+        if Assigned(Items[I]) and (Items[I].PhysicalName = AName) then
+          if Items[I].DataLevel <> ctdlDeleted then
+          begin
+            Result := Items[I];
+            Exit;
+          end;
+    end
+    else
+    begin
+      AName := UpperCase(AName);
+      for I := 0 to Count - 1 do
+        if Assigned(Items[I]) and (UpperCase(Items[I].PhysicalName) = AName) then
+          if Items[I].DataLevel <> ctdlDeleted then
+          begin
+            Result := Items[I];
+            Exit;
+          end;
+    end;
+  end;
+end;
+
+function TCtMetaTableList.TableByName(AName: string; bCaseSensive: Boolean
+  ): TCtMetaTable;
+var
+  o: TCtObject;
+begin
+  Result := nil;
+  o := Self.ItemByName(AName, bCaseSensive);
+  if o = nil then
+    Exit;
+  if o is TCtMetaTable then
+    Result := TCtMetaTable(o);
+end;
+
 function TCtMetaTableList.GetItem(Index: integer): TCtMetaTable;
 begin
   Result := TCtMetaTable(inherited Get(Index));
@@ -4523,6 +5686,37 @@ begin
   ASerialer.EndChildren('');
 end;
 
+procedure TCtMetaTableList.LoadFromDMLText(AText: string);
+var
+  I: Integer;
+  ss: TStringList;
+  S: String;
+  tb: TCtMetaTable;
+begin
+  Clear;
+  ss:=TStringList.Create;
+  try
+    ss.Text :=AText+#13#10#13#10;
+    S:='';
+    for I:=0 to ss.Count - 1 do
+    begin
+      S:=S+ss[I]+#13#10;
+      if Trim(ss[i])='' then
+      begin
+        S:=Trim(S);
+        if S<>'' then
+        begin
+          tb:=Self.NewTableItem();
+          tb.Describe:=S;
+          S:='';
+        end;
+      end;
+    end;
+  finally
+    ss.Free;
+  end;
+end;
+
 procedure TCtMetaTableList.LoadFromSerialer(ASerialer: TCtObjSerialer);
 var
   I, C: integer;
@@ -4582,6 +5776,35 @@ function TCtMetaField.CanDisplay(tp: string): boolean;
       Result := True
     else
       Result := False;
+  end;
+
+  function MaybeIdNames(fdn: string): boolean;
+  var
+    tbn, fn, S, T, V1: String;
+  begin    
+    Result := True;
+    if fdn='' then
+      Exit;
+
+    tbn := '';
+    if Self.OwnerTable <> nil then
+      tbn := LowerCase(Self.OwnerTable.RealTableName);
+    fn := LowerCase(fdn);
+    S:=srIdFieldNames;
+    while S <> '' do
+    begin    
+      T := ReadCornerStr(S, S);
+      if T='' then
+        Break;
+      V1 := LowerCase(T);
+      if fn=V1 then
+        Exit;
+      if fn= tbn+V1 then
+        Exit;
+      if fn= tbn+'_'+V1 then
+        Exit;
+    end;   
+    Result := False;
   end;
 
 var
@@ -4678,8 +5901,6 @@ begin
   kf := PossibleKeyFieldType;
   case kf of
     cfktId,
-    cfktCreatorId,
-    cfktModifierId,
     cfktVersionNo,
     cfktHistoryId,
     cfktLockStamp,
@@ -4691,11 +5912,13 @@ begin
     begin
       Result := False;
       Exit;
-    end;
-    cfktPid,
+    end;    
+    cfktCreatorId,
+    cfktModifierId,
     cfktOrgId,
-    cfktRid:
-      if Self.LabelText = '' then
+    cfktPid,
+    cfktRid: 
+      if (Self.LabelText = '') and MaybeIdNames(Self.DisplayName) then
       begin
         Result := False;
         Exit;
@@ -4919,6 +6142,161 @@ begin
   end;
 end;
 
+function TCtMetaField.GenDemoData(ARowIndex: integer; AOpt: string;
+  ADataSet: TDataSet): string;
+  function IsValidBool(AVal: string): Boolean;
+  const
+    DEF_VALID_BOOL_NAMES:array[0..9]of String = ('false','true','no','yes','0','1','y','n','t','f');
+  var
+    I: Integer;
+  begin        
+    Result := True;
+    if AVal='' then
+      Exit;
+    AVal := LowerCase(AVal);
+    for I:=0 to High(DEF_VALID_BOOL_NAMES) do
+      if AVal=DEF_VALID_BOOL_NAMES[I] then
+        Exit;
+    if AVal = LowerCase(srBoolName_False) then
+      Exit;       
+    if AVal = LowerCase(srBoolName_True) then
+      Exit;
+
+    Result := False;
+  end;
+
+  function CheckDropDownVal(aval: string; bInt: Boolean): string;
+  var
+    I: Integer;
+    dds, S: string;
+    iFound: Integer;
+  begin    
+    Result := AVal;
+    if bInt then
+      if TryStrToInt(Result, I) then
+        Exit;
+
+    dds := Self.DropDownItems;
+    if dds <> '' then
+      if Trim(dds)='' then
+        dds := '';
+    if dds = '' then
+      dds := ExtractDropDownItemsFromMemo;
+    if Trim(dds) = '' then
+    begin
+      if bInt then
+        Result := '-1';
+      Exit;
+    end;
+
+    iFound := -1;
+    S := GetCtDropDownValueOfTextEx(Result, dds, iFound);
+    if iFound >= 0 then
+    begin
+      if bInt then
+        Result := IntToStr(iFound)
+      else
+        Result := S;
+    end
+    else
+      if bInt then
+        Result := '-1';
+  end;
+var
+  dt: TDateTime;
+  I, J: Integer;
+  F: Double;
+  V: string;
+begin
+  Result := GenDemoDataEx(ARowIndex, AOpt, ADataSet);
+
+  if Pos('[VALUE_ONLY]', AOpt) = 0 then
+    Exit;
+  if Result = '' then
+    Exit;     
+  if LowerCase(Result) = '_null' then
+    Exit;
+  if LowerCase(Result) = 'null' then
+    Exit;
+
+  J := ARowIndex;
+  if J < 0 then
+    J := Random(100);
+
+  case DataType of
+    cfdtDate:
+    begin
+      dt:=CtStringToDateTime(Result);
+      if dt>0.00000000001 then
+      begin
+      end
+      else
+        dt := Trunc(Now) - 20 + J + Self.ID + Cos(J + Trunc(Time * 100));
+      if Abs(Trunc(dt)-dt) < 0.000000000001 then
+        Result := FormatDateTime('yyyy-mm-dd', dt)
+      else
+        Result := FormatDateTime('yyyy-mm-dd hh:nn:ss', dt);
+    end;
+    cfdtInteger:
+    begin      
+      Result := CheckDropDownVal(Result, True);
+      if not TryStrToInt(Result, I) then
+      begin     
+        if KeyFieldType <> cfktId then
+          J := Round(Abs(Sin(ARowIndex + Self.ID + Trunc(Time * 123)) * 11779));
+        Result := IntToStr(CheckMaxMinDemoInt(J + 1));
+      end;
+    end;
+    cfdtEnum:
+    begin
+      Result := CheckDropDownVal(Result, True);
+      if (Result = '-1') or not TryStrToInt(Result, I) then
+      begin           
+        J := Round(Abs(Sin(ARowIndex + Self.ID + Trunc(Time * 123)) * 11779));
+        Result := IntToStr(J mod 5);
+      end;
+    end;
+    cfdtFloat:
+    begin
+      if not TryStrToFloat(Result, F) then
+      begin
+        Result := FormatFloat('#0.##', CheckMaxMinDemoFloat(Abs(Sin(J + ID + Trunc(Time * 120)) * 100)));
+      end;
+    end;
+    cfdtBool:
+    begin        
+      Result := CheckDropDownVal(Result, True);
+      if not IsValidBool(Trim(Result)) then
+      begin
+        if ((J + ID + Trunc(Time * 130)) mod 3) = 0 then
+          Result := '0'
+        else
+          Result := '1';
+      end
+      else
+      begin
+        if not CtStringToBool(Trim(Result)) then
+          Result := '0'
+        else
+          Result := '1';
+      end;
+    end;
+    cfdtString:
+    begin
+      if Self.DropDownMode in[cfddFixed, cfddAutoCompleteFixed] then
+      begin     
+        V := CheckDropDownVal(Result, True);
+        if StrToIntDef(V, -1) >= 0 then    
+          Result := CheckDropDownVal(Result, False)
+        else
+          Result := '';
+      end
+      else
+        Result := CheckDropDownVal(Result, False);
+    end;
+  end;
+end;
+
 constructor TCtMetaField.Create;
 begin
   inherited;
@@ -4977,6 +6355,7 @@ begin
   FMaxLength := 0;
   FSearchable := False;
   FQueryable := False;
+  FExportable := False;
   FInitValue := '';
   FValueMin := '';
   FValueMax := '';
@@ -5004,6 +6383,15 @@ begin
   FTestDataRules := '';
   FUILogic := '';
   FBusinessLogic := '';
+                   
+  FDesensitised        := False;
+  FDesignNotes          := '';
+  FIsFactMeasure       := False;
+  FTestDataNullPercent := 0;
+                        
+  FFieldWeight := 0;
+
+  FOldName := '';
 end;
 
 procedure TCtMetaField.AssignFrom(ACtObj: TCtObject);
@@ -5054,7 +6442,8 @@ begin
     FColWidth := TCtMetaField(ACtObj).FColWidth;
     FMaxLength := TCtMetaField(ACtObj).FMaxLength;
     FSearchable := TCtMetaField(ACtObj).FSearchable;
-    FQueryable := TCtMetaField(ACtObj).FQueryable;
+    FQueryable := TCtMetaField(ACtObj).FQueryable;        
+    FExportable := TCtMetaField(ACtObj).FExportable;
     FInitValue := TCtMetaField(ACtObj).FInitValue;
     FValueMin := TCtMetaField(ACtObj).FValueMin;
     FValueMax := TCtMetaField(ACtObj).FValueMax;
@@ -5083,6 +6472,13 @@ begin
     FUILogic := TCtMetaField(ACtObj).FUILogic;
     FBusinessLogic := TCtMetaField(ACtObj).FBusinessLogic;
 
+    FDesensitised := TCtMetaField(ACtObj).FDesensitised;
+    FDesignNotes := TCtMetaField(ACtObj).FDesignNotes;
+    FIsFactMeasure := TCtMetaField(ACtObj).FIsFactMeasure;
+    FTestDataNullPercent := TCtMetaField(ACtObj).FTestDataNullPercent;
+                                             
+    FFieldWeight := TCtMetaField(ACtObj).FFieldWeight;
+    FOldName := TCtMetaField(ACtObj).FOldName;
   end;
 end;
 
@@ -5188,6 +6584,21 @@ begin
       ASerialer.ReadString('BusinessLogic', FBusinessLogic);
     end;
 
+    if ASerialer.CurCtVer >= 32 then
+      ASerialer.ReadBool('Exportable', FExportable);
+
+
+    if ASerialer.CurCtVer >= 34 then
+    begin
+      ASerialer.ReadBool('Desensitised', FDesensitised);
+      ASerialer.ReadStrings('DesignNotes', FDesignNotes);
+      ASerialer.ReadBool('IsFactMeasure', FIsFactMeasure);
+      ASerialer.ReadInteger('TestDataNullPercent', FTestDataNullPercent);
+    end;
+
+    if ASerialer.CurCtVer >= 35 then 
+      ASerialer.ReadInteger('FieldWeight', FFieldWeight);
+
     EndSerial(ASerialer, True);
   finally
   end;
@@ -5273,7 +6684,16 @@ begin
     ASerialer.WriteString('TestDataRules', FTestDataRules);
     ASerialer.WriteString('UILogic', FUILogic);
     ASerialer.WriteString('BusinessLogic', FBusinessLogic);
+                   
+    ASerialer.WriteBool('Exportable', FExportable);
 
+
+    ASerialer.WriteBool('Desensitised', FDesensitised);
+    ASerialer.WriteStrings('DesignNotes', FDesignNotes);
+    ASerialer.WriteBool('IsFactMeasure', FIsFactMeasure);
+    ASerialer.WriteInteger('TestDataNullPercent', FTestDataNullPercent);
+                                      
+    ASerialer.WriteInteger('FieldWeight', FFieldWeight);
 
     EndSerial(ASerialer, False);
   finally
@@ -5458,7 +6878,10 @@ begin
   begin
     if S = '(NONE)' then
       S := '';
-    Self.DataTypeName := DeccStr(Trim(S));
+    S := DeccStr(Trim(S));
+    while Pos('> >', S)>0 do
+      S := StringReplace(S, '> >', '>>', [rfReplaceAll]);
+    Self.DataTypeName := S;
   end;
 end;
 
@@ -5468,6 +6891,8 @@ var
   po: integer;
 begin
   Result := '';
+  if (dbType='HIVE') and (G_HiveVersion < 3) then
+    Exit;
   if not Nullable then
     Result := ' not null'
   else if Self.DataTypeName <> '' then
@@ -5505,6 +6930,34 @@ begin
     FCustomConfigs := Proc_JsonPropProc(FCustomConfigs, AName, AValue, False);
 end;
 
+function TCtMetaField.CheckCanRenameTo(ANewName: string): Boolean;
+var
+  I: Integer;
+  fd: TCtMetaField;
+  S: String;
+begin
+  Result:=True;
+  if Self.OwnerList = nil then
+    Exit;
+  if ANewName = Self.Name then
+    Exit;
+  for I:=0 to OwnerList.Count - 1 do
+  begin
+    fd := OwnerList.Items[I];
+    if fd=Self then
+      Continue;
+    if fd.DataLevel=ctdlDeleted then
+      Continue;
+    if UpperCase(fd.Name) <> UpperCase(ANewName) then   
+      Continue;   
+    S := Format(srRenameToExistsFeildError, [ANewName]);
+    Application.MessageBox(PChar(S), PChar(Application.Title),
+      MB_OK or MB_ICONERROR);
+    Result := False;
+    Exit;
+  end;
+end;
+
 function TCtMetaField.HasValidComplexIndex: boolean;
 begin
   Result := False;
@@ -5520,6 +6973,51 @@ begin
   if (Pos(',', IndexFields) = 0) and (Pos('(', IndexFields) = 0) then
     Exit;
 
+  Result := True;
+end;
+
+function TCtMetaField.IsLobField(dbType: string): boolean;
+var
+  S: String;
+begin
+  Result := False;    
+  if DataType = cfdtBlob then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  S := GetCtFieldPhyTypeName(dbType, DataType, DataLength);
+  if DataTypeName <> '' then
+    S := GetCtCustFieldPhyTypeName(dbType, DataTypeName, DataLength);  
+  if Pos('TEXT', UpperCase(S)) > 0 then
+    Result := True
+  else if Pos('CLOB', UpperCase(S)) > 0 then
+    Result := True
+  else if Pos('BLOB', UpperCase(S)) > 0 then
+    Result := True;
+  if Result then
+    Exit;
+
+  if DataType <> cfdtString then
+    Exit;
+  if DataLength = 0 then
+    Exit;
+  if CheckStringMaxLen(dbType, Self.DataTypeName, S, DataLength) then
+    Result := True;
+end;
+
+function TCtMetaField.IsFK: boolean;
+begin
+  Result := False;
+  if not IsPhysicalField then
+    Exit;
+  if (Self.KeyFieldType <> cfktId) and (Self.KeyFieldType <> cfktRid) then
+    Exit;
+  if Trim(Self.RelateTable)='' then
+    Exit;
+  if Trim(Self.RelateField)='' then
+    Exit;
   Result := True;
 end;
 
@@ -5544,9 +7042,9 @@ begin
   end;
 
   case DataType of
-    cfdtUnknow, cfdtCalculate, cfdtList, cfdtFunction, cfdtEvent, cfdtOther:
+    cfdtUnknow, cfdtCalculate, cfdtFunction, cfdtEvent, cfdtOther:
       Result := False;
-    cfdtObject:
+    cfdtObject, cfdtList:
       if Trim(Self.DataTypeName) = '' then
         Result := False;
   end;
@@ -5630,13 +7128,13 @@ begin
     begin //sqlite主键直接定义
       if Self.KeyFieldType = cfktID then
       begin
-        Result := Result + ' primary key';
-        if (RelateTable <> '') and (RelateField <> '') then
+        //Result := Result + ' primary key'; //removed by huz 20230617: 转为独立声明  CONSTRAINT xxx PRIMARY KEY(xxx)
+        if (RelateTable <> '') and (RelateField <> '') and (Pos('{Link:', RelateField)=0) then
           Result := Result + ' references ' + RelateTable + '(' + RelateField + ')';
       end
       else if Self.KeyFieldType = cfktRID then
       begin
-        if (RelateTable <> '') and (RelateField <> '') then
+        if (RelateTable <> '') and (RelateField <> '') and (Pos('{Link:', RelateField)=0) then
           Result := Result + ' references ' + RelateTable + '(' + RelateField + ')';
       end;
     end
@@ -5729,6 +7227,9 @@ begin
         Result := GetCtCustFieldPhyTypeName(dbType, DataTypeName, DataLength);
       if DataLength > 0 then
       begin
+        if dbType='HIVE' then
+          if LowerCase(Result)='double' then
+            Result := 'decimal';
         if DataScale > 0 then
           Result := Result + Format('(%d,%d)', [DataLength, DataScale])
         else
@@ -5792,6 +7293,19 @@ begin
             Result := 'int';
           Result := UpperCase(Result);
           dl := 0;
+        end
+        else if (dbType = 'HIVE') then
+        begin
+          if dl > 11 then
+            Result := 'bigint'
+          else if dl <= 4 then
+            Result := 'tinyint'
+          else if dl <= 6 then
+            Result := 'smallint'
+          else
+            Result := 'int';
+          Result := UpperCase(Result);
+          dl := 0;
         end;
       end;
       if DataTypeName <> '' then
@@ -5801,9 +7315,31 @@ begin
         //if (dbType <> 'SQLSERVER') and (dbType <> 'MYSQL') then
         Result := Result + Format('(%d)', [dl]);
       end
-      else if dbType = 'ORACLE' then
-        if UpperCase(Result) = 'NUMBER' then
-          Result := Result + '(10)';
+      else
+      begin
+        if dbType = 'ORACLE' then
+        begin
+          if UpperCase(Result) = 'NUMBER' then
+          begin
+            if (KeyFieldType in [cfktId, cfktRid]) and G_BigIntForIntKeys then
+              Result := Result + '(19)'
+            else
+              Result := Result + '(10)';
+          end;
+        end
+        else if (KeyFieldType in [cfktId, cfktRid]) and G_BigIntForIntKeys then
+          if (UpperCase(Result) = 'INT') or (UpperCase(Result) = 'INTEGER') then
+          begin
+            if (dbType = 'MYSQL') or (dbType = 'SQLSERVER') then
+            begin
+              Result := 'BIGINT';
+            end
+            else if (dbType = 'POSTGRESQL') or (dbType = 'HIVE') then
+            begin
+              Result := 'bigint';
+            end;
+          end;
+      end;
     end;
     cfdtEnum:
     begin
@@ -5823,7 +7359,8 @@ begin
       Result := GetCtFieldPhyTypeName(dbType, DataType, DataLength);
       if dbType = 'MYSQL' then //MYSQL的日期，只有TIMESTAMP支持缺省值
         if Self.DefaultValue <> '' then
-          Result := 'TIMESTAMP';
+          if G_MysqlVersion <= 5 then
+            Result := 'TIMESTAMP';
       if DataTypeName <> '' then
       begin
         Result := GetCtCustFieldPhyTypeName(dbType, DataTypeName, DataLength);
@@ -5847,14 +7384,33 @@ begin
       Result := GetCtFieldPhyTypeName(dbType, DataType, DataLength);
       if DataTypeName <> '' then
         Result := GetCtCustFieldPhyTypeName(dbType, DataTypeName, DataLength);
-      if not CheckStringMaxLen(dbType, Result, DataLength) then
+      if not CheckStringMaxLen(dbType, Self.DataTypeName, Result, DataLength) then
       begin
-        if DataLength > 0 then
-          Result := Result + '(' + IntToStr(DataLength) + ')'
-        else if Pos('(', Result) = 0 then
+        if DbType = 'HIVE' then
         begin
-          if DbType <> 'SQLITE' then
-            Result := Result + '(4000)';
+          if DataLength > 0 then
+          begin
+            if LowerCase(Result)='string' then
+              Result := 'varchar';
+            Result := Result + '(' + IntToStr(DataLength) + ')';
+          end
+          else
+          begin
+            if LowerCase(Result)='varchar' then
+              Result := 'string'
+            else if LowerCase(Result)<>'string' then
+              Result := Result + '(4000)';
+          end;
+        end
+        else
+        begin
+          if DataLength > 0 then
+            Result := Result + '(' + IntToStr(DataLength) + ')'
+          else if Pos('(', Result) = 0 then
+          begin
+            if DbType <> 'SQLITE' then
+              Result := Result + '(4000)';
+          end;
         end;
       end;
     end;
@@ -5923,82 +7479,8 @@ begin
   Result := FNullable and (KeyFieldType <> cfktId);
 end;
 
-function TCtMetaField.GenDemoData(ARowIndex: integer; AOpt: string;
+function TCtMetaField.GenDemoDataEx(ARowIndex: integer; AOpt: string;
   ADataSet: TDataSet): string;
-
-  function CheckMaxMinI(val: integer): integer;
-  var
-    v1, v2, dv: integer;
-  begin
-    v1 := 0;
-    if Self.ValueMin <> '' then
-    begin
-      v1 := StrToIntDef(ValueMin, 0);
-      if v1 > 0 then
-        if val < v1 then
-          val := v1 + val;
-    end;
-    if Self.ValueMax <> '' then
-    begin
-      v2 := StrToIntDef(ValueMax, 0);
-      if v2 > 0 then
-        if val > v2 then
-        begin
-          if (v1 <= 0) or (v1 > v2) then
-            val := v2 - Abs(val)
-          else
-          begin
-            dv := v2 - v1;
-            if dv <= 0 then
-              val := v1
-            else
-            begin
-              val := val mod dv + v1;
-            end;
-          end;
-        end;
-    end;
-    Result := val;
-  end;
-
-  function CheckMaxMinF(val: double): double;
-  var
-    v1, v2, dv: double;
-  begin
-    v1 := 0;
-    if Self.ValueMin <> '' then
-    begin
-      v1 := StrToFloatDef(ValueMin, 0);
-      if v1 > 0 then
-        if val < v1 then
-          val := v1 + val;
-    end;
-    if Self.ValueMax <> '' then
-    begin
-      v2 := StrToFloatDef(ValueMax, 0);
-      if v2 > 0 then
-        if val > v2 then
-        begin
-          if (v1 < 0.00000001) or (v1 > v2) then
-            val := v2 - Abs(val)
-          else
-          begin
-            dv := v2 - v1;
-            if dv < 0.00000001 then
-              val := v1
-            else
-            begin
-              dv := dv * 10000;
-              val := val * 10000;
-              val := Round(val) mod Round(dv);
-              val := val / 10000.0 + v1;
-            end;
-          end;
-        end;
-    end;
-    Result := val;
-  end;
-
 var
   S: string;
   J: integer;
@@ -6099,8 +7581,6 @@ begin
   J := ARowIndex;
   if J < 0 then
     J := Random(100);
-  if DataType = cfdtEnum then
-    J := J mod 10;
   S := S + IntToStr(J + 1);
 
   {if DefaultValue <> '' then
@@ -6111,10 +7591,17 @@ begin
       Self.ID + Cos(J + Trunc(Time * 100)))
   else if DataType = cfdtInteger then
   begin
-    S := IntToStr(CheckMaxMinI(J + 1));
+    if KeyFieldType <> cfktId then
+      J := Round(Abs(Sin(ARowIndex + Self.ID + Trunc(Time * 123)) * 11779));
+    S := IntToStr(CheckMaxMinDemoInt(J + 1));
+  end                                
+  else if DataType = cfdtEnum then
+  begin
+    J := Round(Abs(Sin(ARowIndex + Self.ID + Trunc(Time * 123)) * 11779));
+    S := IntToStr(J mod 5);
   end
   else if DataType = cfdtFloat then
-    S := FormatFloat('#0.##', CheckMaxMinF(Abs(Sin(J + ID + Trunc(Time * 120)) * 100)))
+    S := FormatFloat('#0.##', CheckMaxMinDemoFloat(Abs(Sin(J + ID + Trunc(Time * 120)) * 100)))
   else if DataType = cfdtBool then
   begin
     if ((J + ID + Trunc(Time * 130)) mod 3) = 0 then
@@ -6130,6 +7617,30 @@ begin
   if Result='_null' then
     if bChkNulls then
        Result := '';
+end;
+
+function TCtMetaField.GetSqlQuotValue(AVal, ADbType: string;
+  ADbEngine: TCtMetaDatabase): string;
+begin
+  Result := AVal;
+  if ADbEngine <> nil then
+    if ADbEngine.EngineType <> '' then
+      ADbType := ADbEngine.EngineType;
+
+  case Self.DataType of
+    cfdtDate:
+    begin
+      Result := DBSqlStringToDateTime(Result, ADbType);
+    end;
+    cfdtInteger,
+    cfdtFloat,
+    cfdtBool,
+    cfdtEnum:
+    begin
+    end;
+  else
+    Result := GetDbQuotString(Result, ADbType);
+  end;
 end;
 
 function TCtMetaField.GetDemoItemList(bTextOnly: boolean): string;
@@ -6244,12 +7755,83 @@ begin
   end;
 end;
 
+function TCtMetaField.CheckMaxMinDemoInt(val: integer): integer;
+var
+  v1, v2, dv: integer;
+begin
+  v1 := 0;
+  if Self.ValueMin <> '' then
+  begin
+    v1 := StrToIntDef(ValueMin, 0);
+    if v1 > 0 then
+      if val < v1 then
+        val := v1 + val;
+  end;
+  if Self.ValueMax <> '' then
+  begin
+    v2 := StrToIntDef(ValueMax, 0);
+    if v2 > 0 then
+      if val > v2 then
+      begin
+        if (v1 <= 0) or (v1 > v2) then
+          val := v2 - Abs(val)
+        else
+        begin
+          dv := v2 - v1;
+          if dv <= 0 then
+            val := v1
+          else
+          begin
+            val := val mod dv + v1;
+          end;
+        end;
+      end;
+  end;
+  Result := val;
+end;
+
+function TCtMetaField.CheckMaxMinDemoFloat(val: double): double;
+var
+  v1, v2, dv: double;
+begin
+  v1 := 0;
+  if Self.ValueMin <> '' then
+  begin
+    v1 := StrToFloatDef(ValueMin, 0);
+    if v1 > 0 then
+      if val < v1 then
+        val := v1 + val;
+  end;
+  if Self.ValueMax <> '' then
+  begin
+    v2 := StrToFloatDef(ValueMax, 0);
+    if v2 > 0 then
+      if val > v2 then
+      begin
+        if (v1 < 0.00000001) or (v1 > v2) then
+          val := v2 - Abs(val)
+        else
+        begin
+          dv := v2 - v1;
+          if dv < 0.00000001 then
+            val := v1
+          else
+          begin
+            dv := dv * 10000;
+            val := val * 10000;
+            val := Round(val) mod Round(dv);
+            val := val / 10000.0 + v1;
+          end;
+        end;
+      end;
+  end;
+  Result := val;
+end;
+
 function TCtMetaField.GetRelateTableObj: TCtMetaTable;
 begin
   Result := nil;
   if Trim(Self.RelateTable) = '' then
-    Exit;      
-  if (Trim(Self.RelateField) <> '') and (Pos('{Link:', Trim(Self.RelateField)) = 1) then
     Exit;
   if FGlobeDataModelList = nil then
     Exit;
@@ -6266,6 +7848,8 @@ begin
   Result := nil;
   if Trim(Self.RelateField) = '' then
     Exit;
+  if Pos('{Link:', Trim(Self.RelateField)) = 1 then
+    Exit;
   tb := GetRelateTableObj;
   if tb = nil then
     Exit;
@@ -6274,7 +7858,6 @@ end;
 
 function TCtMetaField.GetRelateTableTitleField: TCtMetaField;
 var
-  I: integer;
   tb: TCtMetaTable;
   S: string;
 begin
@@ -6299,6 +7882,74 @@ begin
   Result := tb.GetDemoJsonData(ARowIndex, AOpt, Self.RelateField);
 end;
 
+function TCtMetaField.HasUIDesignProps: Boolean;
+begin
+  Result := True;
+
+
+  if FHint <> '' then Exit;
+  if FUrl <> '' then Exit;
+  if FResType <> '' then Exit;
+  if FFormula <> '' then Exit;
+  if FFormulaCondition <> '' then Exit;
+  if FAggregateFun <> '' then Exit;
+  if FMeasureUnit <> '' then Exit;
+  if FValidateRule <> '' then Exit;
+  if FEditorType <> '' then Exit;
+  if FLabelText <> '' then Exit;
+  if FExplainText <> '' then Exit;
+  if FEditorReadOnly then Exit;
+  if not FEditorEnabled then Exit;
+  if FIsHidden then Exit;
+  if FDisplayFormat <> '' then Exit;
+  if FEditFormat <> '' then Exit;
+  if FFontName <> '' then Exit;
+  if FFontSize <> 0 then Exit;
+  if FFontStyle <> 0 then Exit;
+  if FForeColor <> 0 then Exit;
+  if FBackColor <> 0 then Exit;
+  if FDropDownItems <> '' then Exit;
+  if FDropDownMode <> cfddNone then Exit;
+
+  if FVisibility <> 0 then Exit;
+  if FTextAlign <> cftaAuto then Exit;
+  if FColWidth <> 0 then Exit;
+  if FMaxLength <> 0 then Exit;
+  if FSearchable then Exit;
+  if FQueryable then Exit;
+  if FExportable then Exit;
+  if FInitValue <> '' then Exit;
+  if FValueMin <> '' then Exit;
+  if FValueMax <> '' then Exit;
+  if FValueFormat <> '' then Exit;
+  if FExtraProps <> '' then Exit;
+  if FCustomConfigs <> '' then Exit;
+
+  if FExplainText <> '' then Exit;
+  if FTextClipSize <> 0 then Exit;
+  if FDropDownSQL <> '' then Exit;
+  if FItemColCount <> 0 then Exit;
+  if FFixColType <> cffcNone then Exit;
+  if FHideOnList then Exit;
+  if FHideOnEdit then Exit;
+  if FHideOnView then Exit;
+  if FAutoMerge then Exit;
+  if FAutoTrim then Exit;
+  if FRequired then Exit;
+  if FColGroup <> '' then Exit;
+  if FSheetGroup <> '' then Exit;
+  if FColSortable then Exit;
+  if FShowFilterBox then Exit;
+  if FEditorProps <> '' then Exit;
+  if FTestDataType <> '' then Exit;
+  if FTestDataRules <> '' then Exit;
+  if FUILogic <> '' then Exit;
+  if FBusinessLogic <> '' then Exit;
+
+
+  Result := False;
+end;
+
 function TCtMetaField.GetConstraintStr: string;
 begin
   Result := GetConstraintStrEx(True, False);
@@ -6319,6 +7970,18 @@ function TCtMetaField.GetConstraintStrEx(bWithKeys, bWithRelate: boolean): strin
     Result := cs;
     if Pos(',', Result) > 0 then
       result := StringReplace(Result, ',', '&', [rfReplaceAll]);
+  end;
+
+  function CheckLRQ(s: string): string;
+  begin
+    Result := S;
+    if Pos('>', Result)=0 then
+      Exit;
+    while Pos('>>', Result)>0 do
+      Result := StringReplace(Result, '>>', '> >', [rfReplaceAll]);
+    if Result<>'' then
+      if Result[Length(Result)]='>' then
+        Result := Result+' ';
   end;
 
 var
@@ -6348,7 +8011,7 @@ begin
       if bWithRelate and (IndexFields <> '') then
       begin
         S := S + ':' + EnccStr(Self.IndexFields);
-        Result := S;
+        Result := CheckLRQ(S);
         Exit;
       end;
   end
@@ -6361,7 +8024,7 @@ begin
       if bWithRelate and (IndexFields <> '') then
       begin
         S := S + ':' + EnccStr(Self.IndexFields);
-        Result := S;
+        Result := CheckLRQ(S);
         Exit;
       end;
   end;
@@ -6396,7 +8059,7 @@ begin
         S := S + '.' + EnccStr(RelateField);
     end;
 
-  Result := S;
+  Result := CheckLRQ(S);
 end;
 
 function TCtMetaField.GetFieldComments: string;
@@ -6649,12 +8312,38 @@ begin
   if FCaption <> '' then
     Result := FCaption
   else
-    Result := FName;
+    Result := Name;
 end;
 
 function TCtDataModelGraph.IsHuge: boolean;
 begin
   Result := Self.Tables.Count >= G_HugeModeTableCount;
+end;
+
+function TCtDataModelGraph.CheckCanRenameTo(ANewName: string): Boolean;
+var
+  I: Integer;
+  md: TCtDataModelGraph;
+  S: String;
+begin
+  Result:=True;
+  if Self.OwnerList = nil then
+    Exit;
+  for I:=0 to OwnerList.Count - 1 do
+  begin
+    md := OwnerList.Items[I];
+    if md=Self then
+      Continue;
+    if md.DataLevel=ctdlDeleted then
+      Continue;
+    if UpperCase(md.Name) <> UpperCase(ANewName) then
+      Continue;
+    S := Format(srRenameToExistsError, [ANewName]);
+    Application.MessageBox(PChar(S), PChar(Application.Title),
+      MB_OK or MB_ICONERROR);
+    Result := False;
+    Exit;
+  end;
 end;
 
 procedure TCtDataModelGraph.Reset;
@@ -7162,8 +8851,9 @@ end;
 
 procedure TCtDataModelGraphList.SyncTableProps(ATb: TCtMetaTable);
 var
-  I, J: integer;
+  I, J, K, H: integer;
   tb: TCtMetaTable;
+  fa, fb: TCtMetaField;
   tbs: TCtMetaTableList;
   tn: string;
 begin
@@ -7173,6 +8863,7 @@ begin
   try
     if ATb = nil then
       Exit;
+    //将表属性同步到所有同名表
     tn := ATb.Name;
     for I := 0 to Count - 1 do
     begin
@@ -7186,6 +8877,34 @@ begin
             tb.SyncPropFrom(ATb);
           end;
       end;
+    end;
+    //如果有修改字段名，则同时更新引用字段名
+    for H:=0 to ATb.MetaFields.Count - 1 do
+    begin
+      fa := ATb.MetaFields[H];
+      if fa.DataLevel = ctdlDeleted then
+        Continue;
+      if fa.OldName='' then
+        Continue;   
+      for I := 0 to Count - 1 do
+      begin
+        tbs := Items[I].Tables;
+        for J := 0 to tbs.Count - 1 do
+        begin
+          tb := tbs.Items[J];
+          if (tb <> ATb) and (tb.DataLevel <> ctdlDeleted) then
+            for K:=0 to tb.MetaFields.Count - 1 do
+            begin
+              fb := tb.MetaFields[K];
+              if UpperCase(fb.RelateTable)=UpperCase(tn) then
+              begin
+                if UpperCase(fb.RelateField)=UpperCase(fa.OldName) then
+                  fb.RelateField:= fa.Name;
+              end;
+            end;
+        end;
+      end;
+      fa.OldName:='';
     end;
   finally
     FSyncingTbProp := False;
@@ -7234,6 +8953,9 @@ end;
 
 function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer): string;
 
+  var
+    VModelTb: TCtMetaTable;
+
   function GetFieldBK(dmlTl: TCtMetaTable; fldName: string): string;
   var
     I: integer;
@@ -7260,6 +8982,20 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
   function GetQuotName(AName: string): string;
   begin
     Result := GetDbQuotName(AName, EngineType);
+  end;
+
+  function GetQuotTbName(AName: string): string;
+  begin
+    Result := GetDbQuotName(AName, EngineType);
+    if Assigned(VModelTb) and (Trim(VModelTb.OwnerCategory) <> '') then
+      Result := VModelTb.OwnerCategory+'.'+Result
+    else if EngineType='SQLSERVER' then
+    begin
+      if Self.FDbSchema <> '' then
+        Result := FDbSchema+'.'+Result
+      else
+        Result := 'dbo.'+Result;
+    end;
   end;
 
   function GetIndexPrefixInfo(AField: TCtMetaField): string;
@@ -7302,11 +9038,11 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
   function GetAlterTableColActStrEx(cmd: string; tab: TCtMetaTable;
     ctF, dbF: TCtMetaField): string;
   var
-    tableName, nulls: string;
+    tableName, nulls, T, S: string;
   begin
     Result := '';
     //TOnEzdmlGenAlterFieldEvent = function (action: String; tb: TCtMetaTable; designField, dbField: TCtMetaField; defRes, dbType, options: String): string;
-    tableName := GetQuotName(tab.Name);
+    tableName := GetQuotTbName(tab.RealTableName);
     nulls := ctF.GetNullableStr(EngineType);
     if EngineType = 'ORACLE' then
     begin
@@ -7405,7 +9141,7 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
           if Trim(ctF.DefaultValue) <> DEF_VAL_auto_increment then
             Result := Result + #13#10'alter  table ' + tableName +
               ' add constraint DF_' +
-              GetIdxName(tab.Name, ctF.Name) + ' ' +
+              GetIdxName(tab.RealTableName, ctF.Name) + ' ' +
               ctF.GetFieldDefaultValDesc(EngineType) + ' for ' +
               GetQuotName(ctF.Name) + ';';
         end;
@@ -7424,7 +9160,7 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
           if Trim(ctF.DefaultValue) <> DEF_VAL_auto_increment then
             Result := Result + #13#10'alter  table ' + tableName +
               ' add constraint DF_' +
-              GetIdxName(tab.Name, ctF.Name) + ' ' +
+              GetIdxName(tab.RealTableName, ctF.Name) + ' ' +
               ctF.GetFieldDefaultValDesc(EngineType) + ' for ' +
               GetQuotName(ctF.Name) + ';';
         end;
@@ -7525,6 +9261,51 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
       Exit;
     end;
 
+
+    if EngineType = 'HIVE' then
+    begin
+      if cmd = 'alter' then
+      begin                        
+        S := ctF.GetFieldTypeDesc(True, EngineType);
+        if ctF.DefaultValue <> '' then
+        begin
+          if (G_HiveVersion >= 3) then //hive2不支持缺省值
+            S := S + ctF.GetFieldDefaultValDesc(EngineType);
+        end;
+        nulls := ctF.GetNullableStr(EngineType);
+        S := S + nulls;
+        T := ctF.GetFieldComments;
+        if T <> '' then
+          S := S + ' comment ''' + ReplaceSingleQuotmark(T) + '''';
+
+        Result := 'alter  table ' + tableName + ' change ' + GetQuotName(ctF.Name)+ ' '
+            + GetQuotName(ctF.Name)+ ' ' + S + ';';
+      end
+      else if cmd = 'add' then
+      begin
+        S := ctF.GetFieldTypeDesc(True, EngineType);
+        if ctF.DefaultValue <> '' then
+        begin
+          if (G_HiveVersion >= 3) then //hive2不支持缺省值
+            S := S + ctF.GetFieldDefaultValDesc(EngineType);
+        end;
+        nulls := ctF.GetNullableStr(EngineType);
+        S := S + nulls;
+        T := ctF.GetFieldComments;
+        if T <> '' then
+          S := S + ' comment ''' + ReplaceSingleQuotmark(T) + '''';
+
+        Result := 'alter  table ' + tableName + ' add columns(' + GetQuotName(ctF.Name)
+          + ' ' + S+');';
+      end
+      else if cmd = 'drop' then
+      begin
+        Result := '-- alter  table ' + tableName + ' drop column ' +
+          GetQuotName(dbF.Name) + ';';
+      end;
+      Exit;
+    end;
+
     //if EngineType='STD' then
     begin
       if cmd = 'alter' then
@@ -7589,7 +9370,43 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
     else
       Result := False;
   end;
+    
+  function GenIndexSql(idxName, tbName: string; fd: TCtMetaField; bUniq: Boolean): string;
+  begin
+    if bUniq then
+    begin
+      if EngineType='HIVE' then //hive不支持唯一索引，只有普通索引
+      begin
+        Result := 'create index ' + GetQuotName('IDU_' + idxName) +
+          ' on table ' + GetQuotTbName(tbName) +
+          '(' + GetQuotName(fd.Name) + GetIndexPrefixInfo(fd) + ')'#13#10 +
+          ' as ''org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'' with deferred rebuild;';
+      end
+      else
+      begin
+        Result := 'create unique index ' + GetQuotName('IDU_' + idxName) +
+          ' on ' + GetQuotTbName(tbName) +
+          '(' + GetQuotName(fd.Name) + GetIndexPrefixInfo(fd) + ');';
+      end;
+    end
+    else
+    begin
+      if EngineType='HIVE' then //hive普通索引
+      begin
+        Result := 'create index ' + GetQuotName('IDX_' + idxName) +
+          ' on table ' + GetQuotTbName(tbName) +
+          '(' + GetQuotName(fd.Name) + GetIndexPrefixInfo(fd) + ')'#13#10 +
+          ' as ''org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'' with deferred rebuild;';
+      end
+      else
+      begin
+        Result := 'create index ' + GetQuotName('IDX_' + idxName) +
+          ' on ' + GetQuotTbName(tbName) + '(' +
+          GetQuotName(fd.Name) + GetIndexPrefixInfo(fd) + ');';
+      end;
+    end;
 
+  end;
 var
   J, K, L: integer;
   strtmp: string; //临时变量
@@ -7605,6 +9422,7 @@ begin
   Result := '';
   if not (obj is TCtMetaTable) then
     Exit;
+  VModelTb := nil;
   if TCtMetaTable(obj).IsText then
   begin
     if TCtMetaTable(obj).IsSqlText then
@@ -7645,6 +9463,7 @@ begin
 
   dmlLsTbObj := TCtMetaTable(obj);
   dmlDBTbObj := TCtMetaTable(obj_db);
+  VModelTb := dmlLsTbObj;
 
   dbu := '';
 
@@ -7657,7 +9476,7 @@ begin
     if (EngineType = 'ORACLE') or (EngineType = 'POSTGRESQL') then
     begin
       ResTbSQL.Add('comment on table '
-        + GetQuotName(dmlLsTbObj.Name) + ' is ''' +
+        + GetQuotTbName(dmlLsTbObj.RealTableName) + ' is ''' +
         ReplaceSingleQuotmark(dmlLsTbObj.GetTableComments) + ''';');
     end
     else if EngineType = 'SQLSERVER' then
@@ -7668,23 +9487,34 @@ begin
           ResTbSQL.Add('EXEC sp_updateextendedproperty ''MS_Description'', ''' +
             ReplaceSingleQuotmark(dmlLsTbObj.GetTableComments) +
             ''', ''user'', ' + DbSchema + ', ''table'', '
-            + dmlLsTbObj.Name + ', NULL, NULL;')
+            + GetQuotName(dmlLsTbObj.RealTableName) + ', NULL, NULL;')
         else
           ResTbSQL.Add('EXEC sp_dropextendedproperty ''MS_Description'', ''user'', ' +
             DbSchema + ', ''table'', '
-            + dmlLsTbObj.Name + ', NULL, NULL;');
+            + GetQuotName(dmlLsTbObj.RealTableName) + ', NULL, NULL;');
       end
       else
         ResTbSQL.Add('EXEC sp_addextendedproperty ''MS_Description'', ''' +
           ReplaceSingleQuotmark(dmlLsTbObj.GetTableComments) +
           ''', ''user'', ' + DbSchema + ', ''table'', '
-          + dmlLsTbObj.Name + ', NULL, NULL;');
+          + GetQuotName(dmlLsTbObj.RealTableName) + ', NULL, NULL;');
     end
     else if EngineType = 'MYSQL' then
     begin
       ResTbSQL.Add('alter table '
-        + GetQuotName(dmlLsTbObj.Name) + ' comment ''' +
+        + GetQuotTbName(dmlLsTbObj.RealTableName) + ' comment ''' +
         ReplaceSingleQuotmark(dmlLsTbObj.GetTableComments) + ''';');
+    end          
+    else if EngineType = 'HIVE' then
+    begin
+      ResTbSQL.Add('alter table '
+        + GetQuotTbName(dmlLsTbObj.RealTableName) + ' set tblproperties(''comment'' = ''' +
+        ReplaceSingleQuotmark(dmlLsTbObj.GetTableComments) + ''');');
+    end
+    else if EngineType = 'SQLITE' then
+    begin
+      //SQLITE不支持注释比对 
+      ResTbSQL.Add('-- skip comments-check in SQLITE');
     end;
   end;
 
@@ -7720,45 +9550,44 @@ begin
 
         if bDiff {and not (IsIntKeyField(dbF) and IsIntKeyField(ctF))} then
         begin
-          //数据库字段与设计字段完全不同，需要备份旧字段并创建新字段
-          if G_BackupBeforeAlterColumn then
+          //数据库字段与设计字段完全不同，需要备份旧字段并创建新字段（HIVE除外）
+          if G_BackupBeforeAlterColumn and (EngineType <> 'HIVE') then
           begin
             ResTbSQL.Add('');
-            ResTbSQL.Add('-- Modify from ' + dmlLsTbObj.Name + '.' +
+            ResTbSQL.Add('-- Modify from ' + dmlLsTbObj.RealTableName + '.' +
               dbF.Name + ' ' + dbF.GetFieldTypeDesc(True, EngineType));
             strtmp := GetQuotName(GetFieldBK(dmlDBTbObj, dbF.Name));
             //获得可用备份字段名
-            ResTbSQL.Add('-- SQL for ' + dmlLsTbObj.Name + '.' + dbF.Name);
+            ResTbSQL.Add('-- SQL for ' + dmlLsTbObj.RealTableName + '.' + dbF.Name);
             if EngineType = 'SQLSERVER' then
-              strSQL := 'exec   sp_rename ''' + dmlLsTbObj.Name +
+              strSQL := 'exec   sp_rename ''' +IfElse(FDbSchema='','dbo',FDbSchema) +'.'+ dmlLsTbObj.RealTableName +
                 '.' + dbF.Name + ''', ''' + strtmp + ''', ''COLUMN'';'
             else if EngineType = 'MYSQL' then
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + ' change ' +
+              strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + ' change ' +
                 GetQuotName(dbF.Name) + ' ' + strtmp + ' ' +
                 dbF.GetFieldTypeDesc(True, EngineType) + ';'
             else
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) +
+              strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) +
                 ' rename column ' +
                 GetQuotName(dbF.Name) + ' TO ' + strtmp + ';';
-            ResTbSQL.Add(strSQL);
-            strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + ' add ' +
-              GetQuotName(ctF.Name) + ' ' + ctF.GetFieldTypeDesc(True, EngineType) + ';';
+            ResTbSQL.Add(strSQL);                  
+            strSQL := GetAlterTableColActStr('add', dmlLsTbObj, ctF, ctF);
             ResTbSQL.Add(strSQL);
             dbF.Memo := '';
             //重建字段会导致注释丢失，这时应重新生成注释
 
             //复制数据
-            strSQL := 'update ' + GetQuotName(dmlLsTbObj.Name) + ' set ' +
+            strSQL := 'update ' + GetQuotTbName(dmlLsTbObj.RealTableName) + ' set ' +
               GetQuotName(ctF.Name) + ' = ' + strtmp + ';';
             ResTbSQL.Add(strSQL);
-            strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) +
+            strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) +
               ' drop column ' + strtmp + ';';
             ResTbSQL.Add(strSQL);
             ResTbSQL.Add('');
           end
           else
           begin
-            ResTbSQL.Add('-- Modify from ' + dmlLsTbObj.Name + '.' +
+            ResTbSQL.Add('-- Modify from ' + dmlLsTbObj.RealTableName + '.' +
               dbF.Name + ' ' + dbF.GetFieldTypeDesc(True, EngineType));
             strSQL := GetAlterTableColActStr('alter', dmlLsTbObj, ctF, dbF);
             ResTbSQL.Add(strSQL);
@@ -7769,7 +9598,7 @@ begin
           begin
             if (EngineType = 'ORACLE') or (EngineType = 'POSTGRESQL') then
             begin
-              strSQL := 'comment on column ' + GetQuotName(dmlLsTbObj.Name) + '.' +
+              strSQL := 'comment on column ' + GetQuotTbName(dmlLsTbObj.RealTableName) + '.' +
                 GetQuotName(ctF.Name) + ' is ''' +
                 ReplaceSingleQuotmark(ctF.GetFieldComments) + ''';';
               ResTbSQL.Add(strSQL);
@@ -7780,63 +9609,66 @@ begin
                 ResTbSQL.Add('EXEC sp_updateextendedproperty ''MS_Description'', ''' +
                   ReplaceSingleQuotmark(ctF.GetFieldComments) +
                   ''', ''user'', ' + DbSchema + ', ''table'', '
-                  + dmlLsTbObj.Name + ', ''column'', ' + ctF.Name + ';')
+                  + GetQuotName(dmlLsTbObj.RealTableName) + ', ''column'', ' + ctF.Name + ';')
               else
                 ResTbSQL.Add('EXEC sp_addextendedproperty ''MS_Description'', ''' +
                   ReplaceSingleQuotmark(ctF.GetFieldComments) +
                   ''', ''user'', ' + DbSchema + ', ''table'', '
-                  + dmlLsTbObj.Name + ', ''column'', ' + ctF.Name + ';');
+                  + GetQuotName(dmlLsTbObj.RealTableName) + ', ''column'', ' + ctF.Name + ';');
             end;
           end;
 
           //主键
-          T := GetIdxName(dmlLsTbObj.Name, ctF.Name);
+          T := GetIdxName(dmlLsTbObj.RealTableName, ctF.Name);
           //if Pos(dmlLsTbObj.Name, T) = 0 then
           //T := dmlLsTbObj.Name + '_' + T;
-          if ctF.KeyFieldType = cfktId then
-            if not ObjectExists(dbu, 'PK_' + T) then
-            begin
-              if UpperCase(dmlLsTbObj.GetPrimaryKeyNames) <> UpperCase(ctf.Name) then
-                strSQL := '-- warning: skip primary key: ' + ctf.Name
-              else
-                strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
-                  '       add constraint ' + GetQuotName('PK_' + T) +
-                  ' primary key (' + GetQuotName(ctF.Name) + ');';
-              if EngineType <> 'SQLITE' then
-              ;
-            end;
-          //外键
-          if ((ctF.KeyFieldType = cfktRid) or (ctF.KeyFieldType = cfktId)) and
-            (ctF.RelateTable <> '')
-            and (ctF.RelateField <> '') then
-            if not ObjectExists(dbu, 'FK_' + T) then
-            begin
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
-                '       add constraint ' + GetQuotName('FK_' + T) +
-                ' foreign key (' + GetQuotName(ctF.Name) + ')' + #13#10 +
-                '       references ' + GetQuotName(ctF.RelateTable) +
-                '(' + GetQuotName(ctF.RelateField) + ');';
-              ResFKSQL.Add(strSQL);
-            end;
+          if (EngineType = 'HIVE') and (G_HiveVersion < 3) then
+          begin  //hive2不支持主外键
+          end
+          else
+          begin
+            if ctF.KeyFieldType = cfktId then
+              if not ObjectExists(dbu, 'PK_' + T) then
+              begin
+                if UpperCase(dmlLsTbObj.GetPrimaryKeyNames) <> UpperCase(ctf.Name) then
+                  strSQL := '-- warning: skip primary key: ' + ctf.Name
+                else
+                  strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
+                    '       add constraint ' + GetQuotName('PK_' + T) +
+                    ' primary key (' + GetQuotName(ctF.Name) + ');';
+                if EngineType <> 'SQLITE' then
+                ;
+              end;
+            //外键
+            if ((ctF.KeyFieldType = cfktRid) or (ctF.KeyFieldType = cfktId)) and
+              (ctF.RelateTable <> '')
+              and (ctF.RelateField <> '')  and (Pos('{Link:', ctF.RelateField)=0)
+              and G_CreateForeignkeys then
+              if not ObjectExists(dbu, 'FK_' + T) then
+              begin
+                strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
+                  '       add constraint ' + GetQuotName('FK_' + T) +
+                  ' foreign key (' + GetQuotName(ctF.Name) + ')' + #13#10 +
+                  '       references ' + GetQuotName(ctF.RelateTable) +
+                  '(' + GetQuotName(ctF.RelateField) + ');';
+                ResFKSQL.Add(strSQL);
+              end;
+          end;
           //索引
           if (ctF.KeyFieldType <> cfktId) then
             if ctF.IndexType = cfitUnique then
             begin
               if not ObjectExists(dbu, 'IDU_' + T) then
               begin
-                strSQL := 'create unique index ' + GetQuotName('IDU_' + T) +
-                  ' on ' + GetQuotName(dmlLsTbObj.Name) +
-                  '(' + GetQuotName(ctF.Name) + GetIndexPrefixInfo(ctF) + ');';
+                strSQL := GenIndexSql(T, dmlLsTbObj.RealTableName, ctF, True);
                 ResTbSQL.Add(strSQL);
               end;
             end
             else if ctF.IndexType = cfitNormal then
             begin
               if not ObjectExists(dbu, 'IDX_' + T) then
-              begin
-                strSQL := 'create index ' + GetQuotName('IDX_' + T) +
-                  ' on ' + GetQuotName(dmlLsTbObj.Name) + '(' +
-                  GetQuotName(ctF.Name) + GetIndexPrefixInfo(ctF) + ');';
+              begin         
+                strSQL := GenIndexSql(T, dmlLsTbObj.RealTableName, ctF, False);
                 ResTbSQL.Add(strSQL);
               end;
             end
@@ -7844,9 +9676,7 @@ begin
             begin
               if not ObjectExists(dbu, 'IDX_' + T) then
               begin
-                strSQL := 'create index ' + GetQuotName('IDX_' + T) +
-                  ' on ' + GetQuotName(dmlLsTbObj.Name) + '(' +
-                  GetQuotName(ctF.Name) + GetIndexPrefixInfo(ctF) + ');';
+                strSQL := GenIndexSql(T, dmlLsTbObj.RealTableName, ctF, False);
                 ResTbSQL.Add(strSQL);
               end;
             end;
@@ -7854,7 +9684,7 @@ begin
           if Trim(ctF.DBCheck) <> '' then
             if not ObjectExists(dbu, 'CHK_' + T) then
             begin
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
+              strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
                 '       add constraint ' + GetQuotName('CHK_' + T) +
                 ' check (' + ctF.DBCheck + ');';
               ResTbSQL.Add(strSQL);
@@ -7871,57 +9701,46 @@ begin
           //数据库字段与设计字段基本相同，需要检查缺省值、注释和索引约束
           bDiff := (TrimQuot(ctF.GetFieldDefaultValDesc(EngineType)) <>
             TrimQuot(dbF.GetFieldDefaultValDesc(EngineType)));
+          if bDiff then
+          if (EngineType = 'HIVE') and (G_HiveVersion < 3) then
+            bDiff := False;  //hive2不支持缺省值
 
           if bDiff and (EngineType = 'SQLSERVER') then
           begin
-            strSQL := '-- default value for ' + GetQuotName(dmlLsTbObj.Name) +
-              '.' + GetQuotName(ctF.Name);
+            strSQL := '-- default value for ' + dmlLsTbObj.RealTableName +
+              '.' + GetQuotName(ctF.Name)+ #13#10;
             if dbF.Param['SQLSERVER_DF_CONSTRAINT_NAME'] <> '' then
             begin
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) +
+              strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) +
                 ' drop constraint ' +
                 dbF.Param['SQLSERVER_DF_CONSTRAINT_NAME'] + ';'#13#10;
             end;
             if Trim(ctF.DefaultValue) <> DEF_VAL_auto_increment then
-              strSQL := strSQL + 'alter  table ' + GetQuotName(dmlLsTbObj.Name) +
+              strSQL := strSQL + 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) +
                 ' add constraint DF_' +
-                GetIdxName(dmlLsTbObj.Name, ctF.Name) + ' ' +
+                GetIdxName(dmlLsTbObj.RealTableName, ctF.Name) + ' ' +
                 ctF.GetFieldDefaultValDesc(EngineType) + ' for ' +
                 GetQuotName(ctF.Name) + ';';
             ResTbSQL.Add(strSQL);
             bDiff := False;
           end;
-          if bDiff or (ctF.Nullable <> dbF.Nullable) then
+          if not bDiff and (ctF.Nullable <> dbF.Nullable) then
+            if (EngineType<>'HIVE') or (G_HiveVersion>=3) then
+              bDiff := True;        
+          if not bDiff and (EngineType<>'HIVE') then //HIVE字段的注释与其它属性一起修改
+            if not MaybeSameStr(dbF.GetFieldComments, ctF.GetFieldComments) then
+              bDiff := True;
+          if bDiff then
           begin
             strSQL := GetAlterTableColActStr('alter', dmlLsTbObj, ctF, dbF);
             ResTbSQL.Add(strSQL);
           end;
-          (*if (ctF.DefaultValue <> dbF.DefaultValue) then
-          begin
-            if ctF.DefaultValue = '' then
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + ' modify ' +
-                GetQuotName(ctF.Name) + ' default null;'
-            else
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + ' modify ' +
-                GetQuotName(ctF.Name) + ctF.GetFieldDefaultValDesc(EngineType) + ';';
-            ResTbSQL.Add(strSQL);
-          end;
-          if (ctF.Nullable <> dbF.Nullable) then
-          begin
-            if ctF.Nullable then
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + ' modify ' +
-                GetQuotName(ctF.Name) + ' null;'
-            else
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + ' modify ' +
-                GetQuotName(ctF.Name) + ' not null;';
-            ResTbSQL.Add(strSQL);
-          end; *)
           //字段说明
           if not MaybeSameStr(dbF.GetFieldComments, ctF.GetFieldComments) then
           begin
             if (EngineType = 'ORACLE') or (EngineType = 'POSTGRESQL') then
             begin
-              strSQL := 'comment on column ' + GetQuotName(dmlLsTbObj.Name) + '.' +
+              strSQL := 'comment on column ' + GetQuotTbName(dmlLsTbObj.RealTableName) + '.' +
                 GetQuotName(ctF.Name) + ' is ''' +
                 ReplaceSingleQuotmark(ctF.GetFieldComments) + ''';';
               ResTbSQL.Add(strSQL);
@@ -7934,78 +9753,86 @@ begin
                   ResTbSQL.Add('EXEC sp_updateextendedproperty ''MS_Description'', ''' +
                     ReplaceSingleQuotmark(ctF.GetFieldComments) +
                     ''', ''user'', ' + DbSchema + ', ''table'', '
-                    + dmlLsTbObj.Name + ', ''column'', ' + ctF.Name + ';')
+                    + GetQuotName(dmlLsTbObj.RealTableName) + ', ''column'', ' + ctF.Name + ';')
                 else
                   ResTbSQL.Add(
                     'EXEC sp_dropextendedproperty ''MS_Description'', ''user'', ' +
-                    DbSchema + ', ''table'', ' + dmlLsTbObj.Name +
+                    DbSchema + ', ''table'', ' + GetQuotName(dmlLsTbObj.RealTableName) +
                     ', ''column'', ' + ctF.Name + ';');
               end
               else
                 ResTbSQL.Add('EXEC sp_addextendedproperty ''MS_Description'', ''' +
                   ReplaceSingleQuotmark(ctF.GetFieldComments) +
                   ''', ''user'', ' + DbSchema + ', ''table'', '
-                  + dmlLsTbObj.Name + ', ''column'', ' + ctF.Name + ';');
+                  + GetQuotName(dmlLsTbObj.RealTableName) + ', ''column'', ' + ctF.Name + ';');
+            end
+            else if EngineType = 'SQLITE' then
+            begin
+              //SQLITE不支持注释比对
+            end       
+            else if EngineType = 'HIVE' then
+            begin
+              //HIVE统一在修改字段时设置属性
             end
             else
             begin
-              ResTbSQL.Add('-- Modify comment of ' + dmlLsTbObj.Name + '.' + dbF.Name);
+              ResTbSQL.Add('-- Modify comment of ' + dmlLsTbObj.RealTableName + '.' + dbF.Name);
               strSQL := GetAlterTableColActStr('alter', dmlLsTbObj, ctF, dbF);
               ResTbSQL.Add(strSQL);
             end;
           end;
 
-          T := GetIdxName(dmlLsTbObj.Name, ctF.Name);
+          T := GetIdxName(dmlLsTbObj.RealTableName, ctF.Name);
           //T := ctF.Name;
           //if Pos(dmlLsTbObj.Name, T) = 0 then
           //T := dmlLsTbObj.Name + '_' + T;
           //主键
           if (ctF.KeyFieldType = cfktId) and (dbF.KeyFieldType <> cfktId) then
-            if not ObjectExists(dbu, 'PK_' + T) then
-            begin
-              if UpperCase(dmlLsTbObj.GetPrimaryKeyNames) <> UpperCase(ctF.Name) then
-                strSQL := '-- warning: skip primary key: ' + ctf.Name
-              else
-                strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
-                  '       add constraint ' + GetQuotName('PK_' + T) + ' primary key (' +
-                  GetQuotName(ctF.Name) + ');';
-              ResTbSQL.Add(strSQL);
-              if (dbF.KeyFieldType <> cfktRid) and (ctF.RelateTable <> '') and
-                (ctF.RelateField <> '') then
-                if not ObjectExists(dbu, 'FK_' + T) then
-                begin
-                  strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
-                    '       add constraint ' + GetQuotName('FK_' + T) +
-                    ' foreign key (' +
-                    GetQuotName(ctF.Name) + ')' + #13#10 +
-                    '       references ' + GetQuotName(ctF.RelateTable) +
-                    '(' + GetQuotName(ctF.RelateField) + ');';
-                  ResFKSQL.Add(strsql);
-                end;
-            end;
+            if (EngineType<>'HIVE') or (G_HiveVersion>=3) then //hive2不支持主外键
+              if not ObjectExists(dbu, 'PK_' + T) then
+              begin
+                if UpperCase(dmlLsTbObj.GetPrimaryKeyNames) <> UpperCase(ctF.Name) then
+                  strSQL := '-- warning: skip primary key: ' + ctf.Name
+                else
+                  strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
+                    '       add constraint ' + GetQuotName('PK_' + T) + ' primary key (' +
+                    GetQuotName(ctF.Name) + ');';
+                ResTbSQL.Add(strSQL);
+                if (dbF.KeyFieldType <> cfktRid) and (ctF.RelateTable <> '') and (Pos('{Link:', ctF.RelateField)=0) and
+                  (ctF.RelateField <> '') and G_CreateForeignkeys then
+                  if not ObjectExists(dbu, 'FK_' + T) then
+                  begin
+                    strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
+                      '       add constraint ' + GetQuotName('FK_' + T) +
+                      ' foreign key (' +
+                      GetQuotName(ctF.Name) + ')' + #13#10 +
+                      '       references ' + GetQuotName(ctF.RelateTable) +
+                      '(' + GetQuotName(ctF.RelateField) + ');';
+                    ResFKSQL.Add(strsql);
+                  end;
+              end;
           //外键
           if (ctF.KeyFieldType = cfktRid) and (dbF.KeyFieldType <> cfktRid) and
-            (ctF.RelateTable <> '')
-            and (ctF.RelateField <> '') then
-            if not ObjectExists(dbu, 'FK_' + T) then
-            begin
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
-                '       add constraint ' + GetQuotName('FK_' + T) + ' foreign key (' +
-                GetQuotName(ctF.Name) + ')' + #13#10 +
-                '       references ' + GetQuotName(ctF.RelateTable) +
-                '(' + GetQuotName(ctF.RelateField) + ');';
-              ResFKSQL.Add(strsql);
-            end;
+            (ctF.RelateTable <> '')  and (Pos('{Link:', ctF.RelateField)=0)
+            and (ctF.RelateField <> '') and G_CreateForeignkeys then 
+            if (EngineType<>'HIVE') or (G_HiveVersion>=3) then //hive2不支持主外键
+              if not ObjectExists(dbu, 'FK_' + T) then
+              begin
+                strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
+                  '       add constraint ' + GetQuotName('FK_' + T) + ' foreign key (' +
+                  GetQuotName(ctF.Name) + ')' + #13#10 +
+                  '       references ' + GetQuotName(ctF.RelateTable) +
+                  '(' + GetQuotName(ctF.RelateField) + ');';
+                ResFKSQL.Add(strsql);
+              end;
           //索引
           if (ctF.KeyFieldType <> cfktId) and (dbF.IndexType <>
-            GetCtfIndexType(dmlLsTbObj, ctF)) then
+            GetCtfIndexType(dmlLsTbObj, ctF)) and (EngineType<>'HIVE') then //hive暂时不检查索引，因为暂时不知道如何判断是否已经存在
             if ctF.IndexType = cfitUnique then
             begin
               if not ObjectExists(dbu, 'IDU_' + T) then
               begin
-                strSQL := 'create unique index ' + GetQuotName('IDU_' + T) + ' on ' +
-                  GetQuotName(dmlLsTbObj.Name) + '(' + GetQuotName(ctF.Name) +
-                  GetIndexPrefixInfo(ctF) + ');';
+                strSQL := GenIndexSql(T, dmlLsTbObj.RealTableName, ctF, True);
                 ResTbSQL.Add(strSQL);
               end;
             end
@@ -8013,9 +9840,7 @@ begin
             begin
               if not ObjectExists(dbu, 'IDX_' + T) then
               begin
-                strSQL := 'create index ' + GetQuotName('IDX_' + T) + ' on ' +
-                  GetQuotName(dmlLsTbObj.Name) + '(' + GetQuotName(ctF.Name) +
-                  GetIndexPrefixInfo(ctF) + ');';
+                strSQL := GenIndexSql(T, dmlLsTbObj.RealTableName, ctF, False);
                 ResTbSQL.Add(strSQL);
               end;
             end
@@ -8023,9 +9848,7 @@ begin
             begin
               if not ObjectExists(dbu, 'IDX_' + T) then
               begin
-                strSQL := 'create index ' + GetQuotName('IDX_' + T) + ' on ' +
-                  GetQuotName(dmlLsTbObj.Name) + '(' + GetQuotName(ctF.Name) +
-                  GetIndexPrefixInfo(ctF) + ');';
+                strSQL := GenIndexSql(T, dmlLsTbObj.RealTableName, ctF, False);
                 ResTbSQL.Add(strSQL);
               end;
             end; 
@@ -8033,7 +9856,7 @@ begin
           if Trim(ctF.DBCheck) <> Trim(dbF.DBCheck) then
             if not ObjectExists(dbu, 'CHK_' + T) then
             begin
-              strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
+              strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
                 '       add constraint ' + GetQuotName('CHK_' + T) +
                 ' check (' + ctF.DBCheck + ');';
               ResTbSQL.Add(strSQL);
@@ -8055,7 +9878,7 @@ begin
       begin
         if (EngineType = 'ORACLE') or (EngineType = 'POSTGRESQL') then
         begin
-          strSQL := 'comment on column ' + GetQuotName(dmlLsTbObj.Name) + '.' +
+          strSQL := 'comment on column ' + GetQuotTbName(dmlLsTbObj.RealTableName) + '.' +
             GetQuotName(ctF.Name) + ' is ''' +
             ReplaceSingleQuotmark(ctF.GetFieldComments) + ''';';
           ResTbSQL.Add(strSQL);
@@ -8065,55 +9888,51 @@ begin
           ResTbSQL.Add('EXEC sp_addextendedproperty ''MS_Description'', ''' +
             ReplaceSingleQuotmark(ctF.GetFieldComments) + ''', ''user'', ' +
             DbSchema + ', ''table'', '
-            + dmlLsTbObj.Name + ', ''column'', ' + ctF.Name + ';');
+            + GetQuotName(dmlLsTbObj.RealTableName) + ', ''column'', ' + ctF.Name + ';');
         end;
       end;
 
-      T := GetIdxName(dmlLsTbObj.Name, ctF.Name);
+      T := GetIdxName(dmlLsTbObj.RealTableName, ctF.Name);
       //主键
-      if ctF.KeyFieldType = cfktId then
-      begin
-        if UpperCase(dmlLsTbObj.GetPrimaryKeyNames) <> UpperCase(ctf.Name) then
-          strSQL := '-- warning: skip primary key: ' + ctf.Name
-        else
-          strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
-            '       add constraint ' + GetQuotName('PK_' + T) + ' primary key (' +
-            GetQuotName(ctF.Name) + ');';
-        ResTbSQL.Add(strSQL);
-      end;
+      if ctF.KeyFieldType = cfktId then   
+        if (EngineType<>'HIVE') or (G_HiveVersion>=3) then //hive2不支持主外键
+        begin
+          if UpperCase(dmlLsTbObj.GetPrimaryKeyNames) <> UpperCase(ctf.Name) then
+            strSQL := '-- warning: skip primary key: ' + ctf.Name
+          else
+            strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
+              '       add constraint ' + GetQuotName('PK_' + T) + ' primary key (' +
+              GetQuotName(ctF.Name) + ');';
+          ResTbSQL.Add(strSQL);
+        end;
       //外键
       if ((ctF.KeyFieldType = cfktRid) or (ctF.KeyFieldType = cfktId)) and
-        (ctF.RelateTable <> '')
-        and (ctF.RelateField <> '') then
-      begin
-        strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
-          '       add constraint ' + GetQuotName('FK_' + T) + ' foreign key (' +
-          GetQuotName(ctF.Name) + ')' + #13#10 +
-          '       references ' + GetQuotName(ctF.RelateTable) + '(' +
-          GetQuotName(ctF.RelateField) + ');';
-        ResFKSQL.Add(strsql);
-      end;
+        (ctF.RelateTable <> '') and (Pos('{Link:', ctF.RelateField)=0)
+        and (ctF.RelateField <> '') and G_CreateForeignkeys then  
+        if (EngineType<>'HIVE') or (G_HiveVersion>=3) then //hive2不支持主外键
+        begin
+          strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
+            '       add constraint ' + GetQuotName('FK_' + T) + ' foreign key (' +
+            GetQuotName(ctF.Name) + ')' + #13#10 +
+            '       references ' + GetQuotName(ctF.RelateTable) + '(' +
+            GetQuotName(ctF.RelateField) + ');';
+          ResFKSQL.Add(strsql);
+        end;
       //索引
       if (ctF.KeyFieldType <> cfktId) then
         if ctF.IndexType = cfitUnique then
-        begin
-          strSQL := 'create unique index ' + GetQuotName('IDU_' + T) + ' on ' +
-            GetQuotName(dmlLsTbObj.Name) + '(' + GetQuotName(ctF.Name) +
-            GetIndexPrefixInfo(ctF) + ');';
+        begin             
+          strSQL := GenIndexSql(T, dmlLsTbObj.RealTableName, ctF, True);
           ResTbSQL.Add(strSQL);
         end
         else if ctF.IndexType = cfitNormal then
         begin
-          strSQL := 'create index ' + GetQuotName('IDX_' + T) + ' on ' +
-            GetQuotName(dmlLsTbObj.Name) + '(' + GetQuotName(ctF.Name) +
-            GetIndexPrefixInfo(ctF) + ');';
+          strSQL := GenIndexSql(T, dmlLsTbObj.RealTableName, ctF, False);
           ResTbSQL.Add(strSQL);
         end
         else if (ctF.KeyFieldType = cfktRid) and NeedGenFKIndexesSQL(dmlLsTbObj) then
         begin
-          strSQL := 'create index ' + GetQuotName('IDX_' + T) + ' on ' +
-            GetQuotName(dmlLsTbObj.Name) + '(' + GetQuotName(ctF.Name) +
-            GetIndexPrefixInfo(ctF) + ');';
+          strSQL := GenIndexSql(T, dmlLsTbObj.RealTableName, ctF, False);
           ResTbSQL.Add(strSQL);
         end;
          
@@ -8121,7 +9940,7 @@ begin
       if Trim(ctF.DBCheck) <> '' then
         if not ObjectExists(dbu, 'CHK_' + T) then
         begin
-          strSQL := 'alter  table ' + GetQuotName(dmlLsTbObj.Name) + #13#10 +
+          strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
             '       add constraint ' + GetQuotName('CHK_' + T) +
             ' check (' + ctF.DBCheck + ');';
           ResTbSQL.Add(strSQL);
@@ -8181,7 +10000,7 @@ begin
     //没找到就创建
     if not bFieldFound then
     begin
-      T := GetIdxName(dmlLsTbObj.Name, ctF.Name);
+      T := GetIdxName(dmlLsTbObj.RealTableName, ctF.Name);
       if Pos('(', ctF.IndexFields) > 0 then
         sFPN := ctF.IndexFields
       else
@@ -8210,7 +10029,7 @@ begin
           ResTbSQL.Add(strSQL);
         end;
         strSQL := 'create unique index ' + GetQuotName('IDU_' + T) +
-          ' on ' + GetQuotName(dmlLsTbObj.Name) +
+          ' on ' + GetQuotTbName(dmlLsTbObj.RealTableName) +
           '(' + sFPN + ');';
         ResTbSQL.Add(strSQL);
       end
@@ -8222,7 +10041,7 @@ begin
           ResTbSQL.Add(strSQL);
         end;
         strSQL := 'create index ' + GetQuotName('IDX_' + T) + ' on ' +
-          GetQuotName(dmlLsTbObj.Name) + '(' +
+          GetQuotTbName(dmlLsTbObj.RealTableName) + '(' +
           sFPN + ');';
         ResTbSQL.Add(strSQL);
       end;
@@ -8258,7 +10077,7 @@ begin
       T := ExtractCompStr(dbF.Memo, '[DB_INDEX_NAME:', ']');
       if T = '' then
       begin
-        T := GetIdxName(dmlLsTbObj.Name, dbF.Name);
+        T := GetIdxName(dmlLsTbObj.RealTableName, dbF.Name);
         if dbF.IndexType = cfitUnique then
           T := 'IDU_' + T
         else if dbF.IndexType = cfitNormal then
@@ -8278,7 +10097,7 @@ begin
   end;
 
   //判断有无sequences，无则创建
-  strtmp := dmlLsTbObj.Name;
+  strtmp := dmlLsTbObj.RealTableName;
   if EngineType = 'ORACLE' then
     if G_CreateSeqForOracle and dmlLsTbObj.IsSeqNeeded then
       if not ObjectExists(dbu, 'SEQ_' + strtmp) then
@@ -8328,6 +10147,11 @@ begin
   Result := nil;
 end;
 
+function TCtMetaDatabase.GetOrigEngineType: string;
+begin
+  Result := FEngineType;
+end;
+
 function TCtMetaDatabase.GetDbSchema: string;
 begin
   Result := FDbSchema;
@@ -8372,6 +10196,11 @@ function TCtMetaDatabase.IsDiffField(Fd1, Fd2: TCtMetaField): boolean;
       begin
         if f.DataLength > 65532 then
           Result := True;
+      end           
+      else if FEngineType = 'HIVE' then
+      begin
+        if f.DataLength > 65535 then
+          Result := True;
       end
       else if f.DataLength > 8000 then
         Result := True;
@@ -8382,7 +10211,7 @@ begin
   Result := False;
   if (Fd1 = nil) or (Fd2 = nil) then
     Exit;
-  if G_GenSqlSketchMode then //粗略近似模式，只检查逻辑类型
+  if G_GenSqlSketchMode or (EngineType='HIVE') then //粗略近似模式，只检查逻辑类型
   begin
     if Fd1.DataType = Fd2.DataType then //相同的逻辑类型，直接忽略
       Exit;
@@ -8422,6 +10251,44 @@ end;
 function TCtMetaDatabase.ShowDBConfig(AHandle: THandle): boolean;
 begin
   Result := False;
+end;
+
+function TCtMetaDatabase.GetIdentStr: string;
+var
+  S, T: string;
+  N: Integer;
+  WS: WideString;
+begin    
+  Result := LowerCase(EngineType);
+  if EngineType <> OrigEngineType then
+    Result := Result + '/' + LowerCase(OrigEngineType);
+  Result := Result+':';
+  if User <> '' then
+    Result := Result + User+'@';
+
+  T := DataBase; 
+  T := StringReplace(T, ':', '_', [rfReplaceAll]);
+  T := StringReplace(T, '/', '_', [rfReplaceAll]);
+  T := StringReplace(T, '\', '_', [rfReplaceAll]);  
+  T := StringReplace(T, '@', '_', [rfReplaceAll]);    
+  T := StringReplace(T, '#', '_', [rfReplaceAll]);
+  T := StringReplace(T, '__', '_', [rfReplaceAll]);
+  S := T;
+  if Length(S) > 24 then
+  begin
+    N := 21;
+    WS := S;
+
+    while Length(S) > 21 do
+    begin
+      S := Copy(WS, 1, N);
+      Dec(N);
+    end;
+
+    T := S+IntToHex(Crc(T), 4);
+  end;
+           
+  Result := Result + T;
 end;
 
 end.

@@ -2,11 +2,11 @@ object frmLogonCtDB: TfrmLogonCtDB
   Left = 423
   Height = 287
   Top = 253
-  Width = 477
+  Width = 515
   BorderStyle = bsDialog
   Caption = 'Database connection'
   ClientHeight = 287
-  ClientWidth = 477
+  ClientWidth = 515
   Color = clBtnFace
   OnClick = FormClick
   OnCreate = FormCreate
@@ -94,25 +94,23 @@ object frmLogonCtDB: TfrmLogonCtDB
     TabOrder = 1
   end
   object btnOK: TButton
-    Left = 206
+    Left = 112
     Height = 27
     Top = 235
-    Width = 44
-    AutoSize = True
+    Width = 130
     Caption = 'OK'
     Default = True
     OnClick = btnOKClick
     TabOrder = 5
   end
   object btnCancel: TButton
-    Left = 270
+    Left = 246
     Height = 27
     Top = 235
     Width = 64
-    AutoSize = True
     Cancel = True
     Caption = 'Cancel'
-    ModalResult = 2
+    OnClick = btnCancelClick
     TabOrder = 6
   end
   object btnDBCfg: TButton
@@ -120,9 +118,8 @@ object frmLogonCtDB: TfrmLogonCtDB
     Height = 27
     Hint = 'Config...'
     Top = 58
-    Width = 32
-    AutoSize = True
-    Caption = '..'
+    Width = 70
+    Caption = 'Config'
     OnClick = btnDBCfgClick
     ParentShowHint = False
     ShowHint = True
@@ -150,23 +147,52 @@ object frmLogonCtDB: TfrmLogonCtDB
     Height = 27
     Hint = 'Logon history'
     Top = 19
-    Width = 32
-    AutoSize = True
-    Caption = 'v'
+    Width = 70
+    Caption = 'History'
     OnClick = btnLogonHistClick
     ParentShowHint = False
     ShowHint = True
     TabOrder = 9
   end
+  object PanelAutoLoginTip: TPanel
+    Left = 15
+    Height = 30
+    Top = 160
+    Width = 399
+    BevelOuter = bvNone
+    ClientHeight = 30
+    ClientWidth = 399
+    TabOrder = 10
+    Visible = False
+    object lbConnectingTip: TLabel
+      Cursor = crHandPoint
+      Left = 96
+      Height = 17
+      Top = 7
+      Width = 74
+      Caption = 'Connecting...'
+      ParentColor = False
+      OnClick = lbConnectingTipClick
+    end
+  end
+  object btnHelp: TButton
+    Left = 422
+    Height = 25
+    Top = 235
+    Width = 70
+    Caption = 'Help'
+    OnClick = btnHelpClick
+    TabOrder = 11
+  end
   object TimerAutoLogin: TTimer
     Enabled = False
     Interval = 1200
     OnTimer = TimerAutoLoginTimer
-    Left = 344
-    Top = 240
+    left = 344
+    top = 240
   end
   object PopupMenuLogonHist: TPopupMenu
-    Left = 392
-    Top = 240
+    left = 392
+    top = 240
   end
 end

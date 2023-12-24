@@ -36,6 +36,8 @@ type
     FfrmDMLGraph: TfrmCtDML;
     FFrameModified: boolean;
     FFramePropRefreshing: boolean;
+    function GetShowLeftTree: Boolean;
+    procedure SetShowLeftTree(AValue: Boolean);
     procedure _OnCtMetaNodeChange(Sender: TObject);
     procedure _OnCtFieldPropChange(Sender: TObject);
     procedure _OnCtObjShowProp(Sender: TObject);
@@ -43,7 +45,8 @@ type
     procedure _OnBatchAddFields(Sender: TObject);
     procedure _OnBatchRemoveFields(Sender: TObject);
     procedure _OnGenSqlSelected(Sender: TObject);
-    procedure _OnGenCodeSelected(Sender: TObject);
+    procedure _OnGenCodeSelected(Sender: TObject);      
+    procedure _OnChatGPTSelected(Sender: TObject);
     procedure _HM_REFRESHPROP(var msg: TMessage); message HM_REFRESHPROP;
     procedure _HM_LOCTOCTOBJ(var msg: TMessage); message HM_LOCTOCTOBJ;
 
@@ -64,6 +67,7 @@ type
     procedure CheckSelectedObjects;
     function GetCurTable: TCtMetaTable;
     function GetCurObject: TCtMetaObject;
+    procedure TryFocusGraph;
                                            
     //tp: 0=Obj1.Prop,1=move,2=Obj1.Child,3=Obj1.Prop&Child
     procedure _OnCtTablePropChange(Tp: integer; Obj1, Obj2: TCtMetaObject;
@@ -74,6 +78,7 @@ type
     property FrameModified: boolean read FFrameModified;        
     property ShouldFocusUITick: Int64 read FShouldFocusUITick write FShouldFocusUITick;
     property IsInitLoading: Boolean read FIsInitLoading write FIsInitLoading;
+    property ShowLeftTree: Boolean read GetShowLeftTree write SetShowLeftTree;
   end;
 
 implementation
@@ -142,6 +147,10 @@ begin
   FFrameCtTableList.MN_RESERVED3.Caption := srGenerateCode;
   FFrameCtTableList.MN_RESERVED3.Visible := True;
   FFrameCtTableList.MN_RESERVED3.OnClick := _OnGenCodeSelected;
+                                                   
+  //FFrameCtTableList.MN_RESERVED4.Caption := srChatGPT;
+  //FFrameCtTableList.MN_RESERVED4.Visible := True;
+  //FFrameCtTableList.MN_RESERVED4.OnClick := _OnChatGPTSelected;
 
   FFrameCtFieldDef := TFrameCtFieldDef.Create(Self);
   FFrameCtFieldDef.Name := 'FrameCtFieldDef';
@@ -191,6 +200,16 @@ begin
   else
   begin
     Result := FFrameCtTableList.SelectedCtNode;
+  end;
+end;
+
+procedure TFrameCtTableDef.TryFocusGraph;
+begin
+  if not PanelDMLGraph.Visible then
+    Exit;
+  try
+    FFrameDMLGraph.FFrameCtDML.DMLGraph.SetFocus;
+  except
   end;
 end;
 
@@ -247,6 +266,31 @@ begin
     Exit;
   FFramePropRefreshing := True;
   PostMessage(Handle, HM_REFRESHPROP, 0, 0);
+end;
+
+function TFrameCtTableDef.GetShowLeftTree: Boolean;
+begin
+  Result := PanelCttbTree.Visible;
+end;
+
+procedure TFrameCtTableDef.SetShowLeftTree(AValue: Boolean);
+begin
+  if PanelCttbTree.Visible=AValue then
+    Exit;
+  if AValue then
+  begin
+    PanelCttbTree.Visible := True;
+    SplitterCttbTree.Visible := True;
+    SplitterCttbTree.Left := PanelCttbTree.Width + 1;
+    FFrameDMLGraph.FFrameCtDML.actShowHideList.ImageIndex := FFrameDMLGraph.FFrameCtDML.actShowHideList.Tag;
+  end
+  else
+  begin
+    SplitterCttbTree.Visible := False; 
+    PanelCttbTree.Visible := False;
+    FFrameDMLGraph.FFrameCtDML.actShowHideList.ImageIndex := FFrameDMLGraph.FFrameCtDML.actShowHideList.Tag + 1;  
+    TryFocusGraph;
+  end;
 end;
 
 procedure TFrameCtTableDef._OnCtMetaNodeFindLocation(Sender: TObject; Node: TTreeNode);
@@ -580,6 +624,11 @@ begin
   end;
 end;
 
+procedure TFrameCtTableDef._OnChatGPTSelected(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 8, 0);
+end;
+
 procedure TFrameCtTableDef._OnGenSqlSelected(Sender: TObject);
 var
   I: integer;
@@ -673,10 +722,7 @@ begin
   Self.FFrameDMLGraph.Init(mdl, FReadOnlyMode, False);
   Self.FFrameDMLGraph.RewriteGraphDesc;   
   if Abs(FShouldFocusUITick-GetTickCount64) < 2000 then
-  try
-    Self.FFrameDMLGraph.FFrameCtDML.DMLGraph.SetFocus;
-  except
-  end;
+    TryFocusGraph;
 end;
 
 end.

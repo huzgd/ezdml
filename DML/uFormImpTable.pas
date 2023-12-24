@@ -15,6 +15,7 @@ type
   TfrmImportCtTable = class(TForm)
     btnOK: TButton;
     btnCancel: TButton;
+    ckbCheckAll: TCheckBox;
     MN_TableProps: TMenuItem;
     MenuItem2: TMenuItem;
     PopupMenu1: TPopupMenu;
@@ -39,6 +40,7 @@ type
     ckbImportDbTypeNames: TCheckBox;
     SaveDialog1: TSaveDialog;
     ckbOverwriteExists: TCheckBox;
+    procedure ckbCheckAllChange(Sender: TObject);
     procedure cklbDbObjsDblClick(Sender: TObject);
     procedure MN_TablePropsClick(Sender: TObject);
     procedure TimerInitTimer(Sender: TObject);
@@ -211,7 +213,17 @@ begin
   end;
 
   if Assigned(FCtMetaDatabase) and (combDBUser.Text = '') then
-  begin              
+  begin
+    dbus := G_LastMetaDbSchema;
+    for I := 0 to combDBUser.Items.Count - 1 do
+      if UpperCase(combDBUser.Items[I]) = UpperCase(dbus) then
+      begin
+        combDBUser.ItemIndex := I;
+        FLastAutoSelDBUser := combDBUser.Text;
+        RefreshObjList;
+        Exit;
+      end;
+
     dbus := FCtMetaDatabase.DbSchema;
     if dbus = '' then
       dbus := FCtMetaDatabase.User;
@@ -266,7 +278,9 @@ begin
   end;
   for I := 0 to cklbDbObjs.Items.Count - 1 do
     cklbDbObjs.Checked[I] := True;
-  MN_CheckAll.Checked := True;
+  MN_CheckAll.Checked := True; 
+  if combDBUser.Text <> '' then
+    G_LastMetaDbSchema := combDBUser.Text;
 end;
 
 procedure TfrmImportCtTable.SetWorkMode(AWorkMode: Integer);
@@ -333,6 +347,14 @@ end;
 procedure TfrmImportCtTable.cklbDbObjsDblClick(Sender: TObject);
 begin
   MN_TablePropsClick(nil);
+end;
+
+procedure TfrmImportCtTable.ckbCheckAllChange(Sender: TObject);
+var
+  I: Integer;
+begin
+  for I := 0 to cklbDbObjs.Items.Count - 1 do
+    cklbDbObjs.Checked[I] := ckbCheckAll.Checked;
 end;
 
 procedure TfrmImportCtTable.WriteDatabaseBakFile(fn: string);
@@ -564,31 +586,6 @@ begin
   if Assigned(o) then
   begin
     Result := True;
-    exo := FCtMetaObjList.ItemByName(o.Name);
-    if Assigned(exo) and ckbOverwriteExists.Checked then
-    begin
-      if (exo is TCtMetaTable) or (o is TCtMetaTable) then
-      begin
-        S := TCtMetaTable(exo).GraphDesc;
-        TCtMetaTable(exo).AssignFrom(o);
-        TCtMetaTable(exo).GraphDesc := S;
-      end
-      else
-      begin
-        FCtMetaObjList.Remove(exo);
-        FCtMetaObjList.Add(o);
-      end;
-    end
-    else
-      FCtMetaObjList.Add(o);
-    if ckbAutoCapitalize.Checked and ckbAutoCapitalize.Visible then
-    begin
-      o.Name := AutoRenameObj(o.Name);
-      if o is TCtMetaTable then
-        with TCtMetaTable(o).MetaFields do
-          for I := 0 to Count - 1 do
-            Items[I].Name := AutoRenameObj(Items[I].Name);
-    end;
 
     if ckbComments2DisplayName.Checked and ckbComments2DisplayName.Visible then
       if o is TCtMetaTable then
@@ -625,6 +622,32 @@ begin
             end;
         end;
 
+    exo := FCtMetaObjList.ItemByName(o.Name);
+    if Assigned(exo) and ckbOverwriteExists.Checked then
+    begin
+      if (exo is TCtMetaTable) or (o is TCtMetaTable) then
+      begin
+        S := TCtMetaTable(exo).GraphDesc;
+        TCtMetaTable(exo).AssignFrom(o);
+        TCtMetaTable(exo).GraphDesc := S;
+      end
+      else
+      begin
+        FCtMetaObjList.Remove(exo);
+        FCtMetaObjList.Add(o);
+      end;
+    end
+    else
+      FCtMetaObjList.Add(o);
+    if ckbAutoCapitalize.Checked and ckbAutoCapitalize.Visible then
+    begin
+      o.Name := AutoRenameObj(o.Name);
+      if o is TCtMetaTable then
+        with TCtMetaTable(o).MetaFields do
+          for I := 0 to Count - 1 do
+            Items[I].Name := AutoRenameObj(Items[I].Name);
+    end;
+
     if Assigned(GProc_OnEzdmlCmdEvent) then
     begin
       GProc_OnEzdmlCmdEvent('AFTER_IMP_A_TABLE', db, obj, o, FCtMetaObjList);
@@ -633,8 +656,7 @@ begin
 end;
 
 procedure TfrmImportCtTable.FormShow(Sender: TObject);
-begin                   
-  btnOk.Left:= btnCancel.Left - btnOk.Width - 10;
+begin
   ProgressBar1.Position := 0;
   if FCtMetaDatabase = nil then
     TimerInit.Enabled := True;

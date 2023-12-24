@@ -14,6 +14,8 @@ type
   { TfrmAddTbLink }
 
   TfrmAddTbLink = class(TForm)
+    btnClose: TButton;
+    ckbCreateM2MTb: TCheckBox;
     ckbCreateNewField: TCheckBox;
     edtNewFieldName: TEdit;
     Label1: TLabel;
@@ -29,27 +31,31 @@ type
     Label5: TLabel;
     edtDetailTb: TEdit;
     lbLinkInfo: TLabel;
+    procedure ckbCreateM2MTbClick(Sender: TObject);
     procedure ckbCreateNewFieldChange(Sender: TObject);
     procedure combRelateFieldChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure combLinkTypeChange(Sender: TObject);
-    procedure FormShow(Sender: TObject);
   private
+    FReadOnlyMode: Boolean;
     { Private declarations }
     Ftb1, Ftb2: TCtMetaTable;
     FCf: TCtMetaField;
 
     FResultField: TCtMetaField;
+    FResultTbDesc: string; //创建多对多关联的表描述
     procedure RefreshLinkInfo;
+    procedure SetReadOnlyMode(AValue: Boolean);
   public
     { Public declarations }
-    procedure Init(tb1, tb2: TCtMetaTable; cf: TCtMetaField);
+    procedure Init(tb1, tb2: TCtMetaTable; cf: TCtMetaField; bReadOnly: Boolean);
     procedure SaveFK;
+    property ReadOnlyMode: Boolean read FReadOnlyMode write SetReadOnlyMode;
   end;
 
-function ExecAddTbLink(tb1, tb2: TCtMetaTable; var cf: TCtMetaField; fdef: string): boolean;
-function ExecEditTbLink(tb1, tb2: TCtMetaTable; var cf: TCtMetaField): boolean;
+function ExecAddTbLink(tb1, tb2: TCtMetaTable; var cf: TCtMetaField; fdef: string; var redesc: string): boolean;
+function ExecEditTbLink(tb1, tb2: TCtMetaTable; var cf: TCtMetaField; bReadOnlyMode: Boolean): boolean;
 
 var
   frmAddTbLink: TfrmAddTbLink;
@@ -62,11 +68,11 @@ uses
 
 {$R *.lfm}
 
-function ExecAddTbLink(tb1, tb2: TCtMetaTable; var cf: TCtMetaField; fdef: string): boolean;
+function ExecAddTbLink(tb1, tb2: TCtMetaTable; var cf: TCtMetaField; fdef: string; var redesc: string): boolean;
 begin
   if not Assigned(frmAddTbLink) then
     frmAddTbLink := TfrmAddTbLink.Create(Application);
-  frmAddTbLink.Init(tb1, tb2, nil);
+  frmAddTbLink.Init(tb1, tb2, nil, False);
   if fdef <> '' then
     with frmAddTbLink.combRelateField do
       if items.IndexOf(fdef) >= 0 then
@@ -78,16 +84,17 @@ begin
   begin
     Result := True;
     cf := frmAddTbLink.FResultField;
+    redesc := frmAddTbLink.FResultTbDesc;
   end
   else
     Result := False;
 end;
 
-function ExecEditTbLink(tb1, tb2: TCtMetaTable; var cf: TCtMetaField): boolean;
+function ExecEditTbLink(tb1, tb2: TCtMetaTable; var cf: TCtMetaField; bReadOnlyMode: Boolean): boolean;
 begin
   if not Assigned(frmAddTbLink) then
     frmAddTbLink := TfrmAddTbLink.Create(Application);
-  frmAddTbLink.Init(tb1, tb2, cf);
+  frmAddTbLink.Init(tb1, tb2, cf, bReadOnlyMode);
   if frmAddTbLink.ShowModal = mrOk then
   begin
     Result := True;
@@ -103,7 +110,7 @@ begin
     frmAddTbLink := nil;
 end;
 
-procedure TfrmAddTbLink.Init(tb1, tb2: TCtMetaTable; cf: TCtMetaField);
+procedure TfrmAddTbLink.Init(tb1, tb2: TCtMetaTable; cf: TCtMetaField; bReadOnly: Boolean);
 var
   S: string;
   I: integer;
@@ -111,11 +118,24 @@ begin
   combLinkType.Items.Text := srDmlLinkTypeNames;
   Ftb1 := tb1;
   Ftb2 := tb2;
-  Fcf := cf;
-  if cf = nil then
-    Caption := srDmlAddLink
+  Fcf := cf;      
+  ReadOnlyMode := bReadOnly;
+  ckbCreateM2MTb.Checked := False;
+  if FReadOnlyMode then
+  begin
+    Caption := srDmlShowLink;
+    ckbCreateM2MTb.Visible := False;
+  end
+  else if cf = nil then
+  begin
+    Caption := srDmlAddLink;
+    ckbCreateM2MTb.Visible := True;
+  end
   else
+  begin
     Caption := srDmlEditLink;
+    ckbCreateM2MTb.Visible := False;
+  end;
 
   edtMasterTb.Text := tb1.Name;
   if tb1.Caption <> '' then
@@ -169,7 +189,10 @@ begin
   else
   begin
     combRelateField.ItemIndex := -1;
-    combLinkType.ItemIndex := 0;
+    if combMasterField.ItemIndex = -1 then
+      combLinkType.ItemIndex := 1
+    else
+      combLinkType.ItemIndex := 0;
     ckbCreateNewField.Visible := True;
   end;  
   edtNewFieldName.Text := '';
@@ -189,10 +212,6 @@ begin
   RefreshLinkInfo;
 end;
 
-procedure TfrmAddTbLink.FormShow(Sender: TObject);
-begin
-  btnOk.Left:= btnCancel.Left - btnOk.Width - 10;
-end;
 
 procedure TfrmAddTbLink.RefreshLinkInfo;
 var
@@ -203,13 +222,22 @@ begin
   else if combLinkType.ItemIndex > 0 then
     combMasterField.Enabled := False
   else
-    combMasterField.Enabled := True;
+    combMasterField.Enabled := not FReadOnlyMode;
 
   cf := nil;
   if combRelateField.ItemIndex >= 0 then
     cf := TCtMetaField(combRelateField.Items.Objects[combRelateField.ItemIndex]);
-
-  if cf = nil then
+          
+  if ckbCreateNewField.Checked then
+  begin
+    lbLinkInfo.Caption := srLink_OneToMany;
+    lbLinkInfo.Show;
+  end
+  else  if cf = nil then
+  begin
+      lbLinkInfo.Hide
+  end
+  else if ckbCreateM2MTb.Checked then
     lbLinkInfo.Hide
   else if combLinkType.ItemIndex > 0 then
     lbLinkInfo.Hide
@@ -223,6 +251,19 @@ begin
       lbLinkInfo.Caption := srLink_OneToMany;
     lbLinkInfo.Show;
   end;
+end;
+
+procedure TfrmAddTbLink.SetReadOnlyMode(AValue: Boolean);
+begin
+  if FReadOnlyMode=AValue then Exit;
+  FReadOnlyMode:=AValue;
+  combMasterField.Enabled := not FReadOnlyMode;
+  combRelateField.Enabled := not FReadOnlyMode;
+  ckbCreateNewField.Enabled := not FReadOnlyMode;
+  combLinkType.Enabled := not FReadOnlyMode;         
+  btnOk.Visible := not FReadOnlyMode;
+  btnCancel.Visible := not FReadOnlyMode;      
+  btnClose.Visible := FReadOnlyMode;
 end;
 
 procedure TfrmAddTbLink.combRelateFieldChange(Sender: TObject);
@@ -262,7 +303,29 @@ begin
       edtNewFieldName.Text := S;
     end;
   end;
+  RefreshLinkInfo;
 end;
+
+procedure TfrmAddTbLink.ckbCreateM2MTbClick(Sender: TObject);
+var
+  S: String;
+begin
+  combLinkType.Enabled := not ckbCreateM2MTb.Checked;    
+  ckbCreateNewField.Enabled := not ckbCreateM2MTb.Checked;
+  if ckbCreateM2MTb.Checked then
+  begin
+    ckbCreateNewField.Checked := False;
+    combLinkType.ItemIndex := 0;
+    if combRelateField.ItemIndex = -1 then
+    begin
+      S := Ftb2.KeyFieldName;
+      if S <> '' then
+        combRelateField.ItemIndex := combRelateField.Items.IndexOf(S);
+    end;
+  end;
+  RefreshLinkInfo;
+end;
+
 
 procedure TfrmAddTbLink.FormCloseQuery(Sender: TObject;
   var CanClose: boolean);
@@ -273,12 +336,65 @@ procedure TfrmAddTbLink.FormCloseQuery(Sender: TObject;
     begin
       if combRelateField.ItemIndex = -1 then
         Exit;
-    end else
+    end
+    else if ckbCreateM2MTb.Checked then
+      Exit
+    else
     begin
       if Trim(edtNewFieldName.Text)= '' then
         Exit;
     end;   
     Result := True;
+  end;
+  function GenM2MTbDesc: string;
+  var
+    S, T: String;
+    mf, cf: TCtMetaField;
+  begin
+    with TStringList.Create do
+    try
+      S := Ftb1.Name+'_'+FTb2.Name;
+      if (Ftb1.Caption <>'') or (Ftb2.Caption <>'') then
+      begin
+        S := S+'('+Ftb1.DisplayText+'_'+Ftb2.DisplayText+')';
+      end;
+      Add(S);
+      Add('----------------');
+                               
+      mf := TCtMetaField(combMasterField.Items.Objects[combMasterField.ItemIndex]);
+      S:=Ftb1.Name+'_'+mf.Name;
+      if (Ftb1.Caption <>'') or (mf.DisplayName<>'') then
+      begin
+        if mf.DisplayName<>'' then
+          S := S+'('+Ftb1.DisplayText+'_'+mf.DisplayName+')'
+        else
+          S := S+'('+Ftb1.DisplayText+'_'+mf.Name+')';
+      end;
+      T := mf.GetFieldTypeDesc(False);
+      if (Copy(T,1,2)='PK') or (Copy(T,1,2)='FK') then
+        T:=Copy(T,3,Length(T));
+      S:=S+' FK'+T+' //<<Relation:'+Ftb1.name+'.'+mf.Name+'>>';
+      Add(S);
+              
+      cf := TCtMetaField(combRelateField.Items.Objects[combRelateField.ItemIndex]);
+      S:=Ftb2.Name+'_'+cf.Name;
+      if (Ftb2.Caption <>'') or (cf.DisplayName<>'') then
+      begin
+        if cf.DisplayName<>'' then
+          S := S+'('+Ftb2.DisplayText+'_'+cf.DisplayName+')'
+        else
+          S := S+'('+Ftb2.DisplayText+'_'+cf.Name+')';
+      end;               
+      T := cf.GetFieldTypeDesc(False);
+      if (Copy(T,1,2)='PK') or (Copy(T,1,2)='FK') then
+        T:=Copy(T,3,Length(T));
+      S:=S+' FK'+T+' //<<Relation:'+Ftb2.name+'.'+cf.Name+'>>';
+      Add(S);
+
+      Result := Trim(Text);
+    finally
+      Free;
+    end;
   end;
 var
   mf, cf: TCtMetaField;
@@ -308,7 +424,16 @@ begin
       CanClose := False;
       Exit;
     end;
-                           
+
+    if ckbCreateM2MTb.Checked then
+    begin
+      FResultField := nil;
+      FResultTbDesc := GenM2MTbDesc();
+      if FResultTbDesc = '' then
+        CanClose := False;
+      Exit;
+    end;
+
     if combRelateField.Visible then
       cf := TCtMetaField(combRelateField.Items.Objects[combRelateField.ItemIndex])
     else

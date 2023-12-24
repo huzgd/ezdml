@@ -30,13 +30,96 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="3"/>
-      <MinorVersionNr Value="2"/>
-      <RevisionNr Value="9"/>
-      <BuildNr Value="187"/>
-      <StringTable Comments="EZDML_X EMail:huzzz@163.com" CompanyName="huzzz@163.com" FileDescription="EZDML" InternalName="ezdml_x.exe" LegalCopyright="(c) 2007-2022 Huz(huzzz@163.com,http://www.ezdml.com)" LegalTrademarks="ezdml" OriginalFilename="ezdml_x.exe" ProductName="EZDML_X" ProductVersion="3.2"/>
+      <MinorVersionNr Value="5"/>
+      <RevisionNr Value="6"/>
+      <BuildNr Value="274"/>
+      <StringTable Comments="EZDML_X EMail:huzzz@163.com" CompanyName="huzzz@163.com" FileDescription="EZDML" InternalName="ezdml_x.exe" LegalCopyright="(c) 2007-2022 Huz(huzzz@163.com,http://www.ezdml.com)" LegalTrademarks="ezdml" OriginalFilename="ezdml_x.exe" ProductName="EZDML_X" ProductVersion="3.3"/>
     </VersionInfo>
-    <BuildModes Count="1">
+    <BuildModes Count="3">
       <Item1 Name="Default" Default="True"/>
+      <Item2 Name="Debug">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <SearchPaths>
+            <IncludeFiles Value="DML\Ctobj;DML;pkg;pkg\BesenJs;$(ProjOutDir)"/>
+            <OtherUnitFiles Value="DML\Ctobj;DML;pkg;pkg\Indy10\Core;pkg\Indy10\Protocols;pkg\Indy10\System;DML\Pascal;pkg\BesenJs;findhex;clib\$(TargetOS)"/>
+            <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <SyntaxMode Value="Delphi"/>
+              <IncludeAssertionCode Value="True"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <Checks>
+              <IOChecks Value="True"/>
+              <RangeChecks Value="True"/>
+              <OverflowChecks Value="True"/>
+              <StackChecks Value="True"/>
+            </Checks>
+            <Optimizations>
+              <OptimizationLevel Value="0"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <UseExternalDbgSyms Value="True"/>
+            </Debugging>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5026="True" idx5024="True"/>
+            </CompilerMessages>
+            <CustomOptions Value="-vd -dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
+          </Other>
+        </CompilerOptions>
+      </Item2>
+      <Item3 Name="Release">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <SearchPaths>
+            <IncludeFiles Value="DML\Ctobj;DML;pkg;pkg\BesenJs;$(ProjOutDir)"/>
+            <OtherUnitFiles Value="DML\Ctobj;DML;pkg;pkg\Indy10\Core;pkg\Indy10\Protocols;pkg\Indy10\System;DML\Pascal;pkg\BesenJs;findhex;clib\$(TargetOS)"/>
+            <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <SyntaxMode Value="Delphi"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <SmartLinkUnit Value="True"/>
+            <Optimizations>
+              <OptimizationLevel Value="3"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <GenerateDebugInfo Value="False"/>
+            </Debugging>
+            <LinkSmart Value="True"/>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5026="True" idx5024="True"/>
+            </CompilerMessages>
+            <CustomOptions Value="-vd -dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
+          </Other>
+        </CompilerOptions>
+      </Item3>
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
@@ -60,7 +143,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="56">
+    <Units Count="60">
       <Unit0>
         <Filename Value="ezdml_x.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -239,155 +322,187 @@
         <IsPartOfProject Value="True"/>
       </Unit29>
       <Unit30>
+        <Filename Value="DML\CtMetaOracleDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="DML\CtMetaFCLSqlDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="DML\CtMetaSqliteDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="DML\CtMetaSqlsvrDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="DML\CtMetaCustomDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="DML\CtMetaPostgreSqlDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit35>
+      <Unit36>
         <Filename Value="DML\Pascal\ide_editor.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmScriptIDE"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit30>
-      <Unit31>
+      </Unit36>
+      <Unit37>
         <Filename Value="DML\wOracleDBConfig.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmOraDBConfig"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit31>
-      <Unit32>
+      </Unit37>
+      <Unit38>
         <Filename Value="findhex\FindHexDlg.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmFindHex"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit32>
-      <Unit33>
+      </Unit38>
+      <Unit39>
         <Filename Value="wabout.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmAbout"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="wAbout"/>
-      </Unit33>
-      <Unit34>
+      </Unit39>
+      <Unit40>
         <Filename Value="wSettings.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmSettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit34>
-      <Unit35>
-        <Filename Value="pkg\NetUtil.pas"/>
+      </Unit40>
+      <Unit41>
+        <Filename Value="DML\CtMetaOdbcDb.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit35>
-      <Unit36>
+      </Unit41>
+      <Unit42>
+        <Filename Value="DML\CtMetaMysqlDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit42>
+      <Unit43>
+        <Filename Value="DML\CtMetaHttpDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit43>
+      <Unit44>
         <Filename Value="DML\uFormHttpSvr.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmHttpSvr"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit36>
-      <Unit37>
+      </Unit44>
+      <Unit45>
         <Filename Value="pkg\ThreadWait.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmThreadWait"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit37>
-      <Unit38>
+      </Unit45>
+      <Unit46>
         <Filename Value="DML\uFormDmlSearch.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmDmlSearch"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit38>
-      <Unit39>
+      </Unit46>
+      <Unit47>
         <Filename Value="pkg\wToast.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmToast"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit39>
-      <Unit40>
+      </Unit47>
+      <Unit48>
         <Filename Value="DML\uFormSelectFields.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmSelectFields"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit40>
-      <Unit41>
+      </Unit48>
+      <Unit49>
         <Filename Value="DML\uFrameUIPreview.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FrameUIPreview"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-      </Unit41>
-      <Unit42>
+      </Unit49>
+      <Unit50>
         <Filename Value="DML\uFrameDmlScAttach.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="FrameDmlScAttach"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-      </Unit42>
-      <Unit43>
-        <Filename Value="DML\uFormUISheet.pas"/>
+      </Unit50>
+      <Unit51>
+        <Filename Value="DML\uFrameUISheet.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmUIPrvSheet"/>
+        <ComponentName Value="FrameUIPrvSheet"/>
         <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-      </Unit43>
-      <Unit44>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit51>
+      <Unit52>
         <Filename Value="DML\uFormWindowsOdbcCfg.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmWindowsOdbcConfg"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit44>
-      <Unit45>
+      </Unit52>
+      <Unit53>
         <Filename Value="DML\uFormGenTabCust.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmGenTabCust"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit45>
-      <Unit46>
-        <Filename Value="DML\CtMetaOracleDb.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit46>
-      <Unit47>
-        <Filename Value="DML\CtMetaFCLSqlDb.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit47>
-      <Unit48>
-        <Filename Value="DML\CtMetaSqliteDb.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit48>
-      <Unit49>
-        <Filename Value="DML\CtMetaSqlsvrDb.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit49>
-      <Unit50>
-        <Filename Value="DML\CtMetaCustomDb.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit50>
-      <Unit51>
-        <Filename Value="DML\CtMetaPostgreSqlDb.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit51>
-      <Unit52>
-        <Filename Value="DML\CtMetaOdbcDb.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit52>
-      <Unit53>
-        <Filename Value="DML\CtMetaMysqlDb.pas"/>
-        <IsPartOfProject Value="True"/>
       </Unit53>
       <Unit54>
-        <Filename Value="DML\CtMetaHttpDb.pas"/>
+        <Filename Value="DML\uFormDBDataRule.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmDBDataRule"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit54>
       <Unit55>
-        <Filename Value="DML\CtMetaEzdmlFakeDb.pas"/>
+        <Filename Value="DML\uFrameCustPhyFieldTypes.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="FrameCustPhyFieldTypes"/>
+        <ResourceBaseClass Value="Frame"/>
       </Unit55>
+      <Unit56>
+        <Filename Value="DML\wSqlServerDBConfig.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmSqlSvrDBConfig"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="DML\wCommonDBConfig.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmCommDBConfig"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="wCommonDbConfig"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="DML\uFormGenData.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmCtGenData"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit58>
+      <Unit59>
+        <Filename Value="DML\uFormEzdmlDbFile.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit59>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -395,7 +510,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="DML\Ctobj;DML;pkg;pkg\BesenJs;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="DML\Ctobj;DML;pkg;pkg\Indy10\Core;pkg\Indy10\Protocols;pkg\Indy10\System;DML\Pascal;pkg\BesenJs;findhex;clib\$(TargetOS)"/>
+      <OtherUnitFiles Value="DML\Ctobj;DML;pkg;pkg\fcl\mysqlxx;pkg\Indy10\Core;pkg\Indy10\Protocols;pkg\Indy10\System;DML\Pascal;pkg\BesenJs;findhex"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

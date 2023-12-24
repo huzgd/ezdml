@@ -94,12 +94,12 @@ type
   TCtObject = class(TObject)
   private
   protected
-    FID: Integer;
+    FID: Integer;   
+    FName: string;
     FCtGuid: string;
     FRID: Integer;
     FPID: Integer;
     FPreName: string;
-    FName: string;
     FCaption: string;
     FMemo: string;
     FCreateDate: TDateTime;
@@ -131,7 +131,7 @@ type
     FModifyCounter: Integer;
     FCalString: string;
   protected
-    procedure SetName(const Value: string);
+    procedure SetName(const Value: string); virtual;
 
     procedure SetGlobeList(const Value: TCtGlobList); virtual;
     function GetDisplayText: string; virtual;
@@ -285,6 +285,9 @@ type
   end;
 
   //CT对象列表，可新建、自动FREE，保存数据流，展开子项
+
+  { TCtObjectList }
+
   TCtObjectList = class(TCtGlobList)
   private
     FItemClass: TCtObjectClass;
@@ -319,6 +322,7 @@ type
     function ItemByName(AName: string; bCaseSensive: Boolean = False): TCtObject; virtual;
     function NameOfID(AID: Integer): string; virtual;
 
+    function ValidItemCount: Integer;
     //删除无效节点
     procedure Pack; virtual;
     //仅删除（不FREE）
@@ -1218,6 +1222,8 @@ function TCtObjectList.ItemByName(AName: string;
 var
   I: Integer;
 begin
+  if AName='' then
+    Exit;
   if bCaseSensive then
   begin
     for I := 0 to Count - 1 do
@@ -1393,6 +1399,19 @@ begin
     Result := o.DisplayText
   else
     Result := 'NONE';
+end;
+
+function TCtObjectList.ValidItemCount: Integer;
+var
+  I: Integer;
+  o: TCtObject;
+begin
+  Result := 0;
+  for I := Count - 1 downto 0 do
+    if Assigned(Items[I]) and (Items[I].DataLevel <> ctdlDeleted) then
+    begin
+      Inc(Result);
+    end;
 end;
 
 procedure TCtObjectList.SaveCurrentOrder;

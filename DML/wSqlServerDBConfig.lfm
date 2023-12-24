@@ -1,0 +1,194 @@
+object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
+  Left = 397
+  Height = 463
+  Top = 320
+  Width = 473
+  BorderStyle = bsDialog
+  Caption = 'SQLServer Connection'
+  ClientHeight = 463
+  ClientWidth = 473
+  Color = clBtnFace
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object Label1: TLabel
+    Left = 48
+    Height = 17
+    Top = 52
+    Width = 45
+    Caption = 'Host IP:'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 320
+    Height = 17
+    Top = 52
+    Width = 27
+    Caption = 'Port:'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 48
+    Height = 17
+    Top = 92
+    Width = 42
+    Caption = 'Instant:'
+    ParentColor = False
+  end
+  object edtPort: TEdit
+    Left = 368
+    Height = 25
+    Top = 48
+    Width = 72
+    TabOrder = 2
+    Text = '1433'
+  end
+  object edtInstName: TEdit
+    Left = 116
+    Height = 25
+    Top = 88
+    Width = 324
+    TabOrder = 3
+  end
+  object btnOK: TButton
+    Left = 268
+    Height = 27
+    Top = 420
+    Width = 100
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 10
+  end
+  object btnCancel: TButton
+    Left = 376
+    Height = 27
+    Top = 420
+    Width = 64
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 11
+  end
+  object combAddr: TComboBox
+    Left = 116
+    Height = 25
+    Top = 48
+    Width = 188
+    ItemHeight = 17
+    Items.Strings = (
+      'localhost'
+      '127.0.0.1'
+      '192.168.1.123'
+    )
+    TabOrder = 1
+  end
+  object btnHelp: TButton
+    Left = 20
+    Height = 25
+    Top = 420
+    Width = 74
+    Caption = 'Help'
+    OnClick = btnHelpClick
+    TabOrder = 12
+  end
+  object Label4: TLabel
+    Left = 48
+    Height = 17
+    Top = 132
+    Width = 58
+    Caption = 'Database:'
+    ParentColor = False
+  end
+  object edtDbName: TEdit
+    Left = 116
+    Height = 25
+    Top = 128
+    Width = 324
+    TabOrder = 4
+  end
+  object Label5: TLabel
+    Left = 48
+    Height = 34
+    Top = 176
+    Width = 392
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Note: Leave user-name empty for integrated security authentication'
+    ParentColor = False
+    WordWrap = True
+  end
+  object rdbIPAddr: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 15
+    Width = 117
+    Caption = 'Specify address:'
+    Checked = True
+    OnChange = rdbIPAddrChange
+    TabOrder = 0
+    TabStop = True
+  end
+  object rbdOdbcDsn: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 224
+    Width = 90
+    Caption = 'ODBC DSN:'
+    OnChange = rdbIPAddrChange
+    TabOrder = 5
+  end
+  object Label6: TLabel
+    Left = 48
+    Height = 17
+    Top = 260
+    Width = 29
+    Caption = 'DSN:'
+    ParentColor = False
+  end
+  object edtDsnName: TEdit
+    Left = 116
+    Height = 25
+    Top = 256
+    Width = 256
+    TabOrder = 6
+  end
+  object btnBrowseDsn: TButton
+    Left = 376
+    Height = 25
+    Top = 256
+    Width = 64
+    Caption = 'Browse'
+    OnClick = btnBrowseDsnClick
+    TabOrder = 7
+  end
+  object rdbOdbcConnStr: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 300
+    Width = 167
+    Caption = 'ODBC Connection String:'
+    OnChange = rdbIPAddrChange
+    TabOrder = 8
+  end
+  object MemoOdbcConnStr: TMemo
+    Left = 48
+    Height = 66
+    Top = 332
+    Width = 392
+    Lines.Strings = (
+      'Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;'
+    )
+    TabOrder = 9
+  end
+  object lbOdbcTip: TLabel
+    Left = 48
+    Height = 51
+    Top = 332
+    Width = 392
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Note: By default EZDML use FreeTDS to connect SQL Server. You can switch to ODBC by changing the driver config in main settings dialog (a restart will be needed).'
+    ParentColor = False
+    Visible = False
+    WordWrap = True
+  end
+end

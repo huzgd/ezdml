@@ -1,0 +1,68 @@
+object FrameUIPrvSheet: TFrameUIPrvSheet
+  Left = 0
+  Height = 613
+  Top = 0
+  Width = 485
+  ClientHeight = 613
+  ClientWidth = 485
+  Color = clWindow
+  OnResize = FrameResize
+  ParentColor = False
+  TabOrder = 0
+  DesignLeft = 1050
+  DesignTop = 242
+  object ScrollBoxSheetEdit: TScrollBox
+    Left = 0
+    Height = 613
+    Top = 0
+    Width = 485
+    HorzScrollBar.Page = 312
+    HorzScrollBar.Tracking = True
+    VertScrollBar.Page = 111
+    VertScrollBar.Tracking = True
+    Align = alClient
+    BorderStyle = bsNone
+    ClientHeight = 613
+    ClientWidth = 485
+    TabOrder = 0
+    object PanelSheetEdit: TPanel
+      Left = 0
+      Height = 111
+      Top = 0
+      Width = 312
+      BevelOuter = bvNone
+      TabOrder = 0
+    end
+  end
+  object ScrollBoxSheetView: TScrollBox
+    Left = 0
+    Height = 613
+    Top = 0
+    Width = 485
+    HorzScrollBar.Page = 320
+    HorzScrollBar.Tracking = True
+    VertScrollBar.Page = 111
+    VertScrollBar.Tracking = True
+    Align = alClient
+    BorderStyle = bsNone
+    ClientHeight = 613
+    ClientWidth = 485
+    TabOrder = 1
+    Visible = False
+    object PanelSheetView: TPanel
+      Left = 0
+      Height = 111
+      Top = 0
+      Width = 320
+      BevelOuter = bvNone
+      TabOrder = 0
+    end
+  end
+  object TimerResize: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = TimerResizeTimer
+    left = 165
+    top = 255
+  end
+end

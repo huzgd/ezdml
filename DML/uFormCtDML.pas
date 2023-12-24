@@ -19,6 +19,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
   private
+    FBrowseMode: Boolean;
     { Private declarations }
     FReadOnlyMode: boolean;
     FMetaTableModel: TCtDataModelGraph;
@@ -44,6 +45,8 @@ type
     procedure actCopyDmlTextExecuteEx(Sender: TObject);   
     procedure actDBGenSqlExecuteEx(Sender: TObject);
 
+    procedure DMLGraphViewChangedEx(Sender: TObject);
+
     procedure DoExportHtmlDoc(tfn: string);     
     procedure DoExportMarkdown(tfn: string);
     procedure DoExecScript(fn, tfn: string);
@@ -58,6 +61,9 @@ type
     function _OnLinkObj(Obj1, Obj2: TDMLObj): integer;
     procedure _DoCapitalize(sType: string);
     procedure _DoBatCopy(sType: string);
+    procedure _OnSelChanged;
+    procedure _OnObjColorChanged(Obj: TDMLObj; cl: Integer);      
+    function _GetObjPropVal(Obj: TDMLObj; prop, def: string): string;
 
     procedure CheckAllLinks;
     procedure ResortToolBtns;
@@ -78,21 +84,26 @@ type
 
     procedure Init(mdl: TCtDataModelGraph; bReadOnly, bCanCancel: boolean);
     procedure CheckSelectedTb;
+    procedure CheckActEnbs;
+    procedure CheckSaveView;
+    function CountSelectedTables(tbs: TCtMetaTableList = nil): Integer;
     function GetSelectedTable: TCtMetaTable;
     function GetSelectedCtObj: TCtMetaObject;
     function LocToCtObj(obj: TCtMetaObject): boolean;
-    procedure ReloadTbInfo(tb: TCtMetaTable);
+    procedure ReloadTbInfo(tb: TCtMetaTable);     
+    function SelectRelateLink(tb1, tb2: TCtMetaTable; bFkOnly: Boolean): boolean;
     procedure RewriteGraphDesc;
     procedure RearrangeAll;
     procedure ReassignActionList;
     property MetaTableModel: TCtDataModelGraph read FMetaTableModel;
+    property BrowseMode: Boolean read FBrowseMode write FBrowseMode;
   end;
 
 implementation
 
 uses
   CTMetaData, uFormAddTbLink, dmlstrs, ezdmlstrs, CtObjXmlSerial, ClipBrd,
-  DmlScriptPublic, ImgView, ide_editor, AutoNameCapitalize, uFormGenSql;
+  DmlScriptPublic, ImgView, ide_editor, AutoNameCapitalize, uFormGenSql, Toolwin;
 
 {$R *.lfm}
 
@@ -100,6 +111,7 @@ uses
 procedure TfrmCtDML.Init(mdl: TCtDataModelGraph; bReadOnly, bCanCancel: boolean);
 begin
   ResortToolBtns;
+
   FReadOnlyMode := bReadOnly;
   FMetaTableModel := mdl;
   if FMetaTableModel = nil then
@@ -120,28 +132,12 @@ begin
     FTempMetaTableModel.AssignFrom(FMetaTableModel);
   end;
 
-  FFrameCtDML.ToolBar1.Visible := not FReadOnlyMode or bCanCancel;
-  FFrameCtDML.StatusBar1.Visible := False;
-  FFrameCtDML.actNewObj.Visible := not FReadOnlyMode;
-  FFrameCtDML.actNewText.Visible := not FReadOnlyMode;      
-  FFrameCtDML.actAddLink.Visible := not FReadOnlyMode;
-  FFrameCtDML.actDeleteObj.Visible := not FReadOnlyMode;
-  FFrameCtDML.actSetEntityColor.Visible := not FReadOnlyMode;      
-  FFrameCtDML.actResetObjLinks.Visible := not FReadOnlyMode;
-
-  FFrameCtDML.actDMLObjProp.Visible := Assigned(mdl);
-  FFrameCtDML.actCopyImage.Visible := Assigned(mdl);
-  FFrameCtDML.actCopyDmlText.Visible := Assigned(mdl);      
-  FFrameCtDML.actSelectAll.Visible := Assigned(mdl);
-  FFrameCtDML.actExportXls.Visible := Assigned(mdl);         
-  FFrameCtDML.actDBGenSql.Visible := Assigned(mdl);
-  FFrameCtDML.actFindObject.Visible := Assigned(mdl);
-
   if bCanCancel then
     FCurMetaTableModel := FTempMetaTableModel
   else
     FCurMetaTableModel := FMetaTableModel;
   InitDML(FCurMetaTableModel);
+  CheckActEnbs;
 end;
 
 procedure TfrmCtDML.ReloadTbInfo(tb: TCtMetaTable);
@@ -214,6 +210,55 @@ begin
   FFrameCtDML.DMLGraph.Refresh;
 end;
 
+function TfrmCtDML.SelectRelateLink(tb1, tb2: TCtMetaTable; bFkOnly: Boolean): boolean;
+var
+  lnk: TDMLLinkObj;
+  bFound: Boolean;
+  J: integer;
+begin
+  Result := False;
+  if tb1 = nil then
+    Exit;          
+  if tb2 = nil then
+    Exit;   
+  if tb1 = tb2 then
+    Exit;
+
+
+  with FFrameCtDML.DMLGraph.DMLObjs do
+    for J := 0 to Count - 1 do
+      if Items[J] is TDMLLinkObj then
+      begin
+        lnk:= TDMLLinkObj(Items[J]);
+        if bFkOnly then
+          if not (lnk.LinkType in [dmllFKNormal, dmllFKUnique]) then
+            Continue;
+        if not (lnk.Obj1.UserObject is TCtMetaTable) then
+          Continue;
+        if not (lnk.Obj2.UserObject is TCtMetaTable) then
+          Continue;
+        bFound := False;
+        if TCtMetaTable(lnk.Obj1.UserObject).Name = tb1.Name then
+        begin      
+          if TCtMetaTable(lnk.Obj2.UserObject).Name = tb2.Name then
+            bFound := True;
+        end
+        else if TCtMetaTable(lnk.Obj1.UserObject).Name = tb2.Name then
+          if TCtMetaTable(lnk.Obj2.UserObject).Name = tb1.Name then
+            bFound := True;
+        if not bFound then
+          Continue;
+
+        FFrameCtDML.DMLGraph.DMLObjs.ClearSelection;
+        lnk.Selected:=True;
+        Result := True;
+        Break;
+      end;
+
+  if Result then
+    FFrameCtDML.DMLGraph.Reset;
+end;
+
 procedure TfrmCtDML.FormCreate(Sender: TObject);
 begin
   FFrameCtDML := TFrameDML.Create(Self);
@@ -225,7 +270,10 @@ begin
   FFrameCtDML.Proc_OnObjAddOrRemove := _OnObjAddOrRemove;
   FFrameCtDML.Proc_OnLinkObj := _OnLinkObj;
   FFrameCtDML.Proc_DoCapitalize := _DoCapitalize;
-  FFrameCtDML.Proc_DoBatCopy := _DoBatCopy;
+  FFrameCtDML.Proc_DoBatCopy := _DoBatCopy;     
+  FFrameCtDML.Proc_OnObjColorChanged := _OnObjColorChanged;  
+  FFrameCtDML.Proc_GetObjPropVal := _GetObjPropVal;
+  FFrameCtDML.Proc_DoSelectChanged := _OnSelChanged;
 
   FFrameCtDML.actDMLObjProp.OnExecute := actDMLObjPropExecuteEx;
   FFrameCtDML.actRearrange.OnExecute := actRearrangeExecuteEx;
@@ -243,6 +291,8 @@ begin
 
   FFrameCtDML.actBatchOps.OnExecute := actBatchOpsExecute;
   FFrameCtDML.actBatchOps.Visible := True;
+
+  FFrameCtDML.DMLGraph.OnViewChanged := DMLGraphViewChangedEx;
 
   {FFrameCtDML.actFileNew.Visible := False;
   FFrameCtDML.actFileNew.Enabled := False;
@@ -406,15 +456,8 @@ var
 begin
   tbs := TCtMetaTableList.Create;
   try
-    tbs.AutoFree := False;     
-    with FFrameCtDML.DMLGraph.DMLObjs do
-      for I := 0 to Count - 1 do
-        if Items[I].Selected then
-          if (Items[I] <> nil) and (Items[I].UserObject is TCtMetaTable) then  
-            if TCtMetaTable(Items[I].UserObject).IsTable then
-            begin
-              tbs.Add(TCtMetaTable(Items[I].UserObject));
-            end;
+    tbs.AutoFree := False;
+    CountSelectedTables(tbs);
 
     if not Assigned(frmCtGenSQL) then
       frmCtGenSQL := TfrmCtGenSQL.Create(Self);
@@ -431,6 +474,12 @@ begin
   finally
     tbs.Free;
   end;
+end;
+
+procedure TfrmCtDML.DMLGraphViewChangedEx(Sender: TObject);
+begin
+  FFrameCtDML.DMLGraphViewChanged(Sender);
+  CheckSaveView;
 end;
 
 procedure TfrmCtDML.actCopyExecute(Sender: TObject);
@@ -487,6 +536,25 @@ begin
 end;
 
 procedure TfrmCtDML.actDMLObjPropExecuteEx(Sender: TObject);
+  function GetRealTable(tb: TCtMetaTable): TCtMetaTable;
+  begin
+    //对于只读浏览的临时模型图，应调用全局列表中的表属性
+    Result := tb;
+    if not BrowseMode then
+      Exit;
+    if tb=nil then
+      Exit;
+
+    Result := FGlobeDataModelList.GetTableOfName(tb.Name);
+    if Result = nil then
+      Result := tb
+    else if Result.SketchyDescribe <> tb.SketchyDescribe then
+      Result := tb;
+  end;
+  function DoExecEditTbLink(tb1, tb2: TCtMetaTable; var cf: TCtMetaField): boolean;
+  begin
+    Result := ExecEditTbLink(tb1, tb2, cf, FReadOnlyMode or BrowseMode);
+  end;
 var
   obj, obj2: TDMLObj;
   tb, tb2: TCtMetaTable;
@@ -497,7 +565,7 @@ var
   I, J: integer;
   DMLObjList: TDMLObjList;
   tmpList: TList;
-  bRes: boolean;
+  bRes, bViewMode: boolean;
 begin
   if not FFrameCtDML.DMLGraph.CanFocus then
   begin
@@ -521,7 +589,7 @@ begin
       if (olnk.Obj2.UserObject is TCtMetaTable) then
       begin
         cf := (obj.UserObject as TCtMetaField);
-        if ExecEditTbLink(olnk.Obj1.UserObject as TCtMetaTable,
+        if DoExecEditTbLink(olnk.Obj1.UserObject as TCtMetaTable,
           olnk.Obj2.UserObject as TCtMetaTable,
           cf) then
         begin
@@ -544,7 +612,8 @@ begin
             obj.CheckResize;
           end;
           CheckAllLinks;
-          FFrameCtDML.DMLGraph.Refresh;
+          FFrameCtDML.DMLGraph.Refresh;      
+          FLastRefreshTick := GetTickCount;
         end;
         Exit;
       end;
@@ -555,7 +624,7 @@ begin
   if (obj is TDMLTableObj) and
     (TDMLTableObj(obj).UserObject is TCtMetaTable) then
   begin
-    tb := TCtMetaTable(TDMLTableObj(obj).UserObject);
+    tb := GetRealTable(TCtMetaTable(TDMLTableObj(obj).UserObject));
     cf := nil;
     if (TDMLTableObj(obj).SelectedFieldIndex > 0) and not
       FFrameCtDML.DMLGraph.DMLDrawer.HideSelectedField then
@@ -578,7 +647,8 @@ begin
             TDMLTableObj(obj).CheckResize;
             TDMLTableObj(obj).FindFKLinks(FFrameCtDML.DMLGraph.DMLObjs);
             CheckAllLinks;
-            FFrameCtDML.DMLGraph.Refresh;
+            FFrameCtDML.DMLGraph.Refresh;   
+            FLastRefreshTick := GetTickCount;
             if Assigned(Proc_OnPropChange) then
               Proc_OnPropChange(2, tb, nil, '');
           end;
@@ -590,18 +660,37 @@ begin
     if not Assigned(Proc_ShowCtTableProp) then
       raise Exception.Create('Proc_ShowCtTableProp not defined');
     oName := tb.Name;
+    bViewMode := FReadOnlyMode or IsTbPropDefViewMode;
+    if not bViewMode then
+    begin
+      for I:=Screen.FormCount - 1 downto 0 do
+      begin
+        if LowerCase(Screen.Forms[I].ClassName) = LowerCase('TfrmCtTableProp') then
+        begin
+          bViewMode := True;
+          Break;
+        end;
+      end;
+    end;
     if Assigned(cf) and Assigned(Proc_ShowCtTableOfField) then
-      bRes := Proc_ShowCtTableOfField(tb, cf, FReadOnlyMode or
-        IsTbPropDefViewMode, False, False)
+      bRes := Proc_ShowCtTableOfField(tb, cf, bViewMode, False, False)
     else
-      bRes := Proc_ShowCtTableProp(tb, FReadOnlyMode or IsTbPropDefViewMode, False);
+      bRes := Proc_ShowCtTableProp(tb, bViewMode, False);
     if bRes then
     begin
       if FReadOnlyMode then
         Exit;
       //SaveToTb(tb);
+      //DoTablePropsChanged 表属性保存时会自动调用
       S := tb.Name;
-      TDMLTableObj(obj).Name := S;
+      TDMLTableObj(obj).Name := S;        
+      if tb.BgColor > 0 then
+      begin
+        obj.UserPars := AddOrModifyCompStr(obj.UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
+        obj.FillColor := tb.BgColor;
+      end
+      else  
+        obj.UserPars := AddOrModifyCompStr(obj.UserPars, '0', '[CUSTOM_BKCOLOR=', ']');
       DMLObjList := FFrameCtDML.DMLGraph.DMLObjs;
       tmpList := TList.Create;
       try
@@ -655,7 +744,8 @@ begin
         tmpList.Free;
       end;
 
-      FFrameCtDML.DMLGraph.Refresh;
+      FFrameCtDML.DMLGraph.Refresh;    
+      FLastRefreshTick := GetTickCount;
       if Assigned(Proc_OnPropChange) then
         Proc_OnPropChange(2, tb, nil, '');
       if oName <> tb.Name then
@@ -669,7 +759,7 @@ begin
   if (obj is TDMLTextObj) and
     (TDMLTextObj(obj).UserObject is TCtMetaTable) then
   begin
-    tb := TCtMetaTable(TDMLTextObj(obj).UserObject);
+    tb := GetRealTable(TCtMetaTable(TDMLTextObj(obj).UserObject));
     if not Assigned(Proc_ShowCtTableProp) then
       raise Exception.Create('Proc_ShowCtTableProp not defined');
     if Proc_ShowCtTableProp(tb, FReadOnlyMode or IsTbPropDefViewMode, False) then
@@ -679,7 +769,8 @@ begin
       //SaveToTb(tb);
       TDMLTextObj(obj).Comment := tb.Memo;
       TDMLTextObj(obj).CheckResize;
-      FFrameCtDML.DMLGraph.Refresh;
+      FFrameCtDML.DMLGraph.Refresh;   
+      FLastRefreshTick := GetTickCount;
       if Assigned(Proc_OnPropChange) then
         Proc_OnPropChange(2, tb, nil, '');
     end;
@@ -739,7 +830,10 @@ begin
   end;
   if (S = '.png') or (S = '.bmp') or (S = '.jpg') or (S = '.wmf') then
   begin
-    FFrameCtDML.SaveDmlImage(fn);
+    FFrameCtDML.SaveDmlImage(fn);  
+    if Application.MessageBox(PChar(srConfirmOpenXlsAfterExport),
+      PChar(Application.Title), MB_OKCANCEL) = IDOK then
+       CtOpenDoc(PChar(fn));
     Exit;
   end;
 
@@ -799,6 +893,35 @@ procedure TfrmCtDML.actPasteExecute(Sender: TObject);
 var
   vTempTbs: TCtMetaTableList;
 
+  procedure CheckHasDiffTb(tb: TCtMetaTable);
+  var
+    ctb: TCtMetaTable;   
+    n: integer;
+  begin
+    //如果本模型中没有，但其它模型有，且内容不一样：1 覆盖 2 改名
+    ctb := FGlobeDataModelList.GetTableOfName(tb.Name);
+    if ctb = nil then
+      Exit;
+    if ctb.MaybeSame(tb) then
+      Exit;
+    case Application.MessageBox(PChar(Format(srDmlPasteExistsTableFmt,[tb.Name])),
+      PChar(Application.Title), MB_YESNOCANCEL or MB_ICONWARNING) of
+      IDYES:
+        Exit;
+      IDNO:
+        begin
+          n := 1;
+          while HasSameNameTables(tb, tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n))) do
+            Inc(n);
+          tb.Name := tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));   
+          if tb.Caption <> '' then
+             tb.Caption :=  tb.Caption + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
+        end;
+      else
+        Abort;
+    end;
+  end;
+
   procedure RenameTbIfExists(tb: TCtMetaTable);
   var
     n: integer;
@@ -808,7 +931,10 @@ var
 
     if tb.IsTable then
       if FCurMetaTableModel.Tables.ItemByName(tb.Name) = nil then
+      begin
+        CheckHasDiffTb(tb);
         Exit;
+      end;
     if not HasSameNameTables(tb, tb.Name) then
       Exit;
 
@@ -816,6 +942,8 @@ var
     while HasSameNameTables(tb, tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n))) do
       Inc(n);
     tb.Name := tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
+    if tb.Caption <> '' then
+       tb.Caption :=  tb.Caption + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
   end;
       
   procedure RenameAllTbs;
@@ -832,7 +960,9 @@ var
       n := 1;
       while HasSameNameTables(tb, tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n))) do
         Inc(n);
-      tb.Name := tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
+      tb.Name := tb.Name + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n)); 
+      if tb.Caption <> '' then
+         tb.Caption :=  tb.Caption + '_' + srPasteCopySuffix + IfElse(n=1, '', IntToStr(n));
 
       for J:=0 to vTempTbs.Count - 1 do
       begin
@@ -858,6 +988,7 @@ var
   cto: TCtMetaObject;
   obj2: TDMLObj;
   sc: double;
+  bInd: Boolean;
   lastPos: TPoint;
   cx, cy, x0, y0, x1, y1, dx, dy: double;
 begin       
@@ -900,6 +1031,7 @@ begin
           tb.MetaFields[J].GraphDesc := '';}
         if Assigned(Proc_OnPropChange) then
           Proc_OnPropChange(0, tb, nil, '');
+        DoTablePropsChanged(tb);
       end;
       FCurMetaTableModel.Tables.SaveCurrentOrder;
       sc := FFrameCtDML.DMLGraph.ViewScale;
@@ -925,7 +1057,13 @@ begin
       begin
         dx := lastPos.x - x0;
         dy := lastPos.y - y0;
-        FFrameCtDML.DMLGraph.DMLObjs.MoveSelected(dx, dy);
+        bInd := FFrameCtDML.DMLGraph.DMLDrawer.IndependPosForOverviewMode;
+        FFrameCtDML.DMLGraph.DMLDrawer.IndependPosForOverviewMode := False;
+        try
+          FFrameCtDML.DMLGraph.DMLObjs.MoveSelected(dx, dy);
+        finally
+          FFrameCtDML.DMLGraph.DMLDrawer.IndependPosForOverviewMode := bInd;
+        end;
         _OnObjsMoved(nil);
       end;
       FFrameCtDML.DMLGraph.Refresh;
@@ -1008,18 +1146,19 @@ begin
                 Break;
               end;
 
-      if obj2=nil then
-        Exit;
-
-      TDMLTableObj(obj2).Describe := tb.Describe;
-      TDMLTableObj(obj2).IsView := not tb.GenDatabase;
-      CheckDmlTableFieldProps(tb, TDMLTableObj(obj2));
-      TDMLTableObj(obj2).CheckResize;
-      TDMLTableObj(obj2).FindFKLinks(FFrameCtDML.DMLGraph.DMLObjs);
+      if obj2<>nil then
+      begin
+        TDMLTableObj(obj2).Describe := tb.Describe;
+        TDMLTableObj(obj2).IsView := not tb.GenDatabase;
+        CheckDmlTableFieldProps(tb, TDMLTableObj(obj2));
+        TDMLTableObj(obj2).CheckResize;
+        TDMLTableObj(obj2).FindFKLinks(FFrameCtDML.DMLGraph.DMLObjs);
+      end;
 
       CheckAllLinks; //添加缺失的连线
 
       FFrameCtDML.DMLGraph.Refresh;
+      DoTablePropsChanged(tb);
       if Assigned(Proc_OnPropChange) then
         Proc_OnPropChange(2, tb, nil, '');
 
@@ -1082,8 +1221,8 @@ var
   cf: TCtMetaField;
   f: TDMLField;
 begin
-  obj.RemoveLinks(FFrameCtDML.DMLGraph.DMLObjs);
-  for I := 0 to obj.FieldCount - 1 do
+  obj.RemoveLinks(FFrameCtDML.DMLGraph.DMLObjs); 
+  for I := obj.FieldCount - 1 downto 0 do
   begin
     f := obj.Field[I];
     S := f.Get_PhyName;
@@ -1091,9 +1230,20 @@ begin
       Continue;
     cf := TCtMetaField(ctb.MetaFields.ItemByName(S));
     if cf = nil then
-      Continue;
+      Continue;    
+    if cf.FieldWeight <= -9 then
+      if not (cf.KeyFieldType in [cfktRid, cfktId]) then
+      begin
+        obj.DeleteField(I);
+        if Pos('[HAS_MORE_FIELDS]', obj.UserPars) = 0 then
+          obj.UserPars := obj.UserPars + '[HAS_MORE_FIELDS]';
+        Continue;
+      end;
     f.FieldTypeName := cf.DataTypeName;
     f.IndexType := integer(cf.IndexType);
+    f.ExOptions := '';
+    if cf.FieldWeight <> 0 then
+      f.ExOptions:=f.ExOptions + '[WEIGHT:' + IntToStr(cf.FieldWeight) + ']';
     f.FieldTypeEx := '';
     if cf.RelateTable = '' then
       Continue;
@@ -1128,6 +1278,120 @@ begin
         begin
           TCtMetaTable(Items[I].UserObject).IsSelected := True;
         end;
+end;
+
+procedure TfrmCtDML.CheckActEnbs;
+begin
+  //FFrameCtDML.ToolBar1.Visible := not FReadOnlyMode or bCanCancel;
+  with FFrameCtDML do
+  begin   
+    StatusBar1.Visible := False;
+    actNewObj.Visible := not FReadOnlyMode;
+    actNewText.Visible := not FReadOnlyMode;
+    actAddLink.Visible := not FReadOnlyMode;
+    actDeleteObj.Visible := not FReadOnlyMode; 
+    actDeleteObj.Enabled := not FReadOnlyMode;
+    actSetEntityColor.Visible := not FReadOnlyMode;
+    actResetObjLinks.Visible := not FReadOnlyMode;
+
+    actDMLObjProp.Visible := Assigned(FMetaTableModel);
+    actCopyImage.Visible := Assigned(FMetaTableModel);
+    actCopyDmlText.Visible := Assigned(FMetaTableModel);
+    actSelectAll.Visible := Assigned(FMetaTableModel);
+    actExportXls.Visible := Assigned(FMetaTableModel);
+    actDBGenSql.Visible := Assigned(FMetaTableModel);
+    actFindObject.Visible := Assigned(FMetaTableModel);
+
+    actFileNew.Visible := not FBrowseMode;         
+    actFileOpen.Visible := not FBrowseMode;
+    actFileSave.Visible := not FBrowseMode;
+
+    actFindObject.Visible := not FBrowseMode;       
+    actExportXls.Visible := not FBrowseMode;
+    actBatchOps.Visible := not FBrowseMode;        
+    actDBGenSql.Visible := not FBrowseMode;
+    MN_Capitalize.Visible := not FBrowseMode;
+    actFullTableView.Visible := not FBrowseMode;
+    {$ifdef EZDML_LITE}
+    actChatGPT.Visible := False;
+    {$else} 
+    actChatGPT.Visible := not FBrowseMode and (actChatGPT.Tag=0);
+    {$endif}           
+    SpeedButtonChatGPT.Visible := actChatGPT.Visible;
+    actRun.Visible := not FBrowseMode;
+    actColorStyles.Visible := not FBrowseMode;
+    btnShowInGraph.Visible := not FBrowseMode;
+                                     
+    actRearrange.Visible := not FBrowseMode;
+
+    if FBrowseMode then
+    begin
+      ToolButtonDMLSp0.Visible := False;
+      ToolButtonDMLSp1.Visible := False;
+      ToolButtonDMLsp2.Visible := False;
+      ToolButtonDMLsp3.Visible := False;  
+      //ToolBar1.Align := alLeft;
+      //ToolBar1.EdgeBorders:=[ebRight];
+    end;
+  end;
+
+end;
+
+procedure TfrmCtDML.CheckSaveView;      
+var
+  S: String;
+  obj: TDMLObj;
+begin
+  if FCurMetaTableModel = nil then //保存视图
+    Exit;
+  if FCurMetaTableModel.Tables.Count = 0 then
+    Exit;
+
+  S := Format('DVS:%f,%f,%f', [FFrameCtDML.DMLGraph.ViewCenterX,FFrameCtDML.DMLGraph.ViewCenterY,FFrameCtDML.DMLGraph.ViewScale]);
+  if FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
+  begin
+    S := S +',1';
+  end
+  else
+    S := S +',0';
+  obj := FFrameCtDML.DMLGraph.DMLObjs.SelectedObj;
+  if Assigned(obj) and Assigned(obj.UserObject) and (obj.UserObject is TCtMetaTable) then
+  begin
+    S := S +','+ TCtMetaTable(obj.UserObject).Name;
+  end
+  else if Assigned(obj) and Assigned(obj.UserObject) and (obj is TDMLLinkObj)
+    and (obj.UserObject is TCtMetaField) and Assigned(TCtMetaField(obj.UserObject).OwnerTable) then
+  begin
+    S := S +','+TCtMetaField(obj.UserObject).OwnerTable.Name+'.'+ TCtMetaField(obj.UserObject).Name;
+  end
+  else
+  begin
+    S := S +',';
+  end;
+  FCurMetaTableModel.CustomAttr1 := S;
+end;
+
+function TfrmCtDML.CountSelectedTables(tbs: TCtMetaTableList): Integer;
+var
+  I: integer;
+  tb: TCtMetaTable;
+begin
+  Result := 0;
+  with FFrameCtDML.DMLGraph.DMLObjs do
+    for I := 0 to Count - 1 do
+      if Items[I].Selected then
+        if (Items[I] <> nil) and (Items[I].UserObject is TCtMetaTable) then
+          if TCtMetaTable(Items[I].UserObject).IsTable then
+          begin
+            tb := TCtMetaTable(Items[I].UserObject);
+            if tb <> nil then
+            begin
+              Inc(Result);
+              if tbs <> nil then
+                tbs.Add(tb);
+            end;
+          end;
+
 end;
 
 procedure TfrmCtDML.DoExportHtmlDoc(tfn: string);
@@ -1258,12 +1522,13 @@ procedure TfrmCtDML.InitDML(mdl: TCtDataModelGraph);
 var
   o: TDMLEntityObj;
   tb: TCtMetaTable;
-  FLastObjX, FLastObjY, dv: double;
+  FLastObjX, FLastObjY, dv, vCenterX, vCenterY, vScale: double;
   DMLObjList: TDMLObjList;
-  I: integer;
+  obj: TDMLObj;
+  I, po: integer;
   tbs: TCtMetaTableList;
   bfMode: boolean;
-  selStr: string;
+  selStr, S, T: string;
 begin
   FLastObjX := 0;
   FLastObjY := 0;
@@ -1308,12 +1573,13 @@ begin
   else
     DMLObjList.DMLDrawer.FIsHugeMode := False;
   try
+
+    //先输出有位置信息的
     for I := 0 to tbs.Count - 1 do
       if tbs.Items[I].DataLevel <> ctdlDeleted then
         if tbs.Items[I].GraphDesc <> '' then
-        begin
+        begin       
           tb := tbs.Items[I];
-
           if tb.IsText then
           begin
             o := TDMLTextObj.Create;
@@ -1335,6 +1601,11 @@ begin
           o.ID := DMLObjList.GetNextObjID;
           DMLObjList.Add(o);
           SetLocationDesc(o, tb.GraphDesc);
+          if tb.BgColor > 0 then
+          begin
+            o.UserPars := AddOrModifyCompStr(o.UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
+            o.FillColor := tb.BgColor;
+          end;
 
           dv := o.Top + o.Height + 100;
           if FLastObjY < dv then
@@ -1349,7 +1620,8 @@ begin
 
     FLastObjX := 0;
 
-
+                     
+    //再输出无位置信息的（自动分配位置）
     for I := 0 to tbs.Count - 1 do
       if tbs.Items[I].DataLevel <> ctdlDeleted then
         if tbs.Items[I].GraphDesc = '' then
@@ -1369,7 +1641,12 @@ begin
             TDMLTableObj(o).Describe := tb.Describe;
             CheckDmlTableFieldProps(tb, TDMLTableObj(o));
           end;
-          o.CheckResize;
+          o.CheckResize;  
+          if tb.BgColor > 0 then
+          begin
+            o.UserPars := AddOrModifyCompStr(o.UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
+            o.FillColor := tb.BgColor;
+          end;
 
           o.ID := DMLObjList.GetNextObjID;
           DMLObjList.Add(o);
@@ -1392,15 +1669,59 @@ begin
     DMLObjList.BriefMode := True;
   FFrameCtDML.DMLGraph.AutoCheckGraphSize;
   if not FCtDmlRefreshing and (Abs(int64(GetTickCount) - FLastRefreshTick) > 600) then
-  begin
-    FFrameCtDML.actRestore.Execute;
-    if DMLObjList.Count > 0 then
-      with FFrameCtDML.DMLGraph do
-        if DMLObjList.FindEntityInRect(ScreenToImageX(0), ScreenToImageY(0),
-          ScreenToImageX(Width * 2 div 3), ScreenToImageY(Height * 2 div 3)) < 0 then
+  begin                      
+    S := Trim(mdl.CustomAttr1);
+    if Copy(S,1,4)='DVS:' then //恢复视图
+    begin
+      S := Copy(S, 5, Length(S));
+      vCenterX := ReadCornerNumber(S, S, FFrameCtDML.DMLGraph.ViewCenterX);
+      vCenterY := ReadCornerNumber(S, S, FFrameCtDML.DMLGraph.ViewCenterY);
+      vScale := ReadCornerNumber(S, S, FFrameCtDML.DMLGraph.ViewScale);
+      DMLObjList.BriefMode := ReadCornerStr(S, S)='1';
+      selStr := ReadCornerStr(S, S);
+      if selStr<>'' then  //恢复选中内容
+      begin
+        po := Pos('.', selStr);
+        if po=0 then
         begin
-          FFrameCtDML.actBestFit.Execute;
+          obj:=DMLObjList.ItemByName(selStr);
+          if Assigned(obj) then
+            obj.Selected := True;
+        end
+        else
+        begin
+          T := Copy(selStr, 1, po-1);
+          selStr := Copy(selStr, po+1, Length(selStr));
+          for I := 0 to DMLObjList.Count - 1 do
+          begin
+            obj := DMLObjList[I];
+            if (obj is TDMLLinkObj) and Assigned(obj.UserObject) and (obj.UserObject is TCtMetaField) then
+            begin
+              if TCtMetaField(obj.UserObject).Name=selStr then
+                if TCtMetaField(obj.UserObject).OwnerTable <> nil then
+                  if TCtMetaField(obj.UserObject).OwnerTable.Name=T then
+                  begin
+                    obj.Selected:=True;
+                    Break;
+                  end;
+            end;
+          end;
         end;
+      end;
+      FFrameCtDML.DMLGraph.SetViewXYSc(vCenterX, vCenterY, vScale);
+    end
+    else
+    begin
+      DMLObjList.BriefMode := False;
+      FFrameCtDML.actRestore.Execute;
+      if DMLObjList.Count > 0 then
+        with FFrameCtDML.DMLGraph do
+          if DMLObjList.FindEntityInRect(ScreenToImageX(0), ScreenToImageY(0),
+            ScreenToImageX(Width * 2 div 3), ScreenToImageY(Height * 2 div 3)) < 0 then
+          begin
+            FFrameCtDML.actBestFit.Execute;
+          end;
+    end;
   end
   else
   begin
@@ -1501,11 +1822,18 @@ begin
   Result := '';
   if Obj is TDMLEntityObj then
   begin
-    Result := Format('Left=%f'#13#10'Top=%f'#13#10'BLeft=%f'#13#10'BTop=%f',
-      [Obj.OLeft, Obj.OTop, Obj.BLeft, Obj.BTop]);
+    if (Abs(Obj.BLeft)<0.0001) and (Abs(Obj.BTop)<0.0001) then
+      Result := Format('Left=%f'#13#10'Top=%f', [Obj.OLeft, Obj.OTop])
+    else
+      Result := Format('Left=%f'#13#10'Top=%f'#13#10'BLeft=%f'#13#10'BTop=%f',
+        [Obj.OLeft, Obj.OTop, Obj.BLeft, Obj.BTop]);
+    if not Obj.AutoSize then
+    begin
+      Result := Result+Format(#13#10'Width=%f'#13#10'Height=%f'#13#10'AutoSize=0', [Obj.OWidth, Obj.OHeight]);
+    end;
 
-    if Pos('[CUSTOM_BKCOLOR=1]', Obj.UserPars) > 0 then
-      Result := Result + #13#10'BkColor=' + IntToStr(Obj.FillColor);
+    //if Pos('[CUSTOM_BKCOLOR=1]', Obj.UserPars) > 0 then
+    //  Result := Result + #13#10'BkColor=' + IntToStr(Obj.FillColor);
 
   end
   else if Obj is TDMLLinkObj then
@@ -1616,12 +1944,25 @@ begin
       Obj.BTop := StrToFloatDef(S2, Obj.BTop);
     end;
 
-    S2 := ExtractCompStr(Des, #10'BkColor=', #10);
-    if S2 <> '' then
+    S1 := ExtractCompStr(Des, #10'AutoSize=', #10);
+    if S1='0' then
     begin
-      Obj.UserPars := AddOrModifyCompStr(Obj.UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
-      Obj.FillColor := StrToIntDef(S2, clWhite);
+      Obj.AutoSize:=False;
+      S1 := ExtractCompStr(Des, #10'Width=', #10);
+      S2 := ExtractCompStr(Des, #10'Height=', #10);
+      if (S1 <> '') and (S2 <> '') then
+      begin
+        Obj.OWidth := StrToFloatDef(S1, Obj.OWidth);
+        Obj.OHeight := StrToFloatDef(S2, Obj.OHeight);
+      end;
     end;
+
+    //S2 := ExtractCompStr(Des, #10'BkColor=', #10);
+    //if S2 <> '' then
+    //begin
+    //  Obj.UserPars := AddOrModifyCompStr(Obj.UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
+    //  Obj.FillColor := StrToIntDef(S2, clWhite);
+    //end;
   end
   else if Obj is TDMLLinkObj then
   begin
@@ -1665,8 +2006,8 @@ var
   I, J: integer;
   lnk: TDMLLinkObj;
 begin
-  if FReadOnlyMode then
-    Exit;
+  //if FReadOnlyMode then  //removed by huz 20220416: 只读时允许记录位置
+  //  Exit;
   with FFrameCtDML.DMLGraph.DMLObjs do
   begin
     if not Self.FCurMetaTableModel.IsHuge then
@@ -1726,8 +2067,8 @@ var
   I: integer;
 begin
   FFrameCtDML.actRearrangeExecute(Sender);
-  if FReadOnlyMode then
-    Exit;
+  //if FReadOnlyMode then //removed by huz 20220416: 只读时允许记录位置
+  //  Exit;
   with FFrameCtDML.DMLGraph.DMLObjs do
     for I := 0 to Count - 1 do
     begin
@@ -1879,11 +2220,14 @@ function TfrmCtDML._OnLinkObj(Obj1, Obj2: TDMLObj): integer;
     end;
   end;
 var
-  tb1, tb2: TCtMetaTable;
+  tb1, tb2, tb: TCtMetaTable; 
+  obj: TDMLTableObj;
   fd: TDMLField;
-  rfn, S, desc1: string;
+  rfn, S, desc1, relDesc: string;
 begin
   Result := -1;
+  if Self.FReadOnlyMode then
+    Exit;
   if not (obj1 is TDMLEntityObj) or
     not (TDMLEntityObj(obj1).UserObject is TCtMetaTable) then
     Exit;
@@ -1904,8 +2248,44 @@ begin
     S := fd.Get_PhyName;
   end;
   desc1 := tb2.Describe;
-  if ExecAddTbLink(tb1, tb2, FLastLinkField, S) then
+  relDesc := '';
+  if ExecAddTbLink(tb1, tb2, FLastLinkField, S, relDesc) then
+  begin
     Result := 1;
+  end;
+
+  if (FLastLinkField=nil) and (relDesc<>'') then
+  begin      
+    Result := -1;
+    tb := FCurMetaTableModel.Tables.NewTableItem;
+    tb.Describe := relDesc;
+    if Assigned(Proc_ShowCtTableProp) then
+    begin
+      if not Proc_ShowCtTableProp(tb, False, True) then
+      begin
+        Exit;
+      end;
+    end;
+
+    Obj := TDMLTableObj(FFrameCtDML.DMLGraph.DMLObjs.CreateDMLObj(''));
+    Obj.Describe := tb.Describe;
+    CheckDmlTableFieldProps(tb, obj);
+    obj.CheckResize;
+    obj.FindFKLinks(FFrameCtDML.DMLGraph.DMLObjs);   
+    Obj.UserObject := tb;
+    Obj.Left := (Obj1.Left + Obj2.Left) / 2;
+    Obj.Top := (Obj1.Top + Obj2.Top) / 2;
+    tb.GraphDesc := Self.GetLocationDesc(obj);
+
+    FFrameCtDML.DMLGraph.DMLObjs.ClearSelection;
+    Obj.Selected:=True;     
+    FFrameCtDML.DMLGraphSelectObj(nil);
+    FFrameCtDML.DMLGraph.Refresh;
+    FLastRefreshTick := GetTickCount;
+    if Assigned(Proc_OnPropChange) then
+      Proc_OnPropChange(0, tb, nil, '');
+    Exit;
+  end;
 
   if FLastLinkField <> nil then
   begin
@@ -1965,55 +2345,99 @@ var
   bChg: boolean;
 begin
   bChg := False;
-  with FFrameCtDML.DMLGraph.DMLObjs do
-    for I := 0 to Count - 1 do
-      if Items[I].Selected then
-        if Items[I] is TDMLEntityObj then
-        begin
-          o := TDMLEntityObj(Items[I]);
-          tb := TCtMetaTable(o.UserObject);
-          if tb = nil then
-            Continue;
-
-          S := tb.Describe;
-          DoAutoCapProcess(tb, sType);
-          with tb.MetaFields do
-            for J := 0 to Count - 1 do
-            begin
-              field := Items[J];
-              DoAutoCapProcess(field, sType);
-            end;
-          if S <> tb.Describe then
+  try
+    with FFrameCtDML.DMLGraph.DMLObjs do
+      for I := 0 to Count - 1 do
+        if Items[I].Selected then
+          if Items[I] is TDMLEntityObj then
           begin
-            if Assigned(Proc_OnPropChange) then
-              Proc_OnPropChange(2, tb, nil, '');
-            bChg := True;
-          end;
-        end;
+            o := TDMLEntityObj(Items[I]);
+            tb := TCtMetaTable(o.UserObject);
+            if tb = nil then
+              Continue;
 
-  if bChg then
-    FFrameCtDML.actRefresh.Execute;
+            S := tb.Describe;
+            DoAutoCapProcess(tb, sType);
+            with tb.MetaFields do
+              for J := 0 to Count - 1 do
+              begin
+                field := Items[J];
+                DoAutoCapProcess(field, sType);
+              end;
+            if S <> tb.Describe then
+            begin
+              DoTablePropsChanged(tb);
+              if Assigned(Proc_OnPropChange) then
+                Proc_OnPropChange(2, tb, nil, '');
+              bChg := True;
+            end;
+          end;
+
+  finally
+    if bChg then
+      FFrameCtDML.actRefresh.Execute;
+  end;
 end;
 
 procedure TfrmCtDML._DoBatCopy(sType: string);
+var
+  jtbs: TList;
+  function GetJoinWhere(tb: TCtMetaTable; bAlias: String): string;
+  var
+    I: Integer;
+    aAlias, S: String;
+  begin
+    Result := '';
+    for I:=0 to jtbs.Count - 1 do
+    begin
+      aAlias := char(Ord('a') + I);
+      S := TCtMetaTable(jtbs[I]).GenJoinSqlWhere(tb, aAlias, bAlias, True);
+      if S <> '' then
+      begin
+        if Result <> '' then
+          Result := Result +' and ';
+        Result := Result + S;
+      end;
+    end;
+  end;
+  function LPadStr(str, pd: string): string;
+  var
+    ts: TStringList;
+    I: Integer;
+  begin
+    ts:= TStringList.Create;
+    try
+      ts.Text := str;
+      for I:=1 to ts.Count - 1 do
+      begin
+        if Trim(ts[I])<>'' then
+          ts[I] := pd+ts[I];
+      end;
+      Result:=TrimRight(ts.Text);
+    finally
+      ts.Free;
+    end;
+  end;
 var
   I, J, SC, C, showTp: integer;
   ob: TDMLObj;
   o: TDMLEntityObj;
   tb: TCtMetaTable;
   field: TCTMetaField;
-  S, dbType, t, fldJoin, tbJoin: string;
+  S, dbType, t, fldJoin, tbJoin, sWhere: string;
   ss: TStringList;
 begin
   if FFrameCtDML.DMLGraph.DMLObjs.SelectedCount = 0 then
     Exit;
   showTp := FFrameCtDML.DMLGraph.DMLDrawer.ShowPhyFieldName;
   dbType := FFrameCtDML.DMLGraph.DMLDrawer.DatabaseEngine;
-  ss := TStringList.Create;
+  ss := TStringList.Create;  
+  jtbs:= TList.Create;
   try
     C := 0;
     fldJoin := '';
     tbJoin := '';
+    sWhere := '';
     SC := FFrameCtDML.DMLGraph.DMLObjs.SelectedCount;
     for I := 0 to SC - 1 do
     begin
@@ -2057,6 +2481,12 @@ begin
         s := tb.GenSql(dbType);
         ss.Add(s);
         ss.Add('');
+      end                    
+      else if sType = 'DropSQL' then
+      begin
+        s := tb.GenDropSql(dbType);
+        ss.Add(s);
+        ss.Add('');
       end
       else if sType = 'SelectSQL' then
       begin
@@ -2064,7 +2494,7 @@ begin
         ss.Add(s);
         ss.Add('');
       end
-      else if sType = 'JoinSelectSQL' then
+      else if sType = 'ExplicitJoinSelectSQL' then
       begin
         t := char(Ord('a') + C);
         Inc(C);
@@ -2072,7 +2502,7 @@ begin
         for J := 0 to tb.MetaFields.Count - 1 do
         begin
           field := tb.MetaFields[J];
-          if field.DataLevel = ctdlDeleted then
+          if not field.IsPhysicalField then
             Continue;
           if S <> '' then
             S := S + ','#13#10;
@@ -2084,7 +2514,47 @@ begin
         if tbJoin = '' then
           tbJoin := tb.Name + ' ' + t
         else
-          tbJoin := tbJoin + ','#13#10'left join ' + tb.Name + ' ' + t;
+        begin
+          S := GetJoinWhere(tb, t);
+          if S <> '' then
+            S := ' on '+S;
+          tbJoin := tbJoin + #13#10'join ' + tb.Name + ' ' + t + S;
+        end;
+        jtbs.Add(tb);
+      end       
+      else if sType = 'ImplicitJoinSelectSQL' then
+      begin
+        t := char(Ord('a') + C);
+        Inc(C);
+        S := '';
+        for J := 0 to tb.MetaFields.Count - 1 do
+        begin
+          field := tb.MetaFields[J];
+          if not field.IsPhysicalField then
+            Continue;
+          if S <> '' then
+            S := S + ','#13#10;
+          S := S + t + '.' + field.Name;
+        end;
+        if fldJoin <> '' then
+          fldJoin := fldJoin + ','#13#10#13#10;
+        fldJoin := fldJoin + S;
+
+        if tbJoin = '' then
+          tbJoin := tb.Name + ' ' + t
+        else
+          tbJoin := tbJoin + ', ' + tb.Name + ' ' + t;
+
+        S := GetJoinWhere(tb, t);
+        if S <> '' then
+        begin
+          if sWhere = '' then
+            sWhere := S
+          else
+            sWhere := sWhere + #13#10'and '+S;
+        end;
+
+        jtbs.Add(tb);
       end
       else if sType = 'InsertSQL' then
       begin
@@ -2157,22 +2627,74 @@ begin
         ss.Add('');
       end;
     end;
-    if sType = 'JoinSelectSQL' then
+    if sType = 'ExplicitJoinSelectSQL' then
     begin
       if tbJoin = '' then
         Exit;
       ss.Add('select');
       ss.Add('');
-      ss.Add(fldJoin);
+      ss.Add('  '+LPadStr(fldJoin,'  '));
       ss.Add('');
-      ss.Add('from');
-      ss.Add(tbJoin);
+      ss.Add(' from '+LPadStr(tbJoin, ' '));
       ss.Add('');
       ss.Add('where 1=1');
+    end;         
+    if sType = 'ImplicitJoinSelectSQL' then
+    begin
+      if tbJoin = '' then
+        Exit;
+      ss.Add('select');
+      ss.Add('');
+      ss.Add('  '+LPadStr(fldJoin,'  '));
+      ss.Add('');
+      ss.Add(' from '+tbJoin);   
+      ss.Add('');
+      if sWhere = '' then
+        ss.Add('where 1=1')
+      else
+        ss.Add('where '+LPadStr(sWhere,'  '));
     end;
     ClipBoard.AsText := Trim(ss.Text);
   finally
     ss.Free;
+    jtbs.Free;
+  end;
+end;
+
+procedure TfrmCtDML._OnSelChanged;
+begin
+  CheckSaveView;
+end;
+
+procedure TfrmCtDML._OnObjColorChanged(Obj: TDMLObj; cl: Integer);
+var
+  tb: TCtMetaTable;
+begin
+  if (Obj is TDMLTableObj) or (Obj is TDMLTextObj) then
+  begin
+    tb := TCtMetaTable(Obj.UserObject);
+    if tb = nil then
+      Exit;
+    tb.BgColor:= cl;
+    DoTablePropsChanged(tb);
+  end;
+end;
+
+function TfrmCtDML._GetObjPropVal(Obj: TDMLObj; prop, def: string): string;
+var     
+  tb: TCtMetaTable;
+begin
+  Result := def;
+  if prop='FieldCount' then
+  begin
+    if obj=nil then
+      Exit;
+    if not (obj is TDMLTableObj) then
+      Exit;
+    tb := TCtMetaTable(TDMLTableObj(obj).UserObject);
+    if tb=nil then
+      Exit;
+    Result := IntToStr(tb.MetaFields.ValidItemCount);
   end;
 end;
 
@@ -2296,6 +2818,7 @@ begin
         tb.GraphDesc := Self.GetLocationDesc(obj);
       end;
       Obj.UserObject := tb;
+      FLastRefreshTick := GetTickCount;
       if Assigned(Proc_OnPropChange) then
         Proc_OnPropChange(0, tb, nil, '');
     end

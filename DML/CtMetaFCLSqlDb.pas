@@ -6,7 +6,7 @@ interface
 
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes,
-  Graphics, Controls, ImgList,
+  Graphics, Controls, ImgList, TypInfo,
   CTMetaData, CtMetaTable, DB, SqlDb, Forms, Dialogs;
 
 type
@@ -27,6 +27,9 @@ type
     function CreateSqlDbConn: TSQLConnection; virtual;
     procedure ReCreateFCLDbConn; virtual;
     procedure SetFCLConnDatabase; virtual;
+    procedure CheckDsUpdateMode(ds: TSQLQuery); virtual;
+    procedure DoDbConnLog(Sender : TSQLConnection; EventType : TDBEventType;
+      Const Msg : String); virtual;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -34,18 +37,85 @@ type
     procedure CheckConnected; virtual;
 
     function ShowDBConfig(AHandle: THandle): boolean; override;
-
+              
+    //执行命令
+    function ExecCmd(ACmd, AParam1, AParam2: string): string; override;
     procedure ExecSql(ASql: string); override;
     function OpenTable(ASql, op: string): TDataSet; override;
 
     property DbConn: TSQLConnection read FDbConn write SetDbConn;
   end;
 
+  TSQLConnectionXX = class(TSQLConnection)
+  end;
+
+  { TCtSQLQuery }
+
+  TCtSQLQuery = class(TSQLQuery)
+  protected            
+    procedure InternalOpen; override;
+  public
+    procedure ExecSQL; override;
+  end;
+
+var
+  G_SqlLogEnalbed: Boolean;
+  G_SqlLogs: TStrings;
 
 implementation
 
 uses
   WindowFuncs;
+
+procedure WriteSqlLog(const msg: string);
+var
+  S: String;
+begin
+  if not G_SqlLogEnalbed then
+    Exit;
+  S := TimeToStr(Now)+' '+msg;
+  if G_SqlLogs=nil then
+    G_SqlLogs := TStringList.Create;
+  G_SqlLogs.Add(S);
+end;
+
+{ TCtSQLQuery }
+
+procedure TCtSQLQuery.InternalOpen;
+begin                   
+  try             
+    if G_SqlLogEnalbed then
+      WriteSqlLog('OpenSQL: '+Self.SQL.Text);
+    inherited InternalOpen;   
+    if G_SqlLogEnalbed then
+      WriteSqlLog('OpenSQL: done!');
+  except
+    on E:Exception do
+    begin
+      if G_SqlLogEnalbed then
+        WriteSqlLog('Open error: '+E.Message);
+      raise;
+    end;
+  end;
+end;
+
+procedure TCtSQLQuery.ExecSQL;
+begin
+  try     
+    if G_SqlLogEnalbed then
+      WriteSqlLog('ExecSQL: '+Self.SQL.Text);
+    inherited ExecSQL;    
+    if G_SqlLogEnalbed then
+      WriteSqlLog('ExecSQL: done!');
+  except
+    on E:Exception do
+    begin
+      if G_SqlLogEnalbed then
+        WriteSqlLog('SQL error: '+E.Message);
+      raise;
+    end;
+  end;
+end;
 
 { TCtMetaFCLSqlDb }
 
@@ -82,7 +152,9 @@ begin
       SetFCLConnDatabase;
       FDbConn.Username := User;
       FDbConn.Password := Password;
-    end;
+    end
+    else
+      TSQLConnectionXX(FDbConn).ForcedClose := True;
     FDbConn.Connected := Value;
     if Value and FDbConn.Connected then
     begin
@@ -115,8 +187,8 @@ begin
     FreeAndNil(FInnerDbConn);
   end;
 
-  FQuery := TSQLQuery.Create(nil);
-  FQueryB := TSQLQuery.Create(nil);
+  FQuery := TCtSQLQuery.Create(nil);
+  FQueryB := TCtSQLQuery.Create(nil);
   FTrans := TSQLTransaction.Create(nil);
   FInnerDbConn := CreateSqlDbConn;
   if FInnerDbConn <> nil then
@@ -152,6 +224,8 @@ begin
       FDbConn.DatabaseName := '';
     end;
   end;
+  FDbConn.OnLog:=Self.DoDbConnLog;
+
 end;
 
 constructor TCtMetaFCLSqlDb.Create;
@@ -184,19 +258,102 @@ begin
   Result := False;
 end;
 
+function TCtMetaFCLSqlDb.ExecCmd(ACmd, AParam1, AParam2: string): string;
+begin                    
+  try
+    if G_SqlLogEnalbed then
+      WriteSqlLog('ExecCmd: '+ACmd+':'+AParam1+':'+AParam2);
+    Result:=inherited ExecCmd(ACmd, AParam1, AParam2);
+    if LowerCase(ACmd)='commit' then
+    begin
+      if G_RetainAfterCommit then
+        FDbConn.Transaction.CommitRetaining
+      else
+        FDbConn.Transaction.Commit;
+    end
+    else
+    if LowerCase(ACmd)='rollback' then
+    begin               
+      if G_RetainAfterCommit then
+        FDbConn.Transaction.RollbackRetaining
+      else
+        FDBConn.Transaction.Rollback;
+    end;    
+    if G_SqlLogEnalbed then
+      WriteSqlLog('ExecCmd: done!');
+  except
+    on E:Exception do
+    begin
+      if G_SqlLogEnalbed then
+        WriteSqlLog('Cmd error: '+E.Message);
+      raise;
+    end;
+  end;
+end;
+
+function RemoveSqlComents(ASql: string): string;
+var
+  S: string;
+  po: Integer;
+begin
+  Result := ASql;
+  while Pos('/*', Result)>0 do
+  begin
+    S := Result;
+    Result := WindowFuncs.RemoveCompStr(Result, '/*', '*/', True);
+    if S=Result then
+      Break;
+  end;        
+  while Pos('--', Result)>0 do
+  begin
+    S := Result;
+    Result := WindowFuncs.RemoveCompStr(Result, '--', #10, True);
+    if S=Result then
+    begin
+      po := Pos('--', Result);
+      Result := Copy(Result, 1, po - 1);
+    end;
+    if S=Result then
+      Break;
+  end;
+end;
+
 procedure TCtMetaFCLSqlDb.ExecSql(ASql: string);
+var
+  S: String;
 begin
   CheckConnected;
+  S := RemoveSqlComents(ASql);   
+  S := LowerCase(Trim(S));
+  if S='' then
+    Exit;
+  if S[Length(S)]=';' then
+    Delete(S, Length(S), 1);   
+  S := LowerCase(Trim(S));
+  if S='' then
+    Exit;
+  if S='commit' then
+  begin
+    ExecCmd('commit', '', '');
+    Exit;
+  end;    
+  if S='rollback' then
+  begin
+    ExecCmd('rollback', '', '');
+    Exit;
+  end;
   with FQuery do
   begin
     Clear;
     Sql.Text := ASql; 
     try
       ExecSQL;
-      FDbConn.Transaction.Commit;
+      if Pos('[NO_CT_TRANS]', ASql) = 0 then
+        ExecCmd('commit', '', '');
     except
       try
-        FDbConn.Transaction.Rollback;
+        if Pos('[NO_CT_TRANS]', ASql) = 0 then
+          ExecCmd('rollback', '', '');
       except
       end;
       raise;
@@ -205,6 +362,19 @@ begin
 end;
 
 function TCtMetaFCLSqlDb.OpenTable(ASql, op: string): TDataSet;
+  function isSql: boolean;
+  var
+    S: String;
+  begin
+    S := ' '+LowerCase(ASql);
+    S:=StringReplace(S,#13,' ',[rfReplaceAll]);
+    S:=StringReplace(S,#10,' ',[rfReplaceAll]);
+    S:=StringReplace(S,#9,' ',[rfReplaceAll]);
+    if Pos(' select ',S) > 0 then
+      Result := True
+    else
+      Result := False;
+  end;
 var
   S: string;
 begin
@@ -217,14 +387,108 @@ begin
 
   CheckConnected;
 
-  if Pos('[ISSQL]', op) > 0 then
+
+  if (Pos('[ISSQL]', op) > 0) or IsSql then
     S := ASql
   else
     S := 'select * from ' + ASql;
-  Result := TSQLQuery.Create(nil);
+  Result := TCtSQLQuery.Create(nil);
   TSQLQuery(Result).DataBase := FDbConn;
   TSQLQuery(Result).Sql.Text := S;
-  Result.Open;
+  TSQLQuery(Result).Options := [sqoKeepOpenOnCommit, sqoAutoApplyUpdates];
+  try                
+    Result.Open;    
+    if Pos('[NO_CT_TRANS]', ASql) = 0 then
+      FDbConn.Transaction.CommitRetaining;
+  except
+    try
+      if Pos('[NO_CT_TRANS]', ASql) = 0 then
+        FDbConn.Transaction.RollbackRetaining;
+    except
+    end;
+    raise;
+  end;
+  CheckDsUpdateMode(TSQLQuery(Result));
 end;
+    
+procedure TCtMetaFCLSqlDb.CheckDsUpdateMode(ds: TSQLQuery);
+var
+  I: Integer;
+  fd: TField;  
+  S: string;
+begin
+  if ds=nil then
+    Exit;
+  if not ds.Active then
+  begin
+    ds.UpdateMode:=upWhereAll;
+    Exit;
+  end;
+  for I:=0 to ds.FieldCount - 1 do
+  begin
+    fd := ds.Fields[I];
+    if fd.DataType in [ftUnknown, ftBytes, ftVarBytes, ftBlob, ftGraphic,
+      ftParadoxOle, ftDBaseOle, ftTypedBinary, ftCursor, ftADT, ftArray, ftReference,
+      ftDataSet, ftOraBlob, ftVariant, ftInterface, ftIDispatch] then
+    begin
+      //fd.ReadOnly:=True;
+    end;
+  end;
+  for I:=0 to ds.FieldCount - 1 do
+  begin
+    fd := ds.Fields[I];
+    S := UpperCase(fd.FieldName);
+    if (S='ROWID') then
+    begin
+      fd.ProviderFlags:=fd.ProviderFlags+[pfInKey];
+      fd.ReadOnly := True;
+      ds.UpdateMode:=upWhereKeyOnly;
+      Exit;
+    end;
+  end;
+
+  for I:=0 to ds.FieldCount - 1 do
+  begin
+    fd := ds.Fields[I];
+    S := UpperCase(fd.FieldName);
+    if (S='ID') or (S='GUID') or (S='UUID') or (S='CTGUID') then
+    begin
+      fd.ProviderFlags:=fd.ProviderFlags+[pfInKey];  
+      //fd.ReadOnly := True;
+      ds.UpdateMode:=upWhereKeyOnly;
+      Exit;
+    end;
+  end;
+               
+  ds.UpdateMode:=upWhereAll;
+  for I:=0 to ds.FieldCount - 1 do
+  begin
+    fd := ds.Fields[I];
+    if fd.DataType in [ftString, ftSmallint, ftInteger, ftWord, ftBCD, ftAutoInc,
+      ftFixedChar, ftWideString, ftLargeint, ftGuid, ftFixedWideChar] then
+    begin
+      fd.ProviderFlags:=fd.ProviderFlags+[pfInWhere];
+    end
+    else
+    begin
+      fd.ProviderFlags:=fd.ProviderFlags-[pfInWhere];
+    end;
+  end;
+
+end;
+
+procedure TCtMetaFCLSqlDb.DoDbConnLog(Sender: TSQLConnection;
+  EventType: TDBEventType; const Msg: String);
+var
+  S: String;
+begin
+  if not G_SqlLogEnalbed then
+    Exit;
+  S := GetEnumName(TypeInfo(TDBEventType),Ord(EventType));
+  WriteSqlLog(S+': '+Msg);
+end;
+
+finalization
+  FreeAndNil(G_SqlLogs);
 
 end.

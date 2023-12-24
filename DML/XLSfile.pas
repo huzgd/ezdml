@@ -351,7 +351,6 @@ end;
 
 procedure TMyWriter.WriteSingleStr(s: string);
 begin
-  S:=MyAnsiToUtf8(S);
   if Length(S)>0 then
   Stream.write(s[1], length(s));
 end;
@@ -830,12 +829,16 @@ end;
 
 procedure TStrCell.write(W: TMyWriter);
 {req: col, row  dan  atribut sudah ditulis}
+var
+  S: String;
 begin
   inherited Write(W);
-  if Length(Value)>255 then
-  Value:=Copy(Value,1,255);//added by huz
-  w.WriteByte(length(value));
-  w.WriteSIngleStr(value);
+  S := Value; //changed by huz 20220426
+  S:=MyAnsiToUtf8(S);
+  if Length(S)>255 then
+  S:=Copy(S,1,255);//added by huz
+  w.WriteByte(length(S));
+  w.WriteSIngleStr(S);
 end;
 
 constructor TStrCell.create;

@@ -16,9 +16,9 @@ object frmFindHex: TfrmFindHex
     Height = 473
     Top = 0
     Width = 695
-    ActivePage = TabSheetCharCode
+    ActivePage = TabSheetMd5
     Align = alClient
-    TabIndex = 0
+    TabIndex = 4
     TabOrder = 0
     object TabSheetCharCode: TTabSheet
       Caption = 'Char code'
@@ -569,8 +569,8 @@ object frmFindHex: TfrmFindHex
     TabOrder = 1
   end
   object ActionList1: TActionList
-    Left = 136
-    Top = 216
+    left = 136
+    top = 216
     object EditSelectAll1: TEditSelectAll
       Category = 'Edit'
       Caption = 'Select &All'
@@ -580,7 +580,7 @@ object frmFindHex: TfrmFindHex
   end
   object OpenDialog1: TOpenDialog
     Options = [ofFileMustExist, ofEnableSizing]
-    Left = 344
-    Top = 216
+    left = 344
+    top = 216
   end
 end

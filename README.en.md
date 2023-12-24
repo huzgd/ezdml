@@ -4,6 +4,15 @@
 
 EZDML is a small free tool which helps you to create data models quickly. It's simple and fast, with EZDML you can create tables within few seconds and customize template-scripts to generate UI data code files.
 
+Features:
+1.Table model design: create table, fields, primary key, foreign key and comments
+2.Text script to create models quickly
+3.Diagram layout with logical and physical model views
+4.Import exists tables from database (ORACLE, MYSQL, SQLSERVER, SQLITE, POSTGRESQL, ODBC, JDBC, HIVE)
+5.Generate database DDL SQLs, compare with exists object to genarate proper SQLs
+6.Generate simple codes: C++, Pascal, c#, java, demo data sheet, etc, templates can be customized and you can create new templates.
+7.Support Pascal-script and JavaScript.
+
 #### Architecture
 
 - Borland Delphi Pascal
@@ -19,7 +28,7 @@ EZDML is a small free tool which helps you to create data models quickly. It's s
 
 #### Instructions
 
-1.  Download and install Lazarus+FPC from lazarus-ide.org, version recommended: Lazarus 2.0.12 r64642 (win32),  FPC 3.2.0 i386-win32-win32/win64
+1.  Download and install Lazarus+FPC from lazarus-ide.org, version required: Lazarus 2.0.12 r64642 (win32),  FPC 3.2.0 i386-win32-win32/win64
 2.  Copy pas under pkg\fpcm and overwrite the same-name source file at lazarus\components\PascalScript\Source
 3.  Rebuild (Run | Clean up and Build...) and run
 
@@ -256,3 +265,63 @@ Create FK-links by popup-menu. Bugs fixed.
 
 2022-03-11 V3.29
 Copy & paste in fields-list. Bugs fixed.
+
+2022-03-19 V3.31
+Show/hide left tree (F11), use keyboard to traverse graph objects (Ctrl+Arrow), retrieves test data rule from database (SQL). Bugs fixed.
+
+2022-03-27 V3.32
+Generate runnable code for Erupt template (JDK8 & maven needed). Bugs fixed.
+
+2022-04-09 V3.33
+Toggle UI shape(PC/Pad/Phone). Bugs fixed.
+
+2022-04-17 V3.35
+Add relation-map to table properties dialog, simplify UI and hide extended properties by default. Bugs fixed.
+
+2022-05-01 V3.36
+Generate test data insert SQLs, improved SQL tool. Bugs fixed.
+
+2022-05-07 V3.37
+Improvements of Erupt code generation. Bugs fixed.
+
+2022-05-22 V3.38
+Save/load model files to/from database. Bugs fixed.
+
+2022-06-04 V3.39
+Copy relate-query/join/insert SQLs. Bugs fixed.
+
+2022-06-18 V3.41
+Auto-capitalize with new probability-dict, Chinese word segment. Bugs fixed.
+
+2022-07-30 V3.42
+Support importing and generating HIVE database, and creating many-to-many relation table. Bugs fixed.
+
+2022-09-24 V3.43
+Batch import from excel content, single record sheet for SQL editor. Bugs fixed.
+
+2022-10-15 V3.45
+Automatically notify other users of updates after modifying database files. Bugs fixed.
+
+2022-11-06 V3.46
+Improvements of UI design notes. Bugs fixed.
+
+2022-11-13 V3.47
+Bugs fixed.
+
+2022-12-03 V3.48
+Optimize SQL query tool. Bugs fixed.
+
+2023-02-12 V3.51
+Support ChatGPT. Bugs fixed.
+
+2023-03-26 V3.52
+Add field weight settings. Bugs fixed.
+
+2023-06-23 V3.54
+Supports dragging entity grips to change size. Bugs fixed.
+
+2023-07-23 V3.55
+Remember the view position of the model diagram. Bugs fixed.
+
+2023-12-02 V3.56
+SQL tools support automatic completion (. to dropdown field list) and simple SQL formatting, model diagrams support double foreign key and self relate links. Bugs fixed.

@@ -1,0 +1,1583 @@
+object frmDmlSqlEditor: TfrmDmlSqlEditor
+  Left = 574
+  Height = 570
+  Top = 273
+  Width = 934
+  BorderIcons = [biSystemMenu, biMaximize]
+  BorderWidth = 2
+  Caption = 'SQL Tool'
+  ClientHeight = 570
+  ClientWidth = 934
+  Color = clBtnFace
+  Constraints.MinHeight = 300
+  Constraints.MinWidth = 450
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnHide = FormHide
+  OnResize = FormResize
+  OnShow = FormShow
+  ParentFont = True
+  Position = poScreenCenter
+  LCLVersion = '2.0.12.0'
+  object Splitter1: TSplitter
+    Cursor = crVSplit
+    Left = 2
+    Height = 3
+    Top = 346
+    Width = 930
+    Align = alBottom
+    OnMoved = Splitter1Moved
+    ResizeAnchor = akBottom
+  end
+  object PanelRes: TPanel
+    Left = 2
+    Height = 219
+    Top = 349
+    Width = 930
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 219
+    ClientWidth = 930
+    TabOrder = 1
+    object Bevel3: TBevel
+      Left = 10
+      Height = 5
+      Top = 0
+      Width = 904
+      Anchors = [akTop, akLeft, akRight]
+      Shape = bsTopLine
+    end
+    object Label1: TLabel
+      Left = 0
+      Height = 17
+      Top = 4
+      Width = 930
+      Align = alTop
+      Caption = '&Result:'
+      Color = clBtnFace
+      FocusControl = DBGridRes
+      ParentColor = False
+      Transparent = False
+    end
+    object Bevel1: TBevel
+      Left = 0
+      Height = 4
+      Top = 0
+      Width = 930
+      Align = alTop
+      Shape = bsTopLine
+    end
+    object DBGridRes: TDBGrid
+      Left = 0
+      Height = 198
+      Top = 21
+      Width = 343
+      Align = alClient
+      Color = clWindow
+      Columns = <>
+      DataSource = DataSourceRes
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgThumbTracking, dgDisplayMemoText]
+      TabOrder = 0
+      TitleFont.CharSet = GB2312_CHARSET
+      TitleFont.Color = clWindowText
+      TitleFont.Height = -12
+      TitleFont.Name = '宋体'
+      OnCellClick = DBGridResCellClick
+      OnColEnter = DBGridResColEnter
+      OnEditingDone = DBGridResEditingDone
+      OnMouseUp = DBGridResMouseUp
+    end
+    object MemoFieldContent: TDBMemo
+      Left = 348
+      Height = 198
+      Top = 21
+      Width = 208
+      Align = alRight
+      DataSource = DataSourceRes
+      TabOrder = 1
+      Visible = False
+    end
+    object SplitterFV: TSplitter
+      Left = 343
+      Height = 198
+      Top = 21
+      Width = 5
+      Align = alRight
+      ResizeAnchor = akRight
+      Visible = False
+    end
+    object ValueListEditorDS: TValueListEditor
+      Left = 556
+      Height = 198
+      Top = 21
+      Width = 374
+      Align = alRight
+      DefaultColWidth = 180
+      FixedCols = 0
+      ParentShowHint = False
+      PopupMenu = PopupMenuProp
+      RowCount = 2
+      ShowHint = True
+      TabOrder = 3
+      Visible = False
+      OnEditingDone = ValueListEditorDSEditingDone
+      OnSelectCell = ValueListEditorDSSelectCell
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking, goCellHints]
+      ColWidths = (
+        180
+        190
+      )
+    end
+    object sbtnShowContPanel: TSpeedButton
+      Left = 908
+      Height = 23
+      Hint = 'Show content panel'
+      Top = 0
+      Width = 19
+      Anchors = [akTop, akRight]
+      Flat = True
+      Glyph.Data = {
+        36030000424D3603000000000000360000002800000010000000100000000100
+        18000000000000030000C40E0000C40E00000000000000000000FF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FF00000000000000000000000000000000
+        0000000000000000000000000000000000000000FF00FFFF00FFFF00FFFF00FF
+        0000005050505050505050505050505050505050505050500000000000000000
+        00000000FF00FFFF00FFFF00FFFF00FF000000505050FFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFF505050000000000000000000000000FF00FFFF00FFFF00FFFF00FF
+        000000505050FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5050500000000000000000
+        00000000FF00FFFF00FFFF00FFFF00FF000000505050FFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFF505050000000000000000000000000FF00FFFF00FFFF00FFFF00FF
+        000000505050FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5050500000000000000000
+        00000000FF00FFFF00FFFF00FFFF00FF000000505050FFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFF505050000000000000000000000000FF00FFFF00FFFF00FFFF00FF
+        000000505050FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5050500000000000000000
+        00000000FF00FFFF00FFFF00FFFF00FF00000050505050505050505050505050
+        5050505050505050000000000000000000000000FF00FFFF00FFFF00FFFF00FF
+        0000000000000000000000000000000000000000000000000000000000000000
+        00000000FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+      }
+      Layout = blGlyphRight
+      OnClick = actShowContentPanelExecute
+      ShowHint = True
+      ParentShowHint = False
+    end
+  end
+  object PanelSql: TPanel
+    Left = 2
+    Height = 344
+    Top = 2
+    Width = 930
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 344
+    ClientWidth = 930
+    TabOrder = 0
+    object Panel1: TPanel
+      Left = 0
+      Height = 344
+      Top = 0
+      Width = 930
+      Align = alClient
+      BevelOuter = bvNone
+      ClientHeight = 344
+      ClientWidth = 930
+      TabOrder = 0
+      object Panel2: TPanel
+        Left = 0
+        Height = 32
+        Top = 0
+        Width = 930
+        Align = alTop
+        BevelOuter = bvNone
+        BorderWidth = 4
+        ClientHeight = 32
+        ClientWidth = 930
+        TabOrder = 1
+        object sbtnToggleTbList: TSpeedButton
+          Left = 844
+          Height = 21
+          Hint = 'Show/hide table list'
+          Top = 7
+          Width = 56
+          Anchors = [akTop, akRight]
+          AutoSize = True
+          Caption = 'Table list'
+          Flat = True
+          OnClick = sbtnToggleTbListClick
+          ShowHint = True
+          ParentShowHint = False
+        end
+        object ToolBar1: TToolBar
+          Left = 4
+          Height = 22
+          Top = 4
+          Width = 367
+          Align = alNone
+          AutoSize = True
+          Caption = 'ToolBar1'
+          EdgeBorders = []
+          Images = ImageList1
+          List = True
+          ShowCaptions = True
+          TabOrder = 0
+          Wrapable = False
+          OnResize = ToolBar1Resize
+          object ToolButton_SQL: TToolButton
+            Left = 1
+            Top = 0
+            Caption = 'SQL:'
+            OnMouseDown = ToolButton_SQLMouseDown
+          end
+          object ToolButton_SqlPrev: TToolButton
+            Left = 35
+            Top = 0
+            Caption = '<'
+            OnClick = ToolButton_SqlPrevClick
+          end
+          object ToolButton_SqlNext: TToolButton
+            Left = 58
+            Top = 0
+            Caption = '>'
+            OnClick = ToolButton_SqlNextClick
+          end
+          object ToolButton_Connect: TToolButton
+            Left = 81
+            Top = 0
+            Caption = 'Connect'
+            ImageIndex = 5
+            OnClick = ToolButton_ConnectClick
+          end
+          object ToolButton_ClearAll: TToolButton
+            Left = 215
+            Top = 0
+            Caption = 'Clear'
+            OnClick = ToolButton_ClearAllClick
+          end
+          object ToolButton_Exec: TToolButton
+            Left = 276
+            Top = 0
+            Action = actExec
+            ImageIndex = 9
+          end
+          object ToolButton_Commit: TToolButton
+            Left = 162
+            Top = 0
+            Caption = 'Commit'
+            OnClick = ToolButton_CommitClick
+          end
+          object ToolButton1: TToolButton
+            Left = 154
+            Height = 22
+            Top = 0
+            Caption = 'ToolButton1'
+            Style = tbsSeparator
+          end
+          object ToolButton_TbProp: TToolButton
+            Left = 253
+            Top = 0
+            Action = actShowSqlTbProp
+            ImageIndex = 8
+            ShowCaption = False
+          end
+        end
+        object lbStatus: TLabel
+          Left = 384
+          Height = 17
+          Top = 6
+          Width = 91
+          Caption = 'Status message'
+          Font.Color = clGrayText
+          ParentColor = False
+          ParentFont = False
+        end
+        object bbtnView: TBitBtn
+          Left = 906
+          Height = 21
+          Hint = 'Switch to Multi-View mode'
+          Top = 7
+          Width = 24
+          Anchors = [akTop, akRight]
+          Glyph.Data = {
+            6A010000424D6A010000000000003600000028000000070000000B0000000100
+            2000000000003401000064000000640000000000000000000000FFFFFF00FFFF
+            FF00FFFFFF007F7F7FFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF007F7F7FFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF007F7F
+            7FFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF007F7F7FFFFFFF
+            FF00FFFFFF00FFFFFF007F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F
+            7FFF7F7F7FFFFFFFFF007F7F7FFFFCFCFCFFFCFCFCFF7F7F7FFF7F7F7FFFFFFF
+            FF00FFFFFF007F7F7FFFFCFCFCFFFCFCFCFF7F7F7FFF7F7F7FFFFFFFFF00FFFF
+            FF007F7F7FFFFCFCFCFFFCFCFCFF7F7F7FFF7F7F7FFFFFFFFF00FFFFFF007F7F
+            7FFFFCFCFCFFFCFCFCFF7F7F7FFF7F7F7FFFFFFFFF00FFFFFF007F7F7FFF7F7F
+            7FFF7F7F7FFF7F7F7FFF7F7F7FFFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00
+          }
+          Layout = blGlyphBottom
+          OnClick = bbtnViewClick
+          ParentFont = False
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 1
+        end
+      end
+      object PanelTbs: TPanel
+        Left = 744
+        Height = 312
+        Top = 32
+        Width = 186
+        Align = alRight
+        BevelOuter = bvNone
+        ClientHeight = 312
+        ClientWidth = 186
+        TabOrder = 2
+        Visible = False
+        object ListBoxTbs: TListBox
+          Left = 0
+          Height = 262
+          Top = 50
+          Width = 186
+          Align = alClient
+          ItemHeight = 0
+          OnDblClick = ListBoxTbsDblClick
+          PopupMenu = PopupMenuTbs
+          TabOrder = 0
+        end
+        object combDbUsers: TComboBox
+          Left = 0
+          Height = 25
+          Top = 0
+          Width = 186
+          Align = alTop
+          ItemHeight = 17
+          OnChange = combDbUsersChange
+          Style = csDropDownList
+          TabOrder = 1
+        end
+        object edtTbListFilter: TEdit
+          Left = 0
+          Height = 25
+          Top = 25
+          Width = 186
+          Align = alTop
+          OnChange = edtTbListFilterChange
+          TabOrder = 2
+        end
+      end
+      object SplitterTbs: TSplitter
+        Left = 739
+        Height = 312
+        Top = 32
+        Width = 5
+        Align = alRight
+        ResizeAnchor = akRight
+        Visible = False
+      end
+      inline SynEditSql: TSynEdit
+        Left = 0
+        Height = 312
+        Top = 32
+        Width = 739
+        Align = alClient
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Pitch = fpFixed
+        Font.Quality = fqNonAntialiased
+        ParentColor = False
+        ParentFont = False
+        PopupMenu = PopupMenuSqlEdit
+        TabOrder = 0
+        OnKeyUp = SynEditSqlKeyUp
+        Gutter.Width = 57
+        Gutter.MouseActions = <>
+        RightGutter.Width = 0
+        RightGutter.MouseActions = <>
+        Highlighter = SynSQLSyn1
+        Keystrokes = <        
+          item
+            Command = ecUp
+            ShortCut = 38
+          end        
+          item
+            Command = ecSelUp
+            ShortCut = 8230
+          end        
+          item
+            Command = ecScrollUp
+            ShortCut = 16422
+          end        
+          item
+            Command = ecDown
+            ShortCut = 40
+          end        
+          item
+            Command = ecSelDown
+            ShortCut = 8232
+          end        
+          item
+            Command = ecScrollDown
+            ShortCut = 16424
+          end        
+          item
+            Command = ecLeft
+            ShortCut = 37
+          end        
+          item
+            Command = ecSelLeft
+            ShortCut = 8229
+          end        
+          item
+            Command = ecWordLeft
+            ShortCut = 16421
+          end        
+          item
+            Command = ecSelWordLeft
+            ShortCut = 24613
+          end        
+          item
+            Command = ecRight
+            ShortCut = 39
+          end        
+          item
+            Command = ecSelRight
+            ShortCut = 8231
+          end        
+          item
+            Command = ecWordRight
+            ShortCut = 16423
+          end        
+          item
+            Command = ecSelWordRight
+            ShortCut = 24615
+          end        
+          item
+            Command = ecPageDown
+            ShortCut = 34
+          end        
+          item
+            Command = ecSelPageDown
+            ShortCut = 8226
+          end        
+          item
+            Command = ecPageBottom
+            ShortCut = 16418
+          end        
+          item
+            Command = ecSelPageBottom
+            ShortCut = 24610
+          end        
+          item
+            Command = ecPageUp
+            ShortCut = 33
+          end        
+          item
+            Command = ecSelPageUp
+            ShortCut = 8225
+          end        
+          item
+            Command = ecPageTop
+            ShortCut = 16417
+          end        
+          item
+            Command = ecSelPageTop
+            ShortCut = 24609
+          end        
+          item
+            Command = ecLineStart
+            ShortCut = 36
+          end        
+          item
+            Command = ecSelLineStart
+            ShortCut = 8228
+          end        
+          item
+            Command = ecEditorTop
+            ShortCut = 16420
+          end        
+          item
+            Command = ecSelEditorTop
+            ShortCut = 24612
+          end        
+          item
+            Command = ecLineEnd
+            ShortCut = 35
+          end        
+          item
+            Command = ecSelLineEnd
+            ShortCut = 8227
+          end        
+          item
+            Command = ecEditorBottom
+            ShortCut = 16419
+          end        
+          item
+            Command = ecSelEditorBottom
+            ShortCut = 24611
+          end        
+          item
+            Command = ecToggleMode
+            ShortCut = 45
+          end        
+          item
+            Command = ecCopy
+            ShortCut = 16429
+          end        
+          item
+            Command = ecPaste
+            ShortCut = 8237
+          end        
+          item
+            Command = ecDeleteChar
+            ShortCut = 46
+          end        
+          item
+            Command = ecCut
+            ShortCut = 8238
+          end        
+          item
+            Command = ecDeleteLastChar
+            ShortCut = 8
+          end        
+          item
+            Command = ecDeleteLastChar
+            ShortCut = 8200
+          end        
+          item
+            Command = ecDeleteLastWord
+            ShortCut = 16392
+          end        
+          item
+            Command = ecUndo
+            ShortCut = 32776
+          end        
+          item
+            Command = ecRedo
+            ShortCut = 40968
+          end        
+          item
+            Command = ecLineBreak
+            ShortCut = 13
+          end        
+          item
+            Command = ecSelectAll
+            ShortCut = 16449
+          end        
+          item
+            Command = ecCopy
+            ShortCut = 16451
+          end        
+          item
+            Command = ecBlockIndent
+            ShortCut = 24649
+          end        
+          item
+            Command = ecLineBreak
+            ShortCut = 16461
+          end        
+          item
+            Command = ecInsertLine
+            ShortCut = 16462
+          end        
+          item
+            Command = ecDeleteWord
+            ShortCut = 16468
+          end        
+          item
+            Command = ecBlockUnindent
+            ShortCut = 24661
+          end        
+          item
+            Command = ecPaste
+            ShortCut = 16470
+          end        
+          item
+            Command = ecCut
+            ShortCut = 16472
+          end        
+          item
+            Command = ecDeleteLine
+            ShortCut = 16473
+          end        
+          item
+            Command = ecDeleteEOL
+            ShortCut = 24665
+          end        
+          item
+            Command = ecUndo
+            ShortCut = 16474
+          end        
+          item
+            Command = ecRedo
+            ShortCut = 24666
+          end        
+          item
+            Command = ecGotoMarker0
+            ShortCut = 16432
+          end        
+          item
+            Command = ecGotoMarker1
+            ShortCut = 16433
+          end        
+          item
+            Command = ecGotoMarker2
+            ShortCut = 16434
+          end        
+          item
+            Command = ecGotoMarker3
+            ShortCut = 16435
+          end        
+          item
+            Command = ecGotoMarker4
+            ShortCut = 16436
+          end        
+          item
+            Command = ecGotoMarker5
+            ShortCut = 16437
+          end        
+          item
+            Command = ecGotoMarker6
+            ShortCut = 16438
+          end        
+          item
+            Command = ecGotoMarker7
+            ShortCut = 16439
+          end        
+          item
+            Command = ecGotoMarker8
+            ShortCut = 16440
+          end        
+          item
+            Command = ecGotoMarker9
+            ShortCut = 16441
+          end        
+          item
+            Command = ecSetMarker0
+            ShortCut = 24624
+          end        
+          item
+            Command = ecSetMarker1
+            ShortCut = 24625
+          end        
+          item
+            Command = ecSetMarker2
+            ShortCut = 24626
+          end        
+          item
+            Command = ecSetMarker3
+            ShortCut = 24627
+          end        
+          item
+            Command = ecSetMarker4
+            ShortCut = 24628
+          end        
+          item
+            Command = ecSetMarker5
+            ShortCut = 24629
+          end        
+          item
+            Command = ecSetMarker6
+            ShortCut = 24630
+          end        
+          item
+            Command = ecSetMarker7
+            ShortCut = 24631
+          end        
+          item
+            Command = ecSetMarker8
+            ShortCut = 24632
+          end        
+          item
+            Command = ecSetMarker9
+            ShortCut = 24633
+          end        
+          item
+            Command = EcFoldLevel1
+            ShortCut = 41009
+          end        
+          item
+            Command = EcFoldLevel2
+            ShortCut = 41010
+          end        
+          item
+            Command = EcFoldLevel3
+            ShortCut = 41011
+          end        
+          item
+            Command = EcFoldLevel4
+            ShortCut = 41012
+          end        
+          item
+            Command = EcFoldLevel5
+            ShortCut = 41013
+          end        
+          item
+            Command = EcFoldLevel6
+            ShortCut = 41014
+          end        
+          item
+            Command = EcFoldLevel7
+            ShortCut = 41015
+          end        
+          item
+            Command = EcFoldLevel8
+            ShortCut = 41016
+          end        
+          item
+            Command = EcFoldLevel9
+            ShortCut = 41017
+          end        
+          item
+            Command = EcFoldLevel0
+            ShortCut = 41008
+          end        
+          item
+            Command = EcFoldCurrent
+            ShortCut = 41005
+          end        
+          item
+            Command = EcUnFoldCurrent
+            ShortCut = 41003
+          end        
+          item
+            Command = EcToggleMarkupWord
+            ShortCut = 32845
+          end        
+          item
+            Command = ecNormalSelect
+            ShortCut = 24654
+          end        
+          item
+            Command = ecColumnSelect
+            ShortCut = 24643
+          end        
+          item
+            Command = ecLineSelect
+            ShortCut = 24652
+          end        
+          item
+            Command = ecTab
+            ShortCut = 9
+          end        
+          item
+            Command = ecShiftTab
+            ShortCut = 8201
+          end        
+          item
+            Command = ecMatchBracket
+            ShortCut = 24642
+          end        
+          item
+            Command = ecColSelUp
+            ShortCut = 40998
+          end        
+          item
+            Command = ecColSelDown
+            ShortCut = 41000
+          end        
+          item
+            Command = ecColSelLeft
+            ShortCut = 40997
+          end        
+          item
+            Command = ecColSelRight
+            ShortCut = 40999
+          end        
+          item
+            Command = ecColSelPageDown
+            ShortCut = 40994
+          end        
+          item
+            Command = ecColSelPageBottom
+            ShortCut = 57378
+          end        
+          item
+            Command = ecColSelPageUp
+            ShortCut = 40993
+          end        
+          item
+            Command = ecColSelPageTop
+            ShortCut = 57377
+          end        
+          item
+            Command = ecColSelLineStart
+            ShortCut = 40996
+          end        
+          item
+            Command = ecColSelLineEnd
+            ShortCut = 40995
+          end        
+          item
+            Command = ecColSelEditorTop
+            ShortCut = 57380
+          end        
+          item
+            Command = ecColSelEditorBottom
+            ShortCut = 57379
+          end>
+        MouseActions = <>
+        MouseTextActions = <>
+        MouseSelActions = <>
+        VisibleSpecialChars = [vscSpace, vscTabAtLast]
+        SelectedColor.BackPriority = 50
+        SelectedColor.ForePriority = 50
+        SelectedColor.FramePriority = 50
+        SelectedColor.BoldPriority = 50
+        SelectedColor.ItalicPriority = 50
+        SelectedColor.UnderlinePriority = 50
+        SelectedColor.StrikeOutPriority = 50
+        BracketHighlightStyle = sbhsBoth
+        BracketMatchColor.Background = clNone
+        BracketMatchColor.Foreground = clNone
+        BracketMatchColor.Style = [fsBold]
+        FoldedCodeColor.Background = clNone
+        FoldedCodeColor.Foreground = clGray
+        FoldedCodeColor.FrameColor = clGray
+        MouseLinkColor.Background = clNone
+        MouseLinkColor.Foreground = clBlue
+        LineHighlightColor.Background = clNone
+        LineHighlightColor.Foreground = clNone
+        inline SynLeftGutterPartList1: TSynGutterPartList
+          object SynGutterMarks1: TSynGutterMarks
+            Width = 24
+            MouseActions = <>
+          end
+          object SynGutterLineNumber1: TSynGutterLineNumber
+            Width = 17
+            MouseActions = <>
+            MarkupInfo.Background = clBtnFace
+            MarkupInfo.Foreground = clNone
+            DigitCount = 2
+            ShowOnlyLineNumbersMultiplesOf = 1
+            ZeroStart = False
+            LeadingZeros = False
+          end
+          object SynGutterChanges1: TSynGutterChanges
+            Width = 4
+            MouseActions = <>
+            ModifiedColor = 59900
+            SavedColor = clGreen
+          end
+          object SynGutterSeparator1: TSynGutterSeparator
+            Width = 2
+            MouseActions = <>
+            MarkupInfo.Background = clWhite
+            MarkupInfo.Foreground = clGray
+          end
+          object SynGutterCodeFolding1: TSynGutterCodeFolding
+            MouseActions = <>
+            MarkupInfo.Background = clNone
+            MarkupInfo.Foreground = clGray
+            MouseActionsExpanded = <>
+            MouseActionsCollapsed = <>
+          end
+        end
+      end
+    end
+  end
+  object ActionList1: TActionList
+    left = 16
+    top = 68
+    object actEditSelall: TAction
+      Category = 'Edit'
+      Caption = 'Select all'
+      OnExecute = actEditSelallExecute
+    end
+    object actExec: TAction
+      Category = 'Sql'
+      Caption = 'Execute(F8)'
+      OnExecute = actExecExecute
+      OnUpdate = actExecUpdate
+      ShortCut = 119
+    end
+    object actCopyRec: TAction
+      Category = 'Edit'
+      Caption = 'Copy record'
+      OnExecute = actCopyRecExecute
+    end
+    object actCopyAll: TAction
+      Category = 'Edit'
+      Caption = 'Copy all'
+      OnExecute = actCopyAllExecute
+    end
+    object actRollback: TAction
+      Category = 'Sql'
+      Caption = 'rollback'
+    end
+    object actCommit: TAction
+      Category = 'Sql'
+      Caption = 'commit'
+    end
+    object actCopyCol: TAction
+      Category = 'Edit'
+      Caption = 'Copy col'
+      OnExecute = actCopyColExecute
+    end
+    object actChangeValue: TAction
+      Category = 'Edit'
+      Caption = 'View/change value'
+      OnExecute = actChangeValueExecute
+    end
+    object actShowContentPanel: TAction
+      Category = 'Edit'
+      Caption = 'Show content panel'
+      Hint = 'Show content panel'
+      OnExecute = actShowContentPanelExecute
+    end
+    object actCopyFieldEqVal: TAction
+      Category = 'Edit'
+      Caption = 'Copy as FieldName=Value'
+      OnExecute = actCopyFieldEqValExecute
+    end
+    object actCopyInsertRecSql: TAction
+      Category = 'Edit'
+      Caption = 'Copy insert SQL (row)'
+      OnExecute = actCopyInsertRecSqlExecute
+    end
+    object actCopyInsertSqlAll: TAction
+      Category = 'Edit'
+      Caption = 'Copy insert SQL (all)'
+      OnExecute = actCopyInsertSqlAllExecute
+    end
+    object actDeleteRec: TAction
+      Category = 'Edit'
+      Caption = 'Delete record'
+      OnExecute = actDeleteRecExecute
+    end
+    object actShowSqlTbProp: TAction
+      Category = 'Edit'
+      Caption = 'Table properties'
+      OnExecute = actShowSqlTbPropExecute
+    end
+    object actCopyUpdateRecSql: TAction
+      Category = 'Edit'
+      Caption = 'Copy update SQL (row)'
+      OnExecute = actCopyUpdateRecSqlExecute
+    end
+    object actCopyUpdateSqlAll: TAction
+      Category = 'Edit'
+      Caption = 'Copy update SQL (all)'
+      OnExecute = actCopyUpdateSqlAllExecute
+    end
+    object actCopyRecJsonStr: TAction
+      Category = 'Edit'
+      Caption = 'Copy JSON string (row)'
+      OnExecute = actCopyRecJsonStrExecute
+    end
+    object actCopyJsonStrAll: TAction
+      Category = 'Edit'
+      Caption = 'Copy JSON string (all)'
+      OnExecute = actCopyJsonStrAllExecute
+    end
+    object actSqlLog: TAction
+      Category = 'Sql'
+      Caption = 'SQL Log'
+      OnExecute = actSqlLogExecute
+    end
+    object actEditCut: TAction
+      Category = 'Edit'
+      Caption = 'Cut'
+      OnExecute = actEditCutExecute
+    end
+    object actEditCopy: TAction
+      Category = 'Edit'
+      Caption = 'Copy'
+      OnExecute = actEditCopyExecute
+    end
+    object actEditPaste: TAction
+      Category = 'Edit'
+      Caption = 'Paste'
+      OnExecute = actEditPasteExecute
+    end
+    object actEditUndo: TAction
+      Category = 'Edit'
+      Caption = 'Undo'
+      OnExecute = actEditUndoExecute
+    end
+    object actEditRedo: TAction
+      Category = 'Edit'
+      Caption = 'Redo'
+      OnExecute = actEditRedoExecute
+    end
+    object actEditAutoComplete: TAction
+      Category = 'Edit'
+      Caption = 'Auto complete'
+      OnExecute = actEditAutoCompleteExecute
+      ShortCut = 24608
+    end
+    object actFormatSql: TAction
+      Category = 'Edit'
+      Caption = 'Format Sql'
+      OnExecute = actFormatSqlExecute
+      ShortCut = 41030
+    end
+  end
+  object DataSourceRes: TDataSource
+    left = 48
+    top = 248
+  end
+  object PopupMenuOldSql: TPopupMenu
+    OnPopup = PopupMenuOldSqlPopup
+    left = 48
+    top = 68
+  end
+  object PopupMenuGrid: TPopupMenu
+    OnPopup = PopupMenuGridPopup
+    left = 92
+    top = 248
+    object MN_QueryRelTable: TMenuItem
+      Caption = 'Query related table'
+    end
+    object MenuItem2: TMenuItem
+      Action = actChangeValue
+    end
+    object MenuItem5: TMenuItem
+      Action = actCopyFieldEqVal
+    end
+    object N5: TMenuItem
+      Action = actCopyRec
+    end
+    object MenuItem12: TMenuItem
+      Action = actCopyUpdateRecSql
+    end
+    object MenuItem13: TMenuItem
+      Action = actCopyUpdateSqlAll
+    end
+    object MenuItem7: TMenuItem
+      Action = actCopyInsertRecSql
+    end
+    object MenuItem8: TMenuItem
+      Action = actCopyInsertSqlAll
+    end
+    object MenuItem16: TMenuItem
+      Action = actCopyRecJsonStr
+    end
+    object MenuItem17: TMenuItem
+      Action = actCopyJsonStrAll
+    end
+    object MenuItem1: TMenuItem
+      Action = actCopyCol
+    end
+    object N1: TMenuItem
+      Action = actCopyAll
+    end
+    object MenuItem6: TMenuItem
+      Action = actDeleteRec
+    end
+    object MenuItem3: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem4: TMenuItem
+      Action = actShowContentPanel
+    end
+    object MN_ShowSqlTbPropA: TMenuItem
+      Action = actShowSqlTbProp
+    end
+  end
+  object TimerInit: TTimer
+    Interval = 500
+    OnTimer = TimerInitTimer
+    left = 136
+    top = 72
+  end
+  object PopupMenuTbs: TPopupMenu
+    left = 724
+    top = 140
+    object MN_ShowTableProps: TMenuItem
+      Caption = 'Table properties'
+      Default = True
+      OnClick = MN_ShowTablePropsClick
+    end
+    object MN_QueryTableData: TMenuItem
+      Caption = 'Query table data'
+      OnClick = MN_QueryTableDataClick
+    end
+    object MN_CopyTbName: TMenuItem
+      Caption = 'Copy name'
+      OnClick = MN_CopyTbNameClick
+    end
+    object MN_TbsRefresh: TMenuItem
+      Caption = 'Refresh'
+      OnClick = MN_TbsRefreshClick
+    end
+  end
+  object ImageList1: TImageList
+    left = 216
+    top = 92
+    Bitmap = {
+      4C690B0000001000000010000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00FF000000FF0000000000000000000000000000000000000000000000008484
+      84FF000000FF000000FF000000FF000000000000000000000000000000FF00FF
+      00FF840000FF000000FF00000000000000000000000000000000848484FF0000
+      00FF000000FF000000FF848484FF000084FF0000000000000000000000FF00FF
+      00FF840000FF000000FF000000000000000000000000848484FF000000FF0000
+      00FF000000FF848484FF848484FF848484FF0000000000000000000000FF00FF
+      00FF840000FF000000FF00000000848484FF000000FF000000FF000000FF0000
+      00FF000000FF000084FF00000000000000000000000000000000000000FF00FF
+      00FF840000FF000000FF00000000000000FFFFFFFFFF00000000000000FF8484
+      84FF000084FF000084FF848484FF000000000000000000000000000000FF00FF
+      00FF840000FF000000FF00000000848484FF00000000FFFFFFFF000000FF0000
+      0000848484FF000084FF000084FF000000000000000000000000000000000084
+      00FF840000FF000000000000000000000000848484FF000000FF848484FF0000
+      000000000000000084FF000084FF848484FF0000000000000000008400FF0084
+      00FF840000FF008400FF00000000000000000000000000000000000000000000
+      000000000000848484FF000084FF000084FF000000000000000000000000FFFF
+      FFFF848484FF0000000000000000000000000000000000000000000000000000
+      00000000000000000000000084FF000084FF848484FF0000000000000000FFFF
+      FFFF848484FF0000000000000000000000000000000000000000000000000000
+      00000000000000000000848484FF000084FF000084FF0000000000000000FFFF
+      FFFF848484FF0000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000084FF000084FF848484FF00000000FFFF
+      FFFF848484FF0000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000848484FF000084FF000084FF00000000FFFF
+      FFFF848484FF0000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000084FF000084FF848484FFFFFF
+      FFFF848484FF0000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000848484FF000084FF848484FF0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000008400FF008400FF008400FF008400FF0084
+      00FF000000FF0000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000008400FF00FF00FF00FF00FF00FF00FF00FF
+      00FF000000FF0000000000000000000000000000000000000000008400FF0084
+      00FF000000000000000000000000008400FF00FF00FF00FF00FF00FF00FF0000
+      00FF0000000000000000000000000000000000000000008400FF00FF00FF00FF
+      00FF000000FF0000000000000000008400FF00FF00FF00FF00FF00FF00FF00FF
+      00FF000000FF00000000000000000000000000000000008400FF00FF00FF00FF
+      00FF000000FF0000000000000000008400FF00FF00FF000000FF00FF00FF00FF
+      00FF000000FF000000000000000000000000008400FF00FF00FF00FF00FF0000
+      00FF000000000000000000000000000000FF000000FF00000000008400FF00FF
+      00FF00FF00FF000000FF0000000000000000008400FF00FF00FF00FF00FF0000
+      00FF000000000000000000000000000000000000000000000000008400FF00FF
+      00FF00FF00FF000000FF0000000000000000008400FF00FF00FF00FF00FF0000
+      00FF000000000000000000000000000000000000000000000000008400FF00FF
+      00FF00FF00FF000000FF0000000000000000008400FF00FF00FF00FF00FF0000
+      00FF000000000000000000000000000000000000000000000000008400FF00FF
+      00FF00FF00FF000000FF000000000000000000000000008400FF00FF00FF00FF
+      00FF008400FF00000000000000000000000000000000008400FF00FF00FF00FF
+      00FF000000FF00000000000000000000000000000000008400FF00FF00FF00FF
+      00FF00FF00FF008400FF008400FF008484FF008400FF00FF00FF00FF00FF00FF
+      00FF000000FF0000000000000000000000000000000000000000000000FF00FF
+      00FF00FF00FF00FF00FF00FF00FF00FF84FF00FF00FF00FF00FF00FF00FF0000
+      00FF000000000000000000000000000000000000000000000000000000000000
+      00FF000000FF00FF00FF00FF00FF00FF00FF00FF00FF000000FF000000FF0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000FF000000FF000000FF000000FF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF0000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF848484FF00000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFF840000FF840000FFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF848484FF848484FF000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFF840000FF840000FFFFFFFFFFFFFFFFFF0000
+      00FF848484FF848484FF000000000000000000000000000000FFFFFFFFFF8400
+      00FF840000FF840000FF840000FF840084FF840000FF840000FFFFFFFFFF0000
+      00FF848484FF848484FF000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFF840084FF840000FFFFFFFFFFFFFFFFFF0000
+      00FF848484FF848484FF000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFF840000FF840000FFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF848484FF848484FF000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF848484FF848484FF000000000000000000000000000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF848484FF848484FF00000000000000000000000000000000848484FF8484
+      84FF848484FF848484FF848484FF848484FF848484FF848484FF848484FF8484
+      84FF848484FF848484FF00000000000000000000000000000000000000008484
+      84FF848484FF848484FF848484FF848484FF848484FF848484FF848484FF8484
+      84FF848484FF848484FF00000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000FF000000FF00000000000000000000000000000000000000000000
+      84FF000084FF000084FF000084FF840000FF840000FF00000000848484FF8400
+      00FF848484FF000000FF00000000000000000000000000000000848484FF0000
+      84FFC6C6C6FF0000FFFFC6C6C6FF840000FFFF0000FF840000FF840000FF8484
+      84FF000000FF0000000000000000000000000000000000000000008484FFC6C6
+      C6FF008484FFC6C6C6FF000084FFC6C6C6FF840000FF848400FFFF0000FF8484
+      84FF000000FF00000000000000000000000000000000848484FF008484FF00FF
+      FFFF008484FF000084FF840000FF000084FF848400FFFF0000FF848484FF0000
+      00FF0000000000000000000000000000000000000000008484FF00FFFFFFC6C6
+      C6FF00FFFFFF840000FFFF0000FF848400FFFF0000FF848400FF848484FF0000
+      00FF00000000000000000000000000000000848484FF008484FFC6C6C6FF0084
+      84FFC6C6C6FF008400FFC6C6C6FF840000FF000000FF848484FF000000FF0000
+      000000000000000000000000000000000000008484FF00FFFFFF008484FF0000
+      00FF000000FF000000FF008400FFC6C6C6FF008400FF848484FF000000FF0000
+      000000000000000000000000000000000000000000FF000000FF848484FF0000
+      00000000000000000000848484FF000000FF848484FF000000FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000848484FF000000FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000848484FF000000FF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000848484FF000000FF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000848484FF000000FF0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000848484FF848484FF000000FF0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000848484FF000000FF000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000FF000000FF000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000848484FF848484FF8484
+      84FF000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000848484FF00FF00FF0000
+      00FF000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000848484FF00FF00FF0000
+      00FF00000000000000000000000000000000000000000000FFFF0000FFFF0000
+      FFFF0000FFFF00000000848484FF848484FF848484FF848484FF00FF00FF8484
+      84FF848484FF848484FF848484FF0000000000000000000000000000FFFF0000
+      FFFF0000FFFF00000000848484FF00FF00FF00FF00FF00FF00FF00FF00FF00FF
+      00FF00FF00FF00FF00FF000000FF00000000000000000000FFFF0000FFFF0000
+      FFFF0000FFFF00000000848484FF000000FF000000FF848484FF00FF00FF0000
+      00FF000000FF000000FF000000FF000000000000FFFF0000FFFF0000FFFF0000
+      00000000FFFF00000000000000000000000000000000848484FF00FF00FF0000
+      00FF00000000000000000000000000000000000000000000FFFF000000000000
+      00000000000000000000000000000000000000000000848484FF00FF00FF0000
+      00FF000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000848484FF000000FF0000
+      00FF0000000000000000000000000000000000000000000000FF000000FF0000
+      00FF000000FF0000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF0000000000000000000000FF000000FF000000FFC6C6
+      C6FFC6C6C6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFF000000FF000000000000000000000000000000FFC6C6
+      C6FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6
+      C6FFC6C6C6FFC6C6C6FF000000FF00000000000000FF000000FF000000FFC6C6
+      C6FFC6C6C6FFFFFFFFFF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF0000000000000000000000FFC6C6C6FFC6C6C6FFC6C6
+      C6FFC6C6C6FF000000FF00000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000FF000000FF0000
+      00FF000000FF0000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000FF848484FF0000
+      0000000000FF0000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000848484FF000000FFFFFFFFFF8484
+      84FF000000FF0000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000848484FF000000FF000000FF000000FF0000
+      00FF848484FF0000000000000000000000FF000000FF000000FF000000FF0000
+      0000000000000000000000000000000000FF000000FF000000FF848484FF0000
+      00000000000000000000000000FF848484FFFFFF00FFC6C6C6FF848484FF0000
+      00FF000000000000000000000000000000FF000000FF848484FF000000000000
+      000000000000000000FF848484FFFFFFFFFFFFFFFFFFFFFF00FFC6C6C6FF8484
+      84FF000000FF0000000000000000000000FF848484FF00000000000000000000
+      000000000000000000FFFFFF00FFFFFFFFFFFFFF00FFC6C6C6FFFFFF00FFC6C6
+      C6FF000000FF0000000000000000848484FFFFFFFFFF000000FF000000FF0000
+      00FF00000000000000FFC6C6C6FFFFFF00FFC6C6C6FFFFFF00FFC6C6C6FFFFFF
+      FFFF000000FF0000000000000000000000FF000000FF848400FFFFFF00FFFFFF
+      00FFFFFF00FF000000FF848484FFC6C6C6FFFFFF00FFC6C6C6FFFFFFFFFF8484
+      84FF000000FF0000000000000000848400FFFFFF00FFFFFF00FFFFFF00FFFFFF
+      00FFFFFF00FFFFFF00FF000000FF848484FFC6C6C6FFFFFFFFFF848484FF0000
+      00FF0000FFFF000000FF00000000848400FFFFFF00FFFFFF00FFFFFF00FFFFFF
+      00FFFFFF00FFFFFF00FFFFFF00FF000000FF000000FF000000FF000000FF0000
+      84FF0000FFFF0000FFFF000000FF000000FF000000FF848400FFFFFF00FFFFFF
+      00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFFFFFF0000
+      00FF000084FF0000FFFF0000FFFF848400FF848400FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FFFFFF
+      FFFF000000FF000084FF000084FF000000FF000000FF848400FF848400FF8484
+      00FF848400FF848400FF848400FF848400FF848400FF848400FF848400FF0000
+      00FFFFFFFFFF000000FF000000FF848400FF848400FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF8484
+      00FF848400FF0000000000000000000000FF000000FF848400FF848400FF8484
+      00FF848400FF848400FF848400FF848400FF848400FF848400FF848400FF0000
+      00FF000000FF00000000000000000000000000000000000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000FF000000FF0000
+      00FF000000000000000000000000000000000000000000000000000000000000
+      000000000000000000FF000000000000000000000000000000FF000000FF0000
+      00FF000000FF0000000000000000000000000000000000000000000000000000
+      00FF000000FF0000000000000000000000000000000000000000000000FF0000
+      00FF000000FF000000FF00000000000000000000000000000000000000FF0000
+      00FF000000000000000000000000000000000000000000000000000000000000
+      0000000000FF000000FF000000FF0000000000000000000000FF000000FF0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000FF000000FF000000FF000000FF000000FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000FF000000FF000000FF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000FF000000FF000000FF000000FF000000FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000FF000000FF000000FF0000000000000000000000FF000000FF0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00FF000000FF000000FF00000000000000000000000000000000000000FF0000
+      00FF000000000000000000000000000000000000000000000000000000FF0000
+      00FF000000FF0000000000000000000000000000000000000000000000000000
+      00FF0000000000000000000000000000000000000000000000FF000000FF0000
+      00FF000000FF0000000000000000000000000000000000000000000000000000
+      0000000000FF00000000000000000000000000000000000000FF000000FF0000
+      00FF000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000FF0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000FF00000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF00000000000000000000
+      00000000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FF000000FF000000000000
+      00000000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFF000000FF0000
+      00000000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FF000000FF000000FF0000
+      00FF0000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF0000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF0000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF0000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF0000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF0000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF0000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF0000000000000000000000000000000000000000000000FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+      00FF0000000000000000000000000000000000000000000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000FF000000FF000000FF000000FF000000FF0000
+      00FF00000000840000FF840000FF000000000000000000000000000000000000
+      000000000000000000FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6
+      C6FF000000FF840000FF840000FF000000000000000000000000000000000000
+      0000000000FFC6C6C6FF000000FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6
+      C6FFC6C6C6FF840000FF840000FF000000FF000000FF000000FF000000FF0000
+      00FFC6C6C6FF000000FFC6C6C6FF000000FFC6C6C6FFC6C6C6FFC6C6C6FFC6C6
+      C6FFC6C6C6FF840000FF840000FF000000FFFFFFFFFFFFFFFFFF000000FFC6C6
+      C6FF000000FFC6C6C6FF000000FFC6C6C6FF000000FFC6C6C6FFC6C6C6FFC6C6
+      C6FF000000FF840000FF840000FF000000FFFFFFFFFF000000FFC6C6C6FF0000
+      00FFFFFFFFFF000000FFC6C6C6FF000000FFC6C6C6FF000000FF000000FF0000
+      00FF00000000840000FF840000FF000000FFFFFFFFFF000000FF000000FFFFFF
+      FFFFFFFFFFFFFFFFFFFF000000FFC6C6C6FF000000FFFFFFFFFF000000FF0000
+      0000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFFFFFFFF000000FF0000
+      0000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FF0000
+      0000000000000000000000000000000000FFFFFFFFFF000000FF000000FFFFFF
+      FFFF000000FF000000FF000000FF000000FF000000FFFFFFFFFF000000FF0000
+      0000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FF0000
+      0000000000000000000000000000000000FFFFFFFFFF000000FF000000FFFFFF
+      FFFF000000FF000000FF000000FF000000FF000000FFFFFFFFFF000000FF0000
+      0000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FF0000
+      0000000000000000000000000000000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00198D19FFBFDFBFFFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF0C880CFFBFDFBFFFFF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF2AB72AFF0C880CFFBDDEBDFFFF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF37C837FF2AB72AFF0C880CFFBDDEBDFFFF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF37C837FF37C837FF2AB72AFF0C880CFFBDDEBDFFFF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF37C837FF37C837FF37C837FF2AB72AFF0C880CFFBDDEBDFFFF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF37C837FF37C837FF37C837FF37C837FF29B629FF0C880CFFC8E4
+      C8FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF37C837FF37C837FF37C837FF37C837FF29B629FF0D880DFFC8E4
+      C8FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF37C837FF37C837FF37C837FF2AB72AFF0D890DFFBDDEBDFFFF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF37C837FF37C837FF2AB72AFF0D890DFFBDDEBDFFFF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF37C837FF2AB72AFF0D890DFFBDDEBDFFFF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF2AB72AFF0D890DFFBDDEBDFFFF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00008000FF0D880DFFBFDFBFFFFF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00198D19FFBFDFBFFFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00000000000000000000000000000000000000
+      0000000000FF000000FF000000FF000000FF000000FF000000FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000FF00FF00FF00FF00FF00FF00FF00FF00FF000000FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000FF00FF00FF00FF00FF00FF00FF00FF00FF000000FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000FF00FF00FF00FF00FF00FF00FF00FF00FF000000FF000000000000
+      00000000000000000000000000000000000000000000000000FF000000FF0000
+      00FF000000FF00FF00FF00FF00FF00FF00FF00FF00FF000000FF000000FF0000
+      00FF000000FF0000000000000000000000000000000000000000000000FF00FF
+      00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF0000
+      00FF000000000000000000000000000000000000000000000000000000FF0000
+      00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF000000FF0000
+      00FF00000000000000000000000000000000000000FF000000FF848400FFFFFF
+      00FF000000FF00FF00FF00FF00FF00FF00FF00FF00FF000000FFFFFF00FF8484
+      00FF000000FF000000FF00000000000000FF848400FFFFFF00FFFFFF00FFFFFF
+      00FFFFFF00FF000000FF00FF00FF00FF00FF000000FFFFFF00FFFFFF00FFFFFF
+      00FFFFFF00FF848400FF000000FF000000FF848400FFFFFF00FFFFFF00FFFFFF
+      00FFFFFF00FFFFFF00FF000000FF000000FFFFFF00FFFFFF00FFFFFF00FFFFFF
+      00FFFFFF00FF848400FF000000FF000000FF000000FF000000FF848400FFFFFF
+      00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF8484
+      00FF000000FF000000FF000000FF000000FF848400FF848400FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF848400FF848400FF000000FF000000FF000000FF000000FF848400FF8484
+      00FF848400FF848400FF848400FF848400FF848400FF848400FF848400FF8484
+      00FF000000FF000000FF000000FF000000FF848400FF848400FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF848400FF848400FF000000FF00000000000000FF000000FF848400FF8484
+      00FF848400FF848400FF848400FF848400FF848400FF848400FF848400FF8484
+      00FF000000FF000000FF00000000000000000000000000000000000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000000000000000000000
+    }
+  end
+  object PopupMenuProp: TPopupMenu
+    OnPopup = PopupMenuGridPopup
+    left = 640
+    top = 300
+    object MN_QueryRelTable2: TMenuItem
+      Caption = 'Query related table'
+    end
+    object MenuItem9: TMenuItem
+      Action = actChangeValue
+    end
+    object MenuItem10: TMenuItem
+      Action = actCopyFieldEqVal
+    end
+    object N6: TMenuItem
+      Action = actCopyRec
+    end
+    object MenuItem15: TMenuItem
+      Action = actCopyUpdateRecSql
+    end
+    object MenuItem11: TMenuItem
+      Action = actCopyInsertRecSql
+    end
+    object MenuItem18: TMenuItem
+      Action = actCopyRecJsonStr
+    end
+    object MenuItem14: TMenuItem
+      Action = actDeleteRec
+    end
+    object MN_ShowSqlTbProp1: TMenuItem
+      Action = actShowSqlTbProp
+    end
+  end
+  object SynSQLSyn1: TSynSQLSyn
+    DefaultFilter = 'SQL Files (*.sql)|*.sql'
+    Enabled = False
+    CommentAttri.Foreground = clRed
+    CommentAttri.Style = []
+    DataTypeAttri.Foreground = clMaroon
+    NumberAttri.Foreground = clBlue
+    PLSQLAttri.Foreground = clPurple
+    StringAttri.Foreground = clBlue
+    TableNameAttri.Foreground = clNavy
+    SQLDialect = sqlOracle
+    left = 400
+    top = 120
+  end
+  object SynCompletionSql: TSynCompletion
+    OnExecute = SynCompletionSqlExecute
+    ItemList.Strings = (
+      'select'
+      'test'
+      'task'
+      'tplink'
+      'oker'
+      'hello'
+    )
+    Position = 0
+    LinesInWindow = 24
+    OnSearchPosition = SynCompletionSqlSearchPosition
+    SelectedColor = clHighlight
+    CaseSensitive = False
+    Width = 262
+    ShowSizeDrag = True
+    AutoUseSingleIdent = True
+    ShortCut = 8224
+    EndOfTokenChr = '()[].,=+-*/|\<>`~!@%^&'
+    OnCodeCompletion = SynCompletionSqlCodeCompletion
+    ExecCommandID = ecSynCompletionExecute
+    Editor = SynEditSql
+    ToggleReplaceWhole = False
+    left = 168
+    top = 248
+  end
+  object PopupMenuSqlEdit: TPopupMenu
+    left = 256
+    top = 248
+    object MenuItem27: TMenuItem
+      Action = actEditAutoComplete
+    end
+    object MenuItem28: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem24: TMenuItem
+      Action = actEditUndo
+    end
+    object MenuItem23: TMenuItem
+      Action = actEditRedo
+    end
+    object MenuItem29: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem21: TMenuItem
+      Action = actEditCut
+    end
+    object MenuItem22: TMenuItem
+      Action = actEditCopy
+    end
+    object MenuItem19: TMenuItem
+      Action = actEditPaste
+    end
+    object MenuItem20: TMenuItem
+      Action = actEditSelall
+    end
+    object MenuItem26: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem30: TMenuItem
+      Action = actFormatSql
+    end
+    object MenuItem25: TMenuItem
+      Action = actSqlLog
+    end
+  end
+end

@@ -1,11 +1,11 @@
 object frmSettings: TfrmSettings
-  Left = 415
-  Height = 580
-  Top = 52
+  Left = 436
+  Height = 687
+  Top = 208
   Width = 544
   BorderStyle = bsDialog
   Caption = 'Settings'
-  ClientHeight = 580
+  ClientHeight = 687
   ClientWidth = 544
   OnCreate = FormCreate
   OnShow = FormShow
@@ -15,7 +15,7 @@ object frmSettings: TfrmSettings
   object Panel1: TPanel
     Left = 0
     Height = 36
-    Top = 544
+    Top = 651
     Width = 544
     Align = alBottom
     AutoSize = True
@@ -58,36 +58,36 @@ object frmSettings: TfrmSettings
   end
   object PageControlMain: TPageControl
     Left = 0
-    Height = 544
+    Height = 651
     Top = 0
     Width = 544
-    ActivePage = tabshtFieldTypes
+    ActivePage = tabshtSQL
     Align = alClient
-    TabIndex = 3
+    TabIndex = 2
     TabOrder = 1
     object tabshtGeneral: TTabSheet
       Caption = 'General'
-      ClientHeight = 593
+      ClientHeight = 621
       ClientWidth = 536
       object PanelGen1: TPanel
         Left = 0
-        Height = 593
+        Height = 621
         Top = 0
         Width = 536
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 8
-        ClientHeight = 593
+        ClientHeight = 621
         ClientWidth = 536
         TabOrder = 0
         object GroupBoxUI: TGroupBox
           Left = 8
-          Height = 169
+          Height = 96
           Top = 8
           Width = 520
           Align = alTop
           Caption = 'User interface'
-          ClientHeight = 147
+          ClientHeight = 74
           ClientWidth = 516
           TabOrder = 0
           object lbLanguage: TLabel
@@ -97,15 +97,6 @@ object frmSettings: TfrmSettings
             Width = 60
             Caption = 'Language:'
             ParentColor = False
-          end
-          object ckbEnableCustomPropUI: TCheckBox
-            Left = 24
-            Height = 21
-            Top = 48
-            Width = 279
-            Caption = 'Enable custom UI page for tables and fields'
-            OnChange = ckbEnableCustomPropUIChange
-            TabOrder = 1
           end
           object lbLanguageTip: TLabel
             Left = 276
@@ -127,33 +118,16 @@ object frmSettings: TfrmSettings
           object ckbCheckForUpdates: TCheckBox
             Left = 24
             Height = 21
-            Top = 112
+            Top = 44
             Width = 299
             Caption = 'Auto check for updates on exit (once per week)'
-            TabOrder = 4
-          end
-          object edtCustomPropUICaption: TEdit
-            Left = 318
-            Height = 25
-            Top = 48
-            Width = 130
-            TabOrder = 2
-            TextHint = 'Custom page title'
-          end
-          object ckbEnableAdvTbProp: TCheckBox
-            Left = 24
-            Height = 21
-            Top = 78
-            Width = 215
-            Caption = 'Enable advanced page for tables'
-            OnChange = ckbEnableCustomPropUIChange
-            TabOrder = 3
+            TabOrder = 1
           end
         end
         object BevelGen1: TBevel
           Left = 8
           Height = 10
-          Top = 177
+          Top = 216
           Width = 520
           Align = alTop
           Shape = bsSpacer
@@ -161,7 +135,7 @@ object frmSettings: TfrmSettings
         object GroupBoxAutoSave: TGroupBox
           Left = 8
           Height = 204
-          Top = 187
+          Top = 226
           Width = 520
           Align = alTop
           AutoSize = True
@@ -222,7 +196,7 @@ object frmSettings: TfrmSettings
         object Bevel1: TBevel
           Left = 8
           Height = 10
-          Top = 391
+          Top = 430
           Width = 520
           Align = alTop
           Shape = bsSpacer
@@ -230,7 +204,7 @@ object frmSettings: TfrmSettings
         object GroupBoxHugeMode: TGroupBox
           Left = 8
           Height = 121
-          Top = 401
+          Top = 440
           Width = 520
           Align = alTop
           AutoSize = True
@@ -272,21 +246,102 @@ object frmSettings: TfrmSettings
             ParentColor = False
           end
         end
+        object BevelGen2: TBevel
+          Left = 8
+          Height = 10
+          Top = 104
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxTbTabs: TGroupBox
+          Left = 8
+          Height = 102
+          Top = 114
+          Width = 520
+          Align = alTop
+          Caption = 'Table properties pages'
+          ClientHeight = 80
+          ClientWidth = 516
+          TabOrder = 3
+          object ckbEnableCustomPropUI: TCheckBox
+            Left = 140
+            Height = 21
+            Top = 40
+            Width = 66
+            Caption = 'Custom'
+            OnChange = ckbEnableCustomPropUIChange
+            TabOrder = 5
+          end
+          object ckbEnableTbPropUIDesign: TCheckBox
+            Left = 264
+            Height = 21
+            Top = 8
+            Width = 79
+            Caption = 'UI Design'
+            OnChange = ckbEnableCustomPropUIChange
+            TabOrder = 2
+          end
+          object ckbEnableAdvTbProp: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 40
+            Width = 79
+            Caption = 'Advanced'
+            OnChange = ckbEnableCustomPropUIChange
+            TabOrder = 4
+          end
+          object ckbEnableTbPropData: TCheckBox
+            Left = 388
+            Height = 21
+            Top = 8
+            Width = 49
+            Caption = 'Data'
+            OnChange = ckbEnableCustomPropUIChange
+            TabOrder = 3
+          end
+          object ckbEnableTbPropGenerate: TCheckBox
+            Left = 140
+            Height = 21
+            Top = 8
+            Width = 75
+            Caption = 'Generate'
+            OnChange = ckbEnableCustomPropUIChange
+            TabOrder = 1
+          end
+          object edtCustomPropUICaption: TEdit
+            Left = 232
+            Height = 25
+            Top = 38
+            Width = 130
+            TabOrder = 6
+            TextHint = 'Custom page title'
+          end
+          object ckbEnableTbPropRelations: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 8
+            Width = 75
+            Caption = 'Relations'
+            OnChange = ckbEnableCustomPropUIChange
+            TabOrder = 0
+          end
+        end
       end
     end
     object tabshtDisplay: TTabSheet
       Caption = 'Display'
-      ClientHeight = 593
+      ClientHeight = 621
       ClientWidth = 536
       object PanelDisp: TPanel
         Left = 0
-        Height = 593
+        Height = 621
         Top = 0
         Width = 536
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 8
-        ClientHeight = 593
+        ClientHeight = 621
         ClientWidth = 536
         TabOrder = 0
         object GroupBoxBaseFont: TGroupBox
@@ -503,17 +558,17 @@ object frmSettings: TfrmSettings
     end
     object tabshtSQL: TTabSheet
       Caption = 'SQL'
-      ClientHeight = 593
+      ClientHeight = 621
       ClientWidth = 536
       object PanelSQL: TPanel
         Left = 0
-        Height = 593
+        Height = 621
         Top = 0
         Width = 536
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 8
-        ClientHeight = 593
+        ClientHeight = 621
         ClientWidth = 536
         TabOrder = 0
         object Bevel3: TBevel
@@ -592,47 +647,122 @@ object frmSettings: TfrmSettings
             Caption = 'Add field-comments to table-creation-SQL'
             TabOrder = 2
           end
-          object ckbCreateSeqForOracle: TCheckBox
-            Left = 24
-            Height = 21
-            Top = 104
-            Width = 235
-            Caption = 'Create/check sequences for ORACLE'
-            TabOrder = 3
-          end
           object ckbQuotAllNames: TCheckBox
             Left = 232
             Height = 21
             Top = 8
             Width = 110
             Caption = 'Quot all names'
-            TabOrder = 4
+            TabOrder = 3
           end
           object ckbCreateIndexForForeignkey: TCheckBox
-            Left = 24
+            Left = 232
             Height = 21
             Top = 136
             Width = 205
             Caption = 'Create indexes for foreign keys'
             TabOrder = 5
           end
+          object ckbCreateForeignkeys: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 136
+            Width = 136
+            Caption = 'Create foreign keys'
+            TabOrder = 4
+          end
+        end
+        object GroupBoxSQLDbSpec: TGroupBox
+          Left = 8
+          Height = 177
+          Top = 333
+          Width = 520
+          Align = alTop
+          Caption = 'Spetial'
+          ClientHeight = 155
+          ClientWidth = 516
+          TabOrder = 2
+          object lbHiveVersion: TLabel
+            Left = 24
+            Height = 17
+            Top = 76
+            Width = 74
+            Caption = 'Hive version:'
+            ParentColor = False
+          end
+          object combHiveVersion: TComboBox
+            Left = 140
+            Height = 25
+            Top = 76
+            Width = 128
+            ItemHeight = 17
+            Items.Strings = (
+              '2'
+              '3'
+            )
+            TabOrder = 2
+          end
+          object ckbCreateSeqForOracle: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 8
+            Width = 235
+            Caption = 'Create/check sequences for ORACLE'
+            TabOrder = 0
+          end
+          object combMysqlVersion: TComboBox
+            Left = 140
+            Height = 25
+            Top = 40
+            Width = 128
+            ItemHeight = 17
+            Items.Strings = (
+              '5'
+              '8'
+            )
+            TabOrder = 1
+          end
+          object lbMysqlVersion: TLabel
+            Left = 24
+            Height = 17
+            Top = 40
+            Width = 90
+            Caption = 'MySQL version:'
+            ParentColor = False
+          end
+          object ckbRetainAfterCommit: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 112
+            Width = 136
+            Caption = 'Retain after commit'
+            TabOrder = 3
+          end
+        end
+        object Bevel19: TBevel
+          Left = 8
+          Height = 10
+          Top = 323
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
         end
       end
     end
     object tabshtFieldTypes: TTabSheet
       Caption = 'Field Types'
-      ClientHeight = 514
+      ClientHeight = 621
       ClientWidth = 536
       object ScrollBoxFieldTypes: TScrollBox
         Left = 0
-        Height = 514
+        Height = 621
         Top = 0
         Width = 536
         HorzScrollBar.Page = 512
-        VertScrollBar.Page = 510
+        VertScrollBar.Page = 617
         VertScrollBar.Tracking = True
         Align = alClient
-        ClientHeight = 510
+        ClientHeight = 617
         ClientWidth = 515
         TabOrder = 0
         object PanelFieldTypes: TPanel
@@ -648,7 +778,7 @@ object frmSettings: TfrmSettings
           object GroupBoxCustomFldTypes: TGroupBox
             Left = 8
             Height = 280
-            Top = 52
+            Top = 375
             Width = 496
             Align = alTop
             Caption = 'Custom field types'
@@ -733,94 +863,56 @@ object frmSettings: TfrmSettings
           end
           object GroupBoxSysFldTypes: TGroupBox
             Left = 8
-            Height = 262
-            Top = 342
+            Height = 330
+            Top = 35
             Width = 496
             Align = alTop
             Caption = 'Custom physical types'
-            ClientHeight = 240
+            ClientHeight = 308
             ClientWidth = 492
             TabOrder = 1
-            object ListBoxDefPhyTypes: TListBox
-              Left = 17
-              Height = 163
-              Top = 8
-              Width = 207
-              ItemHeight = 0
-              OnClick = ListBoxDefPhyTypesClick
-              TabOrder = 0
-            end
-            object lbDefPhyTpLogicType: TLabel
-              Left = 248
-              Height = 17
-              Top = 8
-              Width = 59
-              Caption = 'Data type:'
-              ParentColor = False
-            end
-            object lbCustomPhyType: TLabel
-              Left = 248
-              Height = 17
-              Top = 48
-              Width = 126
-              Caption = 'Custom physical type:'
-              ParentColor = False
-            end
-            object edtCustomPhyType: TEdit
-              Left = 352
-              Height = 25
-              Hint = 'example for Float: DECIMAL, for String: VARCHAR2(800)  (default lengths can be specified)'
-              Top = 80
-              Width = 120
-              OnChange = edtCustomPhyTypeChange
-              ParentShowHint = False
-              ShowHint = True
-              TabOrder = 2
-            end
-            object btnNewCustPhyTp: TButton
-              Left = 248
-              Height = 25
-              Top = 146
-              Width = 49
-              Caption = '+'
-              OnClick = btnNewCustPhyTpClick
-              TabOrder = 3
-            end
-            object btnRemoveCustPhyTp: TButton
-              Left = 312
-              Height = 25
-              Top = 146
-              Width = 49
-              Caption = '-'
-              OnClick = btnRemoveCustPhyTpClick
-              TabOrder = 4
-            end
-            object combDefPhyTpLogicType: TComboBox
-              Left = 352
-              Height = 25
-              Top = 8
-              Width = 120
-              DropDownCount = 24
-              ItemHeight = 17
-              OnChange = edtCustomPhyTypeChange
-              Style = csDropDownList
-              TabOrder = 1
-            end
             object lbCustPhyTpTip: TLabel
-              Left = 19
+              Left = 16
               Height = 34
-              Top = 184
+              Top = 268
               Width = 453
               Anchors = [akTop, akLeft, akRight]
               Caption = 'You can define your own physical type for each logic type to replace the one recommended by the system.'
               ParentColor = False
               WordWrap = True
             end
+            object PanelPhyCustTps: TPanel
+              Left = 19
+              Height = 223
+              Top = 13
+              Width = 454
+              BevelOuter = bvNone
+              ClientHeight = 223
+              ClientWidth = 454
+              TabOrder = 0
+              object ListBoxDefPhyTypes: TListBox
+                Left = 44
+                Height = 125
+                Top = 23
+                Width = 164
+                ItemHeight = 0
+                TabOrder = 0
+                Visible = False
+              end
+            end
+            object ckbBigIntForIntKeys: TCheckBox
+              Left = 19
+              Height = 21
+              Top = 236
+              Width = 234
+              Caption = 'User BIGINT for integer PK/FK fields'
+              TabOrder = 1
+            end
           end
           object Bevel10: TBevel
             Left = 8
             Height = 10
-            Top = 332
+            Top = 25
             Width = 496
             Align = alTop
             Shape = bsSpacer
@@ -828,7 +920,7 @@ object frmSettings: TfrmSettings
           object Bevel11: TBevel
             Left = 8
             Height = 10
-            Top = 870
+            Top = 921
             Width = 496
             Align = alTop
             Shape = bsSpacer
@@ -836,7 +928,7 @@ object frmSettings: TfrmSettings
           object GroupBoxTpNameReplaces: TGroupBox
             Left = 8
             Height = 256
-            Top = 614
+            Top = 665
             Width = 496
             Align = alTop
             Caption = 'Type name replaces'
@@ -922,25 +1014,25 @@ object frmSettings: TfrmSettings
           object Bevel12: TBevel
             Left = 8
             Height = 10
-            Top = 42
+            Top = 365
             Width = 496
             Align = alTop
             Shape = bsSpacer
           end
           object lbDBConnNote1: TLabel
             Left = 8
-            Height = 34
+            Height = 17
             Top = 8
             Width = 496
             Align = alTop
-            Caption = 'Notes: Custom types is only used to generate SQLs and may have no effect on model diagrams.'
+            Caption = 'Notes: Leave blank to indicate the system default type.'
             ParentColor = False
             WordWrap = True
           end
           object GroupBoxFieldDataGenRules: TGroupBox
             Left = 8
             Height = 256
-            Top = 880
+            Top = 931
             Width = 496
             Align = alTop
             Caption = 'Field data generate rules'
@@ -1026,7 +1118,7 @@ object frmSettings: TfrmSettings
           object Bevel18: TBevel
             Left = 8
             Height = 10
-            Top = 604
+            Top = 655
             Width = 496
             Align = alTop
             Shape = bsSpacer
@@ -1036,17 +1128,17 @@ object frmSettings: TfrmSettings
     end
     object tabshtConnection: TTabSheet
       Caption = 'DB Connect'
-      ClientHeight = 593
+      ClientHeight = 621
       ClientWidth = 536
       object PanelDBConn: TPanel
         Left = 0
-        Height = 593
+        Height = 621
         Top = 0
         Width = 536
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 8
-        ClientHeight = 593
+        ClientHeight = 621
         ClientWidth = 536
         TabOrder = 0
         object GroupBoxDBConnOracle: TGroupBox
@@ -1059,11 +1151,12 @@ object frmSettings: TfrmSettings
           ClientHeight = 86
           ClientWidth = 516
           TabOrder = 0
-          object edtOCILIB: TEdit
+          object edtOCILIB: TComboBox
             Left = 112
             Height = 25
             Top = 8
             Width = 344
+            ItemHeight = 17
             TabOrder = 0
           end
           object lbOciLib: TLabel
@@ -1112,7 +1205,6 @@ object frmSettings: TfrmSettings
               'JAPANESE_JAPAN.JA16EUC'
               'JAPANESE_JAPAN.AL32UTF8'
             )
-            OnChange = edtCustomPhyTypeChange
             TabOrder = 2
           end
         end
@@ -1126,11 +1218,12 @@ object frmSettings: TfrmSettings
           ClientHeight = 46
           ClientWidth = 516
           TabOrder = 1
-          object edtMYSQLLIB: TEdit
+          object edtMYSQLLIB: TComboBox
             Left = 112
             Height = 25
             Top = 8
             Width = 344
+            ItemHeight = 17
             TabOrder = 0
           end
           object lbMysqlLib: TLabel
@@ -1178,11 +1271,12 @@ object frmSettings: TfrmSettings
           ClientHeight = 74
           ClientWidth = 516
           TabOrder = 2
-          object edtSQLSERVERLIB: TEdit
+          object edtSQLSERVERLIB: TComboBox
             Left = 112
             Height = 25
             Top = 8
             Width = 344
+            ItemHeight = 17
             TabOrder = 0
           end
           object lbSqlServerLib: TLabel
@@ -1230,11 +1324,12 @@ object frmSettings: TfrmSettings
           ClientHeight = 47
           ClientWidth = 516
           TabOrder = 4
-          object edtSQLITELIB: TEdit
+          object edtSQLITELIB: TComboBox
             Left = 112
             Height = 25
             Top = 8
             Width = 344
+            ItemHeight = 17
             TabOrder = 0
           end
           object lbSqliteLib: TLabel
@@ -1292,11 +1387,12 @@ object frmSettings: TfrmSettings
           ClientHeight = 47
           ClientWidth = 516
           TabOrder = 3
-          object edtPOSTGRESLIB: TEdit
+          object edtPOSTGRESLIB: TComboBox
             Left = 112
             Height = 25
             Top = 8
             Width = 344
+            ItemHeight = 17
             TabOrder = 0
           end
           object lbPostgreLib: TLabel
@@ -1330,17 +1426,17 @@ object frmSettings: TfrmSettings
     end
     object tabshtOthers: TTabSheet
       Caption = 'Others'
-      ClientHeight = 593
+      ClientHeight = 621
       ClientWidth = 536
       object PanelOthers: TPanel
         Left = 0
-        Height = 593
+        Height = 621
         Top = 0
         Width = 536
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 8
-        ClientHeight = 593
+        ClientHeight = 621
         ClientWidth = 536
         TabOrder = 0
         object GroupBoxOthersTb: TGroupBox
@@ -1376,6 +1472,7 @@ object frmSettings: TfrmSettings
             Width = 309
             Caption = 'View table prop by default (unless CTRL pressed)'
             TabOrder = 2
+            Visible = False
           end
         end
         object GroupBoxKnownTbPrefix: TGroupBox
@@ -1454,12 +1551,46 @@ object frmSettings: TfrmSettings
             WordWrap = False
           end
         end
+        object Bevel20: TBevel
+          Left = 8
+          Height = 10
+          Top = 527
+          Width = 520
+          Align = alTop
+          Shape = bsSpacer
+        end
+        object GroupBoxOthers: TGroupBox
+          Left = 8
+          Height = 72
+          Top = 537
+          Width = 520
+          Align = alTop
+          Caption = 'Others'
+          ClientHeight = 50
+          ClientWidth = 516
+          TabOrder = 3
+          object lbTableDataPreviewRows1: TLabel
+            Left = 24
+            Height = 17
+            Top = 8
+            Width = 76
+            Caption = 'ChatGPT key:'
+            ParentColor = False
+          end
+          object edtChatGPTKey: TEdit
+            Left = 140
+            Height = 25
+            Top = 8
+            Width = 356
+            TabOrder = 0
+          end
+        end
       end
     end
   end
   object OpenDialogDbLib: TOpenDialog
     Options = [ofFileMustExist, ofEnableSizing, ofViewDetail]
-    left = 416
-    top = 200
+    left = 344
+    top = 484
   end
 end

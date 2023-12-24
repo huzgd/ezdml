@@ -1,16 +1,15 @@
 object frmAddTbLink: TfrmAddTbLink
   Left = 418
-  Height = 223
+  Height = 243
   Top = 252
   Width = 644
   BorderStyle = bsDialog
   Caption = 'Add Link'
-  ClientHeight = 223
+  ClientHeight = 243
   ClientWidth = 644
   Color = clBtnFace
   OnCloseQuery = FormCloseQuery
   OnDestroy = FormDestroy
-  OnShow = FormShow
   ParentFont = True
   Position = poMainFormCenter
   LCLVersion = '2.0.12.0'
@@ -89,22 +88,20 @@ object frmAddTbLink: TfrmAddTbLink
     TabOrder = 1
   end
   object btnOK: TButton
-    Left = 277
+    Left = 256
     Height = 27
-    Top = 160
-    Width = 44
-    AutoSize = True
+    Top = 188
+    Width = 116
     Caption = 'OK'
     Default = True
     ModalResult = 1
     TabOrder = 2
   end
   object btnCancel: TButton
-    Left = 333
+    Left = 376
     Height = 27
-    Top = 160
+    Top = 188
     Width = 64
-    AutoSize = True
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
@@ -156,5 +153,24 @@ object frmAddTbLink: TfrmAddTbLink
     OnChange = ckbCreateNewFieldChange
     TabOrder = 7
     Visible = False
+  end
+  object btnClose: TButton
+    Left = 284
+    Height = 27
+    Top = 188
+    Width = 108
+    Caption = 'Close'
+    ModalResult = 2
+    TabOrder = 9
+    Visible = False
+  end
+  object ckbCreateM2MTb: TCheckBox
+    Left = 99
+    Height = 21
+    Top = 152
+    Width = 229
+    Caption = 'Create many-to-many relation table'
+    OnClick = ckbCreateM2MTbClick
+    TabOrder = 10
   end
 end

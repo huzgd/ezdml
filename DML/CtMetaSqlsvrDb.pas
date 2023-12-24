@@ -18,6 +18,7 @@ type
     function CreateSqlDbConn: TSQLConnection; override;
     procedure SetConnected(const Value: boolean); override;
     function GetDbSchema: string; override;
+    procedure SetDbSchema(const Value: string); override;
     procedure SetFCLConnDatabase; override;
   public
     constructor Create; override;
@@ -44,7 +45,7 @@ var
 implementation
 
 uses
-  Dialogs, Forms, dmlstrs;
+  wSqlServerDBConfig, Dialogs, Forms, dmlstrs, WindowFuncs;
 
 { TCtMetaSqlsvrDb }
 
@@ -56,10 +57,16 @@ begin
     Result := TODBCConnection.Create(nil);
   {$ifdef WINDOWS}
     Result.CharSet := 'CP_ACP';
-  {$endif}
+  {$endif}  
+    if Pos('[GSQL_FIELD_NULL]', FExtraOpt) > 0 then
+      FExtraOpt := StringReplace(FExtraOpt, '[GSQL_FIELD_NULL]', '', []);
   end
   else
+  begin
     Result := TMSSQLConnection.Create(nil);
+    if Pos('[GSQL_FIELD_NULL]', FExtraOpt) = 0 then
+      FExtraOpt := FExtraOpt + '[GSQL_FIELD_NULL]';
+  end;
 end;
 
 procedure TCtMetaSqlsvrDb.SetConnected(const Value: boolean);
@@ -83,6 +90,16 @@ begin
           FSqlsvrType := 1;
       end;
     end;
+    with FQuery do
+    begin
+      Clear;
+      Sql.Text := 'SELECT SCHEMA_NAME()';
+
+      Open;
+      FDbSchema :=Fields[0].AsString;
+      if FDbSchema='' then
+        FDbSchema := 'dbo';
+    end;
   end;
 end;
 
@@ -92,6 +109,19 @@ begin
     Result := 'dbo'
   else
     Result := FDbSchema;
+end;
+
+procedure TCtMetaSqlsvrDb.SetDbSchema(const Value: string);
+var
+  S: String;
+begin               
+  if FDbSchema = Value then
+    Exit;
+
+  inherited SetDbSchema(Value);  
+  S := FDbConn.Params.Values['Database'];
+  if S <> '' then
+    ExecSql('use ' + GetDbQuotName(S, Self.EngineType));
 end;
 
 procedure TCtMetaSqlsvrDb.SetFCLConnDatabase;
@@ -176,10 +206,14 @@ function TCtMetaSqlsvrDb.ShowDBConfig(AHandle: THandle): boolean;
 var
   S: string;
 begin
-  Result := False;
-  S := GetDbNames;
-  S := S + #10 + srSqlServerConfigTip;
-  ShowMessage(S);
+  S := TfrmSqlSvrDBConfig.DoDbConfig(Database, G_UseOdbcDriverForMsSql);
+  if S <> '' then
+  begin
+    Database := S;
+    Result := True;
+  end
+  else
+    Result := False;
 end;
 
 function TCtMetaSqlsvrDb.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer): string;
@@ -205,8 +239,10 @@ begin
   begin
     Clear;
     S := 'SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = ''BASE TABLE''';
+    if ADbUser = '' then
+      ADbUser := Self.FDbSchema;
     if ADbUser <> '' then
-      S := S + ' AND TABLE_SCHEMA=''' + ADbUser + '''';    
+      S := S + ' AND TABLE_SCHEMA=''' + ADbUser + '''';
     S := S + ' ORDER BY TABLE_SCHEMA, TABLE_NAME';
     Sql.Text := S;
 
@@ -214,9 +250,9 @@ begin
     while not EOF do
     begin
       if ADbUser = '' then
-        Result.Add(Fields[1].AsString + '.' + Fields[0].AsString)
+        Result.Add(CtTrim(Fields[1].AsString) + '.' + CtTrim(Fields[0].AsString))
       else
-        Result.Add(Fields[0].AsString);
+        Result.Add(CtTrim(Fields[0].AsString));
       Next;
     end;
   end;
@@ -229,16 +265,16 @@ begin
   begin
     Clear;
     if FSqlsvrType >= 2 then
-      Sql.Text := 'SELECT name FROM sys.schemas'
+      Sql.Text := 'SELECT name FROM sys.schemas ORDER BY name'
     else
-      Sql.Text := 'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA';
+      Sql.Text := 'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA ORDER BY SCHEMA_NAME';
     Open;
     while not EOF do
     begin
       if Result = '' then
-        Result := Fields[0].AsString
+        Result := CtTrim(Fields[0].AsString)
       else
-        Result := Result + #13#10 + Fields[0].AsString;
+        Result := Result + #13#10 + CtTrim(Fields[0].AsString);
       Next;
     end;
   end;
@@ -268,7 +304,7 @@ function TCtMetaSqlsvrDb.GetObjInfos(ADbUser, AObjName, AOpt: string): TCtMetaOb
 var
   o: TCtMetaTable;
   f: TCtMetaField;
-  S, T: string;
+  S, T, oid: string;
 begin
   (*if FSqlsvrType = 0 then
   begin
@@ -276,8 +312,24 @@ begin
     Exit;
   end;      *)
   Result := nil;
-  //if not ObjectExists(ADbUser, AObjName) then
-  //Exit;
+
+  if ADbUser = '' then
+    ADbUser := Self.FDbSchema;
+
+
+  with FQueryB do
+  begin
+    Clear;
+    Sql.Text := 'select object_id(''' +ADbUser+'.'+ AObjName + ''')';
+    Open;
+    if EOF then
+      Exit;
+    if Fields[0].IsNull then
+      Exit;
+    oid := CtTrim(Fields[0].AsString);
+  end;
+  if Trim(oid)= '' then
+    Exit;
 
   with FQueryB do
   begin
@@ -285,10 +337,10 @@ begin
     Clear;
     if FSqlsvrType >= 2 then
       SQL.Text :=
-        'select t.name, a.name datatype, t.isnullable, b.text defaultval, c.[value] comments, t.length, t.prec, t.scale, COLUMNPROPERTY(t.id,t.name,''IsIdentity'') IsIdentity ' + 'from syscolumns t left outer join systypes a on a.xusertype = t.xusertype ' + 'left join syscomments b on b.id = t.cdefault ' + 'left join sys.extended_properties c on c.major_id = t.id and c.minor_id = t.colid and c.name=''MS_Description'' ' + 'where t.id = (select max(o.id) from sysobjects o where o.name = ''' + AObjName + ''')' + 'order by t.colid'
+        'select t.name, a.name datatype, t.isnullable, b.text defaultval, cast(c.[value] as varchar(1023)) comments, t.length, t.prec, t.scale, COLUMNPROPERTY(t.id,t.name,''IsIdentity'') IsIdentity ' + 'from syscolumns t left outer join systypes a on a.xusertype = t.xusertype ' + 'left join syscomments b on b.id = t.cdefault ' + 'left join sys.extended_properties c on c.major_id = t.id and c.minor_id = t.colid and c.name=''MS_Description'' ' + 'where t.id = ''' + oid + ''' order by t.colid'
     else
       SQL.Text :=
-        'select t.name, a.name datatype, t.isnullable, b.text defaultval, c.[value] comments, t.length, t.prec, t.scale, COLUMNPROPERTY(t.id,t.name,''IsIdentity'') IsIdentity ' + 'from dbo.syscolumns t left outer join dbo.systypes a on a.xusertype = t.xusertype ' + 'left join dbo.syscomments b on b.id = t.cdefault ' + 'left join dbo.sysproperties c on c.id=t.id AND t.colid = c.smallid and c.name=''MS_Description'' ' + 'where t.id = (select max(o.id) from dbo.sysobjects o where o.name = ''' + AObjName + ''')' + 'order by t.colid';
+        'select t.name, a.name datatype, t.isnullable, b.text defaultval, cast(c.[value] as varchar(1023)) comments, t.length, t.prec, t.scale, COLUMNPROPERTY(t.id,t.name,''IsIdentity'') IsIdentity ' + 'from dbo.syscolumns t left outer join dbo.systypes a on a.xusertype = t.xusertype ' + 'left join dbo.syscomments b on b.id = t.cdefault ' + 'left join dbo.sysproperties c on c.id=t.id AND t.colid = c.smallid and c.name=''MS_Description'' ' + 'where t.id = ''' + oid + '''order by t.colid';
     try
       Open;
     except
@@ -298,7 +350,7 @@ begin
         begin
           Close;
           SQL.Text :=
-            'select t.name, a.name datatype, t.isnullable, b.text defaultval, c.[value] comments, t.length,  t.prec, t.scale, COLUMNPROPERTY(t.id,t.name,''IsIdentity'') IsIdentity ' + 'from dbo.syscolumns t left outer join dbo.systypes a on a.xusertype = t.xusertype ' + 'left join dbo.syscomments b on b.id = t.cdefault ' + 'left join dbo.sysproperties c on c.id=t.id AND t.colid = c.smallid and c.name=''MS_Description'' ' + 'where t.id = (select max(o.id) from dbo.sysobjects o where o.name = ''' + AObjName + ''')' + 'order by t.colid';
+            'select t.name, a.name datatype, t.isnullable, b.text defaultval, cast(c.[value] as varchar(1023)) comments, t.length,  t.prec, t.scale, COLUMNPROPERTY(t.id,t.name,''IsIdentity'') IsIdentity ' + 'from dbo.syscolumns t left outer join dbo.systypes a on a.xusertype = t.xusertype ' + 'left join dbo.syscomments b on b.id = t.cdefault ' + 'left join dbo.sysproperties c on c.id=t.id AND t.colid = c.smallid and c.name=''MS_Description'' ' + 'where t.id = ''' + oid + '''order by t.colid';
           Open;
         end
         else
@@ -317,8 +369,8 @@ begin
     begin
       with o.MetaFields.NewMetaField do
       begin
-        Name := Fields[0].AsString;
-        T := LowerCase(Fields[1].AsString);
+        Name := CtTrim(Fields[0].AsString);
+        T := LowerCase(CtTrim(Fields[1].AsString));
         if (T = 'char') or (T = 'varchar') or (T = 'nchar') or (T = 'nvarchar') then
         begin
           DataType := cfdtString;
@@ -381,46 +433,46 @@ begin
         else
         begin
           DataType := GetPossibleCtFieldTypeOfName(T);
-          DataTypeName := Fields[1].AsString;
+          DataTypeName := CtTrim(Fields[1].AsString);
         end;
         if (Pos('[DBTYPENAMES]', AOpt) > 0) then
-          DataTypeName := Fields[1].AsString;
+          DataTypeName := CtTrim(Fields[1].AsString);
 
         if not Fields[3].IsNull then
         begin
-          DefaultValue := TrimDefQuots(Fields[3].AsString);
+          DefaultValue := TrimDefQuots(CtTrim(Fields[3].AsString));
         end;
         if Fields[2].AsInteger <> 1 then
           Nullable := False;
 
         if not Fields[4].IsNull then
-          Memo := Fields[4].AsString;
+          Memo := CtTrim(Fields[4].AsString);
       end;
       Next;
     end;
 
     { 表注释 }
     Close;
-    Sql.Text := 'select value from ::fn_listextendedproperty(''MS_Description'', ''user'', '''
-      + DbSchema + ''', ''table'', ''' + AObjName + ''', null,null)';
+    Sql.Text := 'select cast(value as varchar(2047)) as tbmemo from ::fn_listextendedproperty(''MS_Description'', ''user'', '''
+      + ADbUser + ''', ''table'', ''' + AObjName + ''', null,null)';
     try
       Open;
     except
     end;
     if not EOF then
-      o.Memo := Fields[0].AsString;
+      o.Memo := CtTrim(Fields[0].AsString);
 
     { 主键信息 }
     Close;
     SQL.Text :=
-      'EXEC sp_pkeys @table_name = N''' + AObjName + '''';
+      'EXEC sp_pkeys @table_name = N''' + AObjName + ''', @table_owner = N''' + ADbUser + '''';
     try
       Open;
     except
     end;
     while not EOF do
     begin
-      S := FieldByName('COLUMN_NAME').AsString;
+      S := CtTrim(FieldByName('COLUMN_NAME').AsString);
       f := o.MetaFields.FieldByName(S);
       if f <> nil then
         f.KeyFieldType := cfktId;
@@ -429,35 +481,35 @@ begin
 
     { 外键信息 }
     Close;
-    SQL.Text := 'EXEC sp_fkeys @fktable_name = N''' + AObjName + '''';
+    SQL.Text := 'EXEC sp_fkeys @fktable_name = N''' + AObjName + ''', @fktable_owner = N''' + ADbUser + '''';
     try
       Open;
     except
     end;
     while not EOF do
     begin
-      S := FieldByName('FKCOLUMN_NAME').AsString;
+      S := CtTrim(FieldByName('FKCOLUMN_NAME').AsString);
       f := o.MetaFields.FieldByName(S);
       if f <> nil then
       begin
         if f.KeyFieldType <> cfktId then
           f.KeyFieldType := cfktRid;
-        f.RelateTable := FieldByName('PKTABLE_NAME').AsString;
-        f.RelateField := FieldByName('PKCOLUMN_NAME').AsString;
+        f.RelateTable := CtTrim(FieldByName('PKTABLE_NAME').AsString);
+        f.RelateField := CtTrim(FieldByName('PKCOLUMN_NAME').AsString);
       end;
       Next;
     end;
 
     { 索引信息 }
     Close;
-    SQL.Text := 'exec sp_helpindex @objname = N''' + AObjName + '''';
+    SQL.Text := 'exec sp_helpindex @objname = N''' + ADbUser + '.'+ AObjName + '''';
     try
       Open;
     except
     end;
     while not EOF do
     begin
-      S := Fields[2].AsString;
+      S := CtTrim(Fields[2].AsString);
       if (Pos(',', S) = 0) and (Pos('(', S) = 0) then
       begin
         f := o.MetaFields.FieldByName(S);
@@ -465,7 +517,7 @@ begin
           if f.KeyFieldType <> cfktId then
             //if Pos('PRIMARY KEY', UpperCase(S)) = 0 then
           begin
-            S := Fields[1].AsString;
+            S := CtTrim(Fields[1].AsString);
             if Pos('UNIQUE', UpperCase(S)) > 0 then
               f.IndexType := cfitUnique
             else
@@ -475,9 +527,9 @@ begin
       else
       begin
         f := o.MetaFields.NewMetaField;
-        f.Name := RemoveIdxNamePrefx(Fields[0].AsString, o.Name);
+        f.Name := RemoveIdxNamePrefx(CtTrim(Fields[0].AsString), o.Name);
         f.DataType := cfdtFunction;
-        if Pos('UNIQUE', UpperCase(Fields[1].AsString)) > 0 then
+        if Pos('UNIQUE', UpperCase(CtTrim(Fields[1].AsString))) > 0 then
           f.IndexType := cfitUnique
         else
           f.IndexType := cfitNormal;
@@ -491,7 +543,7 @@ begin
           T := 'IDU_' + T
         else
           T := 'IDX_' + T;
-        if LowerCase(Fields[0].AsString) <> LowerCase(T) then
+        if LowerCase(CtTrim(Fields[0].AsString)) <> LowerCase(T) then
           f.Memo := f.Memo + ' [DB_INDEX_NAME:' + Fields[0].AsString + ']';
       end;
       Next;
@@ -501,7 +553,7 @@ begin
     Close;
     SQL.Text := 'select t.name as dfname, c.name as colname' + #13#10 +
       '  from sys.default_constraints t, sys.columns c' + #13#10 +
-      ' where object_name(t.parent_object_id) = ''' + AObjName +
+      ' where t.parent_object_id = ''' + oid +
       '''' + #13#10 + '   and c.column_id = t.parent_column_id' +
       #13#10 + '   and c.object_id = t.parent_object_id' + #13#10 + '';
     try
@@ -510,9 +562,9 @@ begin
     end;
     while not EOF do
     begin
-      f := o.MetaFields.FieldByName(Fields[1].AsString);
+      f := o.MetaFields.FieldByName(CtTrim(Fields[1].AsString));
       if f <> nil then
-        f.Param['SQLSERVER_DF_CONSTRAINT_NAME'] := Fields[0].AsString;
+        f.Param['SQLSERVER_DF_CONSTRAINT_NAME'] := CtTrim(Fields[0].AsString);
       Next;
     end;
   end;
@@ -525,7 +577,9 @@ begin
   Result := False;
   CheckConnected;
 
-  S := AObjName;
+  S := AObjName;  
+  if ADbUser = '' then
+    ADbUser := Self.FDbSchema;
   if ADbUser <> '' then
     S := ADbUser + '.' + S;
 
@@ -535,7 +589,7 @@ begin
     Sql.Text := 'select object_id(''' + S + ''')';
     Open;
     if not EOF then
-      Result := Fields[0].AsString <> '';
+      Result := CtTrim(Fields[0].AsString) <> '';
   end;
 end;
 

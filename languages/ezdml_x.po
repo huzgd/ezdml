@@ -1,6 +1,10 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
+#: ctobjserialer.srezdmlnewerversionprompt
+msgid "Warning: The version of loading data %d needs a higher version of EZDML (current data version: %d), continue loading may cause serious problems! Still continue?"
+msgstr ""
+
 #: ctobjserialer.srezdmlnewversionneeded
 msgid "Data version not supported. You may need a newer version of EZDML."
 msgstr ""
@@ -94,12 +98,29 @@ msgctxt "dmlstrs.srcapsearch"
 msgid "Search"
 msgstr ""
 
+#: dmlstrs.srchatgpt
+msgctxt "dmlstrs.srchatgpt"
+msgid "ChatGPT"
+msgstr ""
+
+#: dmlstrs.srchatgptrecofailed
+msgid "The content returned by ChatGPT service is not recognized. Please modify the text or try again later"
+msgstr ""
+
+#: dmlstrs.srchatgptreqfailed
+msgid "Request for ChatGPT service failed"
+msgstr ""
+
 #: dmlstrs.srcheckeditingmetafailedfmt
 msgid "Please close the editing window (%s) before continue"
 msgstr ""
 
 #: dmlstrs.srcheckingdatafmt
 msgid "%d/%d Checking data...%s"
+msgstr ""
+
+#: dmlstrs.srchoosedbtype
+msgid "Database engine type:"
 msgstr ""
 
 #: dmlstrs.srclearcomparedmlprompt
@@ -126,6 +147,10 @@ msgstr ""
 
 #: dmlstrs.srconfirmdeletecurrec
 msgid "Are you sure to delete current record?"
+msgstr ""
+
+#: dmlstrs.srconfirmdeletedbfilefmt
+msgid "Are you sure to delete database file %s?"
 msgstr ""
 
 #: dmlstrs.srconfirmdeleteobjfmt
@@ -186,6 +211,10 @@ msgstr ""
 msgid "Constraint"
 msgstr ""
 
+#: dmlstrs.srcreatedbfilesystemprompt
+msgid "The program will open the Generate Database window to create/sync the ezdml file system tables. Do you want to continue?"
+msgstr ""
+
 #: dmlstrs.srctobjfuns
 msgid "CT Object Functions"
 msgstr ""
@@ -202,6 +231,27 @@ msgstr ""
 msgid "Days"
 msgstr ""
 
+#: dmlstrs.srdbfilecomment
+msgid "File comment:"
+msgstr ""
+
+#: dmlstrs.srdbfilerenameprompt
+msgid "Rename database file to:"
+msgstr ""
+
+#: dmlstrs.srdbobjectnotexists
+msgid "Object %s not exists in the database"
+msgstr ""
+
+#: dmlstrs.srdbobjectnotsynced
+msgid "Object %s is not synchronized with the database"
+msgstr ""
+
+#: dmlstrs.srdesignnotes
+msgctxt "dmlstrs.srdesignnotes"
+msgid "Design notes"
+msgstr ""
+
 #: dmlstrs.srdictkey
 msgid "Key"
 msgstr ""
@@ -216,6 +266,7 @@ msgid "Add Link"
 msgstr ""
 
 #: dmlstrs.srdmlall
+msgctxt "dmlstrs.srdmlall"
 msgid "All"
 msgstr ""
 
@@ -237,6 +288,10 @@ msgid ""
 "TypeName\n"
 msgstr ""
 
+#: dmlstrs.srdmlcustomcolor
+msgid "Custom Color..."
+msgstr ""
+
 #: dmlstrs.srdmldatatypenames
 msgid ""
 "Unknow\n"
@@ -253,6 +308,11 @@ msgid ""
 "Function\n"
 "Event\n"
 "Other\n"
+msgstr ""
+
+#: dmlstrs.srdmldefaultcolor
+msgctxt "dmlstrs.srdmldefaultcolor"
+msgid "Auto"
 msgstr ""
 
 #: dmlstrs.srdmleditlink
@@ -326,6 +386,12 @@ msgstr ""
 msgid "Normal Index"
 msgstr ""
 
+#: dmlstrs.srdmlpasteexiststablefmt
+msgid ""
+"Table %s exists in other models and is different from the pasting one, do you want to overwrite?\n"
+"(Yes=Overwrite No=Auto-rename Cancel=Abort)\n"
+msgstr ""
+
 #: dmlstrs.srdmlpossiblekeyfieldnames
 msgid ""
 "Normal\n"
@@ -361,6 +427,7 @@ msgid "PK"
 msgstr ""
 
 #: dmlstrs.srdmlprogressfinished
+msgctxt "dmlstrs.srdmlprogressfinished"
 msgid "Finish"
 msgstr ""
 
@@ -390,6 +457,10 @@ msgstr ""
 
 #: dmlstrs.srdmlselectedtableinfofmt
 msgid "Selected: table %s with %d fields"
+msgstr ""
+
+#: dmlstrs.srdmlshowlink
+msgid "Link Info"
 msgstr ""
 
 #: dmlstrs.srdmltotalobjectscountfmt
@@ -440,6 +511,8 @@ msgid ""
 "1=Fixed\n"
 "2=Editable\n"
 "3=Appendable\n"
+"4=AutoComplete\n"
+"5=AutoCompleteFixed\n"
 msgstr ""
 
 #: dmlstrs.srfieldeditortypes
@@ -467,6 +540,7 @@ msgid ""
 "DateRange\n"
 "TimeEdit\n"
 "DateTime\n"
+"WeekSelect\n"
 "MonthSelect\n"
 "QuarterSelect\n"
 "YearSelect\n"
@@ -600,6 +674,14 @@ msgid ""
 "3=Low: sheet only\n"
 msgstr ""
 
+#: dmlstrs.srfieldweights
+msgid ""
+"1=High\n"
+"0=Normal\n"
+"-1=Low\n"
+"-9=Hidden\n"
+msgstr ""
+
 #: dmlstrs.srfilter
 msgctxt "dmlstrs.srfilter"
 msgid "Filter"
@@ -641,13 +723,39 @@ msgstr ""
 msgid "Hint: Using fast layout algorithms for model diagrams under Huge-Mode"
 msgstr ""
 
+#: dmlstrs.sridfieldnames
+msgid "Id,Pid,ParentId,Rid,RelateId"
+msgstr ""
+
 #: dmlstrs.srimportdatabase
 msgctxt "dmlstrs.srimportdatabase"
 msgid "Import Database"
 msgstr ""
 
+#: dmlstrs.srimportfieldprops
+msgid ""
+"Name, Field name\n"
+"Display name, logical Name\n"
+"Data type\n"
+"Data size, Data Length, Size, Length\n"
+"Nullable, Is nullable\n"
+"Not Nullable,\n"
+"Unique, Is Unique,\n"
+"Constraints\n"
+"Comment, remarks\n"
+"Precision, accuracy, Data Scale, Scale\n"
+"Default, Default value,\n"
+msgstr ""
+
 #: dmlstrs.srimportingobjsfmt
 msgid "%d/%d Importing...%s"
+msgstr ""
+
+#: dmlstrs.srimportingtbconfirm
+msgid ""
+"%d tables will be imported: \n"
+"%s\n"
+"Are you sure to continue?\n"
 msgstr ""
 
 #: dmlstrs.srinvalidfieldnamewarningfmt
@@ -656,6 +764,10 @@ msgstr ""
 
 #: dmlstrs.srinvalidtablenamewarningfmt
 msgid "Warning: Table name may be invalid - %s"
+msgstr ""
+
+#: dmlstrs.srinvalidtbnameerror
+msgid "Error: table name \"%s\" contains invalid characters"
 msgstr ""
 
 #: dmlstrs.srlink
@@ -694,17 +806,6 @@ msgstr ""
 
 #: dmlstrs.srmodifydatabasewarning
 msgid "Warning: The database is about to be modified, make sure you have backed up your data before continue. Do you still want to modify database now?"
-msgstr ""
-
-#: dmlstrs.srmysqlconnecttip
-msgid ""
-"Example: localhost:3306@test\n"
-"\n"
-"You can specify location of mysql57-client lib (64-bit) in settings or ezdml_x.INI ( [Options] | MYSQLLIB=xxx ), or just place it in app folder\n"
-msgstr ""
-
-#: dmlstrs.srmysqlconnecttipwin
-msgid "EZDML for win64 comes with a libmysql.dll by default, but you may still need to install Visual C++ Redistributable Packages for Visual Studio 2013 if the libmysql.dll can not be loaded."
 msgstr ""
 
 #: dmlstrs.srneedenginetype
@@ -766,6 +867,18 @@ msgstr ""
 msgid "Text%d"
 msgstr ""
 
+#: dmlstrs.srnofileprompt
+msgid "No file found"
+msgstr ""
+
+#: dmlstrs.sroverwritedbfilewarning
+msgid "Database file %s already exists, are you sure to OVERWRITE?"
+msgstr ""
+
+#: dmlstrs.sroverwritesamedbfilewarning
+msgid "Database file %s (%s) already exists and its contents are exactly the same as those to be saved. Continue saving anyway?"
+msgstr ""
+
 #: dmlstrs.srpasbeginendneededtip
 msgid "Seems that then <begin-end.> symbol needed for pascal script is missing. Add <begin-end.> before continue?"
 msgstr ""
@@ -775,12 +888,8 @@ msgctxt "dmlstrs.srpastecopysuffix"
 msgid "Copy"
 msgstr ""
 
-#: dmlstrs.srpostgresconnecttip
-msgid "Example: localhost:5432@test"
-msgstr ""
-
-#: dmlstrs.srpostgresconnecttipwin
-msgid "EZDML for win64 comes with a libpq.dll by default, but you may still need to install Visual C++ Redistributable Packages for Visual Studio 2013 if the libpq.dll can not be loaded."
+#: dmlstrs.srpastefromexcelprompt
+msgid "Copy content from EXCEL and paste here (may use <crlf> as row seperator):"
 msgstr ""
 
 #: dmlstrs.srprocessing
@@ -804,6 +913,10 @@ msgstr ""
 msgid "Error: Objects \"%s\" already exists, please choose another name"
 msgstr ""
 
+#: dmlstrs.srrenametoexistsfeilderror
+msgid "Error: Field \"%s\" already exists, please choose another name"
+msgstr ""
+
 #: dmlstrs.srrestoredatabase
 msgid "Restore database"
 msgstr ""
@@ -814,6 +927,10 @@ msgstr ""
 
 #: dmlstrs.srseconds
 msgid "Seconds"
+msgstr ""
+
+#: dmlstrs.srsqleditorexectip
+msgid "Hold Ctrl key to execute SQL command only (no Result-Set)"
 msgstr ""
 
 #: dmlstrs.srsqleditorrunerror
@@ -828,8 +945,8 @@ msgstr ""
 msgid "Running..."
 msgstr ""
 
-#: dmlstrs.srsqlserverconfigtip
-msgid "Note: Leave user-name empty for integrated security authentication"
+#: dmlstrs.srsqllogenabled
+msgid "SQL log enabled"
 msgstr ""
 
 #: dmlstrs.srstep
@@ -871,6 +988,18 @@ msgid ""
 "Memo\n"
 msgstr ""
 
+#: dmlstrs.srtbfieldcountfmt
+msgid "(%d total)"
+msgstr ""
+
+#: dmlstrs.srtbrelateinfo
+msgid "%s - references: %d objects, referenced by: %d objects."
+msgstr ""
+
+#: dmlstrs.srtbrelateinfoweak
+msgid "Weakly related: %d objects"
+msgstr ""
+
 #: dmlstrs.srtext
 msgctxt "dmlstrs.srtext"
 msgid "Text"
@@ -884,6 +1013,7 @@ msgid ""
 "Card\n"
 "Query\n"
 "Fast search\n"
+"Exportable\n"
 "Required\n"
 "Hidden\n"
 msgstr ""
@@ -909,6 +1039,10 @@ msgstr ""
 msgid "Are you sure to abort saving?"
 msgstr ""
 
+#: ezdmlstrs.srezdmlchatgptprocessing
+msgid "ChatGPT is processing, please wait..."
+msgstr ""
+
 #: ezdmlstrs.srezdmlcheckingforupdates
 msgid "Checking for updates..."
 msgstr ""
@@ -922,7 +1056,11 @@ msgid "Create new file will clear all tables in the model file. Are you sure to 
 msgstr ""
 
 #: ezdmlstrs.srezdmlconfirmclearonopen
-msgid "Do you want to clear current model before open the file?"
+msgid "Current model will be cleared before opening the file. Are you sure to continue?"
+msgstr ""
+
+#: ezdmlstrs.srezdmlconfirmclosemodified
+msgid "Do you want to save and apply changes before close?"
 msgstr ""
 
 #: ezdmlstrs.srezdmlconfirmeditedtextfmt
@@ -937,6 +1075,10 @@ msgstr ""
 msgid "Do you want to save data before exit?"
 msgstr ""
 
+#: ezdmlstrs.srezdmlconfirmopendbtmpfile
+msgid "Database file is not ready, open local temporary file instead?"
+msgstr ""
+
 #: ezdmlstrs.srezdmlconfirmopenurlfmt
 msgid "Are you sure to open URL %s with your internet explorer?"
 msgstr ""
@@ -947,6 +1089,19 @@ msgstr ""
 
 #: ezdmlstrs.srezdmlcreategscripttipfmt
 msgid "Global Script file (%s) not found, do you want to create it?"
+msgstr ""
+
+#: ezdmlstrs.srezdmldbfilesavedfmt
+msgid "Database file saved: %s. Do you want to open the Generate-Database dialog?"
+msgstr ""
+
+#: ezdmlstrs.srezdmldbtmpfileignoredfmt
+msgid "%s - the database file has been modified by %s (%s), thus the temp file is out of date and will be skipped"
+msgstr ""
+
+#: ezdmlstrs.srezdmldefault
+msgctxt "ezdmlstrs.srezdmldefault"
+msgid "Default"
 msgstr ""
 
 #: ezdmlstrs.srezdmldefaultfontname
@@ -987,6 +1142,10 @@ msgstr ""
 
 #: ezdmlstrs.srezdmlfunonlyinwin32ver
 msgid "Sorry, this function is not available in EZDML of x64 version yet. Please take EZDML for win32 instead."
+msgstr ""
+
+#: ezdmlstrs.srezdmlglobalscripterror
+msgid "Error running global-script function %s: %s"
 msgstr ""
 
 #: ezdmlstrs.srezdmlloading
@@ -1031,6 +1190,10 @@ msgstr ""
 
 #: ezdmlstrs.srezdmlpromptopendemofile
 msgid "Open demo file?"
+msgstr ""
+
+#: ezdmlstrs.srezdmlpromptreloaddbfilechanged
+msgid "Current file is changed in database by %s (%s), do you want to re-open it?"
 msgstr ""
 
 #: ezdmlstrs.srezdmlpromptreloadonfiledatesizechanged
@@ -1132,6 +1295,14 @@ msgctxt "tframectfielddef.ckbcolsortable.hint"
 msgid "curField.colSortable"
 msgstr ""
 
+#: tframectfielddef.ckbdesensitised.caption
+msgid "Desensitised"
+msgstr ""
+
+#: tframectfielddef.ckbdesensitised.hint
+msgid "curField.desensitised"
+msgstr ""
+
 #: tframectfielddef.ckbeditorenabled.caption
 msgctxt "tframectfielddef.ckbeditorenabled.caption"
 msgid "Enabled"
@@ -1150,6 +1321,16 @@ msgstr ""
 #: tframectfielddef.ckbeditorreadonly.hint
 msgctxt "tframectfielddef.ckbeditorreadonly.hint"
 msgid "curField.editorReadOnly"
+msgstr ""
+
+#: tframectfielddef.ckbexportable.caption
+msgctxt "tframectfielddef.ckbexportable.caption"
+msgid "Exportable"
+msgstr ""
+
+#: tframectfielddef.ckbexportable.hint
+msgctxt "tframectfielddef.ckbexportable.hint"
+msgid "curField.exportable"
 msgstr ""
 
 #: tframectfielddef.ckbfontstyleb.caption
@@ -1190,6 +1371,14 @@ msgctxt "tframectfielddef.ckbhideonview.hint"
 msgid "curField.hideOnView"
 msgstr ""
 
+#: tframectfielddef.ckbisfactmeasure.caption
+msgid "Is fact-measure"
+msgstr ""
+
+#: tframectfielddef.ckbisfactmeasure.hint
+msgid "curField.isFactMeasure"
+msgstr ""
+
 #: tframectfielddef.ckbishidden.caption
 msgctxt "tframectfielddef.ckbishidden.caption"
 msgid "Is hidden"
@@ -1201,6 +1390,7 @@ msgid "curField.isHidden"
 msgstr ""
 
 #: tframectfielddef.ckbnullable.caption
+msgctxt "tframectfielddef.ckbnullable.caption"
 msgid "Nullable"
 msgstr ""
 
@@ -1435,7 +1625,7 @@ msgid "Relate field"
 msgstr ""
 
 #: tframectfielddef.label29.hint
-msgid "curField.relateFields"
+msgid "curField.relateField"
 msgstr ""
 
 #: tframectfielddef.label3.caption
@@ -1696,6 +1886,31 @@ msgctxt "tframectfielddef.label56.hint"
 msgid "curField.testDataType"
 msgstr ""
 
+#: tframectfielddef.label57.caption
+msgctxt "tframectfielddef.label57.caption"
+msgid "Design notes"
+msgstr ""
+
+#: tframectfielddef.label57.hint
+msgctxt "tframectfielddef.label57.hint"
+msgid "curField.designNotes"
+msgstr ""
+
+#: tframectfielddef.label58.caption
+msgctxt "tframectfielddef.label58.caption"
+msgid "Null-values"
+msgstr ""
+
+#: tframectfielddef.label58.hint
+msgctxt "tframectfielddef.label58.hint"
+msgid "curField.testDataNullPercent"
+msgstr ""
+
+#: tframectfielddef.label59.caption
+msgctxt "tframectfielddef.label59.caption"
+msgid "%"
+msgstr ""
+
 #: tframectfielddef.label6.caption
 msgctxt "tframectfielddef.label6.caption"
 msgid "Comments"
@@ -1703,6 +1918,16 @@ msgstr ""
 
 #: tframectfielddef.label6.hint
 msgid "curField.memo"
+msgstr ""
+
+#: tframectfielddef.label60.caption
+msgctxt "tframectfielddef.label60.caption"
+msgid "Field weight"
+msgstr ""
+
+#: tframectfielddef.label60.hint
+msgctxt "tframectfielddef.label60.hint"
+msgid "curField.fieldWeight"
 msgstr ""
 
 #: tframectfielddef.label7.caption
@@ -1740,6 +1965,21 @@ msgstr ""
 msgid "curField.genDemoData(row,opt,ds)"
 msgstr ""
 
+#: tframectfielddef.mntab_editorui.caption
+msgctxt "tframectfielddef.mntab_editorui.caption"
+msgid "Editor UI"
+msgstr ""
+
+#: tframectfielddef.mntab_operlogic.caption
+msgctxt "tframectfielddef.mntab_operlogic.caption"
+msgid "Operation logic"
+msgstr ""
+
+#: tframectfielddef.mntab_settings.caption
+msgctxt "tframectfielddef.mntab_settings.caption"
+msgid "Settings"
+msgstr ""
+
 #: tframectfielddef.sbtnsearchfields.caption
 msgctxt "tframectfielddef.sbtnsearchfields.caption"
 msgid "..."
@@ -1769,6 +2009,15 @@ msgctxt "tframectfielddef.sbtnselrelatefields.hint"
 msgid "Select fields"
 msgstr ""
 
+#: tframectfielddef.sbtnshowreltbinfo.caption
+msgctxt "tframectfielddef.sbtnshowreltbinfo.caption"
+msgid "~"
+msgstr ""
+
+#: tframectfielddef.sbtnshowreltbinfo.hint
+msgid "View relate table"
+msgstr ""
+
 #: tframectfielddef.stfieldname.caption
 msgctxt "tframectfielddef.stfieldname.caption"
 msgid "FieldName"
@@ -1783,6 +2032,7 @@ msgid "Field defination"
 msgstr ""
 
 #: tframectfielddef.tabsheet2.caption
+msgctxt "tframectfielddef.tabsheet2.caption"
 msgid "Editor UI"
 msgstr ""
 
@@ -1839,6 +2089,11 @@ msgstr ""
 #: tframecttablelist.actcheckwithmydict.caption
 msgctxt "tframecttablelist.actcheckwithmydict.caption"
 msgid "Check with MyDict.txt"
+msgstr ""
+
+#: tframecttablelist.actcnwordsegment.caption
+msgctxt "tframecttablelist.actcnwordsegment.caption"
+msgid "Chinese word segment"
 msgstr ""
 
 #: tframecttablelist.actconvertchntopy.caption
@@ -1928,6 +2183,7 @@ msgid "Refresh"
 msgstr ""
 
 #: tframecttablelist.actrename.caption
+msgctxt "tframecttablelist.actrename.caption"
 msgid "Rename"
 msgstr ""
 
@@ -1977,6 +2233,10 @@ msgstr ""
 
 #: tframecttablelist.mn_reserved4.caption
 msgid "RESERVED4"
+msgstr ""
+
+#: tframecttablelist.mn_reserved5.caption
+msgid "RESERVED5"
 msgstr ""
 
 #: tframecttableprop.actaddsysfields.caption
@@ -2194,8 +2454,16 @@ msgstr ""
 msgid "Settings >>"
 msgstr ""
 
+#: tframecttableprop.btntoggletabs.hint
+msgid "more..."
+msgstr ""
+
 #: tframecttableprop.btnviewinbrowser.caption
 msgid "View in Browser"
+msgstr ""
+
+#: tframecttableprop.ckbforeignkeysonly.caption
+msgid "Foreign keys only"
 msgstr ""
 
 #: tframecttableprop.ckbgencode.caption
@@ -2220,6 +2488,11 @@ msgstr ""
 msgid "Is SQL"
 msgstr ""
 
+#: tframecttableprop.edtgentxtfind.texthint
+msgctxt "tframecttableprop.edtgentxtfind.texthint"
+msgid "Find"
+msgstr ""
+
 #: tframecttableprop.label1.caption
 msgid "Table name:"
 msgstr ""
@@ -2234,6 +2507,14 @@ msgstr ""
 
 #: tframecttableprop.label2.hint
 msgid "curTable.memo"
+msgstr ""
+
+#: tframecttableprop.label25.caption
+msgid "Bg Color"
+msgstr ""
+
+#: tframecttableprop.label25.hint
+msgid "curTable.bgColor"
 msgstr ""
 
 #: tframecttableprop.label3.caption
@@ -2251,6 +2532,7 @@ msgid "Logic name:"
 msgstr ""
 
 #: tframecttableprop.label4.hint
+msgctxt "tframecttableprop.label4.hint"
 msgid "curTable.caption"
 msgstr ""
 
@@ -2271,6 +2553,15 @@ msgstr ""
 
 #: tframecttableprop.lbbuzlogic.hint
 msgid "curTable.businessLogic"
+msgstr ""
+
+#: tframecttableprop.lbdesignnotes.caption
+msgctxt "tframecttableprop.lbdesignnotes.caption"
+msgid "Design notes"
+msgstr ""
+
+#: tframecttableprop.lbdesignnotes.hint
+msgid "curTable.designNotes"
 msgstr ""
 
 #: tframecttableprop.lbexprops.caption
@@ -2294,6 +2585,43 @@ msgstr ""
 msgid "Generate type:"
 msgstr ""
 
+#: tframecttableprop.lbgroupname.caption
+msgid "Group name"
+msgstr ""
+
+#: tframecttableprop.lbgroupname.hint
+msgid "curTable.groupName"
+msgstr ""
+
+#: tframecttableprop.lblistsql.caption
+msgid "List SQL"
+msgstr ""
+
+#: tframecttableprop.lblistsql.hint
+msgctxt "tframecttableprop.lblistsql.hint"
+msgid "curTable.listSQL"
+msgstr ""
+
+#: tframecttableprop.lbownercategory.caption
+msgid "Owner category"
+msgstr ""
+
+#: tframecttableprop.lbownercategory.hint
+msgid "curTable.ownerCategory"
+msgstr ""
+
+#: tframecttableprop.lbpartitioninfo.caption
+msgid "Partition info"
+msgstr ""
+
+#: tframecttableprop.lbpartitioninfo.hint
+msgid "curTable.partitionInfo"
+msgstr ""
+
+#: tframecttableprop.lbreltbinfo.caption
+msgid "lbRelTbInfo"
+msgstr ""
+
 #: tframecttableprop.lbscriptrules.caption
 msgid "Script rules"
 msgstr ""
@@ -2302,8 +2630,44 @@ msgstr ""
 msgid "curTable.scriptRules"
 msgstr ""
 
+#: tframecttableprop.lbsqlalias.caption
+msgid "SQL alias"
+msgstr ""
+
+#: tframecttableprop.lbsqlalias.hint
+msgid "curTable.SQLAlias"
+msgstr ""
+
+#: tframecttableprop.lbsqlorderbyclause.caption
+msgid "SQL order-by"
+msgstr ""
+
+#: tframecttableprop.lbsqlorderbyclause.hint
+msgid "curTable.SQLOrderByClause"
+msgstr ""
+
+#: tframecttableprop.lbsqlwhereclause.caption
+msgid "SQL where"
+msgstr ""
+
+#: tframecttableprop.lbsqlwhereclause.hint
+msgid "curTable.SQLWhereClause"
+msgstr ""
+
+#: tframecttableprop.lbtbfieldcount.caption
+msgid "(0 total)"
+msgstr ""
+
+#: tframecttableprop.lbtbphysicalname.caption
+msgid "Physical name:"
+msgstr ""
+
+#: tframecttableprop.lbtbphysicalname.hint
+msgid "curTable.physicalName"
+msgstr ""
+
 #: tframecttableprop.lbuidispname.caption
-msgid "UI Display Text"
+msgid "UI display text"
 msgstr ""
 
 #: tframecttableprop.lbuidispname.hint
@@ -2319,6 +2683,14 @@ msgstr ""
 msgid "curTable.UILogic"
 msgstr ""
 
+#: tframecttableprop.lbviewsql.caption
+msgid "View SQL"
+msgstr ""
+
+#: tframecttableprop.lbviewsql.hint
+msgid "curTable.viewSQL"
+msgstr ""
+
 #: tframecttableprop.lb_descrbtips.caption
 msgid "Data types: S=String, I=Integer, F=Float, D=DateTime, BO=Boolean, E=Enum, BL=Blob, C=Calculate, O=Object"
 msgstr ""
@@ -2331,8 +2703,62 @@ msgstr ""
 msgid "Customize"
 msgstr ""
 
+#: tframecttableprop.mntabs_advpage.caption
+msgctxt "tframecttableprop.mntabs_advpage.caption"
+msgid "Advanced"
+msgstr ""
+
+#: tframecttableprop.mntabs_close.caption
+msgctxt "tframecttableprop.mntabs_close.caption"
+msgid "Close"
+msgstr ""
+
+#: tframecttableprop.mntabs_cust.caption
+msgctxt "tframecttableprop.mntabs_cust.caption"
+msgid "Custom"
+msgstr ""
+
+#: tframecttableprop.mntabs_data.caption
+msgctxt "tframecttableprop.mntabs_data.caption"
+msgid "Data"
+msgstr ""
+
+#: tframecttableprop.mntabs_gen.caption
+msgctxt "tframecttableprop.mntabs_gen.caption"
+msgid "Generate"
+msgstr ""
+
+#: tframecttableprop.mntabs_relations.caption
+msgctxt "tframecttableprop.mntabs_relations.caption"
+msgid "Relations"
+msgstr ""
+
+#: tframecttableprop.mntabs_settings.caption
+msgctxt "tframecttableprop.mntabs_settings.caption"
+msgid "Settings"
+msgstr ""
+
+#: tframecttableprop.mntabs_uidesign.caption
+msgctxt "tframecttableprop.mntabs_uidesign.caption"
+msgid "UI Design"
+msgstr ""
+
+#: tframecttableprop.mn_fieldweights.caption
+msgctxt "tframecttableprop.mn_fieldweights.caption"
+msgid "Field weight"
+msgstr ""
+
 #: tframecttableprop.mn_genoption.caption
 msgid "Generate options"
+msgstr ""
+
+#: tframecttableprop.mn_opentemplfolder.caption
+msgctxt "tframecttableprop.mn_opentemplfolder.caption"
+msgid "Browse Script Files"
+msgstr ""
+
+#: tframecttableprop.paneltbreldml.caption
+msgid "PanelTbRelDml"
 msgstr ""
 
 #: tframecttableprop.pmcopyasc.caption
@@ -2376,7 +2802,12 @@ msgid "Special Copy"
 msgstr ""
 
 #: tframecttableprop.sbtnfind.hint
+msgctxt "tframecttableprop.sbtnfind.hint"
 msgid "Find"
+msgstr ""
+
+#: tframecttableprop.sbtntbjson.hint
+msgid "Json"
 msgstr ""
 
 #: tframecttableprop.speedbutton_fieldadd.hint
@@ -2414,6 +2845,11 @@ msgctxt "tframecttableprop.stringgridtablefields.columns[6].title.caption"
 msgid "Memo"
 msgstr ""
 
+#: tframecttableprop.tabsheetadvanced.caption
+msgctxt "tframecttableprop.tabsheetadvanced.caption"
+msgid "Advanced"
+msgstr ""
+
 #: tframecttableprop.tabsheetcodegen.caption
 msgctxt "tframecttableprop.tabsheetcodegen.caption"
 msgid "Generate"
@@ -2434,9 +2870,9 @@ msgctxt "tframecttableprop.tabsheetdesc.caption"
 msgid "Description"
 msgstr ""
 
-#: tframecttableprop.tabsheetoperlogic.caption
-msgctxt "tframecttableprop.tabsheetoperlogic.caption"
-msgid "Advanced"
+#: tframecttableprop.tabsheetrelations.caption
+msgctxt "tframecttableprop.tabsheetrelations.caption"
+msgid "Relations"
 msgstr ""
 
 #: tframecttableprop.tabsheettable.caption
@@ -2450,6 +2886,7 @@ msgid "Text"
 msgstr ""
 
 #: tframecttableprop.tabsheetui.caption
+msgctxt "tframecttableprop.tabsheetui.caption"
 msgid "UI Design"
 msgstr ""
 
@@ -2490,8 +2927,16 @@ msgstr ""
 msgid "Describe text"
 msgstr ""
 
+#: tframedml.actbatcopydropsql.caption
+msgid "Drop SQL"
+msgstr ""
+
 #: tframedml.actbatcopyexceltext.caption
 msgid "Excel text"
+msgstr ""
+
+#: tframedml.actbatcopyexplicitjoinsql.caption
+msgid "Join query SQL"
 msgstr ""
 
 #: tframedml.actbatcopyfieldname.caption
@@ -2506,12 +2951,12 @@ msgstr ""
 msgid "Field and type"
 msgstr ""
 
-#: tframedml.actbatcopyinsertsql.caption
-msgid "Insert SQL"
+#: tframedml.actbatcopyimplicitjoinsql.caption
+msgid "Relate query SQL"
 msgstr ""
 
-#: tframedml.actbatcopyjoinselectsql.caption
-msgid "Join select SQL"
+#: tframedml.actbatcopyinsertsql.caption
+msgid "Insert SQL"
 msgstr ""
 
 #: tframedml.actbatcopyselectsql.caption
@@ -2559,6 +3004,16 @@ msgctxt "tframedml.actcapuppercase.caption"
 msgid "All Upper Case"
 msgstr ""
 
+#: tframedml.actchatgpt.caption
+msgctxt "tframedml.actchatgpt.caption"
+msgid "ChatGPT"
+msgstr ""
+
+#: tframedml.actchatgpt.hint
+msgctxt "tframedml.actchatgpt.hint"
+msgid "Use ChatGPT AI to assist in generating model design"
+msgstr ""
+
 #: tframedml.actcheckfklinks.caption
 msgctxt "tframedml.actcheckfklinks.caption"
 msgid "Check Links"
@@ -2572,6 +3027,11 @@ msgstr ""
 #: tframedml.actcheckwithmydict.caption
 msgctxt "tframedml.actcheckwithmydict.caption"
 msgid "Check with MyDict.txt"
+msgstr ""
+
+#: tframedml.actcnwordsegment.caption
+msgctxt "tframedml.actcnwordsegment.caption"
+msgid "Chinese word segment"
 msgstr ""
 
 #: tframedml.actcolorstyles.caption
@@ -2799,7 +3259,7 @@ msgid "Refresh"
 msgstr ""
 
 #: tframedml.actresetobjlinks.caption
-msgid "Reset Entity Links"
+msgid "Reset Entity Size/Links"
 msgstr ""
 
 #: tframedml.actrestore.caption
@@ -2812,12 +3272,12 @@ msgstr ""
 
 #: tframedml.actrun.caption
 msgctxt "tframedml.actrun.caption"
-msgid "Run code generation"
+msgid "Run generation"
 msgstr ""
 
 #: tframedml.actrun.hint
 msgctxt "tframedml.actrun.hint"
-msgid "Run code generation"
+msgid "Run generation"
 msgstr ""
 
 #: tframedml.actselectall.caption
@@ -2826,6 +3286,12 @@ msgid "Select all"
 msgstr ""
 
 #: tframedml.actsetentitycolor.caption
+msgctxt "tframedml.actsetentitycolor.caption"
+msgid "Set Entity Color"
+msgstr ""
+
+#: tframedml.actsetentitycolor.hint
+msgctxt "tframedml.actsetentitycolor.hint"
 msgid "Set Entity Color"
 msgstr ""
 
@@ -2837,6 +3303,16 @@ msgstr ""
 #: tframedml.actshowfieldtype.hint
 msgctxt "tframedml.actshowfieldtype.hint"
 msgid "Show field type"
+msgstr ""
+
+#: tframedml.actshowhidelist.caption
+msgctxt "tframedml.actshowhidelist.caption"
+msgid "Show/hide list"
+msgstr ""
+
+#: tframedml.actshowhidelist.hint
+msgctxt "tframedml.actshowhidelist.hint"
+msgid "Show/hide list"
 msgstr ""
 
 #: tframedml.actshowhideprops.caption
@@ -2883,6 +3359,26 @@ msgctxt "tframedml.btnshowingraph.hint"
 msgid "Table prop view (F9)"
 msgstr ""
 
+#: tframedml.mnrun_gencode.caption
+msgctxt "tframedml.mnrun_gencode.caption"
+msgid "Generate Code"
+msgstr ""
+
+#: tframedml.mnrun_gendata.caption
+msgctxt "tframedml.mnrun_gendata.caption"
+msgid "Generate Test Data"
+msgstr ""
+
+#: tframedml.mnrun_gensql.caption
+msgctxt "tframedml.mnrun_gensql.caption"
+msgid "Generate Database"
+msgstr ""
+
+#: tframedml.mnrun_sqltool.caption
+msgctxt "tframedml.mnrun_sqltool.caption"
+msgid "SQL Tool"
+msgstr ""
+
 #: tframedml.mn_batchcopy.caption
 msgid "Batch copy"
 msgstr ""
@@ -2901,6 +3397,16 @@ msgctxt "tframedml.toolbar1.caption"
 msgid "ToolBar"
 msgstr ""
 
+#: tframedml.toolbuttonrun.caption
+msgctxt "tframedml.toolbuttonrun.caption"
+msgid "Run generation"
+msgstr ""
+
+#: tframedml.toolbuttonrun.hint
+msgctxt "tframedml.toolbuttonrun.hint"
+msgid "Run generation"
+msgstr ""
+
 #: tframedmlscattach.sbtnadd.caption
 msgctxt "tframedmlscattach.sbtnadd.caption"
 msgid " "
@@ -2912,6 +3418,11 @@ msgstr ""
 
 #: tframedmlscattach.sbtnfile2.caption
 msgid "File02.jpg"
+msgstr ""
+
+#: tframeuipreview.actbacktolist.caption
+msgctxt "tframeuipreview.actbacktolist.caption"
+msgid "Back"
 msgstr ""
 
 #: tframeuipreview.actcanceitem.caption
@@ -2931,12 +3442,12 @@ msgstr ""
 
 #: tframeuipreview.actcataddfield.caption
 msgctxt "tframeuipreview.actcataddfield.caption"
-msgid "Add..."
+msgid "Add exists field..."
 msgstr ""
 
 #: tframeuipreview.actcataddfield.hint
 msgctxt "tframeuipreview.actcataddfield.hint"
-msgid "Add..."
+msgid "Add exists field..."
 msgstr ""
 
 #: tframeuipreview.actcatfieldmovedown.caption
@@ -2966,12 +3477,12 @@ msgstr ""
 
 #: tframeuipreview.actcatremovefield.caption
 msgctxt "tframeuipreview.actcatremovefield.caption"
-msgid "Remove"
+msgid "Remove from category"
 msgstr ""
 
 #: tframeuipreview.actcatremovefield.hint
 msgctxt "tframeuipreview.actcatremovefield.hint"
-msgid "Remove"
+msgid "Remove from category"
 msgstr ""
 
 #: tframeuipreview.actcustitem1.caption
@@ -3031,6 +3542,10 @@ msgstr ""
 
 #: tframeuipreview.actgotopage.caption
 msgid "Jump to page"
+msgstr ""
+
+#: tframeuipreview.actinsertnewfield.caption
+msgid "Insert new field"
 msgstr ""
 
 #: tframeuipreview.actlastpage.caption
@@ -3117,8 +3632,29 @@ msgctxt "tframeuipreview.actviewitem.caption"
 msgid "View"
 msgstr ""
 
-#: tframeuipreview.btntoggleuipreview.hint
-msgid "Maximize"
+#: tframeuipreview.btnshowemptynotes.hint
+msgid "Show empty notes"
+msgstr ""
+
+#: tframeuipreview.btntoggledesignnotes.hint
+msgid "Show design notes"
+msgstr ""
+
+#: tframeuipreview.btntoggleuisettings.hint
+msgctxt "tframeuipreview.btntoggleuisettings.hint"
+msgid "Settings Panel"
+msgstr ""
+
+#: tframeuipreview.btnuishapepad.hint
+msgid "Pad"
+msgstr ""
+
+#: tframeuipreview.btnuishapepc.hint
+msgid "PC"
+msgstr ""
+
+#: tframeuipreview.btnuishapephone.hint
+msgid "Phone"
 msgstr ""
 
 #: tframeuipreview.ckbautomerge.caption
@@ -3169,6 +3705,16 @@ msgstr ""
 #: tframeuipreview.ckbeditorreadonly.hint
 msgctxt "tframeuipreview.ckbeditorreadonly.hint"
 msgid "curField.editorReadOnly"
+msgstr ""
+
+#: tframeuipreview.ckbexportable.caption
+msgctxt "tframeuipreview.ckbexportable.caption"
+msgid "Exportable"
+msgstr ""
+
+#: tframeuipreview.ckbexportable.hint
+msgctxt "tframeuipreview.ckbexportable.hint"
+msgid "curField.exportable"
 msgstr ""
 
 #: tframeuipreview.ckbhideonedit.caption
@@ -3444,6 +3990,21 @@ msgctxt "tframeuipreview.label56.hint"
 msgid "curField.testDataType"
 msgstr ""
 
+#: tframeuipreview.label58.caption
+msgctxt "tframeuipreview.label58.caption"
+msgid "Null-values"
+msgstr ""
+
+#: tframeuipreview.label58.hint
+msgctxt "tframeuipreview.label58.hint"
+msgid "curField.testDataNullPercent"
+msgstr ""
+
+#: tframeuipreview.label59.caption
+msgctxt "tframeuipreview.label59.caption"
+msgid "%"
+msgstr ""
+
 #: tframeuipreview.label7.caption
 msgctxt "tframeuipreview.label7.caption"
 msgid "Field name"
@@ -3454,9 +4015,101 @@ msgctxt "tframeuipreview.label7.hint"
 msgid "curField.name"
 msgstr ""
 
+#: tframeuipreview.lbdesignnotes.caption
+msgctxt "tframeuipreview.lbdesignnotes.caption"
+msgid "Design notes"
+msgstr ""
+
+#: tframeuipreview.lbdesignnotes.hint
+msgctxt "tframeuipreview.lbdesignnotes.hint"
+msgid "curField.designNotes"
+msgstr ""
+
+#: tframeuipreview.lbmobnavtitle.caption
+msgid "Title"
+msgstr ""
+
+#: tframeuipreview.lbstatustime.caption
+msgid "22:43 PM"
+msgstr ""
+
 #: tframeuipreview.mncard_backtogrid.caption
 msgctxt "tframeuipreview.mncard_backtogrid.caption"
 msgid "Back"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_avg.caption
+msgctxt "tframeuipreview.mngrid_aggr_avg.caption"
+msgid "Avg"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_avg.hint
+msgctxt "tframeuipreview.mngrid_aggr_avg.hint"
+msgid "Avg"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_count.caption
+msgctxt "tframeuipreview.mngrid_aggr_count.caption"
+msgid "Count"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_count.hint
+msgctxt "tframeuipreview.mngrid_aggr_count.hint"
+msgid "Count"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_max.caption
+msgctxt "tframeuipreview.mngrid_aggr_max.caption"
+msgid "Max"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_max.hint
+msgctxt "tframeuipreview.mngrid_aggr_max.hint"
+msgid "Max"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_min.caption
+msgctxt "tframeuipreview.mngrid_aggr_min.caption"
+msgid "Min"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_min.hint
+msgctxt "tframeuipreview.mngrid_aggr_min.hint"
+msgid "Min"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_none.caption
+msgid "None"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_stddev.caption
+msgctxt "tframeuipreview.mngrid_aggr_stddev.caption"
+msgid "StdDev"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_stddev.hint
+msgctxt "tframeuipreview.mngrid_aggr_stddev.hint"
+msgid "StdDev"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_sum.caption
+msgctxt "tframeuipreview.mngrid_aggr_sum.caption"
+msgid "Sum"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_sum.hint
+msgctxt "tframeuipreview.mngrid_aggr_sum.hint"
+msgid "Sum"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_textsum.caption
+msgctxt "tframeuipreview.mngrid_aggr_textsum.caption"
+msgid "Text:Summary"
+msgstr ""
+
+#: tframeuipreview.mngrid_aggr_textsum.hint
+msgctxt "tframeuipreview.mngrid_aggr_textsum.hint"
+msgid "Text:Summary"
 msgstr ""
 
 #: tframeuipreview.mngrid_align_0.caption
@@ -3484,9 +4137,19 @@ msgctxt "tframeuipreview.mngrid_copyall.caption"
 msgid "Copy all"
 msgstr ""
 
+#: tframeuipreview.mngrid_copycell.caption
+msgctxt "tframeuipreview.mngrid_copycell.caption"
+msgid "Copy"
+msgstr ""
+
 #: tframeuipreview.mngrid_copycol.caption
 msgctxt "tframeuipreview.mngrid_copycol.caption"
 msgid "Copy col"
+msgstr ""
+
+#: tframeuipreview.mngrid_copyfieldname.caption
+msgctxt "tframeuipreview.mngrid_copyfieldname.caption"
+msgid "Copy field nameCaption"
 msgstr ""
 
 #: tframeuipreview.mngrid_enabled.caption
@@ -3497,6 +4160,16 @@ msgstr ""
 #: tframeuipreview.mngrid_enabled.hint
 msgctxt "tframeuipreview.mngrid_enabled.hint"
 msgid "Enabled"
+msgstr ""
+
+#: tframeuipreview.mngrid_exportable.caption
+msgctxt "tframeuipreview.mngrid_exportable.caption"
+msgid "Exportable"
+msgstr ""
+
+#: tframeuipreview.mngrid_exportable.hint
+msgctxt "tframeuipreview.mngrid_exportable.hint"
+msgid "Exportable"
 msgstr ""
 
 #: tframeuipreview.mngrid_movetoback.caption
@@ -3542,6 +4215,15 @@ msgctxt "tframeuipreview.mngrid_searchable.hint"
 msgid "Searchable"
 msgstr ""
 
+#: tframeuipreview.mngrid_showfilterbox.caption
+msgctxt "tframeuipreview.mngrid_showfilterbox.caption"
+msgid "Show filter box"
+msgstr ""
+
+#: tframeuipreview.mngrid_showfilterbox.hint
+msgid "ShowFilterBox"
+msgstr ""
+
 #: tframeuipreview.mngrid_sortable.caption
 msgctxt "tframeuipreview.mngrid_sortable.caption"
 msgid "Sortable"
@@ -3550,6 +4232,21 @@ msgstr ""
 #: tframeuipreview.mngrid_sortable.hint
 msgctxt "tframeuipreview.mngrid_sortable.hint"
 msgid "Sortable"
+msgstr ""
+
+#: tframeuipreview.mngrid_testdatatype.caption
+msgctxt "tframeuipreview.mngrid_testdatatype.caption"
+msgid "Test data type"
+msgstr ""
+
+#: tframeuipreview.mngrid_testdata_auto.caption
+msgctxt "tframeuipreview.mngrid_testdata_auto.caption"
+msgid "Auto"
+msgstr ""
+
+#: tframeuipreview.mngrid_textaggrfun.caption
+msgctxt "tframeuipreview.mngrid_textaggrfun.caption"
+msgid "Summary"
 msgstr ""
 
 #: tframeuipreview.mngrid_textalignment.caption
@@ -3619,6 +4316,11 @@ msgstr ""
 #: tframeuipreview.mnsc_align_3.caption
 msgctxt "tframeuipreview.mnsc_align_3.caption"
 msgid "Center"
+msgstr ""
+
+#: tframeuipreview.mnsc_copyfieldname.caption
+msgctxt "tframeuipreview.mnsc_copyfieldname.caption"
+msgid "Copy field nameCaption"
 msgstr ""
 
 #: tframeuipreview.mnsc_ctrlname.caption
@@ -3700,6 +4402,16 @@ msgctxt "tframeuipreview.mnsc_searchable.hint"
 msgid "Searchable"
 msgstr ""
 
+#: tframeuipreview.mnsc_testdatatype.caption
+msgctxt "tframeuipreview.mnsc_testdatatype.caption"
+msgid "Test data type"
+msgstr ""
+
+#: tframeuipreview.mnsc_testdata_auto.caption
+msgctxt "tframeuipreview.mnsc_testdata_auto.caption"
+msgid "Auto"
+msgstr ""
+
 #: tframeuipreview.mnsc_textalignment.caption
 msgctxt "tframeuipreview.mnsc_textalignment.caption"
 msgid "Text alignment"
@@ -3749,6 +4461,36 @@ msgstr ""
 msgid "List hidden fields"
 msgstr ""
 
+#: tframeuipreview.sbtnmobnavadd.hint
+msgctxt "tframeuipreview.sbtnmobnavadd.hint"
+msgid "New"
+msgstr ""
+
+#: tframeuipreview.sbtnmobnavback.hint
+msgctxt "tframeuipreview.sbtnmobnavback.hint"
+msgid "Back"
+msgstr ""
+
+#: tframeuipreview.sbtnmobnavdel.hint
+msgctxt "tframeuipreview.sbtnmobnavdel.hint"
+msgid "Delete"
+msgstr ""
+
+#: tframeuipreview.sbtnmobnavedit.hint
+msgctxt "tframeuipreview.sbtnmobnavedit.hint"
+msgid "Modify"
+msgstr ""
+
+#: tframeuipreview.sbtnmobnavsave.hint
+msgctxt "tframeuipreview.sbtnmobnavsave.hint"
+msgid "Save"
+msgstr ""
+
+#: tframeuipreview.sbtnmobnavsearch.hint
+msgctxt "tframeuipreview.sbtnmobnavsearch.hint"
+msgid "Search"
+msgstr ""
+
 #: tframeuipreview.spdbtnaddfield.caption
 msgctxt "tframeuipreview.spdbtnaddfield.caption"
 msgid " "
@@ -3769,28 +4511,30 @@ msgctxt "tframeuipreview.spdbtnupfield.caption"
 msgid " "
 msgstr ""
 
-#: tframeuipreview.toolbar1.caption
-msgid "ToolBar1"
+#: tframeuipreview.statictextuiscrollbr.caption
+msgctxt "tframeuipreview.statictextuiscrollbr.caption"
+msgid " "
 msgstr ""
 
-#: tframeuipreview.toolbutton11.caption
-msgid "ToolButton11"
+#: tframeuipreview.toolbargrid.caption
+msgctxt "tframeuipreview.toolbargrid.caption"
+msgid "ToolBar"
 msgstr ""
 
-#: tframeuipreview.toolbutton12.caption
-msgid "ToolButton12"
+#: tframeuipreview.toolbuttonspb1.caption
+msgid "ToolButtonSpb1"
 msgstr ""
 
-#: tframeuipreview.toolbutton15.caption
-msgid "ToolButton15"
+#: tframeuipreview.toolbuttonspb2.caption
+msgid "ToolButtonSpb2"
 msgstr ""
 
-#: tframeuipreview.toolbutton17.caption
-msgid "ToolButton17"
+#: tframeuipreview.toolbuttonspb3.caption
+msgid "ToolButtonSpb3"
 msgstr ""
 
-#: tframeuipreview.toolbutton19.caption
-msgid "ToolButton19"
+#: tframeuipreview.toolbuttonspb4.caption
+msgid "ToolButtonSpb4"
 msgstr ""
 
 #: tfrmabout.btnok.caption
@@ -3813,6 +4557,7 @@ msgid "EZDML x64"
 msgstr ""
 
 #: tfrmabout.lbversion.caption
+msgctxt "tfrmabout.lbversion.caption"
 msgid "Version"
 msgstr ""
 
@@ -3853,6 +4598,11 @@ msgctxt "tfrmaddtblink.btncancel.caption"
 msgid "Cancel"
 msgstr ""
 
+#: tfrmaddtblink.btnclose.caption
+msgctxt "tfrmaddtblink.btnclose.caption"
+msgid "Close"
+msgstr ""
+
 #: tfrmaddtblink.btnok.caption
 msgctxt "tfrmaddtblink.btnok.caption"
 msgid "OK"
@@ -3861,6 +4611,10 @@ msgstr ""
 #: tfrmaddtblink.caption
 msgctxt "tfrmaddtblink.caption"
 msgid "Add Link"
+msgstr ""
+
+#: tfrmaddtblink.ckbcreatem2mtb.caption
+msgid "Create many-to-many relation table"
 msgstr ""
 
 #: tfrmaddtblink.ckbcreatenewfield.caption
@@ -4078,6 +4832,39 @@ msgctxt "tfrmcolorstyles.tabsheet3.caption"
 msgid "Database"
 msgstr ""
 
+#: tfrmcommdbconfig.btncancel.caption
+msgctxt "tfrmcommdbconfig.btncancel.caption"
+msgid "Cancel"
+msgstr ""
+
+#: tfrmcommdbconfig.btnhelp.caption
+msgctxt "tfrmcommdbconfig.btnhelp.caption"
+msgid "Help"
+msgstr ""
+
+#: tfrmcommdbconfig.btnok.caption
+msgctxt "tfrmcommdbconfig.btnok.caption"
+msgid "OK"
+msgstr ""
+
+#: tfrmcommdbconfig.caption
+msgid "Database Connection"
+msgstr ""
+
+#: tfrmcommdbconfig.label1.caption
+msgid "Server:"
+msgstr ""
+
+#: tfrmcommdbconfig.label2.caption
+msgctxt "tfrmcommdbconfig.label2.caption"
+msgid "Port:"
+msgstr ""
+
+#: tfrmcommdbconfig.label3.caption
+msgctxt "tfrmcommdbconfig.label3.caption"
+msgid "Database:"
+msgstr ""
+
 #: tfrmctdml.caption
 msgctxt "tfrmctdml.caption"
 msgid "Diagram"
@@ -4121,6 +4908,11 @@ msgctxt "tfrmctgencode.btngotoloctmpl.hint"
 msgid "Show in explorer"
 msgstr ""
 
+#: tfrmctgencode.btnlistmenu.hint
+msgctxt "tfrmctgencode.btnlistmenu.hint"
+msgid "menu..."
+msgstr ""
+
 #: tfrmctgencode.btnresum.caption
 msgctxt "tfrmctgencode.btnresum.caption"
 msgid "&Ignore"
@@ -4150,7 +4942,8 @@ msgctxt "tfrmctgencode.editselectall1.hint"
 msgid "Select All|Selects the entire document"
 msgstr ""
 
-#: tfrmctgencode.edtoutputdir.texthint
+#: tfrmctgencode.edtoutputdir.hint
+msgctxt "tfrmctgencode.edtoutputdir.hint"
 msgid "Use temp folder by default"
 msgstr ""
 
@@ -4174,12 +4967,12 @@ msgstr ""
 
 #: tfrmctgencode.mn_checkall.caption
 msgctxt "tfrmctgencode.mn_checkall.caption"
-msgid "Select/unselect all"
+msgid "Check/uncheck (all)"
 msgstr ""
 
 #: tfrmctgencode.mn_checkselected.caption
 msgctxt "tfrmctgencode.mn_checkselected.caption"
-msgid "Check/uncheck"
+msgid "Check/uncheck (selected)"
 msgstr ""
 
 #: tfrmctgencode.mn_inversesel.caption
@@ -4188,6 +4981,7 @@ msgid "Inverse select"
 msgstr ""
 
 #: tfrmctgencode.tbsexecres.caption
+msgctxt "tfrmctgencode.tbsexecres.caption"
 msgid "Message"
 msgstr ""
 
@@ -4196,7 +4990,182 @@ msgctxt "tfrmctgencode.tbsreserror.caption"
 msgid "Error"
 msgstr ""
 
+#: tfrmctgendata.btnbuildsql.caption
+msgctxt "tfrmctgendata.btnbuildsql.caption"
+msgid "Gen Data SQL(&B)"
+msgstr ""
+
+#: tfrmctgendata.btncancel.caption
+msgctxt "tfrmctgendata.btncancel.caption"
+msgid "Close"
+msgstr ""
+
+#: tfrmctgendata.btndblogon.caption
+msgctxt "tfrmctgendata.btndblogon.caption"
+msgid "..."
+msgstr ""
+
+#: tfrmctgendata.btnexecsql.caption
+msgctxt "tfrmctgendata.btnexecsql.caption"
+msgid "&Execute"
+msgstr ""
+
+#: tfrmctgendata.btnlistmenu.hint
+msgctxt "tfrmctgendata.btnlistmenu.hint"
+msgid "menu..."
+msgstr ""
+
+#: tfrmctgendata.btnresum.caption
+msgctxt "tfrmctgendata.btnresum.caption"
+msgid "&Ignore"
+msgstr ""
+
+#: tfrmctgendata.btnseldbtype.caption
+msgctxt "tfrmctgendata.btnseldbtype.caption"
+msgid "v"
+msgstr ""
+
+#: tfrmctgendata.caption
+msgctxt "tfrmctgendata.caption"
+msgid "Generate Test Data"
+msgstr ""
+
+#: tfrmctgendata.chkpause.caption
+msgctxt "tfrmctgendata.chkpause.caption"
+msgid "Stop on error"
+msgstr ""
+
+#: tfrmctgendata.ckbprocoracleseqs.caption
+msgctxt "tfrmctgendata.ckbprocoracleseqs.caption"
+msgid "Process Sequences"
+msgstr ""
+
+#: tfrmctgendata.ckbprocoracleseqs.hint
+msgctxt "tfrmctgendata.ckbprocoracleseqs.hint"
+msgid "Check the sequence of each table to determine whether primary-key values should be generated from exists sequences"
+msgstr ""
+
+#: tfrmctgendata.ckbskipdbsyncerror.caption
+msgid "Skip DB check error"
+msgstr ""
+
+#: tfrmctgendata.ckbskipdbsyncerror.hint
+msgid "Continue to generate even if the model is inconsistent with the database"
+msgstr ""
+
+#: tfrmctgendata.ckbupdatefkfields.caption
+msgid "Update FK fields"
+msgstr ""
+
+#: tfrmctgendata.ckbupdatefkfields.hint
+msgid "Placeholders like /*_FK:tb.xx*/ will be generated and automatically replaced with actual values when executed"
+msgstr ""
+
+#: tfrmctgendata.editselectall1.caption
+msgctxt "tfrmctgendata.editselectall1.caption"
+msgid "Select &All"
+msgstr ""
+
+#: tfrmctgendata.editselectall1.hint
+msgctxt "tfrmctgendata.editselectall1.hint"
+msgid "Select All|Selects the entire document"
+msgstr ""
+
+#: tfrmctgendata.edtgenrowcount.text
+msgid "20"
+msgstr ""
+
+#: tfrmctgendata.label1.caption
+msgctxt "tfrmctgendata.label1.caption"
+msgid "Connect"
+msgstr ""
+
+#: tfrmctgendata.label2.caption
+msgctxt "tfrmctgendata.label2.caption"
+msgid "User"
+msgstr ""
+
+#: tfrmctgendata.label3.caption
+msgid "Row count"
+msgstr ""
+
+#: tfrmctgendata.label4.caption
+msgctxt "tfrmctgendata.label4.caption"
+msgid "Progress"
+msgstr ""
+
+#: tfrmctgendata.labelprog.caption
+msgctxt "tfrmctgendata.labelprog.caption"
+msgid "0/0"
+msgstr ""
+
+#: tfrmctgendata.mnshowphyname.caption
+msgctxt "tfrmctgendata.mnshowphyname.caption"
+msgid "Show physical name"
+msgstr ""
+
+#: tfrmctgendata.mn_checkall.caption
+msgctxt "tfrmctgendata.mn_checkall.caption"
+msgid "Check/uncheck (all)"
+msgstr ""
+
+#: tfrmctgendata.mn_checkselected.caption
+msgctxt "tfrmctgendata.mn_checkselected.caption"
+msgid "Check/uncheck (selected)"
+msgstr ""
+
+#: tfrmctgendata.mn_dbtableinfo.caption
+msgctxt "tfrmctgendata.mn_dbtableinfo.caption"
+msgid "Table properties (DB)"
+msgstr ""
+
+#: tfrmctgendata.mn_defdbtype_mysql.caption
+msgctxt "tfrmctgendata.mn_defdbtype_mysql.caption"
+msgid "MYSQL"
+msgstr ""
+
+#: tfrmctgendata.mn_defdbtype_oracle.caption
+msgctxt "tfrmctgendata.mn_defdbtype_oracle.caption"
+msgid "ORACLE"
+msgstr ""
+
+#: tfrmctgendata.mn_defdbtype_sqlserver.caption
+msgctxt "tfrmctgendata.mn_defdbtype_sqlserver.caption"
+msgid "SQLSERVER"
+msgstr ""
+
+#: tfrmctgendata.mn_defdbtype_standard.caption
+msgctxt "tfrmctgendata.mn_defdbtype_standard.caption"
+msgid "STANDARD"
+msgstr ""
+
+#: tfrmctgendata.mn_inversesel.caption
+msgctxt "tfrmctgendata.mn_inversesel.caption"
+msgid "Inverse select"
+msgstr ""
+
+#: tfrmctgendata.mn_modeltableinfo.caption
+msgctxt "tfrmctgendata.mn_modeltableinfo.caption"
+msgid "Table properties (Model)"
+msgstr ""
+
+#: tfrmctgendata.tbsexecsql.caption
+msgctxt "tfrmctgendata.tbsexecsql.caption"
+msgid "Execute"
+msgstr ""
+
+#: tfrmctgendata.tbsreserror.caption
+msgctxt "tfrmctgendata.tbsreserror.caption"
+msgid "Error"
+msgstr ""
+
+#: tfrmctgendata.tbsressql.caption
+msgctxt "tfrmctgendata.tbsressql.caption"
+msgid "Result"
+msgstr ""
+
 #: tfrmctgensql.btnbuildsql.caption
+msgctxt "tfrmctgensql.btnbuildsql.caption"
 msgid "Gen SQL(&B)"
 msgstr ""
 
@@ -4211,7 +5180,13 @@ msgid "..."
 msgstr ""
 
 #: tfrmctgensql.btnexecsql.caption
+msgctxt "tfrmctgensql.btnexecsql.caption"
 msgid "&Execute"
+msgstr ""
+
+#: tfrmctgensql.btnlistmenu.hint
+msgctxt "tfrmctgensql.btnlistmenu.hint"
+msgid "menu..."
 msgstr ""
 
 #: tfrmctgensql.btnresum.caption
@@ -4235,26 +5210,32 @@ msgid "Stop on error"
 msgstr ""
 
 #: tfrmctgensql.ckbprocoracleseqs.caption
+msgctxt "tfrmctgensql.ckbprocoracleseqs.caption"
 msgid "Process Sequences"
 msgstr ""
 
 #: tfrmctgensql.ckbprocoracleseqs.hint
+msgctxt "tfrmctgensql.ckbprocoracleseqs.hint"
 msgid "Create sequence for each table, or check current-value with primary-key field  for exists sequences"
 msgstr ""
 
 #: tfrmctgensql.ckbrecreatetable.caption
+msgctxt "tfrmctgensql.ckbrecreatetable.caption"
 msgid "Recreate tables"
 msgstr ""
 
 #: tfrmctgensql.ckbrecreatetable.hint
+msgctxt "tfrmctgensql.ckbrecreatetable.hint"
 msgid "will rename old table"
 msgstr ""
 
 #: tfrmctgensql.ckbsketchmode.caption
+msgctxt "tfrmctgensql.ckbsketchmode.caption"
 msgid "Sketch mode"
 msgstr ""
 
 #: tfrmctgensql.ckbsketchmode.hint
+msgctxt "tfrmctgensql.ckbsketchmode.hint"
 msgid "Only check logical type of fields, ignoring differences of data-lengths, physical types, keys, indexes, comments, nullables and default values"
 msgstr ""
 
@@ -4289,24 +5270,27 @@ msgid "0/0"
 msgstr ""
 
 #: tfrmctgensql.mnshowphyname.caption
+msgctxt "tfrmctgensql.mnshowphyname.caption"
 msgid "Show physical name"
 msgstr ""
 
 #: tfrmctgensql.mn_checkall.caption
 msgctxt "tfrmctgensql.mn_checkall.caption"
-msgid "Select/unselect all"
+msgid "Check/uncheck (all)"
 msgstr ""
 
 #: tfrmctgensql.mn_checkselected.caption
 msgctxt "tfrmctgensql.mn_checkselected.caption"
-msgid "Check/uncheck"
+msgid "Check/uncheck (selected)"
 msgstr ""
 
 #: tfrmctgensql.mn_dbtableinfo.caption
+msgctxt "tfrmctgensql.mn_dbtableinfo.caption"
 msgid "Table properties (DB)"
 msgstr ""
 
 #: tfrmctgensql.mn_defdbtype_mysql.caption
+msgctxt "tfrmctgensql.mn_defdbtype_mysql.caption"
 msgid "MYSQL"
 msgstr ""
 
@@ -4316,10 +5300,12 @@ msgid "ORACLE"
 msgstr ""
 
 #: tfrmctgensql.mn_defdbtype_sqlserver.caption
+msgctxt "tfrmctgensql.mn_defdbtype_sqlserver.caption"
 msgid "SQLSERVER"
 msgstr ""
 
 #: tfrmctgensql.mn_defdbtype_standard.caption
+msgctxt "tfrmctgensql.mn_defdbtype_standard.caption"
 msgid "STANDARD"
 msgstr ""
 
@@ -4329,6 +5315,7 @@ msgid "Inverse select"
 msgstr ""
 
 #: tfrmctgensql.mn_modeltableinfo.caption
+msgctxt "tfrmctgensql.mn_modeltableinfo.caption"
 msgid "Table properties (Model)"
 msgstr ""
 
@@ -4343,6 +5330,7 @@ msgid "Error"
 msgstr ""
 
 #: tfrmctgensql.tbsressql.caption
+msgctxt "tfrmctgensql.tbsressql.caption"
 msgid "Result"
 msgstr ""
 
@@ -4401,6 +5389,11 @@ msgctxt "tfrmcttableprop.actcheckwithmydict.caption"
 msgid "Check with MyDict.txt"
 msgstr ""
 
+#: tfrmcttableprop.actcnwordsegment.caption
+msgctxt "tfrmcttableprop.actcnwordsegment.caption"
+msgid "Chinese word segment"
+msgstr ""
+
 #: tfrmcttableprop.actconvertchntopy.caption
 msgctxt "tfrmcttableprop.actconvertchntopy.caption"
 msgid "Convert Chinese to PinYin"
@@ -4422,7 +5415,7 @@ msgid "Underline to Camel-Case"
 msgstr ""
 
 #: tfrmcttableprop.bbtnview.hint
-msgid "Switch to View mode"
+msgid "Switch to Multi-View mode"
 msgstr ""
 
 #: tfrmcttableprop.btncancel.caption
@@ -4458,6 +5451,59 @@ msgstr ""
 #: tfrmcttableprop.label1.caption
 msgctxt "tfrmcttableprop.label1.caption"
 msgid " "
+msgstr ""
+
+#: tfrmdbdatarule.btnasc.caption
+msgid "Asc"
+msgstr ""
+
+#: tfrmdbdatarule.btnback.caption
+msgctxt "tfrmdbdatarule.btnback.caption"
+msgid "Back"
+msgstr ""
+
+#: tfrmdbdatarule.btndesc.caption
+msgid "Desc"
+msgstr ""
+
+#: tfrmdbdatarule.btnnext.caption
+msgctxt "tfrmdbdatarule.btnnext.caption"
+msgid "Next"
+msgstr ""
+
+#: tfrmdbdatarule.btnok.caption
+msgctxt "tfrmdbdatarule.btnok.caption"
+msgid "Finish"
+msgstr ""
+
+#: tfrmdbdatarule.btnrandom.caption
+msgctxt "tfrmdbdatarule.btnrandom.caption"
+msgid "Random"
+msgstr ""
+
+#: tfrmdbdatarule.button4.caption
+msgctxt "tfrmdbdatarule.button4.caption"
+msgid "Cancel"
+msgstr ""
+
+#: tfrmdbdatarule.caption
+msgid "Data-rule from database"
+msgstr ""
+
+#: tfrmdbdatarule.label1.caption
+msgid "Please run SQL to generate data-rule (will pick data from SQL result and remove duplicates):"
+msgstr ""
+
+#: tfrmdbdatarule.label2.caption
+msgid "Prefix:"
+msgstr ""
+
+#: tfrmdbdatarule.label3.caption
+msgid "Suffix:"
+msgstr ""
+
+#: tfrmdbdatarule.label4.caption
+msgid "Result:"
 msgstr ""
 
 #: tfrmdmlsearch.actviewprop.caption
@@ -4531,6 +5577,10 @@ msgctxt "tfrmdmlsearch.stringgridsearchres.columns[6].title.caption"
 msgid "Memo"
 msgstr ""
 
+#: tfrmdmlsqleditor.actchangevalue.caption
+msgid "View/change value"
+msgstr ""
+
 #: tfrmdmlsqleditor.actcommit.caption
 msgid "commit"
 msgstr ""
@@ -4545,8 +5595,40 @@ msgctxt "tfrmdmlsqleditor.actcopycol.caption"
 msgid "Copy col"
 msgstr ""
 
+#: tfrmdmlsqleditor.actcopyfieldeqval.caption
+msgid "Copy as FieldName=Value"
+msgstr ""
+
+#: tfrmdmlsqleditor.actcopyinsertrecsql.caption
+msgid "Copy insert SQL (row)"
+msgstr ""
+
+#: tfrmdmlsqleditor.actcopyinsertsqlall.caption
+msgid "Copy insert SQL (all)"
+msgstr ""
+
+#: tfrmdmlsqleditor.actcopyjsonstrall.caption
+msgid "Copy JSON string (all)"
+msgstr ""
+
 #: tfrmdmlsqleditor.actcopyrec.caption
 msgid "Copy record"
+msgstr ""
+
+#: tfrmdmlsqleditor.actcopyrecjsonstr.caption
+msgid "Copy JSON string (row)"
+msgstr ""
+
+#: tfrmdmlsqleditor.actcopyupdaterecsql.caption
+msgid "Copy update SQL (row)"
+msgstr ""
+
+#: tfrmdmlsqleditor.actcopyupdatesqlall.caption
+msgid "Copy update SQL (all)"
+msgstr ""
+
+#: tfrmdmlsqleditor.actdeleterec.caption
+msgid "Delete record"
 msgstr ""
 
 #: tfrmdmlsqleditor.acteditselall.caption
@@ -4561,6 +5643,21 @@ msgstr ""
 msgid "rollback"
 msgstr ""
 
+#: tfrmdmlsqleditor.actshowcontentpanel.caption
+msgctxt "tfrmdmlsqleditor.actshowcontentpanel.caption"
+msgid "Show content panel"
+msgstr ""
+
+#: tfrmdmlsqleditor.actshowcontentpanel.hint
+msgctxt "tfrmdmlsqleditor.actshowcontentpanel.hint"
+msgid "Show content panel"
+msgstr ""
+
+#: tfrmdmlsqleditor.actshowsqltbprop.caption
+msgctxt "tfrmdmlsqleditor.actshowsqltbprop.caption"
+msgid "Table properties"
+msgstr ""
+
 #: tfrmdmlsqleditor.caption
 msgctxt "tfrmdmlsqleditor.caption"
 msgid "SQL Tool"
@@ -4570,16 +5667,22 @@ msgstr ""
 msgid "&Result:"
 msgstr ""
 
-#: tfrmdmlsqleditor.labelsql.caption
-msgid "S&QL:"
-msgstr ""
-
 #: tfrmdmlsqleditor.lbstatus.caption
 msgid "Status message"
 msgstr ""
 
 #: tfrmdmlsqleditor.mn_copytbname.caption
 msgid "Copy name"
+msgstr ""
+
+#: tfrmdmlsqleditor.mn_queryreltable.caption
+msgctxt "tfrmdmlsqleditor.mn_queryreltable.caption"
+msgid "Query related table"
+msgstr ""
+
+#: tfrmdmlsqleditor.mn_queryreltable2.caption
+msgctxt "tfrmdmlsqleditor.mn_queryreltable2.caption"
+msgid "Query related table"
 msgstr ""
 
 #: tfrmdmlsqleditor.mn_querytabledata.caption
@@ -4596,29 +5699,9 @@ msgctxt "tfrmdmlsqleditor.mn_tbsrefresh.caption"
 msgid "Refresh"
 msgstr ""
 
-#: tfrmdmlsqleditor.sbtnclearall.caption
-msgid "Clear"
-msgstr ""
-
-#: tfrmdmlsqleditor.sbtnclearall.hint
-msgid "Clear editor"
-msgstr ""
-
-#: tfrmdmlsqleditor.sbtnconnectdb.caption
-msgctxt "tfrmdmlsqleditor.sbtnconnectdb.caption"
-msgid "Connect"
-msgstr ""
-
-#: tfrmdmlsqleditor.sbtnconnectdb.hint
-msgid "Connect database"
-msgstr ""
-
-#: tfrmdmlsqleditor.sbtnsqlnext.caption
-msgid "=>"
-msgstr ""
-
-#: tfrmdmlsqleditor.sbtnsqlprev.caption
-msgid "<="
+#: tfrmdmlsqleditor.sbtnshowcontpanel.hint
+msgctxt "tfrmdmlsqleditor.sbtnshowcontpanel.hint"
+msgid "Show content panel"
 msgstr ""
 
 #: tfrmdmlsqleditor.sbtntoggletblist.caption
@@ -4627,6 +5710,148 @@ msgstr ""
 
 #: tfrmdmlsqleditor.sbtntoggletblist.hint
 msgid "Show/hide table list"
+msgstr ""
+
+#: tfrmdmlsqleditor.toolbar1.caption
+msgid "ToolBar1"
+msgstr ""
+
+#: tfrmdmlsqleditor.toolbutton1.caption
+msgid "ToolButton1"
+msgstr ""
+
+#: tfrmdmlsqleditor.toolbutton_clearall.caption
+msgctxt "tfrmdmlsqleditor.toolbutton_clearall.caption"
+msgid "Clear"
+msgstr ""
+
+#: tfrmdmlsqleditor.toolbutton_commit.caption
+msgctxt "tfrmdmlsqleditor.toolbutton_commit.caption"
+msgid "Commit"
+msgstr ""
+
+#: tfrmdmlsqleditor.toolbutton_connect.caption
+msgctxt "tfrmdmlsqleditor.toolbutton_connect.caption"
+msgid "Connect"
+msgstr ""
+
+#: tfrmdmlsqleditor.toolbutton_sql.caption
+msgctxt "tfrmdmlsqleditor.toolbutton_sql.caption"
+msgid "SQL:"
+msgstr ""
+
+#: tfrmdmlsqleditor.toolbutton_sqlnext.caption
+msgid ">"
+msgstr ""
+
+#: tfrmdmlsqleditor.toolbutton_sqlprev.caption
+msgid "<"
+msgstr ""
+
+#: tfrmezdmldbfile.btncancel.caption
+msgctxt "tfrmezdmldbfile.btncancel.caption"
+msgid "Cancel"
+msgstr ""
+
+#: tfrmezdmldbfile.btndblogon.caption
+msgctxt "tfrmezdmldbfile.btndblogon.caption"
+msgid ".."
+msgstr ""
+
+#: tfrmezdmldbfile.btnok.caption
+msgctxt "tfrmezdmldbfile.btnok.caption"
+msgid "OK"
+msgstr ""
+
+#: tfrmezdmldbfile.caption
+msgid "Database file"
+msgstr ""
+
+#: tfrmezdmldbfile.label1.caption
+msgctxt "tfrmezdmldbfile.label1.caption"
+msgid "Connect"
+msgstr ""
+
+#: tfrmezdmldbfile.label2.caption
+msgctxt "tfrmezdmldbfile.label2.caption"
+msgid "Choose Schema"
+msgstr ""
+
+#: tfrmezdmldbfile.label3.caption
+msgid "Files"
+msgstr ""
+
+#: tfrmezdmldbfile.label4.caption
+msgid "File name"
+msgstr ""
+
+#: tfrmezdmldbfile.label5.caption
+msgctxt "tfrmezdmldbfile.label5.caption"
+msgid "Filter"
+msgstr ""
+
+#: tfrmezdmldbfile.label6.caption
+msgid "EZDML supports saving model files to the database. As long as you can access the database, you can load the model at any time, and notify other users of updates in real time after saving changes, so as to realize model sharing and simple collaboration. Please note that saving the database model file will not change any existing database table structure. You still need to perform the database generation operation to make the model design results effective."
+msgstr ""
+
+#: tfrmezdmldbfile.listviewfiles.columns[0].caption
+msgctxt "tfrmezdmldbfile.listviewfiles.columns[0].caption"
+msgid "Name"
+msgstr ""
+
+#: tfrmezdmldbfile.listviewfiles.columns[1].caption
+msgctxt "tfrmezdmldbfile.listviewfiles.columns[1].caption"
+msgid "Size"
+msgstr ""
+
+#: tfrmezdmldbfile.listviewfiles.columns[2].caption
+msgid "Modified date"
+msgstr ""
+
+#: tfrmezdmldbfile.listviewfiles.columns[3].caption
+msgid "Modifier"
+msgstr ""
+
+#: tfrmezdmldbfile.listviewfiles.columns[4].caption
+msgctxt "tfrmezdmldbfile.listviewfiles.columns[4].caption"
+msgid "Memo"
+msgstr ""
+
+#: tfrmezdmldbfile.listviewfiles.columns[5].caption
+msgid "File ID"
+msgstr ""
+
+#: tfrmezdmldbfile.listviewfiles.columns[6].caption
+msgctxt "tfrmezdmldbfile.listviewfiles.columns[6].caption"
+msgid "Version"
+msgstr ""
+
+#: tfrmezdmldbfile.mn_delete.caption
+msgctxt "tfrmezdmldbfile.mn_delete.caption"
+msgid "Delete"
+msgstr ""
+
+#: tfrmezdmldbfile.mn_info.caption
+msgid "File info"
+msgstr ""
+
+#: tfrmezdmldbfile.mn_memo.caption
+msgid "Edit memo"
+msgstr ""
+
+#: tfrmezdmldbfile.mn_refresh.caption
+msgctxt "tfrmezdmldbfile.mn_refresh.caption"
+msgid "Refresh"
+msgstr ""
+
+#: tfrmezdmldbfile.mn_rename.caption
+msgctxt "tfrmezdmldbfile.mn_rename.caption"
+msgid "Rename"
+msgstr ""
+
+#: tfrmezdmldbfile.mn_showhist.caption
+msgctxt "tfrmezdmldbfile.mn_showhist.caption"
+msgid "Show history files"
 msgstr ""
 
 #: tfrmfindhex.btnexeclrchg.caption
@@ -4768,6 +5993,7 @@ msgid "Number:"
 msgstr ""
 
 #: tfrmfindhex.lbrandstr.caption
+msgctxt "tfrmfindhex.lbrandstr.caption"
 msgid "Random"
 msgstr ""
 
@@ -4953,6 +6179,10 @@ msgstr ""
 msgid "Auto capitalize"
 msgstr ""
 
+#: tfrmimportcttable.ckbcheckall.caption
+msgid "Check all"
+msgstr ""
+
 #: tfrmimportcttable.ckbcomments2displayname.caption
 msgid "Comments as Logic-Name"
 msgstr ""
@@ -4971,6 +6201,7 @@ msgid "Connect"
 msgstr ""
 
 #: tfrmimportcttable.label2.caption
+msgctxt "tfrmimportcttable.label2.caption"
 msgid "Choose Schema"
 msgstr ""
 
@@ -4993,12 +6224,13 @@ msgid "0/0"
 msgstr ""
 
 #: tfrmimportcttable.mn_checkall.caption
-msgid "All select/unselect"
+msgctxt "tfrmimportcttable.mn_checkall.caption"
+msgid "Check/uncheck (all)"
 msgstr ""
 
 #: tfrmimportcttable.mn_checkselected.caption
 msgctxt "tfrmimportcttable.mn_checkselected.caption"
-msgid "Check/uncheck"
+msgid "Check/uncheck (selected)"
 msgstr ""
 
 #: tfrmimportcttable.mn_inversesel.caption
@@ -5016,16 +6248,21 @@ msgstr ""
 
 #: tfrmlogonctdb.btndbcfg.caption
 msgctxt "tfrmlogonctdb.btndbcfg.caption"
-msgid ".."
+msgid "Config"
 msgstr ""
 
 #: tfrmlogonctdb.btndbcfg.hint
 msgid "Config..."
 msgstr ""
 
+#: tfrmlogonctdb.btnhelp.caption
+msgctxt "tfrmlogonctdb.btnhelp.caption"
+msgid "Help"
+msgstr ""
+
 #: tfrmlogonctdb.btnlogonhist.caption
 msgctxt "tfrmlogonctdb.btnlogonhist.caption"
-msgid "v"
+msgid "History"
 msgstr ""
 
 #: tfrmlogonctdb.btnlogonhist.hint
@@ -5072,6 +6309,11 @@ msgctxt "tfrmlogonctdb.label_pwd.caption"
 msgid "Password"
 msgstr ""
 
+#: tfrmlogonctdb.lbconnectingtip.caption
+msgctxt "tfrmlogonctdb.lbconnectingtip.caption"
+msgid "Connecting..."
+msgstr ""
+
 #: tfrmmaindml.actaboutezdml.caption
 msgctxt "tfrmmaindml.actaboutezdml.caption"
 msgid "About"
@@ -5086,12 +6328,23 @@ msgid "Browse Custom Tools"
 msgstr ""
 
 #: tfrmmaindml.actbrowsescripts.caption
+msgctxt "tfrmmaindml.actbrowsescripts.caption"
 msgid "Browse Script Files"
 msgstr ""
 
 #: tfrmmaindml.actcharcodetool.caption
 msgctxt "tfrmmaindml.actcharcodetool.caption"
 msgid "Char Code Tool"
+msgstr ""
+
+#: tfrmmaindml.actchatgpt.caption
+msgctxt "tfrmmaindml.actchatgpt.caption"
+msgid "ChatGPT"
+msgstr ""
+
+#: tfrmmaindml.actchatgpt.hint
+msgctxt "tfrmmaindml.actchatgpt.hint"
+msgid "Use ChatGPT AI to assist in generating model design"
 msgstr ""
 
 #: tfrmmaindml.actcheckupdates.caption
@@ -5155,6 +6408,11 @@ msgstr ""
 msgid "Generate Last Code"
 msgstr ""
 
+#: tfrmmaindml.actgeneratetestdata.caption
+msgctxt "tfrmmaindml.actgeneratetestdata.caption"
+msgid "Generate Test Data"
+msgstr ""
+
 #: tfrmmaindml.actgotbfilter.caption
 msgid "actGoTbFilter"
 msgstr ""
@@ -5168,8 +6426,16 @@ msgctxt "tfrmmaindml.actimportdatabase.caption"
 msgid "Import Database"
 msgstr ""
 
+#: tfrmmaindml.actimportexcel.caption
+msgid "Import Excel..."
+msgstr ""
+
 #: tfrmmaindml.actimportfile.caption
-msgid "Import File..."
+msgid "Import PDM File..."
+msgstr ""
+
+#: tfrmmaindml.actloadfromdb.caption
+msgid "Open database file"
 msgstr ""
 
 #: tfrmmaindml.actmodeloptions.caption
@@ -5202,6 +6468,11 @@ msgstr ""
 msgid "Quick Start"
 msgstr ""
 
+#: tfrmmaindml.actrefresh.caption
+msgctxt "tfrmmaindml.actrefresh.caption"
+msgid "Refresh"
+msgstr ""
+
 #: tfrmmaindml.actrestoredatabase.caption
 msgid "Restore Database"
 msgstr ""
@@ -5213,7 +6484,11 @@ msgstr ""
 
 #: tfrmmaindml.actsavefileas.caption
 msgctxt "tfrmmaindml.actsavefileas.caption"
-msgid "Save as..."
+msgid "Save &as..."
+msgstr ""
+
+#: tfrmmaindml.actsavetodb.caption
+msgid "Save as database file"
 msgstr ""
 
 #: tfrmmaindml.actsettings.caption
@@ -5228,6 +6503,11 @@ msgstr ""
 
 #: tfrmmaindml.actshowfileinexplorer.caption
 msgid "Show in Explorer"
+msgstr ""
+
+#: tfrmmaindml.actshowhidelist.caption
+msgctxt "tfrmmaindml.actshowhidelist.caption"
+msgid "Show/hide list"
 msgstr ""
 
 #: tfrmmaindml.actshowtmprfile.caption
@@ -5294,6 +6574,11 @@ msgctxt "tfrmoradbconfig.btncancel.caption"
 msgid "Cancel"
 msgstr ""
 
+#: tfrmoradbconfig.btnhelp.caption
+msgctxt "tfrmoradbconfig.btnhelp.caption"
+msgid "Help"
+msgstr ""
+
 #: tfrmoradbconfig.btnok.caption
 msgctxt "tfrmoradbconfig.btnok.caption"
 msgid "OK"
@@ -5308,10 +6593,12 @@ msgid "1521"
 msgstr ""
 
 #: tfrmoradbconfig.label1.caption
+msgctxt "tfrmoradbconfig.label1.caption"
 msgid "Host IP:"
 msgstr ""
 
 #: tfrmoradbconfig.label2.caption
+msgctxt "tfrmoradbconfig.label2.caption"
 msgid "Port:"
 msgstr ""
 
@@ -5321,7 +6608,7 @@ msgstr ""
 
 #: tfrmoradbconfig.label4.caption
 msgctxt "tfrmoradbconfig.label4.caption"
-msgid "Note: EZDML for mac64/linux64/win64 needs oracle client / instant client for MacOS/Linux/Windows 64-bit, while EZDML for win32 needs instant client of Windows 32-bit. You can specify the location of libociei.dylib/.so/oci.dll in settings or just place it in search-path (windows: %PATH%. MacOS/Linux: /lib; $HOME/lib; /usr/local/lib; /usr/lib; $DYLD_LIBRARY_PATH; etc)."
+msgid "Note: EZDML needs oracle client / instant-client to logon. You can specify the location of libociei.dylib/.so/oci.dll in main settings dialog (a restart will be needed)."
 msgstr ""
 
 #: tfrmoradbconfig.rdbnetsvc.caption
@@ -5575,11 +6862,6 @@ msgctxt "tfrmsettings.btnmysqllibbrs.caption"
 msgid ".."
 msgstr ""
 
-#: tfrmsettings.btnnewcustphytp.caption
-msgctxt "tfrmsettings.btnnewcustphytp.caption"
-msgid "+"
-msgstr ""
-
 #: tfrmsettings.btnok.caption
 msgctxt "tfrmsettings.btnok.caption"
 msgid "OK"
@@ -5593,11 +6875,6 @@ msgstr ""
 #: tfrmsettings.btnpostgrelibbrs.caption
 msgctxt "tfrmsettings.btnpostgrelibbrs.caption"
 msgid ".."
-msgstr ""
-
-#: tfrmsettings.btnremovecustphytp.caption
-msgctxt "tfrmsettings.btnremovecustphytp.caption"
-msgid "-"
 msgstr ""
 
 #: tfrmsettings.btnsqlitelibbrs.caption
@@ -5633,8 +6910,16 @@ msgstr ""
 msgid "Generate backup SQL before altering columns"
 msgstr ""
 
+#: tfrmsettings.ckbbigintforintkeys.caption
+msgid "User BIGINT for integer PK/FK fields"
+msgstr ""
+
 #: tfrmsettings.ckbcheckforupdates.caption
 msgid "Auto check for updates on exit (once per week)"
+msgstr ""
+
+#: tfrmsettings.ckbcreateforeignkeys.caption
+msgid "Create foreign keys"
 msgstr ""
 
 #: tfrmsettings.ckbcreateindexforforeignkey.caption
@@ -5646,11 +6931,33 @@ msgid "Create/check sequences for ORACLE"
 msgstr ""
 
 #: tfrmsettings.ckbenableadvtbprop.caption
-msgid "Enable advanced page for tables"
+msgctxt "tfrmsettings.ckbenableadvtbprop.caption"
+msgid "Advanced"
 msgstr ""
 
 #: tfrmsettings.ckbenablecustompropui.caption
-msgid "Enable custom UI page for tables and fields"
+msgctxt "tfrmsettings.ckbenablecustompropui.caption"
+msgid "Custom"
+msgstr ""
+
+#: tfrmsettings.ckbenabletbpropdata.caption
+msgctxt "tfrmsettings.ckbenabletbpropdata.caption"
+msgid "Data"
+msgstr ""
+
+#: tfrmsettings.ckbenabletbpropgenerate.caption
+msgctxt "tfrmsettings.ckbenabletbpropgenerate.caption"
+msgid "Generate"
+msgstr ""
+
+#: tfrmsettings.ckbenabletbproprelations.caption
+msgctxt "tfrmsettings.ckbenabletbproprelations.caption"
+msgid "Relations"
+msgstr ""
+
+#: tfrmsettings.ckbenabletbpropuidesign.caption
+msgctxt "tfrmsettings.ckbenabletbpropuidesign.caption"
+msgid "UI Design"
 msgstr ""
 
 #: tfrmsettings.ckbfieldgridshowlines.caption
@@ -5668,6 +6975,10 @@ msgstr ""
 
 #: tfrmsettings.ckbquotreservednames.caption
 msgid "Quot reserved names"
+msgstr ""
+
+#: tfrmsettings.ckbretainaftercommit.caption
+msgid "Retain after commit"
 msgstr ""
 
 #: tfrmsettings.ckbsavetempfileonexit.caption
@@ -5693,10 +7004,6 @@ msgstr ""
 
 #: tfrmsettings.edtcustfldtpphytype.hint
 msgid "example: NVARCHAR or CHAR(500)  (default lengths can be specified)"
-msgstr ""
-
-#: tfrmsettings.edtcustomphytype.hint
-msgid "example for Float: DECIMAL, for String: VARCHAR2(800)  (default lengths can be specified)"
 msgstr ""
 
 #: tfrmsettings.edtcustompropuicaption.texthint
@@ -5789,9 +7096,18 @@ msgctxt "tfrmsettings.groupboxmonofont.caption"
 msgid "Monospaced font (for SQL and code)"
 msgstr ""
 
+#: tfrmsettings.groupboxothers.caption
+msgctxt "tfrmsettings.groupboxothers.caption"
+msgid "Others"
+msgstr ""
+
 #: tfrmsettings.groupboxotherstb.caption
 msgctxt "tfrmsettings.groupboxotherstb.caption"
 msgid "Table properties"
+msgstr ""
+
+#: tfrmsettings.groupboxsqldbspec.caption
+msgid "Spetial"
 msgstr ""
 
 #: tfrmsettings.groupboxsqlgen.caption
@@ -5806,6 +7122,10 @@ msgstr ""
 #: tfrmsettings.groupboxtabledatasql.caption
 msgctxt "tfrmsettings.groupboxtabledatasql.caption"
 msgid "Preview table data"
+msgstr ""
+
+#: tfrmsettings.groupboxtbtabs.caption
+msgid "Table properties pages"
 msgstr ""
 
 #: tfrmsettings.groupboxtpnamereplaces.caption
@@ -5874,10 +7194,6 @@ msgstr ""
 msgid "Custom field types will be listed after system types. When a custom type is set to a field (stored in data-type-name), EZDML will automatically match a system logic type to display its icon."
 msgstr ""
 
-#: tfrmsettings.lbcustomphytype.caption
-msgid "Custom physical type:"
-msgstr ""
-
 #: tfrmsettings.lbcustphytptip.caption
 msgid "You can define your own physical type for each logic type to replace the one recommended by the system."
 msgstr ""
@@ -5888,11 +7204,7 @@ msgid "Notes: libs should be 64-bit. Libs can be placed in search paths, or just
 msgstr ""
 
 #: tfrmsettings.lbdbconnnote1.caption
-msgid "Notes: Custom types is only used to generate SQLs and may have no effect on model diagrams."
-msgstr ""
-
-#: tfrmsettings.lbdefphytplogictype.caption
-msgid "Data type:"
+msgid "Notes: Leave blank to indicate the system default type."
 msgstr ""
 
 #: tfrmsettings.lbdispfontnote.caption
@@ -5921,6 +7233,10 @@ msgstr ""
 
 #: tfrmsettings.lbfdgentip.caption
 msgid "Use commas to separate multiple names, use % for partial match."
+msgstr ""
+
+#: tfrmsettings.lbhiveversion.caption
+msgid "Hive version:"
 msgstr ""
 
 #: tfrmsettings.lbhugemodetablecount.caption
@@ -5961,6 +7277,10 @@ msgctxt "tfrmsettings.lbmysqllib.caption"
 msgid "lib:"
 msgstr ""
 
+#: tfrmsettings.lbmysqlversion.caption
+msgid "MySQL version:"
+msgstr ""
+
 #: tfrmsettings.lbnlslang.caption
 msgctxt "tfrmsettings.lbnlslang.caption"
 msgid "NLS_LANG:"
@@ -5993,6 +7313,10 @@ msgstr ""
 #: tfrmsettings.lbtabledatapreviewrows.caption
 msgctxt "tfrmsettings.lbtabledatapreviewrows.caption"
 msgid "Rows limit:"
+msgstr ""
+
+#: tfrmsettings.lbtabledatapreviewrows1.caption
+msgid "ChatGPT key:"
 msgstr ""
 
 #: tfrmsettings.lbtpnreplacement.caption
@@ -6037,7 +7361,78 @@ msgid "Others"
 msgstr ""
 
 #: tfrmsettings.tabshtsql.caption
+msgctxt "tfrmsettings.tabshtsql.caption"
 msgid "SQL"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.btnbrowsedsn.caption
+msgid "Browse"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.btncancel.caption
+msgctxt "tfrmsqlsvrdbconfig.btncancel.caption"
+msgid "Cancel"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.btnhelp.caption
+msgctxt "tfrmsqlsvrdbconfig.btnhelp.caption"
+msgid "Help"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.btnok.caption
+msgctxt "tfrmsqlsvrdbconfig.btnok.caption"
+msgid "OK"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.caption
+msgid "SQLServer Connection"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.edtport.text
+msgid "1433"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.label1.caption
+msgctxt "tfrmsqlsvrdbconfig.label1.caption"
+msgid "Host IP:"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.label2.caption
+msgctxt "tfrmsqlsvrdbconfig.label2.caption"
+msgid "Port:"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.label3.caption
+msgid "Instant:"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.label4.caption
+msgctxt "tfrmsqlsvrdbconfig.label4.caption"
+msgid "Database:"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.label5.caption
+msgid "Note: Leave user-name empty for integrated security authentication"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.label6.caption
+msgid "DSN:"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.lbodbctip.caption
+msgid "Note: By default EZDML use FreeTDS to connect SQL Server. You can switch to ODBC by changing the driver config in main settings dialog (a restart will be needed)."
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.rbdodbcdsn.caption
+msgid "ODBC DSN:"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.rdbipaddr.caption
+msgid "Specify address:"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.rdbodbcconnstr.caption
+msgid "ODBC Connection String:"
 msgstr ""
 
 #: tfrmthreadwait.actcancel.caption
@@ -6068,10 +7463,6 @@ msgctxt "tfrmtoast.labelmsg.caption"
 msgid "Please wait..."
 msgstr ""
 
-#: tfrmuiprvsheet.caption
-msgid "UI Preview - Sheet"
-msgstr ""
-
 #: tfrmwaitwnd.btncancel.caption
 msgctxt "tfrmwaitwnd.btncancel.caption"
 msgid "Cancel"
@@ -6093,6 +7484,7 @@ msgid "Cancel"
 msgstr ""
 
 #: tfrmwindowsodbcconfg.btnconfigdsn.caption
+msgctxt "tfrmwindowsodbcconfg.btnconfigdsn.caption"
 msgid "Config"
 msgstr ""
 

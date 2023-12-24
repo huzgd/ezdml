@@ -25,7 +25,8 @@ type
     FWriteInited: boolean;
     FWriteEnded: boolean;
     FCtVerWritten: boolean;
-  protected
+  protected           
+    procedure ValidCtVersion(const Value: Integer); override;
   public
     constructor Create(bIsReadMode: boolean); overload; override;
     constructor Create(const fn: string; fm: word); overload; override;
@@ -70,7 +71,7 @@ type
 
 implementation
 
-uses Dialogs;
+uses Dialogs, Forms;
 //顺序读取指定的TAG内容
 
 function ReadXmlTag(Stream: TStream; const Tag: string; var Value: string): boolean;
@@ -312,6 +313,20 @@ begin
     S := S + #13#10;
     FStream.Write(Pointer(S)^, Length(S));
     FCurXmlSec := '';
+  end;
+end;
+
+procedure TCtObjXmlSerialer.ValidCtVersion(const Value: Integer);
+var
+  S: String;
+begin
+  if (Value>0) and (Value < 20) then
+    raise Exception.Create('CtVer not supported: version is too old and is not supported now');
+  if Value > DEF_CURCTVER_VAL then
+  begin
+    S := Format(srEzdmlNewerVersionPrompt,[Value, DEF_CURCTVER_VAL]);
+    if Application.MessageBox(PChar(S), PChar(Application.title), MB_YESNOCANCEL or MB_ICONWARNING)<>IDYES then
+      Abort;
   end;
 end;
 

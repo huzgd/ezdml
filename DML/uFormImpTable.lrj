@@ -13,8 +13,9 @@
 {"hash":81265349,"name":"tfrmimportcttable.ckbcomments2displayname.caption","sourcebytes":[67,111,109,109,101,110,116,115,32,97,115,32,76,111,103,105,99,45,78,97,109,101],"value":"Comments as Logic-Name"},
 {"hash":199470419,"name":"tfrmimportcttable.ckbimportdbtypenames.caption","sourcebytes":[73,109,112,111,114,116,32,100,97,116,97,45,116,121,112,101,32,110,97,109,101,115],"value":"Import data-type names"},
 {"hash":143064595,"name":"tfrmimportcttable.ckboverwriteexists.caption","sourcebytes":[79,118,101,114,119,114,105,116,101,32,101,120,105,115,116,32,116,97,98,108,101,115],"value":"Overwrite exist tables"},
-{"hash":252708708,"name":"tfrmimportcttable.mn_checkall.caption","sourcebytes":[65,108,108,32,115,101,108,101,99,116,47,117,110,115,101,108,101,99,116],"value":"All select/unselect"},
-{"hash":60978619,"name":"tfrmimportcttable.mn_checkselected.caption","sourcebytes":[67,104,101,99,107,47,117,110,99,104,101,99,107],"value":"Check/uncheck"},
+{"hash":194850764,"name":"tfrmimportcttable.ckbcheckall.caption","sourcebytes":[67,104,101,99,107,32,97,108,108],"value":"Check all"},
+{"hash":156399001,"name":"tfrmimportcttable.mn_checkselected.caption","sourcebytes":[67,104,101,99,107,47,117,110,99,104,101,99,107,32,40,115,101,108,101,99,116,101,100,41],"value":"Check/uncheck (selected)"},
+{"hash":244062041,"name":"tfrmimportcttable.mn_checkall.caption","sourcebytes":[67,104,101,99,107,47,117,110,99,104,101,99,107,32,40,97,108,108,41],"value":"Check/uncheck (all)"},
 {"hash":192777182,"name":"tfrmimportcttable.mn_inversesel.caption","sourcebytes":[73,110,118,101,114,115,101,32,115,101,108,101,99,116,105,111,110],"value":"Inverse selection"},
 {"hash":31957139,"name":"tfrmimportcttable.mn_tableprops.caption","sourcebytes":[84,97,98,108,101,32,112,114,111,112,112,101,114,116,105,101,115],"value":"Table propperties"}
 ]}

@@ -1,0 +1,14 @@
+{"version":1,"strings":[
+{"hash":29414165,"name":"tfrmdbdatarule.caption","sourcebytes":[68,97,116,97,45,114,117,108,101,32,102,114,111,109,32,100,97,116,97,98,97,115,101],"value":"Data-rule from database"},
+{"hash":80760984,"name":"tfrmdbdatarule.btnok.caption","sourcebytes":[70,105,110,105,115,104],"value":"Finish"},
+{"hash":77089212,"name":"tfrmdbdatarule.button4.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":221306506,"name":"tfrmdbdatarule.label1.caption","sourcebytes":[80,108,101,97,115,101,32,114,117,110,32,83,81,76,32,116,111,32,103,101,110,101,114,97,116,101,32,100,97,116,97,45,114,117,108,101,32,40,119,105,108,108,32,112,105,99,107,32,100,97,116,97,32,102,114,111,109,32,83,81,76,32,114,101,115,117,108,116,32,97,110,100,32,114,101,109,111,118,101,32,100,117,112,108,105,99,97,116,101,115,41,58],"value":"Please run SQL to generate data-rule (will pick data from SQL result and remove duplicates):"},
+{"hash":347380,"name":"tfrmdbdatarule.btnnext.caption","sourcebytes":[78,101,120,116],"value":"Next"},
+{"hash":126603498,"name":"tfrmdbdatarule.label2.caption","sourcebytes":[80,114,101,102,105,120,58],"value":"Prefix:"},
+{"hash":180146410,"name":"tfrmdbdatarule.label3.caption","sourcebytes":[83,117,102,102,105,120,58],"value":"Suffix:"},
+{"hash":147505962,"name":"tfrmdbdatarule.label4.caption","sourcebytes":[82,101,115,117,108,116,58],"value":"Result:"},
+{"hash":18579,"name":"tfrmdbdatarule.btnasc.caption","sourcebytes":[65,115,99],"value":"Asc"},
+{"hash":306323,"name":"tfrmdbdatarule.btndesc.caption","sourcebytes":[68,101,115,99],"value":"Desc"},
+{"hash":92818269,"name":"tfrmdbdatarule.btnrandom.caption","sourcebytes":[82,97,110,100,111,109],"value":"Random"},
+{"hash":296859,"name":"tfrmdbdatarule.btnback.caption","sourcebytes":[66,97,99,107],"value":"Back"}
+]}

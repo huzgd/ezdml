@@ -204,6 +204,7 @@ begin
   TimerAutoSearch.Enabled := False;
   if FSearching_Found = 0 then
   begin
+    StringGridSearchRes.ClearSelections;
     StringGridSearchRes.RowCount:=2;
     with StringGridSearchRes.Rows[1] do
     begin
@@ -454,7 +455,8 @@ end;
 procedure TfrmDmlSearch.ResetSearch;
 begin
   FTimerCounter := 0;       
-  TimerAutoSearch.Enabled := False;
+  TimerAutoSearch.Enabled := False;   
+  StringGridSearchRes.ClearSelections;
   StringGridSearchRes.RowCount := 1;
   TimerAutoSearch.Enabled := True;
 end;

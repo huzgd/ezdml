@@ -41,7 +41,7 @@ type
 
 implementation
 
-uses Dialogs, Forms, dmlstrs;
+uses Dialogs, wCommonDBConfig, Forms, dmlstrs;
 
 
 { TCtMetaPostgreSqlDb }
@@ -57,7 +57,7 @@ begin
   if FDbSchema = Value then
     Exit;
   if Value <> '' then
-    ExecSql('SET search_path TO ' + Value);
+    ExecSql('SET search_path TO ' + GetDbQuotName(Value, Self.EngineType));
   FDbSchema := Value;
   inherited SetDbSchema(Value);
 end;
@@ -83,23 +83,7 @@ end;
 
 procedure TCtMetaPostgreSqlDb.SetConnected(const Value: boolean);
 begin
-  try
-    inherited SetConnected(Value);
-  except
-    on E: Exception do
-    begin
-{$ifdef WINDOWS}
-      if Value and (Pos('pq.dll', E.Message)>0) then
-      begin
-        raise Exception.Create(E.Message + #10 + srPostgresConnectTipWin);
-      end
-      else
-        raise;
-{$else}
-        raise;
-{$endif}
-    end;
-  end;
+  inherited SetConnected(Value);
 end;
 
 
@@ -118,15 +102,19 @@ end;
 
 function TCtMetaPostgreSqlDb.ShowDBConfig(AHandle: THandle): boolean;
 var
-  S: String;
+  S: string;
 begin
-{$ifdef WINDOWS}
-  S := srPostgresConnectTip + #10 + srPostgresConnectTipWin;
-{$else}
-  S := srPostgresConnectTip;
-{$endif}
-  ShowMessage(S);
-  Result := False;
+  S := Database;
+  if S = ''  then
+    S := 'localhost:3306@test';
+  S := TfrmCommDBConfig.DoDbConfig(S, Self.EngineType);
+  if S <> '' then
+  begin
+    Database := S;
+    Result := True;
+  end
+  else
+    Result := False;
 end;
 
 function TCtMetaPostgreSqlDb.GenObjSql(obj, obj_db: TCtMetaObject;
@@ -175,7 +163,7 @@ begin
   with FQuery do
   begin
     Clear;
-    Sql.Text := 'SELECT nspname FROM pg_namespace';
+    Sql.Text := 'SELECT nspname FROM pg_namespace ORDER BY nspname';
     Open;
     while not EOF do
     begin
@@ -333,7 +321,7 @@ begin
   end;
 
   if ADbUser <> '' then
-    DbSchema := ADbUser;
+    DbSchema := GetDbQuotName(ADbUser, Self.EngineType);
 
   if not ObjectExists(ADbUser, AObjName) then
     Exit;

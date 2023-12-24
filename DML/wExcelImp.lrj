@@ -1,0 +1,22 @@
+{"version":1,"strings":[
+{"hash":4918644,"name":"tfrmexcelimp.caption","sourcebytes":[69,120,99,101,108,32,73,109,112,111,114,116],"value":"Excel Import"},
+{"hash":250281066,"name":"tfrmexcelimp.lbtxttip.caption","sourcebytes":[67,111,112,121,32,99,111,110,116,101,110,116,32,102,114,111,109,32,69,120,99,101,108,32,97,110,100,32,112,97,115,116,101,32,104,101,114,101,58],"value":"Copy content from Excel and paste here:"},
+{"hash":107521306,"name":"tfrmexcelimp.lbgridtip.caption","sourcebytes":[83,101,116,32,102,105,101,108,100,32,112,114,111,112,101,114,116,105,101,115,32,98,121,32,99,111,108,117,109,110,45,104,101,97,100,101,114,32,100,114,111,112,45,100,111,119,110,45,109,101,110,117,115,58],"value":"Set field properties by column-header drop-down-menus:"},
+{"hash":1121,"name":"tfrmexcelimp.stringgridres.columns[0].title.caption","sourcebytes":[67,49],"value":"C1"},
+{"hash":1371,"name":"tfrmexcelimp.btnok.caption","sourcebytes":[79,107],"value":"Ok"},
+{"hash":77089212,"name":"tfrmexcelimp.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":67195069,"name":"tfrmexcelimp.ckbsavevaluesinfieldparams.hint","sourcebytes":[99,117,114,70,105,101,108,100,46,103,101,116,80,97,114,97,109,40,39,67,49,39,41,32,47,32,67,117,114,70,105,101,108,100,46,80,97,114,97,109,91,39,67,49,39,93],"value":"curField.getParam('C1') / CurField.Param['C1']"},
+{"hash":102094227,"name":"tfrmexcelimp.ckbsavevaluesinfieldparams.caption","sourcebytes":[83,97,118,101,32,118,97,108,117,101,115,32,105,110,32,102,105,101,108,100,32,112,97,114,97,109,115],"value":"Save values in field params"},
+{"hash":174147701,"name":"tfrmexcelimp.mncolname.caption","sourcebytes":[67,111,108,78,97,109,101],"value":"ColName"},
+{"hash":346165,"name":"tfrmexcelimp.mnasname.caption","sourcebytes":[78,97,109,101],"value":"Name"},
+{"hash":46616133,"name":"tfrmexcelimp.mnasdisplayname.caption","sourcebytes":[68,105,115,112,108,97,121,78,97,109,101],"value":"DisplayName"},
+{"hash":145147077,"name":"tfrmexcelimp.mnasdatatype.caption","sourcebytes":[68,97,116,97,84,121,112,101],"value":"DataType"},
+{"hash":145139109,"name":"tfrmexcelimp.mndatasize.caption","sourcebytes":[68,97,116,97,83,105,122,101],"value":"DataSize"},
+{"hash":195086814,"name":"tfrmexcelimp.mnasprecision.caption","sourcebytes":[80,114,101,99,105,115,105,111,110],"value":"Precision"},
+{"hash":204635765,"name":"tfrmexcelimp.mnasnullable.caption","sourcebytes":[78,117,108,108,97,98,108,101],"value":"Nullable"},
+{"hash":210505012,"name":"tfrmexcelimp.mnasrequired.caption","sourcebytes":[82,101,113,117,105,114,101,100],"value":"Required"},
+{"hash":96819429,"name":"tfrmexcelimp.mnisunique.caption","sourcebytes":[73,115,32,85,110,105,113,117,101],"value":"Is Unique"},
+{"hash":198025235,"name":"tfrmexcelimp.mnasconstraintstr.caption","sourcebytes":[67,111,110,115,116,114,97,105,110,116,115],"value":"Constraints"},
+{"hash":121097077,"name":"tfrmexcelimp.mnasdefaultvalue.caption","sourcebytes":[68,101,102,97,117,108,116,86,97,108,117,101],"value":"DefaultValue"},
+{"hash":174341140,"name":"tfrmexcelimp.mnascomment.caption","sourcebytes":[67,111,109,109,101,110,116],"value":"Comment"}
+]}

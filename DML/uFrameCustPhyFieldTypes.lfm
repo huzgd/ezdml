@@ -1,0 +1,22 @@
+object FrameCustPhyFieldTypes: TFrameCustPhyFieldTypes
+  Left = 0
+  Height = 202
+  Top = 0
+  Width = 511
+  ClientHeight = 202
+  ClientWidth = 511
+  TabOrder = 0
+  DesignLeft = 625
+  DesignTop = 521
+  object StringGridPT: TStringGrid
+    Left = 0
+    Height = 202
+    Top = 0
+    Width = 511
+    Align = alClient
+    DefaultColWidth = 81
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking, goSmoothScroll]
+    TabOrder = 0
+    OnPrepareCanvas = StringGridPTPrepareCanvas
+  end
+end

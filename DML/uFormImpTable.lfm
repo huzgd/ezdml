@@ -13,7 +13,7 @@ object frmImportCtTable: TfrmImportCtTable
   OnShow = FormShow
   ParentFont = True
   Position = poMainFormCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.12.0'
   object Label1: TLabel
     Left = 22
     Height = 17
@@ -65,23 +65,21 @@ object frmImportCtTable: TfrmImportCtTable
     ParentColor = False
   end
   object btnOK: TButton
-    Left = 675
+    Left = 631
     Height = 27
     Top = 515
-    Width = 53
+    Width = 117
     Anchors = [akRight, akBottom]
-    AutoSize = True
     Caption = 'Start'
     OnClick = btnOKClick
     TabOrder = 0
   end
   object btnCancel: TButton
-    Left = 765
+    Left = 752
     Height = 27
     Top = 515
-    Width = 58
+    Width = 71
     Anchors = [akRight, akBottom]
-    AutoSize = True
     Cancel = True
     Caption = 'Close'
     OnClick = btnCancelClick
@@ -114,6 +112,7 @@ object frmImportCtTable: TfrmImportCtTable
     Top = 55
     Width = 702
     Anchors = [akTop, akLeft, akRight]
+    DropDownCount = 48
     ItemHeight = 17
     OnChange = combDBUserChange
     TabOrder = 4
@@ -144,6 +143,7 @@ object frmImportCtTable: TfrmImportCtTable
     Top = 93
     Width = 702
     Anchors = [akTop, akLeft, akRight]
+    DropDownCount = 48
     ItemHeight = 17
     Items.Strings = (
       '(Show all objects)'
@@ -169,6 +169,8 @@ object frmImportCtTable: TfrmImportCtTable
     Width = 176
     Anchors = [akLeft, akBottom]
     Caption = 'Comments as Logic-Name'
+    Checked = True
+    State = cbChecked
     TabOrder = 7
   end
   object ckbImportDbTypeNames: TCheckBox
@@ -189,19 +191,28 @@ object frmImportCtTable: TfrmImportCtTable
     Caption = 'Overwrite exist tables'
     TabOrder = 8
   end
+  object ckbCheckAll: TCheckBox
+    Left = 24
+    Height = 21
+    Top = 156
+    Width = 74
+    Caption = 'Check all'
+    OnChange = ckbCheckAllChange
+    TabOrder = 12
+  end
   object PopupMenu1: TPopupMenu
     OnPopup = PopupMenu1Popup
     left = 176
     top = 165
-    object MN_CheckAll: TMenuItem
-      AutoCheck = True
-      Caption = 'All select/unselect'
-      OnClick = MN_CheckAllClick
-    end
     object MN_CheckSelected: TMenuItem
       AutoCheck = True
-      Caption = 'Check/uncheck'
+      Caption = 'Check/uncheck (selected)'
       OnClick = MN_CheckSelectedClick
+    end
+    object MN_CheckAll: TMenuItem
+      AutoCheck = True
+      Caption = 'Check/uncheck (all)'
+      OnClick = MN_CheckAllClick
     end
     object MN_InverseSel: TMenuItem
       Caption = 'Inverse selection'

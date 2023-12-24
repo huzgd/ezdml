@@ -17,8 +17,22 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.29';
-  srEzdmlVersionDate = '2022-03-11';
+  srEzdmlVersionNum = '3.56';
+  srEzdmlVersionDate = '2023-12-02';
+
+{$ifdef EZDML_LITE}
+
+{$ifdef WINDOWS}
+{$ifdef WIN32}
+  srEzdmlAppTitleOS = 'EZDML Lite (win32)';
+{$else}
+  srEzdmlAppTitleOS = 'EZDML Lite';
+{$endif}
+{$else}
+  srEzdmlAppTitleOS = 'EZDML Lite';
+{$endif}
+
+{$else}
 
 {$ifdef WINDOWS}
 {$ifdef WIN32}   
@@ -32,6 +46,8 @@ const
 {$else}
   srEzdmlAppTitleOS = 'EZDML for linux64';
 {$ENDIF}
+{$endif}
+
 {$endif}
   //srEzdmlAppTitle = 'EZDML';
   srEzdmlAppTitle = srEzdmlAppTitleOS;
@@ -69,15 +85,23 @@ resourcestring
   srEzdmlAbortOpening = 'Are you sure to abort opening file?';
   srEzdmlConfirmClearAll = 'Create new file will clear all tables in the model file. Are you sure to continue?';  
   srEzdmlConfirmReOpenFile = 'Do you want to force the current file to be reopened (will skip the temp file)?';
-  srEzdmlConfirmClearOnOpen = 'Do you want to clear current model before open the file?';
+  srEzdmlConfirmClearOnOpen = 'Current model will be cleared before opening the file. Are you sure to continue?';   
+  srEzdmlConfirmOpenDbTmpFile = 'Database file is not ready, open local temporary file instead?';
+  //srEzdmlConfirmClearOnLoad = 'Do you want to clear current model before load new models?';    
+  //srEzdmlConfirmSyncWithDbFile = 'Since current file has the same name (%s) as the DB file being loaded, do you want to import the content into the current file (overwrite content but keep the local file name)?';
   srEzdmlPromptSaveFile = 'Save current file before continue?';         
-  srEzdmlPromptReloadOnFileDateSizeChanged = 'Current file is changed by other program, do you want to re-open it?';
+  srEzdmlPromptReloadOnFileDateSizeChanged = 'Current file is changed by other program, do you want to re-open it?'; 
+  srEzdmlPromptReloadDbFileChanged = 'Current file is changed in database by %s (%s), do you want to re-open it?';
+  srEzdmlConfirmCloseModified = 'Do you want to save and apply changes before close?';
   srEzdmlSaveingFileFmt = 'Saving file %s...';
   srEzdmlSaveFile = 'Save file';
-  srEzdmlSaving = 'Saving...';
-  srEzdmlNew = 'New File';         
+  srEzdmlSaving = 'Saving...'; 
+  srEzdmlDbFileSavedFmt = 'Database file saved: %s. Do you want to open the Generate-Database dialog?';
+  srEzdmlNew = 'New File';
+  srEzdmlDefault = 'Default';
   srEzdmlFileNotFoundFmt = 'File not found %s';
   srEzdmlTmpFileIgnoredFmt = '%s - the temp file is out of date and will be skipped';
+  srEzdmlDbTmpFileIgnoredFmt = '%s - the database file has been modified by %s (%s), thus the temp file is out of date and will be skipped';
   srEzdmlLoadTmpFileFailFmt ='Failed to load tmp file: %s'#13#10'Error info: %s'#13#10'This may cause by version error or file damage. Please try newer version or delete the tmp file';
   srEzdmlConfirmOpenUrlFmt = 'Are you sure to open URL %s with your internet explorer?';
   srEzdmlConfirmEditTextFmt = 'Open %s to edit now?';
@@ -88,10 +112,12 @@ resourcestring
   srEzdmlConfirmAlreadyOpenedFileFmt = 'Warning: File %s can not be locked and may have been opened in another EZDML process, continue operation may lead to unexpected consequences! Do you still want to forcibly open it?';
   srEzdmlTempFileFmt = 'Temporary file - %s';
   srEzdmlFunOnlyInWin32Ver = 'Sorry, this function is not available in EZDML of x64 version yet. Please take EZDML for win32 instead.'; 
-  srEzdmlCheckingForUpdates = 'Checking for updates...';     
+  srEzdmlCheckingForUpdates = 'Checking for updates...';
+  srEzdmlChatGPTProcessing = 'ChatGPT is processing, please wait...';
   srEzdmlNoUpdateFound = 'No updatable version present.'; 
   srEzdmlDmjUnicodePropmt = 'Save json data with \uXXXX unicode format?';
   srEzdmlPromptNeverShown = '(Shift+Action = Don''t prompt again)';
+  srEzdmlGlobalScriptError = 'Error running global-script function %s: %s';
 
 implementation
 

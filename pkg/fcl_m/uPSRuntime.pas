@@ -4563,7 +4563,7 @@ begin
           else
           // nx change start
           if (srctype.BaseType in [btS32, btU32]) then
-            TbtU32(Dest^) := TbtU32(Src^)      
+            TbtU32(Dest^) := TbtU32(Src^)
           else if srctype.BaseType = btVariant then
             TObject(Dest^) := TObject(PtrUInt(variant(Src^))) //added by huz
           else
@@ -11587,7 +11587,7 @@ end;
   {$if defined(cpu86)}         // Has MyAllMethodsHandler
   {$else}
   // {$if defined(cpupowerpc) or defined(cpuarm) or defined(cpu64)}
-    {$define empty_methods_handler}
+    {.$define empty_methods_handler}  //removed by huz
   {$ifend}
 {$endif}
 
@@ -11715,7 +11715,8 @@ end;
 procedure PutOnFPUStackExtended(ft: extended);
 asm
 //  fstp tbyte ptr [ft]
-  fld tbyte ptr [ft]
+ // fld tbyte ptr [ft]     
+  fld tbyte ptr [RCX] //modified by huz
 
 end;
 
@@ -12745,4 +12746,3 @@ begin
 end;
 
 end.
-

@@ -9,7 +9,7 @@ uses
   Graphics, Controls, Forms,
   Dialogs, ExtCtrls, ImgList, StdCtrls, ComCtrls, ActnList, Menus, Buttons,
   CTMetaData, CtMetaTable,
-  uFormAddCtFields, StdActns, Grids, Types;
+  uFormAddCtFields, StdActns, Grids, ColorBox, Types;
 
 const
   HM_REFRESHPROP = WM_USER + $2432;
@@ -36,6 +36,8 @@ type
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel3: TBevel;
+    Bevel4: TBevel;
+    Bevel5: TBevel;
     BevelGridFrame: TBevel;
     actEditCut: TEditCut;
     actEditCopy: TEditCopy;
@@ -43,10 +45,30 @@ type
     actEditPaste: TEditPaste;
     actEditUndo: TEditUndo;
     btnShowInGraph: TBitBtn;
+    btnToggleTabs: TBitBtn;
+    ckbForeignKeysOnly: TCheckBox;
     ckbGenCode: TCheckBox;
     ckbGenDatabase: TCheckBox;
+    colobBgColor: TColorBox;
+    edtGenTxtFind: TEdit;
+    edtPhysicalName: TEdit;
     edtUIDisplayText: TEdit;
+    edtOwnerCategory: TEdit;
+    edtGroupName: TEdit;
+    edtSQLAlias: TEdit;
     FindDialogTxt: TFindDialog;
+    Label25: TLabel;
+    lbTbFieldCount: TLabel;
+    lbDesignNotes: TLabel;
+    lbPartitionInfo: TLabel;
+    lbRelTbInfo: TLabel;
+    lbSQLOrderByClause: TLabel;
+    lbTbPhysicalName: TLabel;
+    lbListSQL: TLabel;
+    lbOwnerCategory: TLabel;
+    lbGroupName: TLabel;
+    lbSQLAlias: TLabel;
+    lbViewSQL: TLabel;
     lbGenTp: TLabel;
     lbExProps: TLabel;
     lbScriptRules: TLabel;
@@ -55,13 +77,34 @@ type
     lbUIDispName: TLabel;
     Label41: TLabel;
     lbExtraSQL: TLabel;
+    lbSQLWhereClause: TLabel;
+    ListBoxRelTbs: TListBox;
     listboxGenTypes: TListBox;
     memoDescHelp: TMemo;
     memoBusinessLogic: TMemo;
     memoExtraProps: TMemo;
+    memoPartitionInfo: TMemo;
+    memoListSQL: TMemo;
+    memoDesignNotes: TMemo;
+    memoSQLOrderByClause: TMemo;
+    memoViewSQL: TMemo;
     memoScriptRules: TMemo;
     memoExtraSQL: TMemo;
     MemoUILogic: TMemo;
+    memoSQLWhereClause: TMemo;
+    MenuItem1: TMenuItem;
+    MN_FieldWeights: TMenuItem;
+    MN_OpenTemplFolder: TMenuItem;
+    MNTabs_Cust: TMenuItem;
+    MNTabs_Relations: TMenuItem;
+    MNTabs_Close: TMenuItem;
+    MNTabs_Settings: TMenuItem;
+    MNTabs_Data: TMenuItem;
+    MNTabs_UIDesign: TMenuItem;
+    MNTabs_Gen: TMenuItem;
+    MNTabs_AdvPage: TMenuItem;
+    PanelTbRelDml: TPanel;
+    PanelRefInfo: TPanel;
     pmFsPaste: TMenuItem;
     pmFsCut: TMenuItem;
     MN_SpltCp: TMenuItem;
@@ -83,6 +126,7 @@ type
     MN_FieldPropPanel: TMenuItem;
     MN_ImportFields: TMenuItem;
     PanelFieldToolbar: TPanel;
+    PopupMenuTabs: TPopupMenu;
     PopupMenuGenTabs: TPopupMenu;
     PopupMenuTbFields: TPopupMenu;
     MN_FieldAdd: TMenuItem;
@@ -101,6 +145,7 @@ type
     SaveDialogCode: TSaveDialog;
     sbtnFind: TSpeedButton;
     PanelFieldProps: TPanel;
+    sbtnTbJson: TSpeedButton;
     ScrollBoxCustomScriptDef: TScrollBox;
     ScrollBoxOperLogic: TScrollBox;
     SpeedButton_FieldAdd: TSpeedButton;
@@ -108,12 +153,14 @@ type
     SpeedButton_FIeldMoveDown: TSpeedButton;
     SpeedButton_FieldPropPanel: TSpeedButton;
     SpeedButton_FIeldMoveUp: TSpeedButton;
+    SplitterTbRelInfo: TSplitter;
     SplitterGenTps: TSplitter;
     SplitterDescHelp: TSplitter;
     SplitterFsProp: TSplitter;
     StringGridTableFields: TStringGrid;
+    TabSheetRelations: TTabSheet;
     TabSheetUI: TTabSheet;
-    TabSheetOperLogic: TTabSheet;
+    TabSheetAdvanced: TTabSheet;
     TabSheetDesc: TTabSheet;
     TabSheetCodeGen: TTabSheet;
     MemoCodeGen: TMemo;
@@ -189,24 +236,50 @@ type
     procedure actTbGenCodeExecute(Sender: TObject);
     procedure actTbGenDBExecute(Sender: TObject);
     procedure btnShowInGraphClick(Sender: TObject);
+    procedure btnToggleTabsClick(Sender: TObject);
+    procedure ckbForeignKeysOnlyChange(Sender: TObject);
+    procedure colobBgColorGetColors(Sender: TCustomColorBox; Items: TStrings);
+    procedure edtGenTxtFindKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure FindDialogTxtFind(Sender: TObject);
     procedure FrameResize(Sender: TObject);
     procedure lb_DescrbTipsClick(Sender: TObject);
     procedure listboxGenTypesClick(Sender: TObject);
+    procedure ListBoxRelTbsClick(Sender: TObject);
+    procedure ListBoxRelTbsDblClick(Sender: TObject);
+    procedure ListBoxRelTbsKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure MemoCodeGenDblClick(Sender: TObject);
     procedure MemoDescDblClick(Sender: TObject);
     procedure MemoDescKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure MemoTextContentDblClick(Sender: TObject);
+    procedure MemoTextContentKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure MNGenTab_CustomizeClick(Sender: TObject);
+    procedure MNTabs_CloseClick(Sender: TObject);
+    procedure MNTabs_CustClick(Sender: TObject);
+    procedure MNTabs_DataClick(Sender: TObject);
+    procedure MNTabs_GenClick(Sender: TObject);
+    procedure MNTabs_RelationsClick(Sender: TObject);
+    procedure MNTabs_SettingsClick(Sender: TObject);
+    procedure MNTabs_UIDesignClick(Sender: TObject);
+    procedure MN_OpenTemplFolderClick(Sender: TObject);
     procedure PageControlTbPropChange(Sender: TObject);
+    procedure PageControlTbPropContextPopup(Sender: TObject; MousePos: TPoint;
+      var Handled: Boolean);
+    procedure PageControlTbPropMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure PanelCustomScriptDefResize(Sender: TObject);
     procedure Panel_ScriptSettingsResize(Sender: TObject);
     procedure Panel_TbHResize(Sender: TObject);
     procedure pmSaveCodeAsClick(Sender: TObject);
+    procedure PopupMenuTabsPopup(Sender: TObject);
     procedure PopupMenuTbFieldsPopup(Sender: TObject);
     procedure sbtnFindClick(Sender: TObject);
+    procedure sbtnTbJsonClick(Sender: TObject);
     procedure ScrollBoxCustomScriptDefResize(Sender: TObject);
     procedure SplitterFsPropMoved(Sender: TObject);
+    procedure SplitterGenTpsMoved(Sender: TObject);
     procedure StringGridTableFieldsDblClick(Sender: TObject);
     procedure StringGridTableFieldsDragDrop(Sender, Source: TObject; X,
       Y: integer);
@@ -265,6 +338,7 @@ type
     procedure actSortFieldsByNameExecute(Sender: TObject);
     procedure PageControlTbPropChanging(Sender: TObject; var AllowChange: boolean);
   private
+    FCreatingNewTable: boolean;
     { Private declarations }
     FReadOnlyMode: boolean;
     FCtMetaTable: TCtMetaTable;
@@ -278,13 +352,17 @@ type
     FSCInited: boolean;
     FCustDmlScControls: TObject; //TDmlScriptControlList
     FFieldPropSplitPercent: double;
-    FShowOperLogicPage: boolean;
+    FShowAdvPage: boolean;
 
     FGridDragFocusingRow: integer;
 
-    FTabInitTick: Integer;
+    FTabInitTick: Integer;    
+    FTbRelateModel: TCtDataModelGraph;
 
-    procedure SetShowOperLogicPage(AValue: boolean);
+    FLastTabClickPos: TPoint;
+    FLastTabClickTick: Int64;
+
+    procedure SetShowAdvPage(AValue: boolean);
     procedure _OnCustDmlCtrlValueExec(Sender: TObject);
     procedure RunCustomScriptDef(bReInitSettings: boolean);
 
@@ -306,6 +384,15 @@ type
     function GetSelectedFields: TCTMetaFieldList;
     procedure RestoreSelectionFeilds;
     procedure CopySelectedFields(bCut: Boolean);
+    function CurTbHasAdvProps: Boolean;     
+    procedure _OnRelationMapRefresh(Sender: TObject);
+    procedure GotoTab(tab: TTabSheet);
+    procedure CloseCurTab;
+    procedure SaveTabVisibles;
+    procedure DoEscape;
+    procedure RealignGenToolbar;
+    procedure MItem_FieldWeightClick(Sender: TObject);
+    procedure ChangeFieldWeight(iOpType, iRes: Integer);
   public
     { Public declarations }
     //tp: 0=Obj1.Prop,1=move,2=Obj1.Child
@@ -318,7 +405,8 @@ type
 
     TbDataSqlForm: TCustomForm;
     FieldPropForm: TFrame;
-    UIPreviewFrame: TFrame;
+    UIPreviewFrame: TFrame;  
+    RelateDmlForm: TCustomForm;
     OwnerDialog: TForm;
 
     constructor Create(AOwner: TComponent); override;
@@ -331,6 +419,7 @@ type
     procedure ShowCurTableData;
     procedure RefreshFieldProps(AFld: TCtMetaField = nil);
     procedure RefreshUIPreview;
+    procedure RefreshRelationMap;
     procedure MoveDxField(ARowIndex, iMode: integer); //mode -2top -1up 1down 2bottom
     procedure SetActsEnable(bEnb: boolean);
     procedure CheckGridEditingMode;
@@ -347,7 +436,8 @@ type
     procedure Init(ATable: TCtMetaTable; bReadOnly: boolean);
     procedure HideProps;
     procedure FocusToField(cf: TCtMetaField);
-    property ShowOperLogicPage: boolean read FShowOperLogicPage write SetShowOperLogicPage;
+    property ShowAdvPage: boolean read FShowAdvPage write SetShowAdvPage;
+    property CreatingNewTable: boolean read FCreatingNewTable write FCreatingNewTable;
   end;
 
   TStringGridXX = class(TStringGrid)
@@ -355,8 +445,8 @@ type
 
 const
   DEF_clInfoBk = $E1FFFF;
-  DEF_INNER_SQL_TABS: array[0..5] of
-    string = ('SQL', 'Oracle', 'MySql', 'SQLServer', 'SQLite', 'PostgreSQL');
+  DEF_INNER_SQL_TABS: array[0..6] of
+    string = ('SQL', 'Oracle', 'MySql', 'SQLServer', 'SQLite', 'PostgreSQL', 'Hive');
 var
   G_TbPropTabInitTick: Integer = 0;
   G_LastTbDescInputDemo: string = '';
@@ -366,8 +456,8 @@ implementation
 
 uses
   dmlstrs, DmlScriptPublic, DmlScriptControl, uDMLSqlEditor, IniFiles, uFrameCtFieldDef,
-  ClipBrd, WindowFuncs, uFormCtDbLogon, DmlPasScript, DmlJsScript, ide_editor,
-  uFormSelectFields, uFrameUIPreview, ezdmlstrs, uFormGenTabCust, CtObjXmlSerial;
+  ClipBrd, WindowFuncs, uFormCtDbLogon, DmlPasScript, ide_editor, PvtInput, Toolwin,
+  uFormSelectFields, uFrameUIPreview, ezdmlstrs, uFormGenTabCust, CtObjXmlSerial, uFormCtDML;
 
 {$R *.lfm}
 
@@ -388,11 +478,37 @@ begin
 end;
 
 constructor TFrameCtTableProp.Create(AOwner: TComponent);
+  procedure CreateFieldWeightMenus;
+  var
+    I: Integer; 
+    MItem: TMenuItem;
+    ss: TStringList;
+    S: String;
+  begin
+    ss:= TStringList.Create;
+    try
+      ss.Text := GetCtDropDownItemsText(srFieldWeights);
+      for I:=0 to ss.Count - 1 do
+      begin
+        S := ss[I];
+        if Trim(S)='' then
+          Continue;
+        MItem := TMenuItem.Create(Self);
+        MItem.Caption := S;
+        MItem.Hint := S;
+        MItem.OnClick := MItem_FieldWeightClick;
+        MN_FieldWeights.Add(MItem);
+      end;
+    finally
+      ss.Free;
+    end;
+  end;
 var
   I: integer;
   ss: TStrings;
 begin
   inherited;
+
   FFieldPropSplitPercent := 0.4;
   PanelFieldProps.Visible := False;
 
@@ -420,10 +536,12 @@ begin
 
   ss := StringGridTableFields.Columns[5].PickList;
   for I := 0 to 6 do
+  begin
     if ShouldUseEnglishForDML then
-      ss.Add(DEF_CTMETAFIELD_CONSTRAINT_STR_ENG[I])
+      ss.Add(DEF_CTMETAFIELD_CONSTRAINT_STR_ENG[I] + IfElse(I=6, ':', ''))
     else
-      ss.Add(DEF_CTMETAFIELD_CONSTRAINT_STR_CHN[I]);
+      ss.Add(DEF_CTMETAFIELD_CONSTRAINT_STR_CHN[I] + IfElse(I=6, ':', ''));
+  end;
   if ShouldUseEnglishForDML then
   begin
     ss.Add(
@@ -447,8 +565,10 @@ begin
     memoDescHelp.Lines.Text := G_LastTbDescInputDemo
   else
     memoDescHelp.Lines.Text := srTbDescInputDemo;
-  if G_LastTbDescHelpWidth > 0 then  
+  if (G_LastTbDescHelpWidth > 0) and (G_LastTbDescHelpWidth < (Self.Width div 2)) then
     memoDescHelp.Width := G_LastTbDescHelpWidth;
+
+  CreateFieldWeightMenus;
 
   FieldPropForm := TFrameCtFieldDef.Create(Self);
   FieldPropForm.Parent := PanelFieldProps;
@@ -481,6 +601,7 @@ begin
   FreeAndNil(FDmlScControls);
   FreeAndNil(FCustDmlScControls);
   FreeAndNil(FSelFields);
+  FreeAndNil(FTbRelateModel);
   inherited;
 end;
 
@@ -493,7 +614,10 @@ begin
   if FTabInitTick <> G_TbPropTabInitTick then
     InitDmlScriptPages;
   if G_CustomPropUICaption <> '' then
-    TabSheetCust.Caption := G_CustomPropUICaption;
+  begin
+    TabSheetCust.Caption := G_CustomPropUICaption;    
+    MNTabs_Cust.Caption := G_CustomPropUICaption;
+  end;
   ss := StringGridTableFields.Columns[3].PickList;
   ss.Clear;
   for t := Low(TCtFieldDataType) to High(TCtFieldDataType) do
@@ -658,9 +782,9 @@ begin
       end;
       if memoDescHelp.Visible <> ini.ReadBool(S, 'ShowDescHelp', memoDescHelp.Visible) then
         lb_DescrbTipsClick(nil);
-      ShowOperLogicPage := G_EnableAdvTbProp;
-      if ShowOperLogicPage and (TabSheetOperLogic.Tag = 1) then
-        TabSheetOperLogic.TabVisible := ShowOperLogicPage;
+      ShowAdvPage := G_EnableAdvTbProp or CurTbHasAdvProps;
+      if ShowAdvPage and (TabSheetAdvanced.Tag = 1) then
+        TabSheetAdvanced.TabVisible := ShowAdvPage;
 
       I := ini.ReadInteger(S, 'ActivePageIndex', -1);
       if (I >= 0) and (I < PageControlTbProp.PageCount) then
@@ -761,6 +885,8 @@ begin
   actFieldsPaste.Visible := not FReadOnlyMode;
 
   MN_SpltA.Visible := not FReadOnlyMode;
+  MN_FieldWeights.Visible := not FReadOnlyMode;
+  MN_GenOption.Visible := not FReadOnlyMode;
 
   bShowIcon := True;
   if FGlobeDataModelList <> nil then
@@ -782,10 +908,12 @@ begin
   if not G_EnableCustomPropUI then
     Exit;
   fn := 'CustomTableDef';
-  //ofn := fn;
+  //ofn := fn;             
+  {$ifndef EZDML_LITE}
   fn := FolderAddFileName(GetDmlScriptDir, fn + '.js_');
   fn := GetConfigFile_OfLang(fn);
-  if not FileExists(fn) then
+  if not FileExists(fn) then    
+  {$endif}
   begin
     fn := FolderAddFileName(GetDmlScriptDir, fn + '.ps_');
     fn := GetConfigFile_OfLang(fn);
@@ -866,7 +994,7 @@ end;
 
 procedure TFrameCtTableProp.ShowCurTableData;
 var
-  fr: TfrmDmlSqlEditor;
+  fr: TfrmDmlSqlEditorN;
   sql, dbType: string;
   idx: integer;
 begin
@@ -876,15 +1004,16 @@ begin
     Exit;
   if TbDataSqlForm = nil then
   begin
-    fr := TfrmDmlSqlEditor.Create(Self);
+    fr := TfrmDmlSqlEditorN.Create(Self);
     TbDataSqlForm := fr;
     fr.BorderStyle := bsNone;
     fr.Parent := TabSheetData;
     fr.Align := alClient;
     fr.SplitPercent := 65;
+    fr.actShowSqlTbProp.Visible:=False;
   end
   else
-    fr := TfrmDmlSqlEditor(TbDataSqlForm);
+    fr := TfrmDmlSqlEditorN(TbDataSqlForm);
 
   sql := Trim(fr.MemoSql.Lines.Text); //sql被手工修改过则不处理
   if (sql <> '') and (sql <> Trim(fr.AutoExecSql)) and (Trim(fr.AutoExecSql) <> '') then
@@ -903,8 +1032,9 @@ begin
       if CtMetaDBRegs[Idx].DbImpl.Connected then
         fr.FCtMetaDatabase := CtMetaDBRegs[Idx].DbImpl;
     end;
-  end;
-  sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType);
+  end;  
+  fr.DefTableName := FCtMetaTable.Name;
+  sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, fr.FCtMetaDatabase);
   if fr.AutoExecSql = sql then
     Exit;
   fr.AutoExecSql := sql;
@@ -947,9 +1077,271 @@ begin
   TabSheetUI.Tag := 0;
 
   if (FCtMetaTable = nil) or FCtMetaTable.IsText then
-    TFrameUIPreview(UIPreviewFrame).HideProps
+  begin
+    TFrameUIPreview(UIPreviewFrame).HideProps; 
+    TFrameUIPreview(UIPreviewFrame).InitByTable(nil, True);
+  end
   else
     TFrameUIPreview(UIPreviewFrame).InitByTable(Self.FCtMetaTable, Self.FReadOnlyMode);
+end;
+
+procedure TFrameCtTableProp.RefreshRelationMap;
+
+  procedure AddRelTb(tb: TCtMetaTable);    
+  var
+    tb2: TCtMetaTable;
+  begin
+    tb2 := FTbRelateModel.Tables.NewTableItem();
+    tb2.AssignFrom(tb);
+  end;
+
+  procedure GetRelateInfo;
+  var
+    I, J, K, po, idx, rc1, rc2, rc3: Integer;
+    md: TCtDataModelGraph;
+    tb, tb2: TCtMetaTable;
+    fd: TCtMetaField;
+    tbN, S, T: String;
+    ss, ts: TStringList;
+  begin
+    FTbRelateModel.Tables.Clear;
+    ListBoxRelTbs.Items.Clear;
+
+    tbN := FCtMetaTable.Name;
+    AddRelTb(FCtMetaTable);
+    rc1 := 0;
+    rc2 := 0;
+    rc3 := 0;
+
+    tb := FCtMetaTable;
+    for K:=0 to tb.MetaFields.Count -1 do
+    begin
+      fd := tb.MetaFields.Items[K];
+      if fd.DataLevel = ctdlDeleted then
+        Continue;
+      if not fd.IsPhysicalField then
+        Continue;
+      if (fd.KeyFieldType <> cfktId) and (fd.KeyFieldType <> cfktRid) then
+        Continue;
+      if (fd.RelateTable <> '') and (fd.GetRelateTableField<>nil) then
+      begin
+        tb2 := fd.GetRelateTableObj;
+        if tb2=nil then
+          Continue;    
+        if tb2.Name = FCtMetaTable.Name then
+          Continue;
+        if FTbRelateModel.Tables.ItemByName(tb2.Name) = nil then
+        begin
+          AddRelTb(tb2);
+          Inc(rc1);        
+          //ListBoxRelTbs.Items.AddObject(tbN+'.'+fd.Name + ' -> '+tb2.NameCaption+'.'+fd.RelateField, tb2);
+          ListBoxRelTbs.Items.AddObject(' - '+tb2.NameCaption, tb2);
+        end;
+      end;
+    end;
+
+    idx := ListBoxRelTbs.Items.AddObject(FCtMetaTable.NameCaption, FCtMetaTable);
+
+    ss:= TStringList.Create;
+    try
+      for I:=0 to FGlobeDataModelList.Count-1 do
+      begin
+        md := FGlobeDataModelList.Items[I];
+        for J:=0 to md.Tables.Count-1 do
+        begin
+          tb := md.Tables.Items[J];
+          if tb.Name = FCtMetaTable.Name then
+            Continue;
+          for K:=0 to tb.MetaFields.Count -1 do
+          begin
+            fd := tb.MetaFields.Items[K];
+            if fd.DataLevel = ctdlDeleted then
+              Continue;
+            if not fd.IsPhysicalField then
+              Continue;
+            if (fd.KeyFieldType <> cfktId) and (fd.KeyFieldType <> cfktRid) then
+              Continue;
+            if (UpperCase(fd.RelateTable)=UpperCase(tbN)) and (fd.GetRelateTableField <> nil) then
+              begin
+                if FTbRelateModel.Tables.ItemByName(tb.Name) = nil then
+                  AddRelTb(tb);
+                if ss.IndexOf(tb.NameCaption) < 0 then
+                begin
+                  ss.Add(tb.NameCaption);
+                  Inc(rc2);
+                  //ListBoxRelTbs.Items.AddObject(tbN+'.'+fd.RelateField + ' <- '+tb.NameCaption+'.'+fd.Name, tb);
+                  ListBoxRelTbs.Items.AddObject(' * '+tb.NameCaption, tb);
+                end;
+              end;
+          end;
+        end;
+      end;
+
+      if not ckbForeignKeysOnly.Checked then
+      begin
+        ss.Clear;
+
+        ts := TStringList.Create;
+        try
+          ts.Text := FCtMetaTable.GetManyToManyInfo;
+          for I:=0 to ts.Count - 1 do
+          begin
+            S := ts[I];
+            if S = '' then
+              Continue;   
+            po := Pos('@', S);
+            if po=0 then
+              T := ''
+            else
+              T := Copy(S, po+1, Length(S));
+            po := Pos(':', S);
+            if po=0 then
+              Continue;   
+            S := Copy(S, 1, po-1);
+            po := Pos('.', S);
+            if po>0 then
+              S := Copy(S, 1, po-1);
+
+            tb2 := FGlobeDataModelList.GetTableOfName(S);
+            if tb2=nil then
+              Continue;
+            if tb2.Name = FCtMetaTable.Name then
+              Continue;
+            if FTbRelateModel.Tables.ItemByName(tb2.Name) = nil then
+              AddRelTb(tb2);
+            if ss.IndexOf(tb2.NameCaption) < 0 then
+            begin
+              ss.Add(tb2.NameCaption);
+              Inc(rc3);
+              //ListBoxRelTbs.Items.AddObject(tbN+'.'+fd.RelateField + ' <- '+tb.NameCaption+'.'+fd.Name, tb);
+              ListBoxRelTbs.Items.AddObject(' :: '+tb2.NameCaption+' - '+T, tb2);
+            end;
+
+          end;
+        finally
+          ts.Free;
+        end;
+
+        tb := FCtMetaTable;
+        for K:=0 to tb.MetaFields.Count -1 do
+        begin
+          fd := tb.MetaFields.Items[K];
+          if fd.DataLevel = ctdlDeleted then
+            Continue;
+          if (fd.RelateTable <> '') and (fd.GetRelateTableField=nil) then
+          begin                      
+            tb2 := FGlobeDataModelList.GetTableOfName(fd.RelateTable);
+            if tb2=nil then
+              Continue;
+            if tb2.Name = FCtMetaTable.Name then
+              Continue;
+            if FTbRelateModel.Tables.ItemByName(tb2.Name) = nil then
+              AddRelTb(tb2);
+            if ss.IndexOf(tb2.NameCaption) < 0 then
+            begin
+              ss.Add(tb2.NameCaption);
+              Inc(rc3);
+              //ListBoxRelTbs.Items.AddObject(tbN+'.'+fd.RelateField + ' <- '+tb.NameCaption+'.'+fd.Name, tb);
+              ListBoxRelTbs.Items.AddObject(' ~ '+tb2.NameCaption+' - '+fd.Name, tb2);
+            end;
+          end;
+        end;
+
+        for I:=0 to FGlobeDataModelList.Count-1 do
+        begin
+          md := FGlobeDataModelList.Items[I];
+          for J:=0 to md.Tables.Count-1 do
+          begin
+            tb := md.Tables.Items[J];
+            if tb.Name = FCtMetaTable.Name then
+              Continue;
+            for K:=0 to tb.MetaFields.Count -1 do
+            begin
+              fd := tb.MetaFields.Items[K];
+              if fd.DataLevel = ctdlDeleted then
+                Continue;
+              if (UpperCase(fd.RelateTable)=UpperCase(tbN)) and (fd.GetRelateTableField=nil) then
+                begin
+                  if FTbRelateModel.Tables.ItemByName(tb.Name) = nil then
+                    AddRelTb(tb);
+                  if ss.IndexOf(tb.NameCaption) < 0 then
+                  begin
+                    ss.Add(tb.NameCaption);
+                    Inc(rc3);
+                    //ListBoxRelTbs.Items.AddObject(tbN+'.'+fd.RelateField + ' <- '+tb.NameCaption+'.'+fd.Name, tb);
+                    ListBoxRelTbs.Items.AddObject(' ~ '+tb.NameCaption+'.'+fd.Name, tb);
+                  end;
+                end;
+            end;
+          end;
+        end;
+      end;
+    finally
+      ss.Free;
+    end;
+
+    S := Format(srTbRelateInfo, [FCtMetaTable.NameCaption, rc1, rc2]);
+    if rc3 > 0 then
+      S := S + ' '+Format(srTbRelateInfoWeak, [rc3]);
+    lbRelTbInfo.Caption := S;
+    //ckbForeignKeysOnly.Left := lbRelTbInfo.Left + lbRelTbInfo.Width + 12;  
+    ListBoxRelTbs.ItemIndex:= idx;
+  end;
+
+var
+  fr: TfrmCtDML;
+  brf: Boolean;
+begin
+  if PageControlTbProp.ActivePage <> TabSheetRelations then
+  begin
+    TabSheetRelations.Tag := 999;
+    Exit;
+  end;
+  TabSheetRelations.Tag := 0;
+
+  if FCtMetaTable = nil then
+    Exit;
+
+  if FTbRelateModel = nil then
+    FTbRelateModel:= TCtDataModelGraph.Create;
+  if RelateDmlForm = nil then
+  begin
+    fr := TfrmCtDML.Create(Self);
+    RelateDmlForm := fr;
+    fr.BorderStyle := bsNone;
+    fr.Parent := PanelTbRelDml;
+    fr.Align := alClient;
+    fr.Visible := True;
+    fr.BrowseMode := True;
+    fr.FFrameCtDML.DMLGraph.DMLObjs.BriefMode := True;
+    fr.FFrameCtDML.actRefresh.OnExecute:=_OnRelationMapRefresh;
+  end
+  else
+    fr := TfrmCtDML(RelateDmlForm);
+
+  GetRelateInfo;
+  fr.FFrameCtDML.DMLGraph.BeginUpdate;
+  try
+    brf := fr.FFrameCtDML.DMLGraph.DMLObjs.BriefMode;
+    fr.Init(FTbRelateModel, True, False);      
+    fr.FFrameCtDML.ToolBar1.Align := alRight;
+    fr.FFrameCtDML.ToolBar1.EdgeBorders:=[ebLeft];
+    fr.FFrameCtDML.actRearrange.OnExecute(nil);
+    fr.FFrameCtDML.DMLGraph.Reset;
+    fr.FFrameCtDML.DMLGraph.DMLObjs.BriefMode := brf;   
+    fr.FFrameCtDML.DMLGraph.DMLDrawer.HideBoundRect := True;
+    if brf then
+      fr.FFrameCtDML.DMLGraph.ViewCenterX:= fr.FFrameCtDML.DMLGraph.DMLDrawer.DrawerWidth * 2 + 9999;
+    fr.LocToCtObj(FCtMetaTable);
+  finally
+    fr.FFrameCtDML.DMLGraph.EndUpdate;
+  end;     
+  fr.LocToCtObj(FCtMetaTable);
+  lbRelTbInfo.BringToFront;
+  try
+    ListBoxRelTbs.SetFocus;
+  except
+  end;
 end;
 
 procedure TFrameCtTableProp.ShowTableDataDelay;
@@ -959,7 +1351,7 @@ var
 begin
   TimerShowData.Enabled := False;
   if TbDataSqlForm <> nil then
-    with TfrmDmlSqlEditor(TbDataSqlForm) do
+    with TfrmDmlSqlEditorN(TbDataSqlForm) do
     begin
       sql := Trim(MemoSql.Lines.Text); //sql没被手工修改过才处理
       if (sql = '') or (sql = Trim(AutoExecSql)) or (Trim(AutoExecSql) = '') then
@@ -975,8 +1367,9 @@ begin
             begin
               dbType := CtMetaDBRegs[Idx].DbImpl.EngineType;
             end;
-          end;
-          sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType);
+          end;                        
+          DefTableName := FCtMetaTable.Name;
+          sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, FCtMetaDatabase);
           if AutoExecSql <> sql then
           begin
             ClearSql;
@@ -1007,7 +1400,7 @@ procedure TFrameCtTableProp.ShowTableProp(ATb: TCtMetaTable);
         TEdit(AControl).Color := clWindow;
       end;
     end
-    else
+    else if AControl <> StringGridTableFields then
       AControl.Enabled := not FReadOnlyMode;
   end;
 
@@ -1037,7 +1430,9 @@ begin
     for I := 0 to ScrollBoxOperLogic.ControlCount - 1 do
       SetControlReadOnly(ScrollBoxOperLogic.Controls[I]);
 
-    bReadOnly := FReadOnlyMode or (ATb = nil);
+
+    bReadOnly := FReadOnlyMode or (ATb = nil);  
+    PanelFieldToolbar.Visible:= not bReadOnly;
     if bReadOnly then
     begin
       edtTableName.ParentColor := True;
@@ -1103,24 +1498,38 @@ begin
       MemoCodeGen.Lines.Text := '';
       MemoDesc.Modified := False;
 
+      edtPhysicalName.Text := '';
       edtUIDisplayText.Text := '';
       ckbGenDatabase.Checked := False;   
-      ckbGenCode.Checked := False;
+      ckbGenCode.Checked := False; 
+      memoListSQL.Lines.Text := '';
+      memoViewSQL.Lines.Text := '';
       memoExtraSQL.Lines.Text := '';   
       MemoUILogic.Lines.Text := '';
       memoBusinessLogic.Lines.Text := '';
       memoExtraProps.Lines.Text := '';        
       memoScriptRules.Lines.Text := '';
       actTbGenDB.Checked := False;
-      actTbGenCode.Checked := False;
-      MN_GenOption.Visible := False;
+      actTbGenCode.Checked := False; 
+      btnToggleTabs.Visible := False;
+      MN_GenOption.Visible := False;   
+      MN_FieldWeights.Visible := False;
+
+      edtOwnerCategory.Text := '';      
+      edtGroupName.Text := '';
+      edtSQLAlias.Text := '';
+      memoPartitionInfo.Lines.Text := '';
+      memoDesignNotes.Lines.Text := '';
+      memoSQLOrderByClause.Lines.Text := '';
+      memoSQLWhereClause.Lines.Text := '';
 
       TabSheetText.TabVisible := False;
       TabSheetTable.TabVisible := True;
       TabSheetDesc.TabVisible := True;      
       TabSheetUI.TabVisible := True;
-      TabSheetOperLogic.TabVisible := ShowOperLogicPage;
-      TabSheetOperLogic.Tag := 1;
+      TabSheetRelations.TabVisible := True;
+      TabSheetAdvanced.TabVisible := ShowAdvPage;
+      TabSheetAdvanced.Tag := 1;
 
       TabSheetCodeGen.TabVisible := True;
       TabSheetData.TabVisible := True;
@@ -1143,12 +1552,15 @@ begin
       TabSheetTable.TabVisible := False;
       TabSheetDesc.TabVisible := False;         
       TabSheetUI.TabVisible := False;
-      TabSheetOperLogic.TabVisible := False; 
-      TabSheetOperLogic.Tag := 0;
+      TabSheetRelations.TabVisible := False;
+      TabSheetAdvanced.TabVisible := False;
+      TabSheetAdvanced.Tag := 0;
       TabSheetCodeGen.TabVisible := False;
       TabSheetData.TabVisible := False;
-      TabSheetCust.TabVisible := False;  
-      MN_GenOption.Visible := False;
+      TabSheetCust.TabVisible := False;
+      btnToggleTabs.Visible := False;
+      MN_GenOption.Visible := False;  
+      MN_FieldWeights.Visible := False;
 
       if PageControlTbProp.ActivePage <> TabSheetText then
       begin
@@ -1161,6 +1573,20 @@ begin
       edtTableName.Text := ATb.Name;
       edtDispName.Text := ATb.Caption;
       MemoTableComment.Lines.Text := ATb.Memo;
+
+      if MemoTableComment.Lines.Count >= 3 then
+      begin
+        MemoTableComment.Height := edtTableName.Height * 3;
+        MemoTableComment.Top := MemoTableComment.Top + 1;
+        MemoTableComment.ScrollBars:= ssVertical;
+      end
+      else if MemoTableComment.Lines.Count > 1 then
+      begin
+        MemoTableComment.Height := edtTableName.Height * 2;
+        MemoTableComment.Top := MemoTableComment.Top + 1;     
+        MemoTableComment.ScrollBars:= ssVertical;
+      end;
+
       with StringGridTableFields do
         Clean(0, 1, ColCount - 1, RowCount - 1, [gzNormal]);
       StringGridTableFields.RowCount := 1;
@@ -1173,26 +1599,41 @@ begin
       GenTbCode;
       MemoDesc.Modified := False;
                    
+      edtPhysicalName.Text := ATb.PhysicalName;
       edtUIDisplayText.Text := ATb.UIDisplayText;
       ckbGenDatabase.Checked := ATb.GenDatabase;
       ckbGenCode.Checked := ATb.GenCode;
+      colobBgColor.Selected:= ATb.BgColor;
+      memoListSQL.Lines.Text := ATb.ListSQL;
+      memoViewSQL.Lines.Text := ATb.ViewSQL;
       memoExtraSQL.Lines.Text := ATb.ExtraSQL;
       MemoUILogic.Lines.Text := ATb.UILogic;
       memoBusinessLogic.Lines.Text := ATb.BusinessLogic;
       memoExtraProps.Lines.Text := ATb.ExtraProps;
       memoScriptRules.Lines.Text := ATb.ScriptRules;
       actTbGenDB.Checked := FCtMetaTable.GenDatabase;
-      actTbGenCode.Checked := FCtMetaTable.GenCode;  
-      MN_GenOption.Visible := True;
+      actTbGenCode.Checked := FCtMetaTable.GenCode;
+      btnToggleTabs.Visible := True;
+      MN_GenOption.Visible := not FReadOnlyMode;
+      MN_FieldWeights.Visible := not FReadOnlyMode;
+                  
+      edtOwnerCategory.Text := ATb.OwnerCategory;
+      edtGroupName.Text := ATb.GroupName;
+      edtSQLAlias.Text := ATb.SQLAlias;
+      memoPartitionInfo.Lines.Text := ATb.PartitionInfo;
+      memoDesignNotes.Lines.Text := ATb.DesignNotes;
+      memoSQLOrderByClause.Lines.Text := ATb.SQLOrderByClause;
+      memoSQLWhereClause.Lines.Text := ATb.SQLWhereClause;
 
       TabSheetText.TabVisible := False;
       TabSheetTable.TabVisible := True;
       TabSheetDesc.TabVisible := True;      
-      TabSheetUI.TabVisible := True;
-      TabSheetOperLogic.TabVisible := ShowOperLogicPage;   
-      TabSheetOperLogic.Tag := 1;
-      TabSheetCodeGen.TabVisible := True;
-      TabSheetData.TabVisible := True;
+      TabSheetUI.TabVisible := (G_EnableTbPropUIDesign {or ATb.HasUIDesignProps}) and not CreatingNewTable;
+      TabSheetRelations.TabVisible := not CreatingNewTable and G_EnableTbPropRelations;
+      TabSheetAdvanced.TabVisible := (ShowAdvPage or CurTbHasAdvProps) and not CreatingNewTable;
+      TabSheetAdvanced.Tag := 1;
+      TabSheetCodeGen.TabVisible := G_EnableTbPropGenerate and not CreatingNewTable;
+      TabSheetData.TabVisible := G_EnableTbPropData and not CreatingNewTable;
       TabSheetCust.TabVisible := G_EnableCustomPropUI;
 
       if FLastActiveTabSheet <> nil then
@@ -1202,6 +1643,7 @@ begin
 
     RefreshFieldProps;
     RefreshUIPreview;
+    RefreshRelationMap;
   finally
     FIniting := False;
   end;
@@ -1225,6 +1667,7 @@ begin
 
   Result := StringGridTableFields.RowCount;
   StringGridTableFields.RowCount := Result + 1;
+  lbTbFieldCount.Caption := Format(srTbFieldCountFmt, [Result]);
   SetDxFieldNode(AField, Result);
 end;
 
@@ -1285,6 +1728,7 @@ begin
     Panel_ScriptSettings.Visible := False;
     btnSaveSettings.Visible := False;
   end;
+  RealignGenToolbar;
 end;
 
 procedure TFrameCtTableProp.btnViewInBrowserClick(Sender: TObject);
@@ -1435,10 +1879,18 @@ begin
   begin
     idx2 := StringGridTableFields.Row - 1;
     AField := TCtMetaTable(pctnode).MetaFields.NewMetaField;
+    if Sender = UIPreviewFrame then    
+      if not Proc_ShowCtFieldProp(AField, FReadOnlyMode) then
+      begin      
+        TCtMetaTable(pctnode).MetaFields.Remove(AField);
+        Exit;
+      end;
     AddDxFieldNode(AField);
     idx1 := TCtMetaTable(pctnode).MetaFields.IndexOf(AField);
     if (idx2 >= 0) and (idx1 > idx2 + 1) then
-    begin
+    begin                              
+      if Sender = UIPreviewFrame then
+        idx2 := idx2 - 1;
       TCtMetaTable(pctnode).MetaFields.Move(idx1, idx2 + 1);
       StringGridTableFields.MoveColRow(False, idx1 + 1, idx2 + 2);
       StringGridTableFields.Row := idx2 + 2;
@@ -1450,6 +1902,7 @@ begin
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
   end
   else
   begin
@@ -1475,6 +1928,7 @@ begin
       RefreshDesc;
       RefreshUIPreview;
       RefreshFieldProps;
+      RefreshRelationMap;
     end
     else
       TCtMetaTable(pctnode).MetaFields.Remove(AField);
@@ -1503,11 +1957,13 @@ begin
       Proc_OnPropChange(0, AField, nil, '');
     Self.FCtMetaTable.MetaFields.Pack;
     FSelFields.Clear;
-    StringGridTableFields.DeleteRow(ARowIndex); 
+    StringGridTableFields.DeleteRow(ARowIndex);   
+    lbTbFieldCount.Caption := Format(srTbFieldCountFmt, [StringGridTableFields.RowCount - 1]);
     DoTablePropsChanged(FCtMetaTable);
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
     Exit;
   end;
            
@@ -1526,11 +1982,13 @@ begin
     StringGridTableFields.DeleteRow(ARowIndex);
   end;                                 
   FSelFields.Clear;
-  StringGridTableFields.ClearSelections;  
+  StringGridTableFields.ClearSelections;
+  lbTbFieldCount.Caption := Format(srTbFieldCountFmt, [StringGridTableFields.RowCount - 1]);
   DoTablePropsChanged(FCtMetaTable);
   RefreshDesc;
   RefreshUIPreview;
   RefreshFieldProps;
+  RefreshRelationMap;
 end;
 
 procedure TFrameCtTableProp.actFieldMoveTopExecute(Sender: TObject);
@@ -1654,6 +2112,7 @@ begin
   RefreshDesc;
   RefreshUIPreview;
   RefreshFieldProps;
+  RefreshRelationMap;
 end;
 
 procedure TFrameCtTableProp.PageControlTbPropChanging(Sender: TObject;
@@ -1726,6 +2185,7 @@ begin
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
   end;
 end;
 
@@ -1769,7 +2229,11 @@ begin
         edtTableName.SetFocus;
         Abort;
       end;
-    end;
+    end;  
+  if not IsValidTableName(edtTableName.Text, True) then
+  begin
+    Abort;
+  end;
   FCtMetaTable.Name := edtTableName.Text;
   FCtMetaTable.Caption := edtDispName.Text;
   DoTablePropsChanged(FCtMetaTable);
@@ -1778,6 +2242,7 @@ begin
   RefreshDesc;
   RefreshUIPreview;
   RefreshFieldProps;
+  RefreshRelationMap;
 end;
 
 procedure TFrameCtTableProp.edtTextNameExit(Sender: TObject);
@@ -1811,6 +2276,8 @@ end;
 function TFrameCtTableProp.FieldOfGridRow(ARowIndex: integer): TCtMetaField;
 begin
   if ARowIndex <= 0 then
+    Result := nil
+  else if ARowIndex >= StringGridTableFields.RowCount then
     Result := nil
   else
     Result := TCtMetaField(StringGridTableFields.Objects[0, ARowIndex]);
@@ -1852,13 +2319,22 @@ begin
   oMemo := AField.Memo;
 
   if aCol = 1 then
+  begin
+    if not AField.CheckCanRenameTo(NewValue) then
+    begin
+      Abort;
+    end;
+    if AField.OldName = '' then
+      AField.OldName:=AField.Name;
     AField.Name := NewValue;
+  end;
   if aCol = 2 then
     AField.DisplayName := NewValue;
 
   if aCol = 3 then
   begin
-    S := NewValue;
+    S := Trim(NewValue);
+
     T := AField.DataTypeName;
     tp := integer(AField.DataType);
     if tp > 0 then
@@ -1878,6 +2354,7 @@ begin
       else
         AField.DataTypeName := '';
     end;
+
   end;
 
 
@@ -1941,6 +2418,7 @@ begin
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
   end;
 end;
 
@@ -1955,6 +2433,7 @@ procedure TFrameCtTableProp._OnUIPropChanged(Field, prop, Value, par1,
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
   end;
 
   function GetBoolPropV(bSrc: boolean): boolean;
@@ -2065,6 +2544,7 @@ begin
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
     Exit;
   end;
 
@@ -2152,6 +2632,7 @@ begin
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
     Exit;
   end;
 
@@ -2198,6 +2679,7 @@ begin
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
     Exit;
   end;
             
@@ -2206,10 +2688,13 @@ begin
     FCtMetaTable.MetaFields.SaveCurrentOrder;
     DoTablePropsChanged(Self.FCtMetaTable);              
     if Assigned(Proc_OnPropChange) then
-      Proc_OnPropChange(2, FCtMetaTable, nil, '');
+      Proc_OnPropChange(2, FCtMetaTable, nil, ''); 
+    memoDesignNotes.Lines.Text := FCtMetaTable.DesignNotes;
+    MemoTableComment.Lines.Text := FCtMetaTable.Memo;
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
     Exit;
   end;
               
@@ -2229,6 +2714,12 @@ begin
       Exit;
     StringGridTableFields.Row := idx;
     actFieldProp.Execute;
+    Exit;
+  end;
+              
+  if prop = 'insert_new_field' then
+  begin
+    actFieldAddExecute(UIPreviewFrame);
     Exit;
   end;
 
@@ -2274,6 +2765,13 @@ begin
       fd.TextAlign := TCtTextAlignment(i1);
       DoFieldChanged(fd);
     end;
+  end;         
+  if prop = 'AggregateFun' then
+  begin
+    if fd = nil then
+      Exit;
+    fd.AggregateFun := Value;
+    DoFieldChanged(fd);
   end;
   if prop = 'ReadOnly' then
   begin
@@ -2315,6 +2813,20 @@ begin
     if fd = nil then
       Exit;
     fd.ColSortable := GetBoolPropV(fd.ColSortable);
+    DoFieldChanged(fd);
+  end;   
+  if prop = 'ShowFilterBox' then
+  begin
+    if fd = nil then
+      Exit;
+    fd.ShowFilterBox := GetBoolPropV(fd.ShowFilterBox);
+    DoFieldChanged(fd);
+  end;
+  if prop = 'Exportable' then
+  begin
+    if fd = nil then
+      Exit;
+    fd.Exportable := GetBoolPropV(fd.Exportable);
     DoFieldChanged(fd);
   end;
 
@@ -2452,6 +2964,262 @@ begin
     actFieldDelExecute(nil);
 end;
 
+function TFrameCtTableProp.CurTbHasAdvProps: Boolean;
+begin
+  if FCtMetaTable = nil then
+  begin 
+    Result := False;
+    Exit;
+  end;
+
+  Result := True;
+  if FCtMetaTable.PhysicalName <> '' then
+    Exit;                
+  if FCtMetaTable.UIDisplayText <> '' then
+    Exit;
+  if FCtMetaTable.ListSQL <> '' then
+    Exit;
+  if FCtMetaTable.ViewSQL <> '' then
+    Exit;               
+  if FCtMetaTable.ExtraSQL <> '' then
+    Exit;
+  if FCtMetaTable.UILogic <> '' then
+    Exit;               
+  if FCtMetaTable.BusinessLogic <> '' then
+    Exit;
+  if FCtMetaTable.ExtraProps <> '' then
+    Exit;       
+  if FCtMetaTable.ScriptRules <> '' then
+    Exit;
+
+  if FCtMetaTable.SQLWhereClause <> '' then
+    Exit;
+  if FCtMetaTable.SQLOrderByClause <> '' then
+    Exit;
+  if FCtMetaTable.SQLAlias <> '' then
+    Exit;
+  if FCtMetaTable.OwnerCategory <> '' then
+    Exit;
+  if FCtMetaTable.GroupName <> '' then
+    Exit;
+  if FCtMetaTable.PartitionInfo <> '' then
+    Exit;
+  if FCtMetaTable.DesignNotes <> '' then
+    Exit;
+
+  Result := False;
+end;
+
+procedure TFrameCtTableProp._OnRelationMapRefresh(Sender: TObject);
+begin
+  RefreshRelationMap;
+end;
+
+procedure TFrameCtTableProp.GotoTab(tab: TTabSheet);
+var
+  bChg: Boolean;
+begin
+  if tab = nil then
+    Exit;
+  bChg := False;
+  if PageControlTbProp.ActivePage<>tab then
+    bChg := True;
+  if not tab.TabVisible then
+    bChg := True;
+  tab.TabVisible:= True;
+  PageControlTbProp.ActivePage:=tab;
+  PageControlTbPropChange(nil);  
+  if tab = TabSheetAdvanced then
+    G_EnableAdvTbProp := True
+  else if tab = TabSheetUI then
+    G_EnableTbPropUIDesign := True
+  else if tab = TabSheetCodeGen then
+    G_EnableTbPropGenerate := True
+  else if tab = TabSheetCust then
+    G_EnableCustomPropUI := True
+  else if tab = TabSheetRelations then
+    G_EnableTbPropRelations := True
+  else if tab = TabSheetData then
+    G_EnableTbPropData := True;
+  if bChg then
+  begin
+    SaveTabVisibles;
+    if Assigned(tab.OnShow) then
+      tab.OnShow(nil);
+  end;
+end;
+
+procedure TFrameCtTableProp.CloseCurTab;
+var
+  I, pg: Integer;
+begin
+  if PageControlTbProp.ActivePage = TabSheetAdvanced then
+    G_EnableAdvTbProp := False
+  else if PageControlTbProp.ActivePage = TabSheetUI then
+    G_EnableTbPropUIDesign := False
+  else if PageControlTbProp.ActivePage = TabSheetCodeGen then
+    G_EnableTbPropGenerate := False          
+  else if PageControlTbProp.ActivePage = TabSheetCust then
+    G_EnableCustomPropUI := False
+  else if PageControlTbProp.ActivePage = TabSheetRelations then
+    G_EnableTbPropRelations := False
+  else if PageControlTbProp.ActivePage = TabSheetData then
+    G_EnableTbPropData := False
+  else
+    Exit;
+
+  pg := 0;
+  for I:=PageControlTbProp.ActivePageIndex-1 downto 0 do
+    if PageControlTbProp.Pages[I].TabVisible then
+    begin
+      pg := I;
+      Break;
+    end;
+  PageControlTbProp.ActivePage.TabVisible := False;
+  PageControlTbProp.ActivePageIndex := pg;     
+  PageControlTbPropChange(nil);
+  SaveTabVisibles;
+end;
+
+procedure TFrameCtTableProp.SaveTabVisibles;   
+var
+  ini: TIniFile;
+begin
+  ini := TIniFile.Create(GetConfFileOfApp);
+  try
+    ini.WriteBool('Options', 'EnableCustomPropUI', G_EnableCustomPropUI);
+    ini.WriteBool('Options', 'EnableAdvTbProp', G_EnableAdvTbProp);
+    ini.WriteBool('Options', 'EnableTbPropGenerate', G_EnableTbPropGenerate);
+    ini.WriteBool('Options', 'EnableTbPropRelations', G_EnableTbPropRelations);
+    ini.WriteBool('Options', 'EnableTbPropData', G_EnableTbPropData);
+    ini.WriteBool('Options', 'EnableTbPropUIDesign', G_EnableTbPropUIDesign);
+  finally
+    ini.Free;
+  end;
+end;
+
+procedure TFrameCtTableProp.DoEscape;
+begin
+  if Assigned(Proc_GridEscape) then
+    Proc_GridEscape(Self);
+end;
+
+procedure TFrameCtTableProp.RealignGenToolbar;
+begin
+  btnEditScript.Left := listboxGenTypes.Width + 5;
+  btnShowSettings.Left := btnEditScript.Left + btnEditScript.Width + 5;
+  if btnSaveSettings.Visible then
+  begin
+    btnSaveSettings.Left := btnShowSettings.Left + btnShowSettings.Width + 5;    
+    edtGenTxtFind.Left := btnSaveSettings.Left + btnSaveSettings.Width + 5;
+  end
+  else
+    edtGenTxtFind.Left := btnShowSettings.Left + btnShowSettings.Width + 5;
+end;
+
+procedure TFrameCtTableProp.MItem_FieldWeightClick(Sender: TObject);  
+var
+  MItem: TMenuItem;
+  S, V: String;  
+  wt: Integer;
+begin     
+  if FReadOnlyMode then
+    Exit;
+  if not (Sender is TMenuItem) then
+    Exit;
+  MItem := TMenuItem(Sender);
+  S := MItem.Hint;
+  if S='' then
+    Exit;
+  V := GetCtDropDownValueOfText(S, srFieldWeights);
+  if V='' then
+    Exit;
+  wt := StrToInt(V);
+  ChangeFieldWeight(0, wt);
+end;
+
+procedure TFrameCtTableProp.ChangeFieldWeight(iOpType, iRes: Integer);
+var
+  AField: TCtMetaField;
+  ARowIndex: integer;
+  I, owt, wt: Integer;
+  bChged: Boolean;
+begin
+  //iOpType: 0设置权重为iRes 1增加权重 2降低权重
+  if FReadOnlyMode then
+    Exit;
+  wt := iRes;
+
+  GetSelectedFields;       
+  if FSelFields.Count = 0 then
+    Exit;    
+    ARowIndex := StringGridTableFields.Row;
+  if iOpType = 1 then
+  begin    
+    AField := FieldOfGridRow(ARowIndex);
+    owt := AField.FieldWeight;
+    if owt<-1 then
+      wt := -1
+    else if owt < 0 then
+      wt := 0
+    else
+      wt := 1;
+  end
+  else if iOpType = -1 then
+  begin
+    AField := FieldOfGridRow(ARowIndex);
+    owt := AField.FieldWeight;
+    if owt>0 then
+      wt := 0
+    else if owt > -1 then
+      wt := -1
+    else
+      wt := -9;
+  end;
+  if FSelFields.Count <= 1 then
+  begin
+    ARowIndex := StringGridTableFields.Row;
+    if ARowIndex <= 0 then
+      Exit;
+    AField := FieldOfGridRow(ARowIndex);
+    if AField.FieldWeight = wt then
+      Exit;
+    AField.FieldWeight := wt;
+    DoTablePropsChanged(Self.FCtMetaTable);
+    if Assigned(Proc_OnPropChange) then
+      Proc_OnPropChange(0, AField, nil, '');
+    DoTablePropsChanged(FCtMetaTable);
+    RefreshUIPreview;
+    RefreshFieldProps;
+    StringGridTableFields.Refresh;
+    Exit;
+  end;
+
+  FieldListHideEditor;
+  bChged:= False;
+  for I:=0 to FSelFields.Count - 1 do
+  begin
+    ARowIndex := RowIndexOfField(FSelFields[I]);
+    if ARowIndex <= 0 then
+      Continue;
+    AField := FieldOfGridRow(ARowIndex);
+    if AField.FieldWeight = wt then
+      Continue;
+    AField.FieldWeight := wt;
+    bChged:= True;
+    DoTablePropsChanged(Self.FCtMetaTable);
+    if Assigned(Proc_OnPropChange) then
+      Proc_OnPropChange(0, AField, nil, '');
+  end;
+  if bChged then
+  begin
+    DoTablePropsChanged(FCtMetaTable);
+    RefreshUIPreview;
+    RefreshFieldProps;
+    StringGridTableFields.Refresh;
+  end;
+end;
+
 procedure TFrameCtTableProp.MemoTableCommentExit(Sender: TObject);
 begin
   if FCtMetaTable = nil then
@@ -2466,13 +3234,35 @@ begin
       Exit;
     FCtMetaTable.Memo := MemoTableComment.Lines.Text; 
     RefreshDesc;
+    RefreshUIPreview;
   end;       
+  if Sender=edtPhysicalName then
+  begin
+    if FCtMetaTable.PhysicalName = edtPhysicalName.Text then
+      Exit;
+    FCtMetaTable.PhysicalName := edtPhysicalName.Text;
+    RefreshDesc;  
+    RefreshUIPreview;
+  end;         
   if Sender=edtUIDisplayText then
   begin
     if FCtMetaTable.UIDisplayText = edtUIDisplayText.Text then
       Exit;
-    FCtMetaTable.UIDisplayText := edtUIDisplayText.Text;
-  end;      
+    FCtMetaTable.UIDisplayText := edtUIDisplayText.Text;  
+    RefreshUIPreview;
+  end;               
+  if Sender=memoListSQL then
+  begin
+    if FCtMetaTable.ListSQL = memoListSQL.Lines.Text then
+      Exit;
+    FCtMetaTable.ListSQL := memoListSQL.Lines.Text;
+  end;
+  if Sender=memoViewSQL then
+  begin
+    if FCtMetaTable.ViewSQL = memoViewSQL.Lines.Text then
+      Exit;
+    FCtMetaTable.ViewSQL := memoViewSQL.Lines.Text;
+  end;
   if Sender=memoExtraSQL then
   begin
     if FCtMetaTable.ExtraSQL = memoExtraSQL.Lines.Text then
@@ -2516,7 +3306,65 @@ begin
       Exit;
     FCtMetaTable.GenCode := ckbGenCode.Checked;
     actTbGenCode.Checked := FCtMetaTable.GenCode;
+  end;  
+  if Sender = colobBgColor then
+  begin      
+    if FCtMetaTable.BgColor = colobBgColor.Selected then
+      Exit;
+    FCtMetaTable.BgColor := colobBgColor.Selected;
   end;
+
+  if Sender=edtSQLAlias then
+  begin
+    if FCtMetaTable.SQLAlias = edtSQLAlias.Text then
+      Exit;
+    FCtMetaTable.SQLAlias := edtSQLAlias.Text;
+  end;
+
+  if Sender=edtOwnerCategory then
+  begin
+    if FCtMetaTable.OwnerCategory = edtOwnerCategory.Text then
+      Exit;
+    FCtMetaTable.OwnerCategory := edtOwnerCategory.Text;
+  end;
+
+  if Sender=edtGroupName then
+  begin
+    if FCtMetaTable.GroupName = edtGroupName.Text then
+      Exit;
+    FCtMetaTable.GroupName := edtGroupName.Text;
+  end;
+
+  if Sender=memoSQLWhereClause then
+  begin
+    if FCtMetaTable.SQLWhereClause = memoSQLWhereClause.Lines.Text then
+      Exit;
+    FCtMetaTable.SQLWhereClause := memoSQLWhereClause.Lines.Text;
+  end;
+
+  if Sender=memoSQLOrderByClause then
+  begin
+    if FCtMetaTable.SQLOrderByClause = memoSQLOrderByClause.Lines.Text then
+      Exit;
+    FCtMetaTable.SQLOrderByClause := memoSQLOrderByClause.Lines.Text;
+  end;
+
+  if Sender=memoPartitionInfo then
+  begin
+    if FCtMetaTable.PartitionInfo = memoPartitionInfo.Lines.Text then
+      Exit;
+    FCtMetaTable.PartitionInfo := memoPartitionInfo.Lines.Text;
+  end;
+
+  if Sender=memoDesignNotes then
+  begin
+    if FCtMetaTable.DesignNotes = memoDesignNotes.Lines.Text then
+      Exit;
+    FCtMetaTable.DesignNotes := memoDesignNotes.Lines.Text; 
+    RefreshUIPreview;
+  end;
+
+
 
   DoTablePropsChanged(FCtMetaTable);
 end;
@@ -2549,7 +3397,10 @@ begin
           Continue;
 
         ext := LowerCase(ExtractFileExt(Sr.Name));
-        if (ext <> '.pas') and (ext <> '.js') then
+        if (ext <> '.pas') then     
+          {$ifndef EZDML_LITE}
+          if (ext <> '.js') then   
+          {$endif}
           Continue;
 
         Result := Result + ChangeFileExt(SR.Name, '') + #13#10;
@@ -2569,13 +3420,15 @@ begin
   Result := '';
   if FCtMetaTable = nil then
     Exit;
-
+               
+  {$ifndef EZDML_LITE}
   nfn := FolderAddFileName(GetDmlScriptDir, fn + '.js');
   if FileExists(nfn) then
   begin
     Result := GetDmlScriptOutputEx(fn + '.js', bReInitSettings);
     Exit;
-  end;
+  end;  
+  {$endif}
 
   nfn := FolderAddFileName(GetDmlScriptDir, fn + '.pas');
   if FileExists(nfn) then
@@ -2643,6 +3496,7 @@ begin
           Panel_ScriptSettings.Visible := btnShowSettings.Enabled;
           btnSaveSettings.Visible := True;
         end;
+        RealignGenToolbar;
       end;
 
       Init('DML_SCRIPT', FCtMetaTable, AOutput, FDmlScControls);
@@ -2673,7 +3527,11 @@ begin
     if TCtMetaField(Nd).KeyFieldType = cfktID then
       Result := 20
     else
+    begin
       Result := 2 + integer(TCtMetaField(Nd).DataType);
+      if TCtMetaField(Nd).FieldWeight < 0 then
+        Result := Result + 20;
+    end;
   end;
 end;
 
@@ -2861,6 +3719,7 @@ begin
   btnSaveSettings.Enabled := False;
   Panel_ScriptSettings.Visible := False;
   btnViewInBrowser.Visible := False;
+  RealignGenToolbar;
   TDmlScriptControlList(FDmlScControls).CurFileName := '';
   T := FGenCodeType;
   if T = 'Oracle' then
@@ -2878,7 +3737,11 @@ begin
   else if T = 'PostgreSQL' then
     S := '/** PostgreSQL Sql Generate **/'#13#10#13#10 +
       FCtMetaTable.GenSql('POSTGRESQL') + #13#10 +
-      FCtMetaTable.GenDqlDmlSql('POSTGRESQL')
+      FCtMetaTable.GenDqlDmlSql('POSTGRESQL')    
+  else if T = 'Hive' then
+    S := '-- Hive Sql Generate '#13#10#13#10 +
+      FCtMetaTable.GenSql('HIVE') + #13#10 +
+      FCtMetaTable.GenDqlDmlSql('HIVE')
   else
     S := '/** Sql Generate **/'#13#10#13#10 +
       FCtMetaTable.GenSql + #13#10 + FCtMetaTable.GenDqlDmlSql;
@@ -2968,6 +3831,8 @@ begin
   SrcNode := StringGridTableFields.Row;
 
   ctNodeC := FieldOfGridRow(SrcNode);
+  if ctNodeC = nil then
+    Exit;
 
   oList := ctNodeC.OwnerList;
   i1 := oList.IndexOf(ctNodeC);
@@ -2990,6 +3855,7 @@ begin
   RefreshDesc;
   RefreshUIPreview;
   RefreshFieldProps;
+  RefreshRelationMap;
 end;
 
 procedure TFrameCtTableProp.StringGridTableFieldsDragOver(Sender,
@@ -3073,6 +3939,83 @@ begin
   actShowInGraph.Execute;
 end;
 
+procedure TFrameCtTableProp.btnToggleTabsClick(Sender: TObject);
+var
+  pt: TPoint;
+begin
+  pt := Point(0, btnToggleTabs.Height);
+  pt := btnToggleTabs.ClientToScreen(pt);
+  PopupMenuTabs.PopUp(pt.x, pt.y);
+end;
+
+procedure TFrameCtTableProp.ckbForeignKeysOnlyChange(Sender: TObject);
+begin
+  RefreshRelationMap;
+end;
+
+procedure TFrameCtTableProp.colobBgColorGetColors(Sender: TCustomColorBox;
+  Items: TStrings);
+var
+  I: Integer;
+  procedure AddCL(cls: string);
+  var
+    cl: Integer;
+  begin
+    cl:=StrToIntDef('$'+cls, 0);
+    Items.InsertObject(I+1, 'EzColor' + IntToStr(I), TObject(PtrInt(cl)));
+    Inc(I);
+  end;
+begin
+  I := Items.IndexOf('Black');
+  if I >= 0 then
+    Items.Delete(I);
+  Items.InsertObject(1,srDmlDefaultColor, TObject(PtrInt(0)));
+
+  I:=1;
+  AddCL('ccccff');
+  AddCL('d9e6ff');
+  AddCL('ccffff');
+  AddCL('ccffcc');
+  AddCL('ffffcc');
+  AddCL('ffcccc');
+  AddCL('ffccff');
+  AddCL('e6e6e6');
+
+  AddCL('eeeeff');
+  AddCL('f0f7ff');
+  AddCL('eeffff');
+  AddCL('eeffee');
+  AddCL('ffffee');
+  AddCL('ffeeee');
+  AddCL('ffeeff');
+  AddCL('f6f6f6');
+end;
+
+procedure TFrameCtTableProp.edtGenTxtFindKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+var
+  F, S, T: WideString;
+  p1, p2: integer;
+begin
+  if Key <> VK_RETURN then
+    Exit;
+  F := UpperCase(edtGenTxtFind.Text);
+  if F = '' then
+    Exit;
+  T := UpperCase(MemoCodeGen.Lines.Text);
+  p1 := MemoCodeGen.SelStart + MemoCodeGen.SelLength;
+  S := Copy(T, p1 + 1, Length(T));
+  p2 := Pos(F, S);
+  if p2 > 0 then
+  begin
+    MemoCodeGen.SelStart := p1 + p2 - 1;
+    MemoCodeGen.SelLength := Length(F);
+  end
+  else
+    Application.MessageBox(PChar(srDmlSearchNotFound), PChar(Application.Title),
+      MB_OK or MB_ICONINFORMATION);
+end;
+
 
 procedure TFrameCtTableProp.actImportFieldsExecute(Sender: TObject);
 var
@@ -3116,6 +4059,7 @@ begin
     RefreshDesc;
     RefreshUIPreview;
     RefreshFieldProps;
+    RefreshRelationMap;
 
   finally
     res.Free;
@@ -3145,6 +4089,7 @@ begin
   AField.IndexType := cfitNormal;
   AField.IndexFields := V;
   AField.Memo := V;
+  AField.FieldWeight := -9;
   AddDxFieldNode(AField);
   TCtMetaTable(pctnode).MetaFields.SaveCurrentOrder;
   DoTablePropsChanged(Self.FCtMetaTable);
@@ -3152,36 +4097,87 @@ begin
     Proc_OnPropChange(0, AField, nil, '');
   RefreshDesc;
   RefreshUIPreview;
+  RefreshRelationMap;
   RefreshFieldProps;
 
   StringGridTableFields.Row := StringGridTableFields.RowCount - 1;
 end;
 
 procedure TFrameCtTableProp.actPasteFromExcelExecute(Sender: TObject);
+var
+  bSkipEmptyCol4: boolean;
 
-  procedure SetCellText(ARow, ACol: integer; AValue: string; bPost: boolean);
+  function ReplaceExcelQuotLF(sIn: string): string;
+  var
+    I, L: Integer;
+  begin  //替换掉双引号中的回车换行制表符
+    Result := '';
+    L := Length(sIn);
+    I:=1;
+    while I <= L do
+    begin
+      if sIn[I]='"' then
+      begin
+        Inc(I);
+        while I <= L do
+        begin
+          if sIn[I]=#9 then
+            Result := Result+'\t'
+          else if sIn[I]=#10 then
+            Result := Result+'\n'
+          else if sIn[I]=#13 then
+            Result := Result+'\r'
+          else if sIn[I]='"' then
+          begin
+            if I=L then
+              Break;
+            if sIn[I+1]<>'"' then  //下一个是不是双引号？不是就结束了
+            begin
+              Inc(I);
+              Break;
+            end;
+            Result := Result+'"';   //两个双引号? 转成一个
+            Inc(I);
+          end
+          else   
+            Result := Result+sIn[I];
+          Inc(I);
+        end;
+      end
+      else
+      begin
+        Result := Result+sIn[I];
+        Inc(I);
+      end;
+    end;
+  end;
+
+  procedure SetCellText(ARow, ACol: integer; AValue: string);
   var
     po: integer;
     vTp, vSz: string;
   begin
     if (ARow < 1) then
       Exit;
+    if ACol=4 then
+      if bSkipEmptyCol4 then
+        Exit;
     while (StringGridTableFields.RowCount <= ARow) do
     begin
       StringGridTableFields.Row := StringGridTableFields.RowCount - 1;
       actFieldAddExecute(actPasteFromExcel);
       StringGridTableFields.Row := StringGridTableFields.RowCount - 1;
     end;
-    if (ACol = 3) and (Pos('(', AValue) > 0) and (AValue[Length(AValue)] = ')') and
-      bPost then
-    begin
+    if (ACol = 3) and (Pos('(', AValue) > 0) and (AValue[Length(AValue)] = ')') then
+    begin   //类似String(255)的类型，包含了长度
       po := Pos('(', AValue);
       vTp := Copy(AValue, 1, po - 1);
       vSz := Copy(AValue, po + 1, Length(AValue) - po - 1);
       StringGridTableFields.Cells[ACol, ARow] := vTp;
-      _OnCellXYValSet(ACol, ARow, AValue, False);
+      _OnCellXYValSet(ACol, ARow, vTp, False);
       StringGridTableFields.Cells[ACol + 1, ARow] := vSz;
-      _OnCellXYValSet(ACol + 1, ARow, AValue, False);
+      _OnCellXYValSet(ACol + 1, ARow, vSz, False);
+      bSkipEmptyCol4 := True; //在类型已经顺带设置了长度的情况下，忽略下一单元格长度为空的设置
     end
     else
     begin
@@ -3191,17 +4187,77 @@ procedure TFrameCtTableProp.actPasteFromExcelExecute(Sender: TObject);
   end;
 
 var
-  S: string;
+  S, T, V, sCrLf: string;
   ss, sv: TStringList;
-  I, J, x, y: integer;
+  I, J, x, y, po: integer;
+  bCrLf: Boolean;
 begin
   S := Clipboard.AsText;
   if Trim(S) = '' then
     Exit;
+  if not PvtInput.PvtMemoQuery(actPasteFromExcel.Caption, srPasteFromExcelPrompt, S, False) then
+    Exit;
   ss := TStringList.Create;
   sv := TStringList.Create;
-  try
+  try        
+    sCrLf := '<crlf>';
+    bCrLf := False;
+    if (Pos(sCrLf+#9, S+#9) > 0) or (Pos(sCrLf+#10, S+#10) > 0) or (Pos(sCrLf+#13, S+#13) > 0) then
+    begin  //对用<crlf>分隔的进行替换处理
+      S := Trim(S);
+      S := StringReplace(S, #13#10'<crlf>', '<crlf>', [rfReplaceAll]);    
+      S := StringReplace(S, #13'<crlf>', '<crlf>', [rfReplaceAll]);
+      S := StringReplace(S, #10'<crlf>', '<crlf>', [rfReplaceAll]);  
+      S := StringReplace(S, '<crlf>'#9, '<crlf>', [rfReplaceAll]);
+      S := StringReplace(S, #13, '\r', [rfReplaceAll]);
+      S := StringReplace(S, #10, '\n', [rfReplaceAll]);  
+      S := StringReplace(S, '<crlf>', #13#10, [rfReplaceAll]);
+      bCrLf := True;
+    end
+    else
+    begin
+      if (Pos(#9'"', #9+S)>0) or (Pos(#10'"', #10+S)>0) then
+      begin
+        S := ReplaceExcelQuotLF(S); //对有双引号的进行处理 
+        bCrLf := True;
+      end;
+
+      //对于多行备注可能跨行的情况进行处理，如果一行数据只有备注有值，则将内容归到上一行，并清空本行
+      ss.Text := S;  
+      for I := ss.Count - 1 downto 0 do
+      begin
+        V := ss[I];   
+        po := Pos('\n', V);
+        if po>0 then
+        begin
+          //忽略回车符后面的制表符
+          T := Copy(V, po+1, Length(V));
+          V := Copy(V, 1, po);
+          T := StringReplace(T, #9, ' ', [rfReplaceAll]);
+          V := V+ T;
+        end;
+        sv.Text := StringReplace(V, #9, #10, [rfReplaceAll]);
+        if sv.Count >= 6 then
+        begin
+          if Trim(sv[0]+sv[1]+sv[2]+sv[3]+sv[4]) = '' then
+          begin
+            ss[I-1] := ss[I-1] + '\n' + Trim(V);
+            ss.Delete(I);
+            bCrLf := True;
+          end;
+        end;
+      end;
+      S := ss.Text;
+    end;
+
     ss.Text := S;
+    while ss.Count > 0 do
+      if Trim(ss[0])='' then
+        ss.Delete(0)      
+      else if Trim(ss[ss.Count-1])='' then
+        ss.Delete(ss.Count-1)
+      else
+        Break;
     x := StringGridTableFields.Col;
     y := StringGridTableFields.Row;
     if y <= 0 then
@@ -3210,14 +4266,34 @@ begin
       x := 1;
     for I := 0 to ss.Count - 1 do
     begin
-      sv.Text := StringReplace(ss[I], #9, #10, [rfReplaceAll]);
+      V := ss[I];
+      if Trim(V) = '' then
+        Continue;
+      po := Pos('\n', V);
+      if po>0 then
+      begin
+        //忽略回车符后面的制表符
+        T := Copy(V, po+1, Length(V));
+        V := Copy(V, 1, po);
+        T := StringReplace(T, #9, ' ', [rfReplaceAll]);
+        V := V+ T;
+      end;
+      sv.Text := StringReplace(V, #9, #10, [rfReplaceAll]);  
+      bSkipEmptyCol4 := False;
       for J := 0 to sv.Count - 1 do
       begin
         try
-          SetCellText(y + I, x + J, sv[J], (J = sv.Count - 1));
+          V := sv[J];
+          if bCrLf then
+          begin
+            V := StringReplace(V, '\r', #13, [rfReplaceAll]);
+            V := StringReplace(V, '\n', #10, [rfReplaceAll]);
+          end;
+          SetCellText(y, x + J, V);
         except
         end;
-      end;
+      end; 
+      Inc(y);
     end;
 
     FCtMetaTable.MetaFields.SaveCurrentOrder;
@@ -3226,6 +4302,7 @@ begin
       Proc_OnPropChange(2, FCtMetaTable, nil, '');
     RefreshDesc;
     RefreshUIPreview;
+    RefreshRelationMap;
     RefreshFieldProps;
   finally
     ss.Free;
@@ -3235,9 +4312,11 @@ end;
 
 procedure TFrameCtTableProp.actShowAdvPageExecute(Sender: TObject);
 begin
-  ShowOperLogicPage := True;
-  TabSheetOperLogic.TabVisible := ShowOperLogicPage;
-  PageControlTbProp.ActivePage := TabSheetOperLogic;
+  ShowAdvPage := True;       
+  G_EnableAdvTbProp := True;
+  TabSheetAdvanced.TabVisible := ShowAdvPage;
+  PageControlTbProp.ActivePage := TabSheetAdvanced;
+  PageControlTbPropChange(nil);
 end;
 
 procedure TFrameCtTableProp.actFieldPropPanelExecute(Sender: TObject);
@@ -3476,6 +4555,40 @@ begin
   GenTbCode;
 end;
 
+procedure TFrameCtTableProp.ListBoxRelTbsClick(Sender: TObject);
+var
+  idx: Integer;
+  tb: TCtMetaTable;
+begin
+  if RelateDmlForm=nil then
+    Exit;
+  idx := ListBoxRelTbs.ItemIndex;
+  if idx < 0 then
+    Exit;
+  tb := TCtMetaTable(ListBoxRelTbs.Items.Objects[idx]);
+  if tb=nil then
+    Exit;
+  if not TfrmCtDML(RelateDmlForm).LocToCtObj(tb) then
+    Exit;
+  if tb.Name = Self.FCtMetaTable.Name then
+    Exit;
+  TfrmCtDML(RelateDmlForm).SelectRelateLink(tb, FCtMetaTable, True);
+end;
+
+procedure TFrameCtTableProp.ListBoxRelTbsDblClick(Sender: TObject);
+begin
+  if RelateDmlForm=nil then
+    Exit;
+  TfrmCtDML(RelateDmlForm).FFrameCtDML.actDMLObjProp.Execute;
+end;
+
+procedure TFrameCtTableProp.ListBoxRelTbsKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if (Shift = []) and (Key = VK_ESCAPE) then
+    DoEscape;
+end;
+
 
 procedure TFrameCtTableProp.MemoCodeGenDblClick(Sender: TObject);
 begin
@@ -3491,7 +4604,29 @@ end;
 
 procedure TFrameCtTableProp.MemoDescKeyDown(Sender: TObject; var Key: word;
   Shift: TShiftState);
+var
+  S,V: String;
 begin
+  if Shift = [] then
+  begin
+    if Key = VK_ESCAPE then
+    begin
+      if FReadOnlyMode then
+      begin
+        DoEscape;
+        Exit;
+      end;
+      V := MemoDesc.Lines.Text;
+      V := StringReplace(V, #13#10, #10, [rfReplaceAll]);
+      S := FCtMetaTable.Describe;
+      S := StringReplace(S, #13#10, #10, [rfReplaceAll]);
+      if Trim(S)=Trim(V) then
+      begin
+        DoEscape;
+        Exit;
+      end;
+    end;
+  end;
   if ssCtrl in Shift then
     if (Key = Ord('f')) or (Key = Ord('F')) then
       sbtnFindClick(nil);
@@ -3501,6 +4636,33 @@ procedure TFrameCtTableProp.MemoTextContentDblClick(Sender: TObject);
 begin
   if (GetKeyState(VK_CONTROL) and $80) <> 0 then
     actShowInGraph.Execute;
+end;
+
+procedure TFrameCtTableProp.MemoTextContentKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+var
+  S,V: String;
+begin
+  if Shift = [] then
+  begin
+    if Key = VK_ESCAPE then
+    begin
+      if FReadOnlyMode then
+      begin
+        DoEscape;
+        Exit;
+      end;
+      V := MemoTextContent.Lines.Text;
+      V := StringReplace(V, #13#10, #10, [rfReplaceAll]);
+      S := FCtMetaTable.Memo;
+      S := StringReplace(S, #13#10, #10, [rfReplaceAll]);
+      if Trim(S)=Trim(V) then
+      begin
+        DoEscape;
+        Exit;
+      end;
+    end;
+  end;
 end;
 
 procedure TFrameCtTableProp.MNGenTab_CustomizeClick(Sender: TObject);
@@ -3550,6 +4712,72 @@ begin
   end;
 end;
 
+procedure TFrameCtTableProp.MNTabs_CloseClick(Sender: TObject);
+begin
+  CloseCurTab;
+end;
+
+procedure TFrameCtTableProp.MNTabs_CustClick(Sender: TObject);
+begin
+  GotoTab(TabSheetCust);
+end;
+
+procedure TFrameCtTableProp.MNTabs_DataClick(Sender: TObject);
+begin
+  GotoTab(TabSheetData);
+end;
+
+procedure TFrameCtTableProp.MNTabs_GenClick(Sender: TObject);
+begin
+  GotoTab(TabSheetCodeGen);
+end;
+
+procedure TFrameCtTableProp.MNTabs_RelationsClick(Sender: TObject);
+begin
+  GotoTab(TabSheetRelations);
+end;
+
+procedure TFrameCtTableProp.MNTabs_SettingsClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001 {WMZ_CUSTCMD}, 7, 0);
+end;
+
+procedure TFrameCtTableProp.MNTabs_UIDesignClick(Sender: TObject);
+begin
+  GotoTab(TabSheetUI);
+end;
+
+procedure TFrameCtTableProp.MN_OpenTemplFolderClick(Sender: TObject);
+var
+  S, dir, fn, nfn: string;
+begin
+  dir := GetFolderPathOfAppExe('Templates');
+  fn := '';                        
+  if FGenCodeType <> '' then
+    if not IsInnerSqlTab(FGenCodeType) then
+    begin            
+      {$ifndef EZDML_LITE}
+      nfn := FolderAddFileName(GetDmlScriptDir, FGenCodeType + '.js');
+      if FileExists(nfn) then
+      begin
+        fn := nfn;
+      end
+      else   
+      {$endif}
+      begin
+        nfn := FolderAddFileName(GetDmlScriptDir, FGenCodeType + '.pas');
+        if FileExists(nfn) then
+        begin
+          fn := nfn;
+        end;
+      end;
+    end;    
+  if fn <> '' then
+    CtBrowseFile(fn)
+  else
+    CtOpenDir(dir);
+end;
+
 procedure TFrameCtTableProp.PageControlTbPropChange(Sender: TObject);
 begin
   if (PageControlTbProp.ActivePage = TabSheetUI) then
@@ -3557,12 +4785,64 @@ begin
     if TabSheetUI.Tag = 999 then
       RefreshUIPreview;
   end;
+
+  if (PageControlTbProp.ActivePage = TabSheetRelations) then
+  begin
+    if TabSheetRelations.Tag = 999 then
+      RefreshRelationMap;
+  end;
     
   if PageControlTbProp.ActivePage = TabSheetCodeGen then
   begin
     if TabSheetCodeGen.Tag = 999 then
       GenTbCode;
   end;
+end;
+
+procedure TFrameCtTableProp.PageControlTbPropContextPopup(Sender: TObject;
+  MousePos: TPoint; var Handled: Boolean);
+var
+  pt: TPoint;    
+  tk: Int64;
+begin
+  if not TabSheetTable.TabVisible then
+    Exit;
+  tk := GetTickCount64;
+  if Abs(tk-FLastTabClickTick) > 1000 then
+    Exit;
+  if FLastTabClickPos.Y > ScaleDPISize(30) then
+    Exit;
+  pt := PageControlTbProp.ClientToScreen(MousePos);
+  PopupMenuTabs.PopUp(pt.X, pt.Y);
+  Handled := True;
+end;
+
+procedure TFrameCtTableProp.PageControlTbPropMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  tk: Int64;
+begin
+  tk := GetTickCount64;
+  if Y > ScaleDPISize(30) then
+  begin
+    FLastTabClickTick := tk; 
+    FLastTabClickPos := Point(X, Y);
+    Exit;
+  end;
+  if Abs(tk-FLastTabClickTick) < 800 then
+  begin               
+    if Button = mbLeft then
+      if Abs(FLastTabClickPos.X - X)<=3 then
+        if Abs(FLastTabClickPos.Y - Y)<=3 then
+        begin
+          CloseCurTab;
+          FLastTabClickTick := 0;
+          FLastTabClickPos := Point(0, 0);
+          Exit;
+        end;
+  end;
+  FLastTabClickPos := Point(X, Y);
+  FLastTabClickTick := tk;
 end;
 
 procedure TFrameCtTableProp.PanelCustomScriptDefResize(Sender: TObject);
@@ -3699,13 +4979,27 @@ begin
     PChar(Application.Title), MB_OKCANCEL) <> idOk then
     Exit;
   fn := SaveDialogCode.FileName;
-{$ifdef WINDOWS}
-  S := 'Explorer /select, "' + fn + '"';
-  ShellCmd(S);
-{$else}
-  S := ExtractFilePath(fn);
-  CtOpenDoc(S);
-{$endif}
+  CtBrowseFile(fn);
+end;
+
+procedure TFrameCtTableProp.PopupMenuTabsPopup(Sender: TObject);
+var
+  bEnb : Boolean;
+begin
+  bEnb := False;
+  if PageControlTbProp.ActivePage = TabSheetAdvanced then
+    bEnb := True
+  else if PageControlTbProp.ActivePage = TabSheetUI then
+    bEnb := True
+  else if PageControlTbProp.ActivePage = TabSheetRelations then
+    bEnb := True
+  else if PageControlTbProp.ActivePage = TabSheetCust then
+    bEnb := True           
+  else if PageControlTbProp.ActivePage = TabSheetCodeGen then
+    bEnb := True
+  else if PageControlTbProp.ActivePage = TabSheetData then
+    bEnb := True;
+  MNTabs_Close.Enabled := bEnb;
 end;
 
 procedure TFrameCtTableProp.PopupMenuTbFieldsPopup(Sender: TObject);
@@ -3721,6 +5015,46 @@ end;
 procedure TFrameCtTableProp.sbtnFindClick(Sender: TObject);
 begin
   FindDialogTxt.Execute;
+end;
+
+procedure TFrameCtTableProp.sbtnTbJsonClick(Sender: TObject);
+var
+  tb: TCtMetaTable;
+  S, V: String;
+begin   
+  if not Assigned(FCtMetaTable) then
+    Exit;
+  S:= FCtMetaTable.JsonStr;
+  if Self.FReadOnlyMode then
+  begin
+    PvtInput.PvtMemoQuery(FCtMetaTable.NameCaption, 'JSON:', S, True);
+    Exit;
+  end;
+
+  V:=S;
+  if not PvtInput.PvtMemoQuery(FCtMetaTable.NameCaption, 'JSON:', V, False) then
+    Exit;
+
+  if Trim(V)=Trim(S) then
+    Exit;
+
+  tb := TCtMetaTable.Create;
+  try
+    tb.JsonStr := V;
+    if Assigned(Proc_OnPropChange) then
+      if FCtMetaTable.Name <> tb.Name then
+      begin
+        if not CheckCanRenameTable(FCtMetaTable, tb.Name, False) then
+          Abort;
+      end;
+  finally
+    tb.Free;
+  end;
+  FCtMetaTable.JsonStr := V;
+  DoTablePropsChanged(FCtMetaTable);
+  if Assigned(Proc_OnPropChange) then
+    Proc_OnPropChange(2, FCtMetaTable, nil, '');
+  ShowTableProp(FCtMetaTable);
 end;
 
 procedure TFrameCtTableProp.ScrollBoxCustomScriptDefResize(Sender: TObject);
@@ -3740,24 +5074,38 @@ begin
 
 end;
 
+procedure TFrameCtTableProp.SplitterGenTpsMoved(Sender: TObject);
+begin
+  RealignGenToolbar;
+end;
+
 
 procedure TFrameCtTableProp.StringGridTableFieldsDrawCell(Sender: TObject;
   aCol, aRow: integer; aRect: TRect; aState: TGridDrawState);
 var
   dd, idx: integer;
   AField: TCtMetaField;
+  bEnb: Boolean;
 begin
   if (ACol = 0) and (ARow > 0) then
   begin
     AField := FieldOfGridRow(aRow);
     idx := GetImageIndexOfCtNode(AField);
+    bEnb := True;
+    if AField <> nil then
+    begin                         
+      if AField.FieldWeight <= -9 then
+        idx := -1;
+      if AField.FieldWeight < 0 then
+        bEnb := False;
+    end;
     if idx >= 0 then
     begin
       dd := StringGridTableFields.DefaultRowHeight - ScaleDPISize(ImageListCttb.Height);
       dd := dd div 2;
       ImageListCttb.Scaled := True;
       ImageListCttb.DrawForPPI(StringGridTableFields.Canvas, ARect.Left +
-        dd, ARect.Top + dd, idx, ImageListCttb.Width, Screen.PixelsPerInch, 1, True);
+        dd, ARect.Top + dd, idx, ImageListCttb.Width, Screen.PixelsPerInch, 1, bEnb);
     end;
   end;
   if ARow = FGridDragFocusingRow then
@@ -3802,6 +5150,20 @@ begin
         actFieldDel.Execute;
         Key := 0;
       end;
+    VK_LEFT:
+      if Shift = [ssCtrl] then
+      begin
+        FieldListHideEditor;
+        ChangeFieldWeight(1, 0);
+        Key := 0;
+      end;
+    VK_RIGHT:
+      if Shift = [ssCtrl] then
+      begin
+        FieldListHideEditor;
+        ChangeFieldWeight(-1, 0);
+        Key := 0;
+      end;
     VK_UP:
       if Shift = [ssCtrl] then
       begin
@@ -3828,10 +5190,29 @@ begin
     begin
       CheckGridEditingMode;
       if not StringGridTableFields.EditorMode then
-        if Assigned(Proc_GridEscape) then
-          Proc_GridEscape(Self);
+        DoEscape;
     end;
   end;
+
+  if Shift = [ssCtrl] then
+    if not StringGridTableFields.EditorMode then
+    begin
+      if (Key = Ord('c')) or (Key = Ord('C')) then
+      begin
+        actFieldsCopy.Execute;
+        Key := 0;
+      end;
+      if (Key = Ord('x')) or (Key = Ord('X')) then
+      begin
+        actFieldsCut.Execute;
+        Key := 0;
+      end;
+      if (Key = Ord('v')) or (Key = Ord('V')) then
+      begin
+        actFieldsPaste.Execute;
+        Key := 0;
+      end;
+    end;
 end;
 
 procedure TFrameCtTableProp.StringGridTableFieldsMouseUp(Sender: TObject;
@@ -3850,6 +5231,8 @@ begin
     AField := FieldOfGridRow(aRow);
     if Assigned(AField) then
     begin
+      if AField.FieldWeight > 0 then  
+        StringGridTableFields.Canvas.Font.Style:= [fsBold];
       if AField.KeyFieldType = cfktRid then
       begin
         StringGridTableFields.Canvas.Font.Color := CtFieldTextColor_Rid;
@@ -3860,6 +5243,17 @@ begin
           StringGridTableFields.Canvas.Font.Color := CtFieldTextColor_Rid
         else
           StringGridTableFields.Canvas.Font.Color := CtFieldTextColor_Id;
+      end
+      else if not (gdSelected in aState) then
+      begin
+        if AField.FieldWeight <= -9 then
+        begin
+          StringGridTableFields.Canvas.Font.Color := CtFieldTextColor_Lowest;
+        end
+        else if AField.FieldWeight < 0 then
+        begin
+          StringGridTableFields.Canvas.Font.Color := CtFieldTextColor_Low;
+        end
       end;
     end;
   end;
@@ -3895,8 +5289,7 @@ end;
 procedure TFrameCtTableProp.TabSheetCodeGenShow(Sender: TObject);
 begin
   CtSetFixWidthFont(MemoCodeGen);
-  btnShowSettings.Left := btnEditScript.Left + btnEditScript.Width + 10;
-  btnSaveSettings.Left := btnShowSettings.Left + btnShowSettings.Width + 5;
+  RealignGenToolbar;
   TabSheetCodeGen.Realign;
 
 end;
@@ -3933,14 +5326,25 @@ begin
       edtDispName.Text := FCtMetaTable.Caption;
       MemoTableComment.Lines.Text := FCtMetaTable.Memo;
 
+      edtPhysicalName.Text := FCtMetaTable.PhysicalName;
       edtUIDisplayText.Text := FCtMetaTable.UIDisplayText;
       ckbGenDatabase.Checked := FCtMetaTable.GenDatabase;
-      ckbGenCode.Checked := FCtMetaTable.GenCode;
+      ckbGenCode.Checked := FCtMetaTable.GenCode;   
+      memoListSQL.Lines.Text := FCtMetaTable.ListSQL;
+      memoViewSQL.Lines.Text := FCtMetaTable.ViewSQL;
       memoExtraSQL.Lines.Text := FCtMetaTable.ExtraSQL;
       MemoUILogic.Lines.Text := FCtMetaTable.UILogic;
       memoBusinessLogic.Lines.Text := FCtMetaTable.BusinessLogic;
       memoExtraProps.Lines.Text := FCtMetaTable.ExtraProps;
       memoScriptRules.Lines.Text := FCtMetaTable.ScriptRules;
+                        
+      edtOwnerCategory.Text := FCtMetaTable.OwnerCategory;
+      edtGroupName.Text := FCtMetaTable.GroupName;
+      edtSQLAlias.Text := FCtMetaTable.SQLAlias;
+      memoPartitionInfo.Lines.Text := FCtMetaTable.PartitionInfo;
+      memoDesignNotes.Lines.Text := FCtMetaTable.DesignNotes;
+      memoSQLOrderByClause.Lines.Text := FCtMetaTable.SQLOrderByClause;
+      memoSQLWhereClause.Lines.Text := FCtMetaTable.SQLWhereClause;
 
       with StringGridTableFields do
         Clean(0, 1, ColCount - 1, RowCount - 1, [gzNormal]);
@@ -3960,10 +5364,10 @@ begin
   RunCustomScriptDef(False);
 end;
 
-procedure TFrameCtTableProp.SetShowOperLogicPage(AValue: boolean);
+procedure TFrameCtTableProp.SetShowAdvPage(AValue: boolean);
 begin
-  if FShowOperLogicPage=AValue then Exit;
-  FShowOperLogicPage:=AValue;
+  if FShowAdvPage=AValue then Exit;
+  FShowAdvPage:=AValue;
 end;
 
 end.

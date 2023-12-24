@@ -17,8 +17,11 @@ uses
 
 type
 
+  { TCtObjJsonSerialer }
+
   TCtObjJsonSerialer = class(TCtObjSerialer)
   private
+    FWriteEmptyVals: Boolean;
   protected
     FInnerFileStream: TFileStream;
     FStream: TStream;
@@ -30,6 +33,7 @@ type
     FCtVerWritten: Boolean;
     FJsonObjStack: array of TJSONObject;
     FJsonListStack: array of TJSONArray;
+    procedure ValidCtVersion(const Value: Integer); override;
   public
     constructor Create(bIsReadMode: Boolean); overload; override;
     constructor Create(const fn: string; fm: Word); overload; override;
@@ -68,6 +72,7 @@ type
     procedure WriteBuffer(const PropName: string; const Len: LongInt; const PropValue); override;
 
     property Stream: TStream read FStream write FStream;
+    property WriteEmptyVals: Boolean read FWriteEmptyVals write FWriteEmptyVals;
   end;
 
   TCtObjMemJsonSerialer = class(TCtObjJsonSerialer)
@@ -80,10 +85,23 @@ implementation
 
 
 uses
-  WindowFuncs;
+  WindowFuncs, Forms;
 
 { TCtObjJsonSerialer }
 
+procedure TCtObjJsonSerialer.ValidCtVersion(const Value: Integer);
+var
+  S: String;
+begin
+  if (Value>0) and (Value < 20) then
+    raise Exception.Create('CtVer not supported: version is too old and is not supported now');
+  if Value > DEF_CURCTVER_VAL then
+  begin
+    S := Format(srEzdmlNewerVersionPrompt,[Value, DEF_CURCTVER_VAL]);
+    if Application.MessageBox(PChar(S), PChar(Application.title), MB_YESNOCANCEL or MB_ICONWARNING)<>IDYES then
+      Abort;
+  end;
+end;
 
 constructor TCtObjJsonSerialer.Create(bIsReadMode: Boolean);
 begin
@@ -270,7 +288,7 @@ begin
 end;
 
 procedure TCtObjJsonSerialer.ReadBuffer(const PropName: string;
-  const Len: Integer; var PropValue);
+  const Len: LongInt; var PropValue);
 var
   S: string;
 begin
@@ -308,12 +326,12 @@ end;
 procedure TCtObjJsonSerialer.WriteBool(const PropName: string;
   const PropValue: Boolean);
 begin
-  if PropValue then
+  if FWriteEmptyVals or PropValue then
     FCurJsonObj.put(PropName, PropValue);
 end;
 
 procedure TCtObjJsonSerialer.WriteBuffer(const PropName: string;
-  const Len: Integer; const PropValue);
+  const Len: LongInt; const PropValue);
 begin
   if PropName = 'CTVER' then
   begin
@@ -327,14 +345,14 @@ end;
 procedure TCtObjJsonSerialer.WriteByte(const PropName: string;
   const PropValue: Byte);
 begin
-  if PropValue <> 0 then
+  if FWriteEmptyVals or (PropValue <> 0) then
     inherited;
 end;
 
 procedure TCtObjJsonSerialer.WriteDate(const PropName: string;
   const PropValue: TDateTime);
 begin
-  if PropValue > 0 then
+  if FWriteEmptyVals or (PropValue > 0) then
     inherited;
 end;
 
@@ -343,7 +361,7 @@ procedure TCtObjJsonSerialer.WriteFloat(const PropName: string;
 var
   vint: Integer;
 begin
-  if PropValue <> 0 then
+  if FWriteEmptyVals or (PropValue <> 0) then
   begin
     vint := Round(PropValue);
     if (vint * 1.0) = PropValue then
@@ -356,19 +374,21 @@ end;
 procedure TCtObjJsonSerialer.WriteInteger(const PropName: string;
   const PropValue: Integer);
 begin
-  if PropValue <> 0 then
+  if FWriteEmptyVals or (PropValue <> 0) then
     FCurJsonObj.put(PropName, PropValue);
 end;
 
-procedure TCtObjJsonSerialer.WriteString(const PropName, PropValue: string);
+procedure TCtObjJsonSerialer.WriteString(const PropName: string;
+  const PropValue: string);
 begin
-  if PropValue <> '' then
+  if FWriteEmptyVals or (PropValue <> '') then
     FCurJsonObj.put(PropName, PropValue);
 end;
 
-procedure TCtObjJsonSerialer.WriteStrings(const PropName, PropValue: string);
+procedure TCtObjJsonSerialer.WriteStrings(const PropName: string;
+  const PropValue: string);
 begin
-  if PropValue <> '' then
+  if FWriteEmptyVals or (PropValue <> '') then
     FCurJsonObj.put(PropName, PropValue);
 end;
 

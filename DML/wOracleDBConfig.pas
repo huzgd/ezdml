@@ -13,6 +13,7 @@ type
   { TfrmOraDBConfig }
 
   TfrmOraDBConfig = class(TForm)
+    btnHelp: TButton;
     Label1: TLabel;
     edtIP: TEdit;
     edtPort: TEdit;
@@ -25,6 +26,7 @@ type
     Label4: TLabel;
     rdbNetSvc: TRadioButton;
     rdbSvcParam: TRadioButton;
+    procedure btnHelpClick(Sender: TObject);
     procedure combNetSvcNameDropDown(Sender: TObject);
     procedure rdbNetSvcClick(Sender: TObject);
     procedure rdbSvcParamClick(Sender: TObject);
@@ -43,7 +45,7 @@ var
 implementation
 
 uses
-  CtMetaTable, WindowFuncs;
+  CtMetaTable, WindowFuncs, dmlstrs, ezdmlstrs;
 
 {$R *.lfm}
 
@@ -76,6 +78,9 @@ begin
 end;
 
 class function TfrmOraDBConfig.DoOracleNetConfig(AString: string): string;
+var
+  po: Integer;
+  V: string;
 begin
   with TfrmOraDBConfig.Create(nil) do
   try
@@ -84,7 +89,24 @@ begin
     edtPort.Text := ExtractCompStr(AString, '(PORT = ', ')', True, edtPort.Text);
     edtSvcName.Text := ExtractCompStr(AString, '(SERVICE_NAME = ', ')', True);
     if edtIP.Text <> '' then
-      rdbSvcParam.Checked := True;
+      rdbSvcParam.Checked := True
+    else if (Pos('(HOST', AString)=0) and (Pos('/', AString)>0) then
+    begin
+      V := AString;
+      po := Pos('/', V);
+      if po>0 then
+      begin
+        edtSvcName.Text := Copy(V, po+1, Length(V));
+        V:= Copy(V,1,po-1);
+      end;   
+      po := Pos(':', V);
+      if po>0 then
+      begin
+        edtPort.Text := Copy(V, po+1, Length(V));
+        V:= Copy(V,1,po-1);
+      end;
+      edtIP.Text := V;
+    end;
     CheckControlReadOnly;
     if ShowModal = mrOk then
       Result := GenResult
@@ -111,6 +133,25 @@ begin
     if GetCtMetaDBReg('ORACLE') <> nil then
       if GetCtMetaDBReg('ORACLE').DbImpl <> nil then
         combNetSvcName.Items.Text := GetCtMetaDBReg('ORACLE').DbImpl.GetDbNames;
+end;
+
+procedure TfrmOraDBConfig.btnHelpClick(Sender: TObject);
+var
+  S, V: string;
+begin
+  if not LangIsChinese then
+    S := 'ezdml.com/doc/dblogon.html'
+  else
+    S := 'ezdml.com/doc/dblogon_cn.html';
+  S:=S+'?db=ORACLE';
+  V := Format(srEzdmlConfirmOpenUrlFmt, [S]);
+
+  if Application.MessageBox(PChar(V),
+    PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+    Exit;
+
+  S := 'http://www.'+S;
+  CtOpenDoc(PChar(S));
 end;
 
 procedure TfrmOraDBConfig.rdbNetSvcClick(Sender: TObject);

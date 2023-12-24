@@ -22,6 +22,7 @@ type
     EditSelectAll1: TEditSelectAll;
     Panel2: TPanel;
     procedure btnCancelClick(Sender: TObject);
+    procedure btnOkClick(Sender: TObject);
     procedure EditBoxKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
       );
     procedure FormShow(Sender: TObject);
@@ -230,6 +231,12 @@ begin
   Close;
 end;
 
+procedure TfrmCtMetaFieldProp.btnOkClick(Sender: TObject);
+begin
+  btnOk.SetFocus;
+  ModalResult := mrOk;
+end;
+
 procedure TfrmCtMetaFieldProp.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 var
@@ -246,6 +253,15 @@ begin
       S2 := FTempMetaField.JsonStr;
       if S1 <> S2 then
       begin
+        if FMetaField.Name <> FTempMetaField.Name then
+        begin
+          if not FMetaField.CheckCanRenameTo(FTempMetaField.Name) then
+          begin
+            Abort;
+          end;
+          if FMetaField.OldName = '' then
+            FMetaField.OldName:=FMetaField.Name;
+        end;
         FMetaField.AssignFrom(FTempMetaField);
         DoTablePropsChanged(FMetaField.OwnerTable);
       end;

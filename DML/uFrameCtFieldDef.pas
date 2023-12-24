@@ -8,7 +8,7 @@ uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes,
   Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, MaskEdit,
-  CtMetaTable, CTMetaData, Buttons, ColorBox;
+  CtMetaTable, CTMetaData, Buttons, ColorBox, Menus;
 
 type
 
@@ -21,6 +21,9 @@ type
     Bevel8: TBevel;
     Bevel9: TBevel;
     btnHideFieldProp: TBitBtn;
+    ckbIsFactMeasure: TCheckBox;
+    ckbExportable: TCheckBox;
+    ckbDesensitised: TCheckBox;
     ckbRequired: TCheckBox;
     ckbShowFilterBox: TCheckBox;
     ckbAutoMerge: TCheckBox;
@@ -36,16 +39,22 @@ type
     combFixColType: TComboBox;
     combTestDataType: TComboBox;
     combFontName: TComboBox;
+    combFieldWeight: TComboBox;
     edtColGroup: TEdit;
     edtSheetGroup: TEdit;
     edtTextClipSize: TEdit;
     edtExplainText: TEdit;
     edtIndexFields: TEdit;
     edtItemColCount: TEdit;
+    edtTestDataNullPercent: TEdit;
     Label13: TLabel;
     Label17: TLabel;
     Label27: TLabel;
     Label56: TLabel;
+    Label57: TLabel;
+    Label58: TLabel;
+    Label59: TLabel;
+    Label60: TLabel;
     lbDemoData: TLabel;
     Label40: TLabel;
     Label41: TLabel;
@@ -67,14 +76,21 @@ type
     memoDropDownSql: TMemo;
     memoEditorProps: TMemo;
     memoDBCheck: TMemo;
+    memoDesignNotes: TMemo;
     MemoUILogic: TMemo;
     memoTestDataRules: TMemo;
     memoBusinessLogic: TMemo;
     memoValidateRule: TMemo;
+    MenuItem1: TMenuItem;
+    MNTab_Settings: TMenuItem;
+    MNTab_OperLogic: TMenuItem;
+    MNTab_EditorUI: TMenuItem;
     PageControl1: TPageControl;
     PanelCustomScriptDef: TPanel;
+    PopupMenuTabs: TPopupMenu;
     sbtnSelIndexFields: TSpeedButton;
     sbtnSelRelateFields: TSpeedButton;
+    sbtnShowRelTbInfo: TSpeedButton;
     ScrollBoxOperLogic: TScrollBox;
     ScrollBoxEditorUI: TScrollBox;
     ScrollBoxFieldDef: TScrollBox;
@@ -168,10 +184,16 @@ type
     lbCustomSCTip: TLabel;
     procedure combEditorChange(Sender: TObject);
     procedure combFontNameDropDown(Sender: TObject);
+    procedure MNTab_EditorUIClick(Sender: TObject);
+    procedure MNTab_OperLogicClick(Sender: TObject);
+    procedure MNTab_SettingsClick(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
+    procedure PageControl1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure PanelCustomScriptDefResize(Sender: TObject);
     procedure sbtnSelIndexFieldsClick(Sender: TObject);
     procedure sbtnSelRelateFieldsClick(Sender: TObject);
+    procedure sbtnShowRelTbInfoClick(Sender: TObject);
     procedure ScrollBoxCustomScriptDefResize(Sender: TObject);
     procedure TabSheetCustShow(Sender: TObject);
     procedure ckbAutoIncrementClick(Sender: TObject);
@@ -216,7 +238,7 @@ implementation
 
 uses
   dmlstrs, CtObjXmlSerial, DmlScriptPublic, DmlScriptControl,
-  WindowFuncs, uFormSelectFields, CtTestDataGen;
+  WindowFuncs, uFormSelectFields, CtTestDataGen, uFormDBDataRule;
 
 {$R *.lfm}
 
@@ -328,7 +350,8 @@ Aggre
 *)
   ss.Free;
 
-
+               
+  combFieldWeight.Items.Text := GetCtDropDownItemsText(srFieldWeights);
   combVisibilty.Items.Text := GetCtDropDownItemsText(srFieldVisibiltys);
   combEditorType.Items.Text := GetCtDropDownItemsText(srFieldEditorTypes);
   combFixColType.Items.Text := srFieldFixColType;
@@ -400,12 +423,12 @@ begin
 
   edtRelateTable.Items.Clear;
 
-  for I := 0 to TabSheet1.ControlCount - 1 do
-    SetControlReadOnly(TabSheet1.Controls[I]);
-  for I := 0 to TabSheet2.ControlCount - 1 do
-    SetControlReadOnly(TabSheet2.Controls[I]);
-  for I := 0 to TabSheet3.ControlCount - 1 do
-    SetControlReadOnly(TabSheet3.Controls[I]);
+  for I := 0 to ScrollBoxFieldDef.ControlCount - 1 do
+    SetControlReadOnly(ScrollBoxFieldDef.Controls[I]);
+  for I := 0 to ScrollBoxEditorUI.ControlCount - 1 do
+    SetControlReadOnly(ScrollBoxEditorUI.Controls[I]);
+  for I := 0 to ScrollBoxOperLogic.ControlCount - 1 do
+    SetControlReadOnly(ScrollBoxOperLogic.Controls[I]);
 
   if FMetaField = nil then
   begin
@@ -414,7 +437,8 @@ begin
     edtDisplayName.Text := '';
     edtHint.Text := '';
     memoMemo.Lines.Text := '';   
-    memoDBCheck.Lines.Text := '';
+    memoDBCheck.Lines.Text := '';  
+    memoDesignNotes.Lines.Text := '';
     Exit;
   end;
 
@@ -441,7 +465,9 @@ begin
   edtDisplayName.Text := FMetaField.DisplayName;
   edtHint.Text := FMetaField.Hint;
   memoMemo.Lines.Text := FMetaField.Memo;   
-  memoDBCheck.Lines.Text := FMetaField.DBCheck;
+  memoDBCheck.Lines.Text := FMetaField.DBCheck;  
+  memoDesignNotes.Lines.Text := FMetaField.DesignNotes;
+  ckbIsFactMeasure.Checked := FMetaField.IsFactMeasure;
 
   combDataType.Items.Text := GetDataTypeLines;
   I := integer(FMetaField.DataType);
@@ -463,7 +489,7 @@ begin
   edtDefaultValue.Text := FMetaField.DefaultValue;
   edtDefaultValueChange(nil);
   ckbNullable.Checked := FMetaField.Nullable;
-  ckbNullable.Enabled := FMetaField.KeyFieldType <> cfktId;
+  ckbNullable.Enabled := not FReadOnlyMode and (FMetaField.KeyFieldType <> cfktId);
   combIndexType.ItemIndex := integer(FMetaField.IndexType);
   edtIndexFields.ReadOnly := (FMetaField.IndexType = cfitNone) or
     (FMetaField.DataType <> cfdtFunction);
@@ -473,6 +499,8 @@ begin
   edtRelateTable.Text := FMetaField.RelateTable;
   edtRelateField.Text := FMetaField.RelateField;
   edtRelateField.Modified := False;
+
+  sbtnShowRelTbInfo.Enabled := (edtRelateTable.Text <> '');
 
   combEditorType.Text := GetCtDropDownTextOfValue(FMetaField.EditorType,
     srFieldEditorTypes);
@@ -484,18 +512,22 @@ begin
   edtEditFormat.Text := FMetaField.EditFormat;
   ckbEditorReadOnly.Checked := FMetaField.EditorReadOnly;
   ckbEditorEnabled.Checked := FMetaField.EditorEnabled;
-  ckbIsHidden.Checked := FMetaField.IsHidden;
+  ckbIsHidden.Checked := FMetaField.IsHidden;         
+  ckbDesensitised.Checked := FMetaField.Desensitised;
   memoDropDownItems.Lines.Text := FMetaField.DropDownItems;
   S := IntToStr(integer(FMetaField.DropDownMode));
   combDropDownMode.Text := GetCtDropDownTextOfValue(S, srFieldDropDownMode);
 
+  combFieldWeight.Text := GetCtDropDownTextOfValue(IntToStr(FMetaField.FieldWeight),
+    srFieldWeights);
   combVisibilty.Text := GetCtDropDownTextOfValue(IntToStr(FMetaField.Visibility),
     srFieldVisibiltys);
   combTextAlign.ItemIndex := integer(FMetaField.TextAlign);
   edtColWidth.Text := IntToStrSp(FMetaField.ColWidth);
   edtMaxLength.Text := IntToStrSp(FMetaField.MaxLength);
   ckbSearchable.Checked := FMetaField.Searchable;
-  ckbQueryable.Checked := FMetaField.Queryable;
+  ckbQueryable.Checked := FMetaField.Queryable;      
+  ckbExportable.Checked := FMetaField.Exportable;
   edtInitValue.Text := FMetaField.InitValue;
   combValueFormat.Text := GetCtDropDownTextOfValue(FMetaField.ValueFormat,
     srFieldValueFormats);
@@ -540,6 +572,10 @@ begin
   combTestDataType.Text := GetFullTextOfValue(FMetaField.TestDataType,
     GetDataGenRules.GetItemNameCaptions);
   memoTestDataRules.Text := FMetaField.TestDataRules;
+  if FMetaField.TestDataNullPercent=0 then
+    edtTestDataNullPercent.Text := ''
+  else
+    edtTestDataNullPercent.Text := IntToStr(FMetaField.TestDataNullPercent);
   if Trim(memoTestDataRules.Text) = '' then
     if GetDataGenRules.ItemByCaption(FMetaField.TestDataType) <> nil then
     begin
@@ -562,7 +598,12 @@ begin
   lbCustomSCTip.Caption := '';
   lbCustomSCTip.Visible := False;
 
-  TabSheetCust.TabVisible := G_EnableCustomPropUI;
+  TabSheetCust.TabVisible := G_EnableCustomPropUI;        
+  TabSheet2.TabVisible := G_EnableTbPropUIDesign or FMetaField.HasUIDesignProps;
+  TabSheet3.TabVisible := G_EnableTbPropUIDesign or FMetaField.HasUIDesignProps;
+  if PageControl1.ActivePage <> nil then
+    if not PageControl1.ActivePage.TabVisible then
+      PageControl1.ActivePageIndex := 0;
   if Self.PageControl1.ActivePage = TabSheetCust then
   begin
     Self.TabSheetCustShow(TabSheetCust);
@@ -579,10 +620,12 @@ begin
     Exit;
   if not G_EnableCustomPropUI then
     Exit;
-  fn := 'CustomFieldDef';
+  fn := 'CustomFieldDef';      
+  {$ifndef EZDML_LITE}
   fn := FolderAddFileName(GetDmlScriptDir, fn + '.js_');
   fn := GetConfigFile_OfLang(fn);
-  if not FileExists(fn) then
+  if not FileExists(fn) then    
+  {$endif}
   begin
     fn := FolderAddFileName(GetDmlScriptDir, fn + '.ps_');
     fn := GetConfigFile_OfLang(fn);
@@ -649,7 +692,7 @@ procedure TFrameCtFieldDef.SaveChange(Sender: TObject);
   end;
 
 var
-  S, S1, S2: string;
+  S, S1, S2, T, sRuleTp, sRuleCt: string;
   po: integer;
   dt: TCtFieldDataType;
   bNL: boolean;
@@ -667,6 +710,12 @@ begin
     begin
       if FMetaField.Name <> edtName.Text then
       begin
+        if not FMetaField.CheckCanRenameTo(edtName.Text) then
+        begin
+          Abort;
+        end;
+        if FMetaField.OldName = '' then
+          FMetaField.OldName:=FMetaField.Name;
         FMetaField.Name := edtName.Text;
       end;
       stFieldName.Caption := FMetaField.NameCaption;
@@ -678,7 +727,11 @@ begin
     if Sender = memoMemo then
       FMetaField.Memo := memoMemo.Lines.Text;    
     if Sender = memoDBCheck then
-      FMetaField.DBCheck := memoDBCheck.Lines.Text;
+      FMetaField.DBCheck := memoDBCheck.Lines.Text; 
+    if Sender = memoDesignNotes then
+      FMetaField.DesignNotes := memoDesignNotes.Lines.Text;
+    if Sender = ckbIsFactMeasure then
+      FMetaField.IsFactMeasure := ckbIsFactMeasure.Checked;
 
     if (Sender = combDataType) and (combDataType.ItemIndex <=
       integer(High(TCtFieldDataType))) then
@@ -694,7 +747,8 @@ begin
     begin
       FMetaField.DataTypeName := Trim(edtDataTypeName.Text);
       dt := GetCtFieldDataTypeOfAlias(FMetaField.DataTypeName);
-      if (dt <> cfdtUnknow) and (dt <> FMetaField.DataType) then
+      if (dt >= cfdtString) and (dt <= cfdtBlob) and (dt <> FMetaField.DataType)
+        and (FMetaField.DataType >= cfdtString) and (FMetaField.DataType <= cfdtBlob) then
       begin
         FMetaField.DataType := dt;
         combDataType.ItemIndex := integer(FMetaField.DataType);
@@ -785,7 +839,9 @@ begin
     if Sender = ckbEditorEnabled then
       FMetaField.EditorEnabled := ckbEditorEnabled.Checked;
     if Sender = ckbIsHidden then
-      FMetaField.IsHidden := ckbIsHidden.Checked;
+      FMetaField.IsHidden := ckbIsHidden.Checked; 
+    if Sender = ckbDesensitised then
+      FMetaField.Desensitised := ckbDesensitised.Checked;
     if Sender = memoDropDownItems then
       FMetaField.DropDownItems := memoDropDownItems.Lines.Text;
     if Sender = combDropDownMode then
@@ -795,6 +851,10 @@ begin
         combDropDownMode.Text, srFieldDropDownMode), integer(FMetaField.DropDownMode)));
     end;
 
+    if Sender = combFieldWeight then
+      FMetaField.FieldWeight :=
+        StrToIntDefSp(GetCtDropDownValueOfText(combFieldWeight.Text, srFieldWeights),
+        FMetaField.FieldWeight);
     if Sender = combVisibilty then
       FMetaField.Visibility :=
         StrToIntDefSp(GetCtDropDownValueOfText(combVisibilty.Text, srFieldVisibiltys),
@@ -808,7 +868,9 @@ begin
     if Sender = ckbSearchable then
       FMetaField.Searchable := ckbSearchable.Checked;
     if Sender = ckbQueryable then
-      FMetaField.Queryable := ckbQueryable.Checked;
+      FMetaField.Queryable := ckbQueryable.Checked;     
+    if Sender = ckbExportable then
+      FMetaField.Exportable := ckbExportable.Checked;
     if Sender = edtInitValue then
       FMetaField.InitValue := edtInitValue.Text;
     if Sender = combValueFormat then
@@ -882,6 +944,8 @@ begin
       FMetaField.Required := ckbRequired.Checked;
     if Sender = memoEditorProps then
       FMetaField.EditorProps := memoEditorProps.Text;
+    if Sender = edtTestDataNullPercent then
+      FMetaField.TestDataNullPercent := StrToIntDef(edtTestDataNullPercent.Text, 0);
     if Sender = combTestDataType then
     begin
       S := combTestDataType.Text;
@@ -896,6 +960,8 @@ begin
             combTestDataType.SetFocus;
             Abort;
           end;
+        sRuleTp := FMetaField.TestDataType;
+        sRuleCt := FMetaField.TestDataRules;
         FMetaField.TestDataType := S;
         if GetDataGenRules.ItemByCaption(FMetaField.TestDataType) <> nil then
         begin
@@ -904,7 +970,26 @@ begin
         end
         else
           memoTestDataRules.Text := '';
-        FMetaField.TestDataRules := '';
+        FMetaField.TestDataRules := '';  
+        if S = 'from_db' then
+        begin
+          if SelTable <> nil then   
+            T := ShowDBDataRule(SelTable, FMetaField.Name)
+          else
+            T := ShowDBDataRule(FMetaField.OwnerTable, FMetaField.Name);
+          if T <> '' then
+          begin
+            memoTestDataRules.Text := T;
+            FMetaField.TestDataRules := T;
+          end
+          else
+          begin
+            FMetaField.TestDataType := sRuleTp;
+            FMetaField.TestDataRules := sRuleCt;
+            combTestDataType.Text := sRuleTp;
+            memoTestDataRules.Text := sRuleCt;
+          end;
+        end;
         memoTestDataRules.Modified := False;
       end;
     end;
@@ -931,7 +1016,7 @@ begin
     end;
 
     if (Sender = combTestDataType) or (Sender = memoTestDataRules) or
-      (Sender = combValueFormat)
+      (Sender = combValueFormat) or (Sender = edtTestDataNullPercent)
       or (Sender = combDataType) or (Sender = edtDataTypeName) then
     begin
       lbDemoData.Caption := FMetaField.GenDemoData(0, '', nil) + #13#10
@@ -1027,6 +1112,22 @@ begin
   SaveChange(edtRelateField);
 end;
 
+procedure TFrameCtFieldDef.sbtnShowRelTbInfoClick(Sender: TObject);
+var
+  tb: TCtMetaTable;
+  S: String;
+begin
+  if not Assigned(Proc_ShowCtTableProp) then
+    Exit;
+  S := Trim(edtRelateTable.Text);
+  if S='' then
+    Exit;
+  tb := FGlobeDataModelList.GetTableOfName(S);
+  if tb=nil then
+    Exit;
+  Proc_ShowCtTableProp(tb, True, False);
+end;
+
 procedure TFrameCtFieldDef.ScrollBoxCustomScriptDefResize(Sender: TObject);
 begin
   PanelCustomScriptDef.Width := ScrollBoxCustomScriptDef.ClientWidth - 2;
@@ -1048,6 +1149,18 @@ begin
       stFieldName.Visible := True;//False;
 end;
 
+procedure TFrameCtFieldDef.PageControl1MouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  pt: TPoint;
+begin
+  if Button = mbRight then
+  begin
+    pt := PageControl1.ClientToScreen(Point(X, Y));
+    PopupMenuTabs.PopUp(pt.X, pt.Y);
+  end;
+end;
+
 procedure TFrameCtFieldDef.combEditorChange(Sender: TObject);
 begin
   if Sender = nil then
@@ -1063,6 +1176,25 @@ procedure TFrameCtFieldDef.combFontNameDropDown(Sender: TObject);
 begin
   if combFontName.Items.Count = 0 then
     combFontName.Items.Assign(Screen.Fonts);
+end;
+
+procedure TFrameCtFieldDef.MNTab_EditorUIClick(Sender: TObject);
+begin
+  TabSheet2.TabVisible := True;
+  PageControl1.ActivePage := TabSheet2;
+  PageControl1Change(nil);
+end;
+
+procedure TFrameCtFieldDef.MNTab_OperLogicClick(Sender: TObject);
+begin
+  TabSheet3.TabVisible := True;
+  PageControl1.ActivePage := TabSheet3;
+  PageControl1Change(nil);
+end;
+
+procedure TFrameCtFieldDef.MNTab_SettingsClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001 {WMZ_CUSTCMD}, 7, 0);
 end;
 
 
@@ -1114,6 +1246,7 @@ begin
       SaveChange(edtRelateField);
     end;
   end;
+  sbtnShowRelTbInfo.Enabled := (edtRelateTable.Text <> '');
 end;
 
 function TFrameCtFieldDef.GetDataTypeLines: string;

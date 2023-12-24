@@ -12,7 +12,7 @@
 {"hash":211077989,"name":"tfrmmaindml.actnewfile.caption","sourcebytes":[78,101,119,32,70,105,108,101],"value":"New File"},
 {"hash":107745630,"name":"tfrmmaindml.actopenfile.caption","sourcebytes":[79,112,101,110,46,46,46],"value":"Open..."},
 {"hash":366789,"name":"tfrmmaindml.actsavefile.caption","sourcebytes":[83,97,118,101],"value":"Save"},
-{"hash":124639694,"name":"tfrmmaindml.actsavefileas.caption","sourcebytes":[83,97,118,101,32,97,115,46,46,46],"value":"Save as..."},
+{"hash":43117950,"name":"tfrmmaindml.actsavefileas.caption","sourcebytes":[83,97,118,101,32,38,97,115,46,46,46],"value":"Save &as..."},
 {"hash":102429538,"name":"tfrmmaindml.actshowfileinexplorer.caption","sourcebytes":[83,104,111,119,32,105,110,32,69,120,112,108,111,114,101,114],"value":"Show in Explorer"},
 {"hash":168112981,"name":"tfrmmaindml.actshowtmprfile.caption","sourcebytes":[83,104,111,119,32,84,101,109,112,111,114,97,114,121,32,70,105,108,101],"value":"Show Temporary File"},
 {"hash":211882693,"name":"tfrmmaindml.actopenlastfile1.caption","sourcebytes":[82,101,111,112,101,110,32,76,97,115,116,32,70,105,108,101],"value":"Reopen Last File"},
@@ -39,7 +39,7 @@
 {"hash":174809621,"name":"tfrmmaindml.actezdmlhomepage.caption","sourcebytes":[69,90,68,77,76,32,72,111,109,101,32,80,97,103,101],"value":"EZDML Home Page"},
 {"hash":4691652,"name":"tfrmmaindml.actaboutezdml.caption","sourcebytes":[65,98,111,117,116],"value":"About"},
 {"hash":255070676,"name":"tfrmmaindml.acteditglobalscript.caption","sourcebytes":[69,100,105,116,32,71,108,111,98,97,108,32,83,99,114,105,112,116],"value":"Edit Global Script"},
-{"hash":143979598,"name":"tfrmmaindml.actimportfile.caption","sourcebytes":[73,109,112,111,114,116,32,70,105,108,101,46,46,46],"value":"Import File..."},
+{"hash":263363294,"name":"tfrmmaindml.actimportfile.caption","sourcebytes":[73,109,112,111,114,116,32,80,68,77,32,70,105,108,101,46,46,46],"value":"Import PDM File..."},
 {"hash":82967708,"name":"tfrmmaindml.actcharcodetool.caption","sourcebytes":[67,104,97,114,32,67,111,100,101,32,84,111,111,108],"value":"Char Code Tool"},
 {"hash":213582195,"name":"tfrmmaindml.actsettings.caption","sourcebytes":[83,101,116,116,105,110,103,115],"value":"Settings"},
 {"hash":151504724,"name":"tfrmmaindml.actshowdesctext.caption","sourcebytes":[83,104,111,119,68,101,115,99,84,101,120,116],"value":"ShowDescText"},
@@ -47,5 +47,13 @@
 {"hash":97606690,"name":"tfrmmaindml.acthttpserver.caption","sourcebytes":[82,117,110,32,72,84,84,80,32,83,101,114,118,101,114],"value":"Run HTTP Server"},
 {"hash":21759267,"name":"tfrmmaindml.actcheckupdates.caption","sourcebytes":[67,104,101,99,107,32,102,111,114,32,117,112,100,97,116,101,115],"value":"Check for updates"},
 {"hash":131549534,"name":"tfrmmaindml.actfullscreen.caption","sourcebytes":[70,117,108,108,32,115,99,114,101,101,110],"value":"Full screen"},
-{"hash":5977527,"name":"tfrmmaindml.acttoggletableview.caption","sourcebytes":[84,111,103,103,108,101,32,84,97,98,108,101,32,86,105,101,119],"value":"Toggle Table View"}
+{"hash":5977527,"name":"tfrmmaindml.acttoggletableview.caption","sourcebytes":[84,111,103,103,108,101,32,84,97,98,108,101,32,86,105,101,119],"value":"Toggle Table View"},
+{"hash":85822404,"name":"tfrmmaindml.actshowhidelist.caption","sourcebytes":[83,104,111,119,47,104,105,100,101,32,108,105,115,116],"value":"Show/hide list"},
+{"hash":102743777,"name":"tfrmmaindml.actgeneratetestdata.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,84,101,115,116,32,68,97,116,97],"value":"Generate Test Data"},
+{"hash":146640072,"name":"tfrmmaindml.actrefresh.caption","sourcebytes":[82,101,102,114,101,115,104],"value":"Refresh"},
+{"hash":110786757,"name":"tfrmmaindml.actloadfromdb.caption","sourcebytes":[79,112,101,110,32,100,97,116,97,98,97,115,101,32,102,105,108,101],"value":"Open database file"},
+{"hash":260729925,"name":"tfrmmaindml.actsavetodb.caption","sourcebytes":[83,97,118,101,32,97,115,32,100,97,116,97,98,97,115,101,32,102,105,108,101],"value":"Save as database file"},
+{"hash":166913422,"name":"tfrmmaindml.actimportexcel.caption","sourcebytes":[73,109,112,111,114,116,32,69,120,99,101,108,46,46,46],"value":"Import Excel..."},
+{"hash":166235156,"name":"tfrmmaindml.actchatgpt.caption","sourcebytes":[67,104,97,116,71,80,84],"value":"ChatGPT"},
+{"hash":260797550,"name":"tfrmmaindml.actchatgpt.hint","sourcebytes":[85,115,101,32,67,104,97,116,71,80,84,32,65,73,32,116,111,32,97,115,115,105,115,116,32,105,110,32,103,101,110,101,114,97,116,105,110,103,32,109,111,100,101,108,32,100,101,115,105,103,110],"value":"Use ChatGPT AI to assist in generating model design"}
 ]}

@@ -24,10 +24,18 @@ BackupBeforeAlterColumn       Bool
 WriteConstraintToDescribeStr  Bool
 FieldGridShowLines            Bool
 AddColCommentToCreateTbSql    Bool    
+CreateForeignkeys             Bool
 CreateIndexForForeignkey      Bool
+HiveVersion                   Integer   
+MysqlVersion                  Integer
+RetainAfterCommit             Bool
 EnableCustomPropUI            Bool
-CustomPropUICaption           String 
+CustomPropUICaption           String
+ChatGPTKey                    String
 EnableAdvTbProp               Bool
+EnableTbPropGenerate          Bool
+EnableTbPropData              Bool
+EnableTbPropUIDesign          Bool
 LANG                          String
 AppDefFontName                String
 AppDefFontSize                Integer
@@ -44,7 +52,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls;
+  ComCtrls, uFrameCustPhyFieldTypes;
 
 type
 
@@ -61,6 +69,8 @@ type
     Bevel16: TBevel;
     Bevel17: TBevel;
     Bevel18: TBevel;
+    Bevel19: TBevel;
+    Bevel20: TBevel;
     Bevel6: TBevel;
     Bevel7: TBevel;
     BevelGen1: TBevel;
@@ -69,6 +79,7 @@ type
     Bevel5: TBevel;
     Bevel8: TBevel;
     Bevel9: TBevel;
+    BevelGen2: TBevel;
     btnCancel: TButton;
     btnOk: TButton;
     btnOracleLibBrs: TButton;
@@ -78,36 +89,42 @@ type
     btnSqliteLibBrs: TButton;
     btnCustFldtpNew: TButton;
     btnCustFldtpRemove: TButton;
-    btnNewCustPhyTp: TButton;
-    btnRemoveCustPhyTp: TButton;
     btnTpnRepNew: TButton;
     btnFDGenNew: TButton;
     btnTpnRepRemove: TButton;
     btnFDGenRemove: TButton;
+    ckbBigIntForIntKeys: TCheckBox;
+    ckbCheckForUpdates: TCheckBox;
+    ckbCreateForeignkeys: TCheckBox;
+    ckbRetainAfterCommit: TCheckBox;
+    ckbCreateSeqForOracle: TCheckBox;
     ckbEnableAdvTbProp: TCheckBox;
+    ckbEnableTbPropRelations: TCheckBox;
+    ckbEnableCustomPropUI: TCheckBox;
+    ckbEnableTbPropData: TCheckBox;
+    ckbEnableTbPropGenerate: TCheckBox;
+    ckbEnableTbPropUIDesign: TCheckBox;
     ckbUseOdbcDriverForMsSql: TCheckBox;
     ckbAddColCommentToCreateTbSql: TCheckBox;
-    ckbCheckForUpdates: TCheckBox;
-    ckbCreateSeqForOracle: TCheckBox;
     ckbCreateIndexForForeignkey: TCheckBox;
     ckbTableDialogViewModeByDefault: TCheckBox;
     ckbQuotAllNames: TCheckBox;
     ckbSaveTempFileOnExit: TCheckBox;
     ckbWriteConstraintToDescribeStr: TCheckBox;
     ckbLogicNamesForTableData: TCheckBox;
-    ckbEnableCustomPropUI: TCheckBox;
     ckbQuotReservedNames: TCheckBox;
     ckbBackupBeforeAlterColumn: TCheckBox;
     ckbFieldGridShowLines: TCheckBox;
+    combMysqlVersion: TComboBox;
     combLANG: TComboBox;
-    combDefPhyTpLogicType: TComboBox;
     combNLSLang: TComboBox;
-    edtCustomPropUICaption: TEdit;
+    combHiveVersion: TComboBox;
     edtCustFldtpName: TEdit;
     edtCustFldtpPhyType: TEdit;
-    edtCustomPhyType: TEdit;
+    edtCustomPropUICaption: TEdit;
+    edtChatGPTKey: TEdit;
     edtScreenDpi: TEdit;
-    edtPOSTGRESLIB: TEdit;
+    edtPOSTGRESLIB: TComboBox;
     edtFDGenNames: TEdit;
     edtTpnRepPattern: TEdit;
     edtTpnReplacement: TEdit;
@@ -120,13 +137,16 @@ type
     edtFieldNameMaxDrawSize: TEdit;
     edtFieldTypeMaxDrawSize: TEdit;
     edtHugeModeTableCount: TEdit;
-    edtMYSQLLIB: TEdit;
-    edtSQLSERVERLIB: TEdit;
-    edtSQLITELIB: TEdit;
+    edtMYSQLLIB: TComboBox;
+    edtSQLSERVERLIB: TComboBox;
+    edtSQLITELIB: TComboBox;
     edtMaxRowCountForTableData: TEdit;
-    edtOCILIB: TEdit;
+    edtOCILIB: TComboBox;
     edtTableFieldMaxDrawCount: TEdit;
     edtFDGenRule: TEdit;
+    GroupBoxOthers: TGroupBox;
+    GroupBoxSQLDbSpec: TGroupBox;
+    GroupBoxTbTabs: TGroupBox;
     GroupBoxDBConnPostgre: TGroupBox;
     GroupBoxKnownTbPrefix: TGroupBox;
     GroupBoxCustDict: TGroupBox;
@@ -148,6 +168,7 @@ type
     GroupBoxOthersTb: TGroupBox;
     GroupBoxBaseFont: TGroupBox;
     Label1: TLabel;
+    lbMysqlVersion: TLabel;
     lbNLSLang: TLabel;
     lbScreenDpiInfo: TLabel;
     lbKnownTbPrefixTip: TLabel;
@@ -159,11 +180,11 @@ type
     lbDispFontNote: TLabel;
     lbCustDictTip: TLabel;
     lbPostgreLib: TLabel;
+    lbHiveVersion: TLabel;
+    lbTableDataPreviewRows1: TLabel;
     lbTpnReplacement1: TLabel;
     lbTpnReplaceTip: TLabel;
     lbDBConnNote1: TLabel;
-    lbDefPhyTpLogicType: TLabel;
-    lbCustomPhyType: TLabel;
     lbFDGenTip: TLabel;
     lbTpnRepPattern: TLabel;
     lbTpnReplacement: TLabel;
@@ -190,8 +211,8 @@ type
     lbHugeModeTableCount: TLabel;
     lbHugeModeTableCountTip: TLabel;
     lbTpnRepPattern1: TLabel;
-    ListBoxCustFldTps: TListBox;
     ListBoxDefPhyTypes: TListBox;
+    ListBoxCustFldTps: TListBox;
     ListBoxTpNameReplaces: TListBox;
     ListBoxFDGenRules: TListBox;
     MemoKnownTbPrefixs: TMemo;
@@ -199,6 +220,7 @@ type
     OpenDialogDbLib: TOpenDialog;
     PageControlMain: TPageControl;
     Panel1: TPanel;
+    PanelPhyCustTps: TPanel;
     PanelFieldTypes: TPanel;
     PanelGen1: TPanel;
     PanelSQL: TPanel;
@@ -217,23 +239,19 @@ type
     procedure btnFDGenNewClick(Sender: TObject);
     procedure btnFDGenRemoveClick(Sender: TObject);
     procedure btnMysqlLibBrsClick(Sender: TObject);
-    procedure btnNewCustPhyTpClick(Sender: TObject);
     procedure btnOracleLibBrsClick(Sender: TObject);
     procedure btnPostgreLibBrsClick(Sender: TObject);
-    procedure btnRemoveCustPhyTpClick(Sender: TObject);
     procedure btnSqliteLibBrsClick(Sender: TObject);
     procedure btnSqlServerLibBrsClick(Sender: TObject);
     procedure btnTpnRepNewClick(Sender: TObject);
     procedure btnTpnRepRemoveClick(Sender: TObject);
     procedure ckbEnableCustomPropUIChange(Sender: TObject);
     procedure edtCustFldtpNameChange(Sender: TObject);
-    procedure edtCustomPhyTypeChange(Sender: TObject);
     procedure edtFDGenRuleChange(Sender: TObject);
     procedure edtTpnRepPatternChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ListBoxCustFldTpsClick(Sender: TObject);
-    procedure ListBoxDefPhyTypesClick(Sender: TObject);
     procedure ListBoxFDGenRulesClick(Sender: TObject);
     procedure ListBoxTpNameReplacesClick(Sender: TObject);
   private        
@@ -250,16 +268,26 @@ type
     FSQLSERVERLIB: string;
     FPOSTGRESLIB: string;
     FSQLITELIB: string;
+    FBigIntForIntKeys: boolean;
     FQuotReservedNames: boolean;
     FQuotAllNames: boolean;
     FBackupBeforeAlterColumn: boolean;
     FWriteConstraintToDescribeStr: boolean;
     FFieldGridShowLines :Boolean;
-    FAddColCommentToCreateTbSql: boolean;   
+    FAddColCommentToCreateTbSql: boolean;
+    FCreateForeignkeys: boolean;
     FCreateIndexForForeignkey: boolean;
+    FHiveVersion: Integer;     
+    FMysqlVersion: Integer;
+    FRetainAfterCommit: boolean;
     FEnableCustomPropUI: boolean;
-    FCustomPropUICaption : String;
-    FEnableAdvTbProp: boolean;
+    FCustomPropUICaption : String;   
+    FChatGPTKey : String;
+    FEnableAdvTbProp: boolean;       
+    FEnableTbPropRelations: boolean;
+    FEnableTbPropGenerate: boolean;
+    FEnableTbPropData: boolean;
+    FEnableTbPropUIDesign: boolean;
     FUseOdbcDriverForMsSql: boolean;
     FLANG: string;
     FAppDefFontName: string;
@@ -271,10 +299,11 @@ type
     FFieldTypeMaxDrawSize: integer;
     FTableFieldMaxDrawCount: integer;     
     FTableDialogViewModeByDefault : Boolean;
+    FFrameCustPhyFieldTypes: TFrameCustPhyFieldTypes;
 
     FIsInitingFt: boolean;
 
-    procedure BrowseLibFile(AEdit: TEdit; ALibName1, ALibName2: string);       
+    procedure BrowseLibFile(AEdit: TComboBox; ALibName1, ALibName2: string);
     procedure CheckCustFieldEditors;
   public
     procedure LoadSetting;
@@ -343,30 +372,6 @@ begin
   CheckCustFieldEditors;
 end;
 
-procedure TfrmSettings.ListBoxDefPhyTypesClick(Sender: TObject);
-var
-  I, po: integer;
-  S, V: string;
-begin
-  I := ListBoxDefPhyTypes.ItemIndex;
-  if I < 0 then
-    S := ''
-  else
-    S := ListBoxDefPhyTypes.Items[I];
-  V := '';
-  po := Pos(':', S);
-  if po > 0 then
-  begin
-    V := Copy(S, po + 1, Length(S));
-    S := Copy(S, 1, po - 1);
-  end;
-  FIsInitingFt := True;
-  combDefPhyTpLogicType.ItemIndex := combDefPhyTpLogicType.Items.IndexOf(S);
-  edtCustomPhyType.Text := V;
-  FIsInitingFt := False;
-  CheckCustFieldEditors;
-end;
-
 procedure TfrmSettings.ListBoxFDGenRulesClick(Sender: TObject);
 var
   I, po: integer;
@@ -415,7 +420,7 @@ begin
   CheckCustFieldEditors;
 end;
 
-procedure TfrmSettings.BrowseLibFile(AEdit: TEdit; ALibName1, ALibName2: string
+procedure TfrmSettings.BrowseLibFile(AEdit: TComboBox; ALibName1, ALibName2: string
   );
 var
   S: string;
@@ -443,20 +448,15 @@ end;
 
 procedure TfrmSettings.CheckCustFieldEditors;
 var
-  bSelA, bSelB, bSelC, bSelD: Boolean;
+  bSelA, bSelC, bSelD: Boolean;
 begin
   bSelA := ListBoxCustFldTps.ItemIndex >= 0;
-  bSelB := ListBoxDefPhyTypes.ItemIndex >= 0;
   bSelC := ListBoxTpNameReplaces.ItemIndex >= 0;     
   bSelD := ListBoxFDGenRules.ItemIndex >= 0;
 
   edtCustFldtpName.Enabled := bSelA;
   edtCustFldtpPhyType.Enabled := bSelA;
   btnCustFldtpRemove.Enabled := bSelA;
-
-  combDefPhyTpLogicType.Enabled := bSelB;
-  edtCustomPhyType.Enabled := bSelB;
-  btnRemoveCustPhyTp.Enabled := bSelB;
 
   edtTpnRepPattern.Enabled := bSelC;
   edtTpnReplacement.Enabled := bSelC;
@@ -470,34 +470,23 @@ end;
 
 procedure TfrmSettings.FormCreate(Sender: TObject);
 begin
-  PageControlMain.ActivePageIndex := 0;
+  PageControlMain.ActivePageIndex := 0; 
+  FFrameCustPhyFieldTypes := TFrameCustPhyFieldTypes.Create(Self);
+  with FFrameCustPhyFieldTypes do
+  begin                         
+    Parent := PanelPhyCustTps;
+    Align := alClient;
+  end;
 end;
 
 procedure TfrmSettings.btnOracleLibBrsClick(Sender: TObject);
 begin
-  BrowseLibFile(edtOCILIB, ocilib, '');
+  BrowseLibFile(edtOCILIB, ocilib, 'dmoci.dll');
 end;
 
 procedure TfrmSettings.btnPostgreLibBrsClick(Sender: TObject);
 begin
   BrowseLibFile(edtPOSTGRESLIB, pqlib, '');
-end;
-
-procedure TfrmSettings.btnRemoveCustPhyTpClick(Sender: TObject);
-var
-  I: integer;
-begin
-  I := ListBoxDefPhyTypes.ItemIndex;
-  if I >= 0 then
-  begin
-    ListBoxDefPhyTypes.Items.Delete(I);
-    if I > ListBoxDefPhyTypes.Items.Count - 1 then
-      I := ListBoxDefPhyTypes.Items.Count - 1;
-    if I >= 0 then
-      ListBoxDefPhyTypes.ItemIndex := I;
-    ListBoxDefPhyTypesClick(nil);
-    btnNewCustPhyTp.Enabled := True;
-  end;
 end;
 
 procedure TfrmSettings.btnSqliteLibBrsClick(Sender: TObject);
@@ -562,25 +551,6 @@ begin
   ListBoxCustFldTps.Items[I] := S;
 end;
 
-procedure TfrmSettings.edtCustomPhyTypeChange(Sender: TObject);
-var
-  I: integer;
-  S, V: string;
-begin
-  if FIsInitingFt then
-    Exit;
-  I := ListBoxDefPhyTypes.ItemIndex;
-  if I < 0 then
-    Exit;
-  S := Trim(combDefPhyTpLogicType.Text);
-  if S = '' then
-    Exit;
-  V := Trim(edtCustomPhyType.Text);
-  if V <> '' then
-    S := S + ':' + V;
-  ListBoxDefPhyTypes.Items[I] := S;
-end;
-
 procedure TfrmSettings.edtFDGenRuleChange(Sender: TObject);
 var
   I: integer;
@@ -623,35 +593,6 @@ end;
 procedure TfrmSettings.btnMysqlLibBrsClick(Sender: TObject);
 begin
   BrowseLibFile(edtMYSQLLIB, mysqllib, mysqlvlib);
-end;
-
-procedure TfrmSettings.btnNewCustPhyTpClick(Sender: TObject);
-var
-  I, J: integer;
-  S, T: string;
-  bExists: boolean;
-begin
-  for I := 0 to combDefPhyTpLogicType.Items.Count - 1 do
-  begin
-    S := combDefPhyTpLogicType.Items[I];
-    bExists := False;
-    for J := 0 to ListBoxDefPhyTypes.Items.Count - 1 do
-    begin
-      T := ListBoxDefPhyTypes.Items[J];
-      if (T = S) or (Pos(S, T) = 1) then
-      begin
-        bExists := True;
-        Break;
-      end;
-    end;
-    if not bExists then
-    begin
-      ListBoxDefPhyTypes.ItemIndex := ListBoxDefPhyTypes.Items.Add(S);
-      ListBoxDefPhyTypesClick(nil);
-      Exit;
-    end;
-  end;
-  btnNewCustPhyTp.Enabled := False;
 end;
 
 procedure TfrmSettings.btnCustFldtpNewClick(Sender: TObject);
@@ -747,6 +688,11 @@ procedure TfrmSettings.LoadSetting;
 var
   ini: TIniFile;
   S: string;
+
+  procedure LoadComboHist(Combo: TComboBox; dbType: string);
+  begin
+    LoadFtList(Combo.Items, Ini, 'DbLibHist_'+dbType);
+  end;
 begin
   InitEditors;
 
@@ -755,7 +701,13 @@ begin
     ForceDirectories(S);
 
   ini := TIniFile.Create(GetConfFileOfApp);
-  try
+  try                
+    LoadComboHist(edtOCILIB, 'ORACLE');
+    LoadComboHist(edtMYSQLLIB, 'MYSQL');
+    LoadComboHist(edtPOSTGRESLIB, 'POSTGRESQL');
+    LoadComboHist(edtSQLSERVERLIB, 'SQLSERVER');
+    LoadComboHist(edtSQLITELIB, 'SQLITE');
+
     //{1} := ini.Read{3}('Options', '{1}', F{1});    
     FCheckForUpdates := ini.ReadBool('Options', 'CheckForUpdates',
       True);
@@ -780,8 +732,10 @@ begin
       False);
     FPOSTGRESLIB := ini.ReadString('Options', 'POSTGRESLIB', FPOSTGRESLIB);
     FSQLITELIB := ini.ReadString('Options', 'SQLITELIB', FSQLITELIB);
+    FBigIntForIntKeys := ini.ReadBool('Options', 'BigIntForIntKeys',
+      False);
     FQuotReservedNames := ini.ReadBool('Options', 'QuotReservedNames',
-      True);                                      
+      False);
     FQuotAllNames := ini.ReadBool('Options', 'QuotAllNames',
       False);
     FBackupBeforeAlterColumn := ini.ReadBool('Options', 'BackupBeforeAlterColumn',
@@ -791,15 +745,32 @@ begin
       True);      
     FFieldGridShowLines :=
       ini.ReadBool('Options', 'FieldGridShowLines',
-      False);
+      True);
     FAddColCommentToCreateTbSql :=
       ini.ReadBool('Options', 'AddColCommentToCreateTbSql', True);    
+    FCreateForeignkeys :=
+      ini.ReadBool('Options', 'CreateForeignkeys', True);
     FCreateIndexForForeignkey :=
-      ini.ReadBool('Options', 'CreateIndexForForeignkey', False);
+      ini.ReadBool('Options', 'CreateIndexForForeignkey', False);     
+    FHiveVersion :=
+      ini.ReadInteger('Options', 'HiveVersion', 2);
+    FMysqlVersion :=
+      ini.ReadInteger('Options', 'MysqlVersion', 5);
+    FRetainAfterCommit :=
+      ini.ReadBool('Options', 'RetainAfterCommit', True);
     FEnableCustomPropUI := ini.ReadBool('Options', 'EnableCustomPropUI',
       False);       
-    FCustomPropUICaption := ini.ReadString('Options', 'CustomPropUICaption', '');  
+    FCustomPropUICaption := ini.ReadString('Options', 'CustomPropUICaption', '');   
+    FChatGPTKey := ini.ReadString('Options', 'ChatGPTKey', '');
     FEnableAdvTbProp := ini.ReadBool('Options', 'EnableAdvTbProp',
+      False);              
+    FEnableTbPropRelations := ini.ReadBool('Options', 'EnableTbPropRelations',
+      True);
+    FEnableTbPropGenerate := ini.ReadBool('Options', 'EnableTbPropGenerate',
+      True);
+    FEnableTbPropData := ini.ReadBool('Options', 'EnableTbPropData',
+      False);
+    FEnableTbPropUIDesign := ini.ReadBool('Options', 'EnableTbPropUIDesign',
       False);
     FLANG := ini.ReadString('Options', 'LANG', '');
     FAppDefFontName := ini.ReadString('Options', 'AppDefFontName', '');
@@ -822,6 +793,7 @@ begin
 
     LoadFtList(ListBoxCustFldTps.Items, Ini, 'CustFieldTypes');
     LoadFtList(ListBoxDefPhyTypes.Items, Ini, 'DefaultFieldTypes');
+    FFrameCustPhyFieldTypes.Load(ListBoxDefPhyTypes.Items);
     LoadFtList(ListBoxTpNameReplaces.Items, Ini, 'CustDataTypeReplaces');     
     LoadFtList(ListBoxFDGenRules.Items, Ini, 'CustFieldDataGenRules');
 
@@ -832,8 +804,13 @@ begin
 
   combLANG.Text := FLANG;
   ckbEnableCustomPropUI.Checked := FEnableCustomPropUI;
-  edtCustomPropUICaption.Text := FCustomPropUICaption;
-  ckbEnableAdvTbProp.Checked := FEnableAdvTbProp;
+  edtCustomPropUICaption.Text := FCustomPropUICaption;    
+  edtChatGPTKey.Text := FChatGPTKey;
+  ckbEnableAdvTbProp.Checked := FEnableAdvTbProp;       
+  ckbEnableTbPropGenerate.Checked := FEnableTbPropGenerate;       
+  ckbEnableTbPropRelations.Checked := FEnableTbPropRelations;
+  ckbEnableTbPropData.Checked := FEnableTbPropData;
+  ckbEnableTbPropUIDesign.Checked := FEnableTbPropUIDesign;
   edtCustomPropUICaption.Visible:=ckbEnableCustomPropUI.Checked;
   ckbCheckForUpdates.Checked := FCheckForUpdates;
 
@@ -854,10 +831,15 @@ begin
 
   edtScreenDpi.Text := IntToStr(Screen.PixelsPerInch);
 
-  ckbQuotReservedNames.Checked := FQuotReservedNames;  
+  ckbBigIntForIntKeys.Checked := FBigIntForIntKeys;
+  ckbQuotReservedNames.Checked := FQuotReservedNames;
   ckbQuotAllNames.Checked := FQuotAllNames;
   ckbBackupBeforeAlterColumn.Checked := FBackupBeforeAlterColumn;
   ckbAddColCommentToCreateTbSql.Checked := FAddColCommentToCreateTbSql;       
+  ckbCreateForeignkeys.Checked := FCreateForeignkeys;
+  combHiveVersion.Text := IntToStr(FHiveVersion);     
+  combMysqlVersion.Text := IntToStr(FMysqlVersion);
+  ckbRetainAfterCommit.Checked := FRetainAfterCommit;
   ckbCreateIndexForForeignkey.Checked := FCreateIndexForForeignkey;
   ckbCreateSeqForOracle.Checked := FCreateSeqForOracle;
 
@@ -914,11 +896,32 @@ procedure TfrmSettings.SaveSetting;
 var
   ini: TIniFile;
   S: string;
+
+  procedure SaveComboHist(Combo: TComboBox; dbType: string);
+  var
+    I: Integer;
+  begin
+    S:=Combo.Text;
+    if S<> '' then
+    begin
+      I := Combo.Items.IndexOf(S);
+      if I>0 then
+        Combo.Items.Move(I, 0)
+      else if I < 0 then
+        Combo.Items.Insert(0, S);
+    end;
+    SaveFtList(Combo.Items, Ini, 'DbLibHist_'+dbType);
+  end;
 begin
   FLANG := combLANG.Text;
   FEnableCustomPropUI := ckbEnableCustomPropUI.Checked;
-  FCustomPropUICaption := edtCustomPropUICaption.Text;  
-  FEnableAdvTbProp := ckbEnableAdvTbProp.Checked;
+  FCustomPropUICaption := edtCustomPropUICaption.Text;   
+  FChatGPTKey := edtChatGPTKey.Text;
+  FEnableAdvTbProp := ckbEnableAdvTbProp.Checked;           
+  FEnableTbPropGenerate := ckbEnableTbPropGenerate.Checked;     
+  FEnableTbPropRelations := ckbEnableTbPropRelations.Checked;
+  FEnableTbPropData := ckbEnableTbPropData.Checked;
+  FEnableTbPropUIDesign := ckbEnableTbPropUIDesign.Checked;
   FCheckForUpdates := ckbCheckForUpdates.Checked;
 
 
@@ -938,11 +941,16 @@ begin
   FTableFieldMaxDrawCount := StrToIntDef(edtTableFieldMaxDrawCount.Text,
     FTableFieldMaxDrawCount);
 
-  FQuotReservedNames := ckbQuotReservedNames.Checked;   
+  FBigIntForIntKeys := ckbBigIntForIntKeys.Checked;
+  FQuotReservedNames := ckbQuotReservedNames.Checked;
   FQuotAllNames := ckbQuotAllNames.Checked;
   FBackupBeforeAlterColumn := ckbBackupBeforeAlterColumn.Checked;
   FAddColCommentToCreateTbSql := ckbAddColCommentToCreateTbSql.Checked;    
   FCreateIndexForForeignkey := ckbCreateIndexForForeignkey.Checked;
+  FCreateForeignkeys := ckbCreateForeignkeys.Checked;
+  FHiveVersion := StrToIntDef(combHiveVersion.Text, FHiveVersion);   
+  FMysqlVersion := StrToIntDef(combMysqlVersion.Text, FMysqlVersion);  
+  FRetainAfterCommit := ckbRetainAfterCommit.Checked;
   FCreateSeqForOracle := ckbCreateSeqForOracle.Checked;
 
   FMaxRowCountForTableData := StrToIntDef(edtMaxRowCountForTableData.Text,
@@ -981,7 +989,13 @@ begin
     ForceDirectories(S);
 
   ini := TIniFile.Create(GetConfFileOfApp);
-  try                                    
+  try
+    SaveComboHist(edtOCILIB, 'ORACLE');
+    SaveComboHist(edtMYSQLLIB, 'MYSQL');
+    SaveComboHist(edtPOSTGRESLIB, 'POSTGRESQL');
+    SaveComboHist(edtSQLSERVERLIB, 'SQLSERVER');
+    SaveComboHist(edtSQLITELIB, 'SQLITE');
+
     ini.WriteBool('Options', 'CheckForUpdates', FCheckForUpdates);
     //ini.Write{3}('Options', '{1}', F{1});
     ini.WriteInteger('Options', 'AutoSaveMinutes', FAutoSaveMinutes);
@@ -997,17 +1011,27 @@ begin
     ini.WriteBool('Options', 'UseOdbcDriverForMsSql', FUseOdbcDriverForMsSql);
     ini.WriteString('Options', 'POSTGRESLIB', FPOSTGRESLIB);
     ini.WriteString('Options', 'SQLITELIB', FSQLITELIB);
-    ini.WriteBool('Options', 'QuotReservedNames', FQuotReservedNames);   
+    ini.WriteBool('Options', 'BigIntForIntKeys', FBigIntForIntKeys);
+    ini.WriteBool('Options', 'QuotReservedNames', FQuotReservedNames);
     ini.WriteBool('Options', 'QuotAllNames', FQuotAllNames);
     ini.WriteBool('Options', 'BackupBeforeAlterColumn', FBackupBeforeAlterColumn);
     ini.WriteBool('Options', 'WriteConstraintToDescribeStr',
       FWriteConstraintToDescribeStr);                         
     ini.WriteBool('Options', 'FieldGridShowLines', FFieldGridShowLines);
     ini.WriteBool('Options', 'AddColCommentToCreateTbSql', FAddColCommentToCreateTbSql);     
+    ini.WriteBool('Options', 'CreateForeignkeys', FCreateForeignkeys);
     ini.WriteBool('Options', 'CreateIndexForForeignkey', FCreateIndexForForeignkey);
-    ini.WriteBool('Options', 'EnableCustomPropUI', FEnableCustomPropUI);  
-    ini.WriteString('Options', 'CustomPropUICaption', FCustomPropUICaption);  
-    ini.WriteBool('Options', 'EnableAdvTbProp', FEnableAdvTbProp);
+    ini.WriteBool('Options', 'EnableCustomPropUI', FEnableCustomPropUI);               
+    ini.WriteInteger('Options', 'HiveVersion', FHiveVersion);
+    ini.WriteInteger('Options', 'MysqlVersion', FMysqlVersion);
+    ini.WriteBool('Options', 'RetainAfterCommit', FRetainAfterCommit);
+    ini.WriteString('Options', 'CustomPropUICaption', FCustomPropUICaption);   
+    ini.WriteString('Options', 'ChatGPTKey', FChatGPTKey);
+    ini.WriteBool('Options', 'EnableAdvTbProp', FEnableAdvTbProp);        
+    ini.WriteBool('Options', 'EnableTbPropGenerate', FEnableTbPropGenerate);     
+    ini.WriteBool('Options', 'EnableTbPropRelations', FEnableTbPropRelations);
+    ini.WriteBool('Options', 'EnableTbPropData', FEnableTbPropData);
+    ini.WriteBool('Options', 'EnableTbPropUIDesign', FEnableTbPropUIDesign);
     ini.WriteString('Options', 'LANG', FLANG);
     ini.WriteString('Options', 'AppDefFontName', FAppDefFontName);
     ini.WriteInteger('Options', 'AppDefFontSize', FAppDefFontSize);
@@ -1020,7 +1044,8 @@ begin
     ini.WriteBool('Options', 'TableDialogViewModeByDefault',
       FTableDialogViewModeByDefault);
 
-    SaveFtList(ListBoxCustFldTps.Items, Ini, 'CustFieldTypes');
+    SaveFtList(ListBoxCustFldTps.Items, Ini, 'CustFieldTypes');  
+    FFrameCustPhyFieldTypes.Save(ListBoxDefPhyTypes.Items);
     SaveFtList(ListBoxDefPhyTypes.Items, Ini, 'DefaultFieldTypes');
     SaveFtList(ListBoxTpNameReplaces.Items, Ini, 'CustDataTypeReplaces');
     SaveFtList(ListBoxFDGenRules.Items, Ini, 'CustFieldDataGenRules');
@@ -1037,7 +1062,7 @@ procedure TfrmSettings.InitEditors;
   procedure InitLangs;
   var
     Sr: TSearchRec;
-    otmp, S, AFolderName: string;
+    S, AFolderName: string;
 
   begin
     combLANG.Clear;
@@ -1080,16 +1105,6 @@ procedure TfrmSettings.InitEditors;
 
   end;
 
-  procedure InitDataTypes;
-  var
-    t: TCtFieldDataType;
-  begin
-    combDefPhyTpLogicType.Items.Clear;
-    for t := cfdtString to cfdtList do
-      combDefPhyTpLogicType.Items.Add(DEF_CTMETAFIELD_DATATYPE_NAMES_ENG[t]);
-    combDefPhyTpLogicType.ItemIndex := 0;
-  end;
-
 begin
 
   edtAppDefFontName.Items.Assign(Screen.Fonts);
@@ -1097,7 +1112,6 @@ begin
   edtDmlGraphFontName.Items.Assign(Screen.Fonts);
 
   InitLangs;
-  InitDataTypes;
     
   CheckCustFieldEditors;
 end;

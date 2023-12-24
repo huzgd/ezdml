@@ -36,10 +36,12 @@ type
 
   end;
 
+var
+  G_OracleNlsLang: string='';
 
 implementation
 
-uses wOracleDBConfig, Forms;
+uses wOracleDBConfig, Forms, WindowFuncs;
 
 { TCtMetaOracleDb }
 
@@ -56,12 +58,18 @@ var
 begin
   if FConnected = Value then
     Exit;
+  if Value then
+    if G_OracleNlsLang <> '' then
+    begin
+      if Pos('GBK', G_OracleNlsLang)>0 then    
+        FDbConn.CharSet := 'GBK';
+    end;
   inherited SetConnected(Value);
 
   if FConnected then
   begin
     with FQuery do
-    begin
+    try
       Clear;
       SQL.Text := 'select userenv(''language'') from dual';
       Open;
@@ -74,6 +82,7 @@ begin
         if Pos('GBK', S) > 0 then
           FDbConn.CharSet := 'GBK';
       end;
+    except
     end;
   end;
 end;
@@ -81,7 +90,6 @@ end;
 procedure TCtMetaOracleDb.SetFCLConnDatabase; 
 var
   S: string;
-  po: integer;
 begin
   if FDbConn=nil then
     Exit;
@@ -89,15 +97,21 @@ begin
   if FDbConn.DatabaseName = '' then
   begin
     S := FDbConn.HostName;
-    po := Pos('/', S);
-    if po > 0 then
-    begin
-      FDbConn.DatabaseName := Copy(S, po + 1, Length(S));
-    end
-    else
+    if S <> '' then
     begin
       FDbConn.DatabaseName := S;
+      FDbConn.HostName := '';
     end;
+  //po: integer;
+    //po := Pos('/', S);
+    //if po > 0 then
+    //begin
+    //  FDbConn.DatabaseName := Copy(S, po + 1, Length(S));
+    //end
+    //else
+    //begin
+    //  FDbConn.DatabaseName := S;
+    //end;
   end;
 end;
 
@@ -118,10 +132,13 @@ function TCtMetaOracleDb.ExecCmd(ACmd, AParam1, AParam2: string): string;
 var
   S: string;
 begin
-  CheckConnected;
+  Result:=inherited ExecCmd(ACmd, AParam1, AParam2);
+  if Result <> '' then
+    Exit;
   Result := '';
   if (ACmd = 'DISABLE_CONSTRAINTS') or (ACmd = 'ENABLE_CONSTRAINTS') then
-  begin
+  begin      
+    CheckConnected;
     if AParam1 = '' then
       Exit;
     with FQuery do
@@ -144,10 +161,10 @@ begin
       Open;
       while not EOF do
       begin
-        S := Fields[0].AsString;
+        S := CtTrim(Fields[0].AsString);
         if Result <> '' then
           Result := Result + ',';
-        Result := Result + Fields[1].AsString + '(' + S + ')';
+        Result := Result + CtTrim(Fields[1].AsString) + '(' + S + ')';
         with FQueryB do
         begin
           Clear;
@@ -262,9 +279,9 @@ begin
     while not EOF do
     begin
       if (ADBUser = '') then
-        Result.Add(Fields[0].AsString + '.' + Fields[1].AsString)
+        Result.Add(CtTrim(Fields[0].AsString) + '.' + CtTrim(Fields[1].AsString))
       else
-        Result.Add(Fields[1].AsString);
+        Result.Add(CtTrim(Fields[1].AsString));
       Next;
     end;
   end;
@@ -277,14 +294,14 @@ begin
   with FQuery do
   begin
     Clear;
-    Sql.Text := 'select username from all_users';
+    Sql.Text := 'select username from all_users order by username';
     Open;
     while not EOF do
     begin
       if Result = '' then
-        Result := Fields[0].AsString
+        Result := CtTrim(Fields[0].AsString)
       else
-        Result := Result + #13#10 + Fields[0].AsString;
+        Result := Result + #13#10 + CtTrim(Fields[0].AsString);
       Next;
     end;
   end;
@@ -369,11 +386,11 @@ begin
     begin
       with o.MetaFields.NewMetaField do
       begin
-        Name := CheckNameCap(FieldByName('column_name').AsString);
-        Memo := FieldByName('comments').AsString;
-        DefaultValue := Trim(FieldByName('data_default').AsString);
-        Nullable := FieldByName('nullable').AsString = 'Y';
-        S := FieldByName('data_type').AsString;
+        Name := CheckNameCap(CtTrim(FieldByName('column_name').AsString));
+        Memo := CtTrim(FieldByName('comments').AsString);
+        DefaultValue := CtTrim(FieldByName('data_default').AsString);
+        Nullable := CtTrim(FieldByName('nullable').AsString) = 'Y';
+        S := CtTrim(FieldByName('data_type').AsString);
         if (S = 'VARCHAR2') or (S = 'NVARCHAR2') or (S = 'CHAR') or
           (S = 'NCHAR') then
         begin
@@ -399,10 +416,10 @@ begin
           else if (Name = 'RID') then
             KeyFieldType := cfktRid
           else }
-          T := FieldByName('DATA_SCALE').AsString;
+          T := CtTrim(FieldByName('DATA_SCALE').AsString);
           if T = '0' then
           begin
-            T := FieldByName('data_precision').AsString;
+            T := CtTrim(FieldByName('data_precision').AsString);
             if T = '1' then
             begin
               DataType := cfdtEnum;
@@ -423,7 +440,7 @@ begin
           else
           begin
             DataScale := StrToIntDef(T, 0);
-            T := FieldByName('data_precision').AsString;
+            T := CtTrim(FieldByName('data_precision').AsString);
             if (T <> '') then
               DataLength := StrToIntDef(T, 0);
             DataType := cfdtFloat;
@@ -473,7 +490,7 @@ begin
     Open;
     if not EOF then
     begin
-      o.Memo := Fields[0].AsString;
+      o.Memo := CtTrim(Fields[0].AsString);
     end;
 
     Clear;
@@ -490,11 +507,11 @@ begin
     Open;
     while not EOF do
     begin
-      S := Fields[1].AsString;
+      S := CtTrim(Fields[1].AsString);
       f := o.MetaFields.FieldByName(S);
       if Assigned(f) then
       begin
-        S := Fields[2].AsString;
+        S := CtTrim(Fields[2].AsString);
         if S = 'P' then
           f.KeyFieldType := cfktId
         else if S = 'R' then
@@ -518,8 +535,8 @@ begin
             Open;
             if not EOF then
             begin
-              f.RelateTable := Fields[1].AsString;
-              f.RelateField := Fields[0].AsString;
+              f.RelateTable := CtTrim(Fields[1].AsString);
+              f.RelateField := CtTrim(Fields[0].AsString);
             end;
           end;
         end;
@@ -545,7 +562,7 @@ begin
     Open;
     while not EOF do
     begin
-      S := Fields[0].AsString;       
+      S := CtTrim(Fields[0].AsString);       
       po := Fields[3].AsInteger;
       if po > 1 then
       begin
@@ -560,7 +577,7 @@ begin
         begin
           Next;
           Dec(po);
-          S := S+','+Fields[0].AsString;
+          S := S+','+CtTrim(Fields[0].AsString);
         end;
         f.IndexFields := S;
                       
@@ -570,15 +587,15 @@ begin
           T := 'IDU_' + T
         else
           T := 'IDX_' + T;
-        if LowerCase(Fields[2].AsString) <> LowerCase(T) then
-          f.Memo := f.Memo + '[DB_INDEX_NAME:' + Fields[2].AsString + ']';
+        if LowerCase(CtTrim(Fields[2].AsString)) <> LowerCase(T) then
+          f.Memo := f.Memo + '[DB_INDEX_NAME:' + CtTrim(Fields[2].AsString) + ']';
       end
       else
       begin
         f := o.MetaFields.FieldByName(S);
         if Assigned(f) then
         begin
-          S := Fields[1].AsString;
+          S := CtTrim(Fields[1].AsString);
           if S = 'UNIQUE' then
           begin
             if f.KeyFieldType <> cfktId then

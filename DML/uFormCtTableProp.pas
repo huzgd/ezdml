@@ -16,11 +16,13 @@ type
 
   TfrmCtTableProp = class(TForm)
     actCameCaselToUnderline: TAction;
+    actCnWordSegment: TAction;
     actUnderlineToCamelCase: TAction;
     bbtnView: TBitBtn;
     Label1: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
+    MNCnWordSegment: TMenuItem;
     Panel1: TPanel;
     btnOk: TButton;
     btnCancel: TButton;
@@ -47,6 +49,7 @@ type
     TimerDelayCmd: TTimer;
     procedure actCameCaselToUnderlineExecute(Sender: TObject);
     procedure actCheckWithMyDictExecute(Sender: TObject);
+    procedure actCnWordSegmentExecute(Sender: TObject);
     procedure actUnderlineToCamelCaseExecute(Sender: TObject);
     procedure bbtnViewClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
@@ -67,7 +70,10 @@ type
     procedure TimerDelayCmdTimer(Sender: TObject);
   private
     { Private declarations }
-    FReadOnlyMode: boolean;
+    FReadOnlyMode: boolean; 
+    FModalWndClosed: Boolean;
+    FModalResOk: Boolean;
+    FConfirmedClose: Boolean;
     FMetaTable: TCtMetaTable;
     FTempMetaTable: TCtMetaTable;
     FFrameCtTableProp: TFrameCtTableProp;
@@ -86,6 +92,7 @@ type
 
     function ShowModalEx: integer;
     function CheckModified: Boolean;
+    procedure ForceRelease;
   end;
 
 function ShowCtMetaTableDialog(ATb: TCtMetaTable;
@@ -100,7 +107,7 @@ var
 implementation
 
 uses
-  CTMetaData, dmlstrs, AutoNameCapitalize, WindowFuncs, WSForms, InterfaceBase, IniFiles;
+  CTMetaData, dmlstrs, ezdmlstrs, AutoNameCapitalize, WindowFuncs, WSForms, InterfaceBase, IniFiles;
 
 {$R *.lfm}
 
@@ -116,7 +123,8 @@ var
   frm: TfrmCtTableProp;
   fn, S: string;
   ss: TStrings;
-  bOk: Boolean;
+  bOk, hHasOthers: Boolean;
+  I, mrs: Integer;
 begin
   Result := False;
 
@@ -157,12 +165,23 @@ begin
   else if not bReadOnly then
     CheckCanEditMeta;
 
+  hHasOthers := False;
+  for I:=Screen.FormCount - 1 downto 0 do
+  begin
+    if Screen.Forms[I] is TfrmCtTableProp then
+    begin
+      hHasOthers := True;
+      Break;
+    end;
+  end;
+
   if not Assigned(FfrmCtTableProp) then
   begin
     FfrmCtTableProp := TfrmCtTableProp.Create(Application);
-    FfrmCtTableProp.LoadIni;
-  end;
-  if FfrmCtTableProp.Showing or bReadOnly or bViewModal then
+    FfrmCtTableProp.LoadIni; 
+    frm := FfrmCtTableProp;
+  end
+  else if FfrmCtTableProp.Showing or bReadOnly or bViewModal then
   begin
     frm := TfrmCtTableProp.Create(Application);
   end
@@ -176,7 +195,11 @@ begin
         FSaveColIni := 'DialogView'
       else
         FSaveColIni := 'Dialog';
-
+                                 
+      if not bReadOnly and bIsNew then
+        FFrameCtTableProp.CreatingNewTable := True
+      else
+        FFrameCtTableProp.CreatingNewTable := False;
       FFrameCtTableProp.OwnerDialog := frm;
       if not bReadOnly then
       begin
@@ -195,7 +218,6 @@ begin
       begin
         GProc_OnEzdmlCmdEvent('TABLE_PROP_DIALOG', 'SHOW', '', ATb, frm);
       end;
-      FormStyle := fsStayOnTop;
       if bReadOnly then
       begin
         if atb = G_WMZ_CUSTCMD_Object then
@@ -228,7 +250,10 @@ begin
           ShowModal;
         end
         else
+        begin
+          FormStyle := fsStayOnTop;
           Show;
+        end;
       end
       else
       begin
@@ -240,7 +265,14 @@ begin
           G_WMZ_CUSTCMD_Object := nil;
           Position := poDesigned;
         end;
-        if ShowModalEx = mrOk then
+        if hHasOthers then
+        begin
+          FormStyle := fsStayOnTop;
+          mrs := ShowModalEx;
+        end
+        else
+          mrs := ShowModal;
+        if mrs = mrOk then
         begin
           if not FReadOnlyMode then
           begin
@@ -250,6 +282,8 @@ begin
             begin
               GProc_OnEzdmlCmdEvent('TABLE_PROP_DIALOG', 'HIDE', 'SAVE', ATb, frm);
             end;
+            G_WMZ_CUSTCMD_Object := atb;
+            PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 6, 0);
           end
           else
           if Assigned(GProc_OnEzdmlCmdEvent) then
@@ -304,13 +338,17 @@ begin
   begin
     btnOK.Caption := srCapModify;
     btnCapitalize.Visible := False;
+    if bbtnView.Visible then
+      FFrameCtTableProp.btnToggleTabs.Left:=FFrameCtTableProp.btnToggleTabs.Left+FFrameCtTableProp.btnToggleTabs.Width;
     bbtnView.Visible := False;
     btnCancel.Caption := srCapClose;
   end
   else
   begin
-    btnOK.Caption := srCapOk;
-    btnCapitalize.Visible := (Assigned(FTempMetaTable) and FTempMetaTable.IsTable);
+    btnOK. Caption := srCapOk;
+    btnCapitalize.Visible := (Assigned(FTempMetaTable) and FTempMetaTable.IsTable); 
+    if not bbtnView.Visible then
+      FFrameCtTableProp.btnToggleTabs.Left:=FFrameCtTableProp.btnToggleTabs.Left-FFrameCtTableProp.btnToggleTabs.Width;
     bbtnView.Visible := True;
     bbtnView.BringToFront;
     btnCancel.Caption := srCapCancel;
@@ -388,6 +426,8 @@ begin
   bModal := 3;
 {$ENDIF}
 {$endif}
+  FModalWndClosed := False;
+  FModalResOk := False;
   if Self = nil then
     raise EInvalidOperation.Create('TCustomForm.ShowModal Self = nil');
   if Application.Terminated then
@@ -452,7 +492,10 @@ begin
           Application.Idle(True);
         until False;
 
-        Result := ModalResult;
+        if FModalResOk then
+          Result := mrOk
+        else
+          Result := ModalResult;
         if HandleAllocated and (GetActiveWindow <> Handle) then
           ActiveWindow := 0;
       finally
@@ -496,6 +539,12 @@ begin
     Result := False
   else
     Result := True;
+end;
+
+procedure TfrmCtTableProp.ForceRelease;
+begin
+  FConfirmedClose := True;
+  Close;
 end;
 
 procedure TfrmCtTableProp.FormCreate(Sender: TObject);
@@ -561,6 +610,11 @@ begin
   DoCapitalizeProc('CheckMyDict');
 end;
 
+procedure TfrmCtTableProp.actCnWordSegmentExecute(Sender: TObject);
+begin
+  DoCapitalizeProc('CnWordSegment');
+end;
+
 procedure TfrmCtTableProp.actUnderlineToCamelCaseExecute(Sender: TObject);
 begin
   DoCapitalizeProc('UnderlineToCamelCase');
@@ -573,38 +627,44 @@ procedure TfrmCtTableProp.bbtnViewClick(Sender: TObject);
 begin
   G_WMZ_CUSTCMD_Object := FMetaTable;
   G_WMZ_CUSTCMD_WndRect := Self.BoundsRect;
-  PostMessage(Application.MainForm.Handle, WMZ_CUSTCMD, 2, 1);
+  PostMessage(Application.MainForm.Handle, WMZ_CUSTCMD, 5, 1);
   Close;
 end;
 
 
 procedure TfrmCtTableProp.btnCancelClick(Sender: TObject);
 begin
+  FConfirmedClose := True;
   Close;
 end;
 
 procedure TfrmCtTableProp.btnOkClick(Sender: TObject);
-begin
+begin        
+  btnOk.SetFocus;
   if FReadOnlyMode then
   begin
     CheckCanEditMeta;
     G_WMZ_CUSTCMD_Object := FMetaTable;
     G_WMZ_CUSTCMD_WndRect := Self.BoundsRect;
-    PostMessage(Application.MainForm.Handle, WMZ_CUSTCMD, 2, 0);
+    PostMessage(Application.MainForm.Handle, WMZ_CUSTCMD, 5, 0);
+    FConfirmedClose := True;
     Self.Close;
     //TimerDelayCmd.Tag := 2;
     //TimerDelayCmd.Enabled := True;
-  end;
+  end
+  else
+    ModalResult := mrOk;
 end;
 
 procedure TfrmCtTableProp.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 begin
+  FConfirmedClose := False;
   FFrameCtTableProp.HideProps;
   if Self.ModalResult = mrNone then
     Self.ModalResult := mrCancel;
-  if Self <> FfrmCtTableProp then
-    CloseAction := caFree;
+  //if Self <> FfrmCtTableProp then
+  CloseAction := caFree;
 end;
 
 procedure TfrmCtTableProp.FormDeactivate(Sender: TObject);
@@ -741,12 +801,34 @@ end;
 
 procedure TfrmCtTableProp.FormCloseQuery(Sender: TObject;
   var CanClose: boolean);
+var
+  bOk: Boolean;
 begin
+  if FModalWndClosed then
+    Exit;
   if FSaveColIni <> '' then
     FFrameCtTableProp.SaveColWidths(FSaveColIni);    
   if Self = FfrmCtTableProp then
     SaveIni;
+  bOk := False;
   if ModalResult = mrOk then
+    bOk := True
+  else if not FConfirmedClose then
+  begin
+    if CheckModified then
+    begin
+      case Application.MessageBox(PChar(srEzdmlConfirmCloseModified), PChar(Self.Caption),
+        MB_YESNOCANCEL or MB_ICONWARNING or MB_DEFBUTTON3) of
+        IDYES:
+          bOk := True;
+        IDNO:;
+      else
+        Abort;
+      end;
+    end;
+  end;
+  if bOk then
+  begin
     if not FReadOnlyMode then
     begin
       try
@@ -757,7 +839,11 @@ begin
         CheckCanRenameTable(FMetaTable, FTempMetaTable.Name, True);
       FMetaTable.AssignFrom(FTempMetaTable);
       DoTablePropsChanged(FMetaTable);
+      FModalResOk := True;
     end;
+  end;
+  if CanClose then
+    FModalWndClosed := True;
 end;
 
 initialization

@@ -35,13 +35,11 @@ uses
 
 { TfrmAbout }
 
-procedure TfrmAbout.FormCreate(Sender: TObject);    
-var
-  S: string;
+procedure TfrmAbout.FormCreate(Sender: TObject);
 begin
   lbTitle.Caption := srEzdmlAppTitleOS;
   lbVersion.Caption := Format('V%s %s (Freeware)', [srEzdmlVersionNum, srEzdmlVersionDate]);
-  memoAuthor.Lines.Text := 'http://www.ezdml.com'#13#10'huzzz@163.com'#13#10'QQ group: 344282607'#13#10'http://blog.csdn.net/huzgd';
+  memoAuthor.Lines.Text := 'http://www.ezdml.com'#13#10'huzzz@163.com'#13#10'QQ group: 344282607'#13#10'http://www.ezdml.com/blog/';
 end;
 
 end.
