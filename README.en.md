@@ -4,6 +4,8 @@
 
 EZDML is a small free tool which helps you to create data models quickly. It's simple and fast, with EZDML you can create tables within few seconds and customize template-scripts to generate UI data code files.
 
+![ezdml_en](doc/images/ezdml_en.png)
+
 Features:
 1.Table model design: create table, fields, primary key, foreign key and comments
 2.Text script to create models quickly
@@ -12,6 +14,7 @@ Features:
 5.Generate database DDL SQLs, compare with exists object to genarate proper SQLs
 6.Generate simple codes: C++, Pascal, c#, java, demo data sheet, etc, templates can be customized and you can create new templates.
 7.Support Pascal-script and JavaScript.
+
 
 #### Architecture
 
