@@ -28,3 +28,4 @@ lib/
 
 # Application bundle for Mac OS
 *.app/
+/rename_readme.bat

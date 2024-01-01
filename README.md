@@ -17,7 +17,9 @@ Note: This repository is a Lite version of EZDML with all source units required,
 
 Sites:
 http://www.ezdml.com
+
 https://gitee.com/huzgd/ezdml
+
 https://github.com/huzgd/ezdml
 
 #### Architecture
