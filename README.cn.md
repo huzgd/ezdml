@@ -60,8 +60,12 @@ EZDML即EzDML，是Easy Data Model Language（简易数据模型语言）的意�
 #### 下载EZDML
 
 http://www.ezdml.com
+
 https://gitee.com/huzgd/ezdml/releases
+
 https://pan.baidu.com/s/1HI3EQ4n-Lb5Y2s1poNTujA?pwd=8wj2
+
+
 
 #### 其它
 
