@@ -55,7 +55,7 @@ EZDML即EzDML，是Easy Data Model Language（简易数据模型语言）的意�
 3.  精简版未提供脚本引擎，但提供了将原有PAS脚本直接引入源码一起编译的机制，示例参见DML\Scripts\PasGen_*.pas
 5.  代码未经整理，文档注释均欠缺，毕竟原本只是写给我自己看的，没有做到规范
 6.  编译警告也很多。以前在Delphi下是没有警告的，转到lazarus下突然多了很多警告，改不过来，干脆躺平，放弃治疗了
-7.  目前未提供安装程序相关源码和文件，如需要发布，建议在官方绿色版的基础上打包（将编译好的EZDML_lite.exe改名并覆盖掉绿色版的EZDML_x.exe，绿色版下载地址：https://gitee.com/huzgd/ezdml_green）
+7.  目前未提供安装程序相关源码和文件，如需要发布，建议在官方绿色版的基础上打包（将编译好的EZDML_lite.exe改名并覆盖掉绿色版的EZDML_x.exe），绿色版下载地址：https://gitee.com/huzgd/ezdml_green
 
 #### 下载EZDML
 
