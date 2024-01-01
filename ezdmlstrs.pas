@@ -26,7 +26,7 @@ const
 {$ifdef WIN32}
   srEzdmlAppTitleOS = 'EZDML Lite (win32)';
 {$else}
-  srEzdmlAppTitleOS = 'EZDML Lite';
+  srEzdmlAppTitleOS = 'EZDML Lite (win64)';
 {$endif}
 {$else}
   srEzdmlAppTitleOS = 'EZDML Lite';
@@ -118,6 +118,7 @@ resourcestring
   srEzdmlDmjUnicodePropmt = 'Save json data with \uXXXX unicode format?';
   srEzdmlPromptNeverShown = '(Shift+Action = Don''t prompt again)';
   srEzdmlGlobalScriptError = 'Error running global-script function %s: %s';
+  srEzdmlLiteNotSupportFun = 'This function is not supported in Lite Version';
 
 implementation
 

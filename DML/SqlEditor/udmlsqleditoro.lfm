@@ -1,0 +1,362 @@
+object frmDmlSqlEditorO: TfrmDmlSqlEditorO
+  Left = 412
+  Height = 570
+  Top = 322
+  Width = 934
+  BorderIcons = [biSystemMenu, biMaximize]
+  BorderWidth = 2
+  Caption = 'SQL Tool'
+  ClientHeight = 570
+  ClientWidth = 934
+  Color = clBtnFace
+  Constraints.MinHeight = 300
+  Constraints.MinWidth = 450
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnResize = FormResize
+  OnShow = FormShow
+  ParentFont = True
+  Position = poScreenCenter
+  LCLVersion = '2.0.12.0'
+  object Splitter1: TSplitter
+    Cursor = crVSplit
+    Left = 2
+    Height = 3
+    Top = 346
+    Width = 930
+    Align = alBottom
+    OnMoved = Splitter1Moved
+    ResizeAnchor = akBottom
+  end
+  object PanelRes: TPanel
+    Left = 2
+    Height = 219
+    Top = 349
+    Width = 930
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 219
+    ClientWidth = 930
+    TabOrder = 1
+    object Bevel3: TBevel
+      Left = 10
+      Height = 5
+      Top = 0
+      Width = 904
+      Anchors = [akTop, akLeft, akRight]
+      Shape = bsTopLine
+    end
+    object Label1: TLabel
+      Left = 0
+      Height = 17
+      Top = 4
+      Width = 930
+      Align = alTop
+      Caption = '&Result:'
+      Color = clBtnFace
+      FocusControl = DBGridRes
+      ParentColor = False
+      Transparent = False
+    end
+    object Bevel1: TBevel
+      Left = 0
+      Height = 4
+      Top = 0
+      Width = 930
+      Align = alTop
+      Shape = bsTopLine
+    end
+    object DBGridRes: TDBGrid
+      Left = 0
+      Height = 198
+      Top = 21
+      Width = 739
+      Align = alClient
+      Color = clWindow
+      Columns = <>
+      DataSource = DataSourceRes
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgThumbTracking]
+      TabOrder = 0
+      TitleFont.CharSet = GB2312_CHARSET
+      TitleFont.Color = clWindowText
+      TitleFont.Height = -12
+      TitleFont.Name = '宋体'
+      OnCellClick = DBGridResCellClick
+      OnColEnter = DBGridResColEnter
+      OnMouseUp = DBGridResMouseUp
+    end
+    object MemoFieldContent: TDBMemo
+      Left = 744
+      Height = 198
+      Top = 21
+      Width = 186
+      Align = alRight
+      DataSource = DataSourceRes
+      TabOrder = 1
+      Visible = False
+    end
+    object SplitterFV: TSplitter
+      Left = 739
+      Height = 198
+      Top = 21
+      Width = 5
+      Align = alRight
+      ResizeAnchor = akRight
+      Visible = False
+    end
+  end
+  object PanelSql: TPanel
+    Left = 2
+    Height = 344
+    Top = 2
+    Width = 930
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 344
+    ClientWidth = 930
+    TabOrder = 0
+    object Panel1: TPanel
+      Left = 0
+      Height = 344
+      Top = 0
+      Width = 930
+      Align = alClient
+      BevelOuter = bvNone
+      ClientHeight = 344
+      ClientWidth = 930
+      TabOrder = 0
+      object Panel2: TPanel
+        Left = 0
+        Height = 32
+        Top = 0
+        Width = 930
+        Align = alTop
+        AutoSize = True
+        BevelOuter = bvNone
+        BorderWidth = 4
+        ClientHeight = 32
+        ClientWidth = 930
+        TabOrder = 0
+        object LabelSql: TLabel
+          Cursor = crHandPoint
+          Left = 4
+          Height = 17
+          Top = 9
+          Width = 26
+          Caption = 'S&QL:'
+          ParentColor = False
+          OnMouseDown = LabelSqlMouseDown
+        end
+        object sbtnSqlPrev: TSpeedButton
+          Left = 40
+          Height = 21
+          Top = 7
+          Width = 22
+          AutoSize = True
+          Caption = '<='
+          Flat = True
+          OnClick = sbtnSqlPrevClick
+        end
+        object sbtnSqlNext: TSpeedButton
+          Left = 76
+          Height = 21
+          Top = 7
+          Width = 22
+          AutoSize = True
+          Caption = '=>'
+          Flat = True
+          OnClick = sbtnSqlNextClick
+        end
+        object sbtnRun: TSpeedButton
+          Left = 244
+          Height = 21
+          Top = 7
+          Width = 69
+          Action = actExec
+          AutoSize = True
+          Flat = True
+        end
+        object sbtnClearAll: TSpeedButton
+          Left = 180
+          Height = 21
+          Hint = 'Clear editor'
+          Top = 7
+          Width = 34
+          AutoSize = True
+          Caption = 'Clear'
+          Flat = True
+          OnClick = sbtnClearAllClick
+          ShowHint = True
+          ParentShowHint = False
+        end
+        object sbtnConnectDb: TSpeedButton
+          Left = 108
+          Height = 21
+          Hint = 'Connect database'
+          Top = 7
+          Width = 51
+          AutoSize = True
+          Caption = 'Connect'
+          Flat = True
+          OnClick = sbtnConnectDbClick
+          ShowHint = True
+          ParentShowHint = False
+        end
+        object lbStatus: TLabel
+          Left = 356
+          Height = 17
+          Top = 9
+          Width = 91
+          Caption = 'Status message'
+          ParentColor = False
+        end
+        object sbtnToggleTbList: TSpeedButton
+          Left = 874
+          Height = 21
+          Hint = 'Show/hide table list'
+          Top = 4
+          Width = 56
+          Anchors = [akTop, akRight]
+          AutoSize = True
+          Caption = 'Table list'
+          Flat = True
+          OnClick = sbtnToggleTbListClick
+          ShowHint = True
+          ParentShowHint = False
+        end
+      end
+      object PanelTbs: TPanel
+        Left = 744
+        Height = 312
+        Top = 32
+        Width = 186
+        Align = alRight
+        BevelOuter = bvNone
+        ClientHeight = 312
+        ClientWidth = 186
+        TabOrder = 1
+        Visible = False
+        object ListBoxTbs: TListBox
+          Left = 0
+          Height = 287
+          Top = 25
+          Width = 186
+          Align = alClient
+          ItemHeight = 0
+          OnDblClick = ListBoxTbsDblClick
+          PopupMenu = PopupMenuTbs
+          TabOrder = 0
+        end
+        object combDbUsers: TComboBox
+          Left = 0
+          Height = 25
+          Top = 0
+          Width = 186
+          Align = alTop
+          ItemHeight = 17
+          OnChange = combDbUsersChange
+          Style = csDropDownList
+          TabOrder = 1
+        end
+      end
+      object SplitterTbs: TSplitter
+        Left = 739
+        Height = 312
+        Top = 32
+        Width = 5
+        Align = alRight
+        ResizeAnchor = akRight
+        Visible = False
+      end
+    end
+  end
+  object ActionList1: TActionList
+    Left = 16
+    Top = 68
+    object actEditSelall: TAction
+      Category = 'Edit'
+      Caption = 'actEditSelall'
+      OnExecute = actEditSelallExecute
+    end
+    object actExec: TAction
+      Category = 'Sql'
+      Caption = 'Execute(F8)'
+      OnExecute = actExecExecute
+      OnUpdate = actExecUpdate
+      ShortCut = 119
+    end
+    object actCopyRec: TAction
+      Category = 'Edit'
+      Caption = 'Copy record'
+      OnExecute = actCopyRecExecute
+    end
+    object actCopyAll: TAction
+      Category = 'Edit'
+      Caption = 'Copy all'
+      OnExecute = actCopyAllExecute
+    end
+    object actRollback: TAction
+      Category = 'Sql'
+      Caption = 'rollback'
+    end
+    object actCommit: TAction
+      Category = 'Sql'
+      Caption = 'commit'
+    end
+    object actCopyCol: TAction
+      Category = 'Edit'
+      Caption = 'Copy col'
+      OnExecute = actCopyColExecute
+    end
+  end
+  object DataSourceRes: TDataSource
+    Left = 48
+    Top = 248
+  end
+  object PopupMenuOldSql: TPopupMenu
+    OnPopup = PopupMenuOldSqlPopup
+    Left = 48
+    Top = 68
+  end
+  object PopupMenuGrid: TPopupMenu
+    OnPopup = PopupMenuGridPopup
+    Left = 80
+    Top = 248
+    object N5: TMenuItem
+      Action = actCopyRec
+    end
+    object MenuItem1: TMenuItem
+      Action = actCopyCol
+    end
+    object N1: TMenuItem
+      Action = actCopyAll
+    end
+  end
+  object TimerInit: TTimer
+    Interval = 500
+    OnTimer = TimerInitTimer
+    Left = 108
+    Top = 76
+  end
+  object PopupMenuTbs: TPopupMenu
+    Left = 724
+    Top = 140
+    object MN_ShowTableProps: TMenuItem
+      Caption = 'Table properties'
+      Default = True
+      OnClick = MN_ShowTablePropsClick
+    end
+    object MN_QueryTableData: TMenuItem
+      Caption = 'Query table data'
+      OnClick = MN_QueryTableDataClick
+    end
+    object MN_CopyTbName: TMenuItem
+      Caption = 'Copy name'
+      OnClick = MN_CopyTbNameClick
+    end
+    object MN_TbsRefresh: TMenuItem
+      Caption = 'Refresh'
+      OnClick = MN_TbsRefreshClick
+    end
+  end
+end

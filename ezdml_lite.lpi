@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <General>
+      <Flags>
+        <MainUnitHasUsesSectionForAllUnits Value="False"/>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+        <MainUnitHasScaledStatement Value="False"/>
+      </Flags>
+      <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
+      <Title Value="EZDML Lite"/>
+      <Scaled Value="True"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <XPManifest>
+        <DpiAware Value="True"/>
+        <TextName Value="ezdml.app"/>
+        <TextDesc Value="EZDML"/>
+      </XPManifest>
+      <Icon Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="languages"/>
+    </i18n>
+    <VersionInfo>
+      <UseVersionInfo Value="True"/>
+      <MajorVersionNr Value="3"/>
+      <MinorVersionNr Value="5"/>
+      <RevisionNr Value="6"/>
+      <BuildNr Value="274"/>
+      <StringTable Comments="EZDML_X EMail:huzzz@163.com" CompanyName="huzzz@163.com" FileDescription="EZDML" InternalName="ezdml_x.exe" LegalCopyright="(c) 2007-2022 Huz(huzzz@163.com,http://www.ezdml.com)" LegalTrademarks="ezdml" OriginalFilename="ezdml_x.exe" ProductName="EZDML_X" ProductVersion="3.3"/>
+    </VersionInfo>
+    <BuildModes Count="3">
+      <Item1 Name="Default" Default="True"/>
+      <Item2 Name="Debug">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <SearchPaths>
+            <IncludeFiles Value="DML\Ctobj;DML;pkg;pkg\BesenJs;$(ProjOutDir)"/>
+            <OtherUnitFiles Value="pkg;pkg\Indy10\Core;pkg\Indy10\Protocols;pkg\Indy10\System;pkg\BesenJs;clib\$(TargetOS);SubForms;Settings;DML\Graph;DML\Props;DML\Scripts;DML\Utils;DML\SqlEditor;DML\Ctobj;DML\ImpExp;DML\DbConn;DML"/>
+            <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <SyntaxMode Value="Delphi"/>
+              <IncludeAssertionCode Value="True"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <Checks>
+              <IOChecks Value="True"/>
+              <RangeChecks Value="True"/>
+              <OverflowChecks Value="True"/>
+              <StackChecks Value="True"/>
+            </Checks>
+            <Optimizations>
+              <OptimizationLevel Value="0"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <UseExternalDbgSyms Value="True"/>
+            </Debugging>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5026="True" idx5024="True"/>
+            </CompilerMessages>
+            <CustomOptions Value="-vd
+-dBorland
+-dVer150
+-dDelphi7
+-dCompiler6_Up
+-dPUREPASCAL
+-dEZDML_LITE"/>
+            <OtherDefines Count="6">
+              <Define0 Value="Borland"/>
+              <Define1 Value="Ver150"/>
+              <Define2 Value="Delphi7"/>
+              <Define3 Value="Compiler6_Up"/>
+              <Define4 Value="PUREPASCAL"/>
+              <Define5 Value="EZDML_LITE"/>
+            </OtherDefines>
+          </Other>
+        </CompilerOptions>
+      </Item2>
+      <Item3 Name="Release">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <SearchPaths>
+            <IncludeFiles Value="DML\Ctobj;DML;pkg;pkg\BesenJs;$(ProjOutDir)"/>
+            <OtherUnitFiles Value="pkg;pkg\Indy10\Core;pkg\Indy10\Protocols;pkg\Indy10\System;pkg\BesenJs;SubForms;Settings;DML\Graph;DML\Props;DML\Scripts;DML\Utils;DML\SqlEditor;DML\Ctobj;DML\ImpExp;DML\DbConn;DML"/>
+            <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <SyntaxMode Value="Delphi"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <SmartLinkUnit Value="True"/>
+            <Optimizations>
+              <OptimizationLevel Value="3"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <GenerateDebugInfo Value="False"/>
+            </Debugging>
+            <LinkSmart Value="True"/>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5026="True" idx5024="True"/>
+            </CompilerMessages>
+            <CustomOptions Value="-vd
+-dBorland
+-dVer150
+-dDelphi7
+-dCompiler6_Up
+-dPUREPASCAL
+-dEZDML_LITE"/>
+            <OtherDefines Count="6">
+              <Define0 Value="Borland"/>
+              <Define1 Value="Ver150"/>
+              <Define2 Value="Delphi7"/>
+              <Define3 Value="Compiler6_Up"/>
+              <Define4 Value="PUREPASCAL"/>
+              <Define5 Value="EZDML_LITE"/>
+            </OtherDefines>
+          </Other>
+        </CompilerOptions>
+      </Item3>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0"/>
+    </RunParams>
+    <RequiredPackages Count="4">
+      <Item1>
+        <PackageName Value="FCL"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="SynEdit"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="pascalscript"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="LCL"/>
+      </Item4>
+    </RequiredPackages>
+    <Units Count="73">
+      <Unit0>
+        <Filename Value="ezdml_lite.lpr"/>
+        <IsPartOfProject Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="wMainDml.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmMainDml"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="ezdmlstrs.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="pkg\uJSON.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="pkg\ThreadWait.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmThreadWait"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="pkg\wToast.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmToast"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="pkg\NetUtil.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="pkg\MessageBoxOnTop.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="pkg\uWaitWnd.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="pkg\WindowFuncs.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="pkg\XLSfile.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="SubForms\uFormDmlSearch.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="SubForms\uFormEzdmlDbFile.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="SubForms\wabout.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmAbout"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="wAbout"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="SubForms\wDmlHelp.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="Settings\uFrameCustPhyFieldTypes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="Settings\wSettings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="DML\Ctobj\CtObjSerialer.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="DML\Ctobj\CTMetaData.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="DML\Ctobj\CtObjXmlSerial.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="DML\Ctobj\CtObjJsonSerial.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="DML\CtMetaTable.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="DML\dmlstrs.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="DML\Props\uFrameCtFieldDef.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="DML\Graph\uFormCtDML.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmCtDML"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="DML\Props\uFormCtTableProp.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="DML\Props\uFrameCtTableProp.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FrameCtTableProp"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="DML\Scripts\DmlScriptPublic.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="DML\Graph\DMLObjs.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="DML\Utils\AutoNameCapitalize.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="DML\SqlEditor\udmlsqleditoro.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmDmlSqlEditorO"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uDmlSqlEditorO"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="DML\Graph\DMLGraph.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="DML\Graph\ImgView.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="DML\Graph\uFrameDML.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FrameDML"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="DML\Props\uFrameCtTableDef.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="DML\Utils\UCNSpell.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit35>
+      <Unit36>
+        <Filename Value="DML\SqlEditor\uDMLSqlEditor.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit36>
+      <Unit37>
+        <Filename Value="DML\ImpExp\uFormImpTable.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit37>
+      <Unit38>
+        <Filename Value="DML\DbConn\CtMetaHttpDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit38>
+      <Unit39>
+        <Filename Value="DML\DbConn\CtMetaCustomDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit39>
+      <Unit40>
+        <Filename Value="DML\ImpExp\uFormGenSql.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit40>
+      <Unit41>
+        <Filename Value="DML\DbConn\CtMetaFCLSqlDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit41>
+      <Unit42>
+        <Filename Value="DML\DbConn\CtMetaPostgreSqlDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit42>
+      <Unit43>
+        <Filename Value="DML\DbConn\CtMetaSqlsvrDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit43>
+      <Unit44>
+        <Filename Value="DML\DbConn\CtMetaOracleDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="DML\Props\uFrameCtTableList.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit45>
+      <Unit46>
+        <Filename Value="DML\DbConn\uFormCtDbLogon.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="DML\Graph\uFormAddTbLink.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit47>
+      <Unit48>
+        <Filename Value="DML\Props\uFormCtFieldProp.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit48>
+      <Unit49>
+        <Filename Value="DML\Utils\PvtInput.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit49>
+      <Unit50>
+        <Filename Value="DML\Graph\uColorStyles.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmColorStyles"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit50>
+      <Unit51>
+        <Filename Value="DML\Ctobj\CtObjDbSerial.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit51>
+      <Unit52>
+        <Filename Value="DML\DbConn\wCommonDBConfig.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit52>
+      <Unit53>
+        <Filename Value="DML\DbConn\wSqlServerDBConfig.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit53>
+      <Unit54>
+        <Filename Value="DML\DbConn\wOracleDBConfig.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit54>
+      <Unit55>
+        <Filename Value="DML\DbConn\CtMetaOdbcDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit55>
+      <Unit56>
+        <Filename Value="DML\Props\uFormSelectFields.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="DML\Props\uFormGenTabCust.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="DML\DbConn\uFormWindowsOdbcCfg.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit58>
+      <Unit59>
+        <Filename Value="DML\Props\uFormAddCtFields.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit59>
+      <Unit60>
+        <Filename Value="DML\Utils\CtMetaTbUtil.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit60>
+      <Unit61>
+        <Filename Value="DML\DbConn\CtMetaSqliteDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit61>
+      <Unit62>
+        <Filename Value="DML\DbConn\CtMetaEzdmlFakeDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit62>
+      <Unit63>
+        <Filename Value="DML\DbConn\CtMetaMysqlDb.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit63>
+      <Unit64>
+        <Filename Value="DML\Scripts\DmlGlobalPasScriptLite.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit64>
+      <Unit65>
+        <Filename Value="DML\Scripts\DmlPasScriptLite.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit65>
+      <Unit66>
+        <Filename Value="DML\Scripts\PasGen_Cpp.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit66>
+      <Unit67>
+        <Filename Value="DML\Scripts\PasGen_Excel.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit67>
+      <Unit68>
+        <Filename Value="DML\Scripts\PasGen_Word.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit68>
+      <Unit69>
+        <Filename Value="DML\Scripts\PasGen_AddAllTables.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit69>
+      <Unit70>
+        <Filename Value="pkg\CtSysInfo.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit70>
+      <Unit71>
+        <Filename Value="DML\Scripts\PasGen_JDBCServer.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit71>
+      <Unit72>
+        <Filename Value="DML\Scripts\PasGen_Test.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit72>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <SearchPaths>
+      <IncludeFiles Value="DML\Ctobj;DML;pkg;pkg\BesenJs;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="pkg;pkg\fcl\mysqlxx;pkg\Indy10\Core;pkg\Indy10\Protocols;pkg\Indy10\System;pkg\BesenJs;SubForms;Settings;DML\Graph;DML\Props;DML\Scripts;DML\Utils;DML\SqlEditor;DML\Ctobj;DML\ImpExp;DML\DbConn;DML"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <SyntaxMode Value="Delphi"/>
+        <IncludeAssertionCode Value="True"/>
+      </SyntaxOptions>
+    </Parsing>
+    <CodeGeneration>
+      <Checks>
+        <IOChecks Value="True"/>
+        <RangeChecks Value="True"/>
+        <OverflowChecks Value="True"/>
+        <StackChecks Value="True"/>
+      </Checks>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
+    </CodeGeneration>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <IgnoredMessages idx5026="True" idx5024="True"/>
+      </CompilerMessages>
+      <CustomOptions Value="-vd
+-dBorland
+-dVer150
+-dDelphi7
+-dCompiler6_Up
+-dPUREPASCAL
+-dEZDML_LITE"/>
+      <OtherDefines Count="6">
+        <Define0 Value="Borland"/>
+        <Define1 Value="Ver150"/>
+        <Define2 Value="Delphi7"/>
+        <Define3 Value="Compiler6_Up"/>
+        <Define4 Value="PUREPASCAL"/>
+        <Define5 Value="EZDML_LITE"/>
+      </OtherDefines>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="6">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+      <Item4>
+        <Name Value="EConvertError"/>
+      </Item4>
+      <Item5>
+        <Name Value="EODBCException"/>
+      </Item5>
+      <Item6>
+        <Name Value="EInvalidOperation"/>
+      </Item6>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

@@ -295,6 +295,8 @@ end;
 procedure TfrmThreadWait.FormShow(Sender: TObject);
 begin
   FLastShowingWaitForm := Self;
+  if FCanClose then
+    PostMessage(Handle, WMZ_CLOSE, 0, 0);
 end;
 
 procedure TfrmThreadWait._WMZ_CLOSE(var msg: TMessage);

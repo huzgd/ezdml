@@ -1,350 +1,347 @@
-# ezdml
+# EZDML Lite
 
-#### 介绍
+#### Description
 
-EZDML是一款国产免费的轻量级数据建模工具，具有轻巧、快速、简便而功能强大的特点，可轻松地进行数据库表结构设计，建立界面数据模型，支持通过自定义脚本模板生成测试数据、界面原型和前后端代码文件。
+EZDML Lite is a small free tool which helps you to create data models quickly. It's simple and fast, with EZDML you can create tables within few seconds.
 
-![ezdml_cn](doc/images/ezdml_cn.png)
+![ezdml_en](doc/images/ezdml_lite_en.png)
 
-包含功能：
-1. 表结构设计：创建表、字段、主键、外键、索引和注释，界面原型设置：编辑器类型、数据校验、数据生成规则、列显示隐藏等；
-2. 表描述：可直接编辑文字描述快速生成表结构，爱用键盘的人会喜欢这个功能；
-3. 模型图：自动生成模型图；可设计和显示物理／逻辑视图，支持自动布局、平移、缩小放大等操作；
-4. 导入数据库：导入数据库中的已有对象，即所谓的逆向工程（支持ORACLE、MYSQL、SQLSERVER、SQLITE、POSTGRESQL和ODBC、JDBC、HIVE）；
-5. 生成数据库：可生成直接创建数据库的SQL脚本；也可与现有数据库或文件比较，然后生成同步脚本的功能，不至于丢失现有数据；
-6. 生成代码：可生成C++、Pas、C#和Java等的简单类定义代码，以及演示数据界面原型，也可以批量生成复杂的项目系统文件，你可以修改它们或创建你自己的脚本模板；
-7. 自定义脚本模板：支持Javascript和Pascal-script脚本；
-8. 支持达梦（DMOCI或JDBC）、人大金昌（PQ或JDBC）等国产数据库。
+Features:
+1. Table model design: create table, fields, primary key, foreign key and comments
+2. Text script to create models quickly
+3. Diagram layout with logical and physical model views
+4. Import exists tables from database (ORACLE, MYSQL, SQLSERVER, SQLITE, POSTGRESQL, ODBC, JDBC, HIVE)
+5. Generate database DDL SQLs, compare with exists object to genarate proper SQLs.
 
-官网：http://www.ezdml.com
+Note: This repository is a Lite version of EZDML with all source units required, which can be easily compiled on Windows, Linux, and Mac OS. You may also try EZDML_ord branch if you want a fully functional version.
 
+Sites:
+http://www.ezdml.com
+https://gitee.com/huzgd/ezdml
+https://github.com/huzgd/ezdml
 
-#### 开发语言
-
-EZDML即EzDML，是Easy Data Model Language（简易数据模型语言）的意思，大约始于是2006-2009年。最开始是用Delphi写，后来转到了lazarus下开发，开发语言为Pascal，大概用到了下列技术：
+#### Architecture
 
 - Borland Delphi Pascal
 - Free Pascal, www.freepascal.org
 - Lazarus, lazarus.freepascal.org
-- RemObjects Pascal Script, Carlo Kok, www.remobjects.com
-- BESEN Javascript, Benjamin 'BeRo' Rosseaux
 - uJSON, Jose Fabio Nascimento de Almeida
-- SynEdit, sourceforge.net/projects/synedit
-- Indy, indyproject.org
 - FCL SqlDB
 
 
-#### 编译运行
+#### Instructions
 
-目前仅提供win32的编译安装：
+1.  Download and install Lazarus+FPC from lazarus-ide.org, version required: Lazarus 2.0+
+    -  https://www.lazarus-ide.org/
+    -  Choose the appropriate installer for your platform (Windows/Linux/MacOS)
+2.  Clone the repository to local disk
+3.  Open ezdml_lite.lpi with Lazarus and compile/run
 
-1.  从lazarus-ide.org下载安装Lazarus+FPC（win32版）
-    - 要求版本：Lazarus 2.0.12 r64642 (win32)、 FPC 3.2.0 i386-win32-win32/win64
-    - 直接下载地址：https://sourceforge.net/projects/lazarus/files/Lazarus%20Windows%2032%20bits/Lazarus%202.0.12/lazarus-2.0.12-fpc-3.2.0-win32.exe/download
-2.  下载或克隆本项目到本机
-3.  将pkg\fpc_m目录下的文件覆盖lazarus\components\PascalScript\Source的源码
-4.  重新编译整个工程 (执行菜单命令 Run | Clean up and Build...) 并运行（注：首次编译必须清理）
+#### Notes
+
+1.  The repository already contains all the required source code, which can be compiled and run on Windows, Linux, and MacOS
+2.  The core classes and data format of EZDML Lite are completely consistent with the official version, but do not include some extended advanced features such as pascal/java script engine, user interface design/preview, Excel import, Pdm import, ChatGPT generation, batch code generation, and test data generation. Some details of data processing differ from the official version
+3.  No installation program provided. It is recommended to make package base on the official green version (rename and replace the EZDML executable), which locations here: https://gitee.com/huzgd/ezdml_green
+
+#### Download EZDML
+
+http://www.ezdml.com/download_en.html
+
+https://gitee.com/huzgd/ezdml/releases
+
+https://pan.baidu.com/s/1HI3EQ4n-Lb5Y2s1poNTujA?pwd=8wj2
 
 
-#### 代码说明
 
-1.  包含所有界面源码和对象核心代码
-2.  暂未包含模型图渲染和脚本源码
-3.  代码未经整理，文档注释均欠缺，毕竟原本只是写给我自己看的，没有做到规范
-4.  编译警告也很多。以前在Delphi下是没有警告的，转到lazarus下突然多了很多警告，改不过来，干脆躺平，放弃治疗了
-5.  目前未提供安装程序相关源码和文件
-
-#### 其它
-
-
-更多的内容，请参阅官网《EZDML快速上手》、《EZDML常见问题》、《EZDML配置文件》、《EZDML脚本简介》、《EZDML脚本参考》等文档。
+#### Contact
 
 huzzz@163.com
 
 http://www.ezdml.com
 
-QQ群: 344282607
+QQ group: 344282607
 
 
-#### 版本历史
+#### Version history of EZDML:
 
-2009年2月18日 V1.21
-该工具开始开发的时间是2006年4月，最近改进了一下，因此初始版本号取为1.2。
+2009-2-18 V1.21
+This tool project started from Apr 2006, so version number is 1.2 now
 
-2009年2月22日 V1.22
-解决无法指定整数和浮点数字段精度的问题，可在字段属性中用逗号分隔同时指定长度和精度（如12,4）。
+2009-2-22 V1.22
+Some precision bugs fixed
 
-2009年6月5日 V1.23
-作了一些改进，如导入导出、外键连线，增加对象、方法、事件类型。
+2009-6-5 V1.23
+Improvements of importing, exporting, foreign link. Support new data types: objects, functions and events.
 
-2009年7月15日 V1.24
-改正了只能生成最后一个索引SQL的问题，尝试处理索引名称过长的问题，对非法和重复的字段名进行检测。
+2009-7-15 V1.24
+Index creating bug fixed. Auto deal with long index name. Check hint for invalid field names.
 
-2009年8月29日 V1.30
-增加对SQLSERVER和ODBC的导入和生成功能；支持添加多个模型图；生成C++代码。
+2009-8-29 V1.30
+Support SQLSERVER and ODBC driver. Support for multi diagram. C++ code generation.
 
-2009年9月11日 V1.32
-生成DML和DQL SQL，导入和生成表注释，模型图中直接添加外键关联，自动记录最后一次的数据库连接信息，另外解决了其它的一些BUG。
+2009-9-12 V1.32
+Generate DML and DQL SQL. Import and export table comments. Add foreign key in diagram. Remember database connection info. Bugs fixed. Support for english
 
-2009年9月25日 V1.34
-模型图颜色和选项设置、复制图像、BUG修复。
+2009-9-25 V1.34
+Model diagram color style settings, copy image to clipboard, bugs fixed.
 
-2009年10月11日 V1.35
-使用大程序图标，默认语言改为英语。
+2009-10-11 V1.35
+Big application icon, use English by default.
 
-2009年11月8日 V1.40
-支持MYSQL，修复一些BUG
+2009-10-21 V1.36
+Bugs of importing database object fixed.
 
-2009年11月25日 V1.42, 2009年11月29日 V1.50
-导出到Excel, 以及其它一些改进和BUG修复.
+2009-11-8 V1.40
+Support for MYSQL, some bugs fixed.
 
-2009年12月19日 V1.52
-BUG修复.
+2009-11-25 V1.42, 2009-11-29 V1.50
+Export to excel, some improvements and bugs fixed.
 
-2010年4月20日 V1.55
-支持PASCAL脚本的模板生成，BUG修复.
+2009-12-19 V1.52
+Bugs fixed.
 
-2010年9月6日 V1.59
-Pascal脚本参数面板，Bug修复.
+2010-4-20 V1.55
+Support Pascal-Script-Templates, bugs fixed.
 
-2010年12月1日 V1.62
-查找并从已有表中导入字段，BUG修复.
+2010-9-6 V1.59
+Pascal-Script with Setting-Panel, bugs fixed.
 
-2010年12月20日 V1.63
-支持MySql和SQLServer的自动增长编号字段类型.
+2010-12-1 V1.62
+Search and import fields from exists table. bugs fixed.
 
-2011年3月15日 V1.64
-支持拖放文件打开和最近文件列表.
+2010-12-20 V1.63
+Support auto-increment fields for MySql and SQLServer.
 
-2011年4月7日 V1.71
-支持SQLSERVER的表字段注释，增强了对SQLSERVER2005的支持，修复一些BUG。
+2011-3-15 V1.64
+Drag and drop to open a file, recent file list.
 
-2011年4月23日 V1.77
-对多个表进行批量添加或导入字段，为外键生成创建索引SQL，修复无法导入ORACLE索引的BUG。
+2011-4-7 V1.71
+Support field comments for SQLServer, fully support for SQLServer2005, bugs fixed.
 
-2011年5月1日 V1.79
-对主键和连线进行颜色设置，为模型图增加滚动条。
+2011-4-23 V1.77
+Batch add or import fields to more than one table, generate indexes SQL for FK fields, bugs of importing ORACLE indexes fixed.
 
-2011年5月15日 V1.80
-支持在ORACLE和SQLServer之间备份和恢复数据。
+2011-5-1 V1.79
+Color settings for PK and Lines, and scroll bars for model graph.
 
-2011年6月8日 V1.81
-在目录树的右键菜单中增加批量添加删除字段的功能，解决一些BUG。
+2011-5-15 V1.80
+Backup and restore data rows between ORACLE and SQLServer.
 
-2011年7月17日 V1.82
-文字描述支持新的格式，如"CustName 顾客名称 S(100)". Bug修复.
+2011-6-8 V1.81
+Support batch add/remove fields in popup-menu of the table tree. Bugs fixed.
 
-2011年7月25日 V1.85
-支持NSDOA（BA平台数据服务）连接ORACLE. Bug修复.
+2011-7-17 V1.82
+Text script support new format like "CusNam NameOfCustomer S(100)". Bugs fixed.
 
-2011年9月16日 V1.88
-支持文本或SQL块. Bug修复.
+2011-7-25 V1.85
+Support ORACLE connections with NSDOA (BA-Platform-Data-Service). Bugs fixed.
 
-2011年10月16日 V1.91
-支持缩略图模式.
+2011-9-16 V1.88
+Support text or sql entities. Bugs fixed.
 
-2011年11月2日 V1.92
-增加SQL工具，可执行简单SQL.
+2011-10-16 V1.91
+Support overview mode.
 
-2012年10月20日 V1.95
-增加HTML表单生成和预览. Bug修复.
+2011-11-02 V1.92
+Add a SQL tool.
 
-2012年10月28日 V1.96
-支持多字段复合主键，选表生成数据库. Bug修复.
+2012-10-20 V1.95
+Add html form generator, bugs fixed.
 
-2014年04月27日 V1.97
-退出和启动时自动保存和加载最后一次内容，其它一些功能改进和Bug修复.
+2012-10-28 V1.96
+Support multi primary keys, generate with selection, bugs fixed.
 
-2014年09月29日 V1.98
-特殊拷贝功能，实体颜色自定义, PASCAL脚本支持页面模板（类似JSP和ASP）.
+2014-04-27 V1.97
+Auto save & load on exit & start, some other improvements and bugs fixed.
 
-2014年12月07日 V1.99
-定时自动保存，导出DOC时获取是否物理视图等环境参数，自定义新数据类型下拉，自定义数据库输出类型替换，Bug修复.
+2014-09-29 V1.98
+Specail copy, multi entity color, pascal script with template support (like JSP and ASP).
 
-2015年02月09日 V2.01
-自定义缺省数据类型，修改表时同步修改所有同名表，新增同时显示逻辑和物理名的模式，Bug修复。
+2014-12-07 V1.99
+Auto-save, Custom field type list, Custom field type replacements, bugs fixed.
 
-2015年04月15日 V2.02
-支持ORACLE instant-client，可不连数据库生成SQL，快速加载tmp文件时检查文件时间，Bug修复。
+2015-02-09 V2.01
+Default field type customize, Sync same name tables, Both logic and physics name mode, bugs fixed.
 
-2015年9月7日 V2.03
-Bug修复.
+2015-04-15 V2.02
+Support oralce instant-client, generate sql without db-connection, check file date before fast-loading of tmp file, bugs fixed.
 
-2015年10月11日 V2.04
-支持Sqlite，Bug修复.
+2015-09-07 V2.03
+Bugs fixed.
 
-2015年10月19日 V2.06
-支持PostgreSQL，支持全局脚本接管事件生成自定义SQL，支持加密保存数据连接密码，Bug修复.
+2015-10-11 V2.04
+Support Sqlite, bugs fixed.
 
-2015年12月26日 V2.11
-导出带模型图、界面和代码的word或mht格式文档，支持UTF-8字符集的ORACLE数据库，Bug修复.
+2015-10-19 V2.06
+Support PostgreSQL, support Global-Script-Events to generate customized SQL, save db password, bugs fixed.
 
-2016年5月15日 V2.13
-重复打开文件时提示，连线接近时自动拉直，ORACLE序列号开关，新建表模板，字段属性从EXCEL粘贴，Bug修复.
+2015-12-26 V2.11
+Export doc and mht with graph UI and code, support UTF-8 charset for ORACLE, bugs fixed.
 
-2017年3月23日 V2.14
-生成数据库SQL支持重新创建表，Bug修复.
+2016-05-15 V2.13
+Prompt if files opened twice, link line auto align, INI switch for ORACLE sequence, New-table template file, paste field prop from excel, bugs fixed.
 
-2017年8月5日 V2.15
-支持主键上叠加外键，与另一个EZDML模型文件进行对比生成SQL，Bug修复.
+2017-03-23 V2.14
+Gen recreate table sql. Bugs fixed.
 
-2018年1月18日 V2.16
-在鼠标位置创建表对象；复制图片默认为PNG格式（按住SHIFT键则为WMF），导出BMP、PNG和JPG格式。临时文件从原文件目录（*.tmp）改为保存到用户的临时目录（*.~dmh、*.~dmh0），并自动保留所有历史记录，原来.tmp文件作废，请自行备份删除；可在文件菜单里打开临时文件夹，请自行维护或清理历史记录。Bug修复.
+2017-08-05 V2.15
+Support FK for PK fields, comparing with another EZDML modal to generate SQLs. Bugs fixed.
 
-2018年9月2日 V2.17
-支持批量生成代码文件，Bug修复.
+2018-01-18 V2.16
+Create new table on mouse position. Copy image as PNG by default (hold SHIFT for WMF). Export BMP PNG and JPG files. Save temporary files to user TEMP folder and keep history files. Bugs fixed.
 
-2018年11月4日 V2.18
-支持直接在模型图上选择字段、复制名称和双击修改字段，按住ALT直接平移模型图，按住ALT键点左边树上的表直接在模型图中定位，Bug修复.
+2018-09-02 V2.17
+Batch generation of code files. Bugs fixed.
 
-2018年12月16日 V2.20
-描述字增加约束内容，自定义字段类型支持指定相应的物理类型，支持表数据预览，对相近的表自动生成的连线改为直线，PASCAL脚本支持{$I 文件}引用，支持自定义工具菜单，Bug修复.
+2018-11-04 V2.18
+Supports selecting fields, copying names and double-clicking to edit fields directly on the model graph, holding ALT to pan the model graph at any time, pressing ALT and click on the left tree to locate the table directly in the model graph. Bugs fixed.
 
-2019年4月27日 V2.21
-增加JSON格式输出，二进制和xml格式也作了修改，Bug修复.
+2018-12-16 V2.20
+Add constraint to Table-Describe-String, support table-data-preview, generate beeline for links, support include {$I file} for Pascal-Script, support custom tool-menus. Bugs fixed.
 
-2019年7月20日 V2.22
-记录登录历史，添加连接时自动识别一对一外键，描述字支持外键信息，自定义保留关键词库，提供示例模型文件，Bug修复.
+2019-04-27 V2.21
+Support JSON format, dmh and dmj format modified. Bugs fixed.
 
-2019年8月27日 V2.23
-检测文件更改，自动生成拐弯的连线，更新libpq.dll，表名排序，Bug修复.
+2019-07-20 V2.22
+Database logon histories, auto recognizes one-to-one FK links, describe text support FKs, custom reserved-keywords, demo files. Bugs fixed.
 
-2019年10月7日 V2.32
-自定义表和字段的属性界面（需要在INI中开启），脚本中支持TIniFile和CurField（当前字段），支持Javascript脚本（使用BESEN脚本引擎），改进自动排列算法，主窗口菜单改用ActionList封装。Bug修复.
-      
-2019年11月9日 V2.35
-拖放复制目录树中的表和字段，自动保存脚本。Bug修复.
+2019-08-27 V2.23
+Detect file changes, FK-line optimize, new libpq.dll, sort tables by name, Bugs fixed.
 
-2019年12月7日 V2.36
-中英文配置文件分离，生成数据库增加粗略比对模式。Bug修复.
+2019-10-07 V2.32
+Custom property UI for tables and fields (edit INI to enable), add TIniFile and CurField for scripts, support JavaScript (BESEN engine), improved auto-arrange algorithms, use ActionList in main form. Bugs fixed.
+                
+2019-11-09 V2.35
+Drag and drop tree-nodes to copy fields/tables. Auto save for scripts. Bugs fixed.
+                      
+2019-12-07 V2.36
+Independent configuration files for English and Chinese, Sketch-Mode for generating SQL. Bugs fixed.
 
-2020年1月23日 V2.39
-自动排线算法优化，大文件性能优化，导入pdm文件。Bug修复.
+2020-01-23 V2.39
+Optimization of automatic routing algorithm, performance optimization for huge file, import pdm files. Bugs fixed.
 
-2020年1月31日 V2.41
-选择时拖空白处平移视图，支持非外键的普通连线，驼峰命名转下划线，数据文件采用UTF8编码。Bug修复.
+2020-01-31 V2.41
+Auto pan when selecting. Support none-FK-lines. Camel-case conver to underline. UTF-8 encoding for data files. Bugs fixed.
 
-2020年1月31日 V0.01
-EZDML精简版启动。
+2020-01-31 V0.01
+EZDML Lite version started.
 
-2020年3月15日 V0.11
-EZDML for mac64/linux64/win64 v0.11版。
+2020-03-15 V0.11
+EZDML for mac64/linux64/win64 v0.11 released.
 
-2020年4月11日 V3.01
-增加设置功能，新的“关于”窗口，启用全局事件脚本（PASCAL），采用新的程序图标，Bug修复。
+2020-04-11 V3.01
+New Settings and About dialog, global event scripts enabled, new app icon, bugs fixed.
 
-2020年5月10日 V3.03
-增加ODBC连接，使用新的PostgreSQL连接库文件，Bug修复。
+2020-05-10 V3.03
+Add ODBC connection, new postgreSQL lib files, bugs fixed.
 
-2020年10月18日 V3.04
-表属性多窗口查看模式，描述字内容查找，脚本编辑器横向布局，PKInc自增主键类型。Bugs修复.
+2020-10-18 V3.04
+Multi-view-mode for table dialogs, find text in describe-text, horz-layout for script editor, PKInc type. Bugs fixed.
 
-2020年11月22日 V3.05
-表属性切换查看模式，生成代码增加layuiAdmin模板。Bugs修复.
+2020-11-22 V3.05
+Switch-view-mode for table dialogs, add layuiAdmin template for Code-generation. Bugs fixed.
 
-2021年2月16日 V3.06
-HTTP远程连接，JDBC连接服务。搜索所有表字段。Bugs修复.
+2021-02-16 V3.06
+HTTP remote connection, add JDBC server. Search all tables/fields. Bugs fixed.
 
-2021年3月27日 V3.07
-在字段列表旁边显示字段属性，缩略图模式下记录独立的坐标位置。Bugs修复.
+2021-03-27 V3.07
+Display field properties beside field-list. Independent position for overview-mode. Bugs fixed.
 
-2021年4月24日 V3.08
-自动检测版本更新，查看数据库中表的属性，支持复合索引，整数区分bigint/smallint。Bugs修复.
+2021-04-24 V3.08
+Auto check updates, view table props of database, support complex indexes and bigint/smallint data types. Bugs fixed.
 
-2021年5月30日 V3.09
-全屏模式。Bugs修复.
+2021-05-30 V3.09
+Full-screen mode. Bugs fixed.
 
-2021年10月23日 V3.11
-选中外键连线时关联字段高亮显示，HTTP_JDBC连接，F9快速切换表对象视图。Bugs修复.
+2021-10-23 V3.11
+Highlight relate fields of selected FK-links, HTTP_JDBC connection, F9 to toggle Table view quickly. Bugs fixed.
 
-2021年11月02日 V3.12
-复制粘贴Excel文本。Bugs修复.
+2021-11-02 V3.12
+Copy & paste Excel text. Bugs fixed.
 
-2021年12月18日 V3.21
-界面预览和演示数据生成；增加计算字段类型；字段属性完善。Bugs修复.
+2021-12-18 V3.21
+UI preview and demo data generate, new Calculate data-type, improvements of field props. Bugs fixed.
 
-2021年12月25日 V3.22
-生成Markdown格式文档，表“生成”页标签自定义。Bugs修复.
+2021-12-25 V3.22
+Generate markdown text, customizing of table Generate tabs. Bugs fixed.
 
-2022年1月2日 V3.23
-生成Vue-ElementUI和Baidu-amis页面，运行代码生成，全新的layuiAdmin示例（包含Vue-ElementUI、BaiduAmis和Markdown等的批量生成）。Bugs修复.
+2022-01-02 V3.23
+Generate Vue-ElementUI and Baidu-amis page. Run code generation, new layuiAdmin demo (with VueElement, BaiduAmis, Markdown, etc). Bugs fixed.
 
-2022年1月15日 V3.24
-Python脚本调用示例，生成.vue文件并预览，表对象高级属性。Bugs修复.
+2022-01-15 V3.24
+Python script demo, generate .vue file and preview, table advanced props. Bugs fixed.
 
-2022年2月6日 V3.25
-表界面属性页调整，添加连接时可创建连接字段。Bugs修复.
+2022-02-06 V3.25
+Add UI page to table prop, create field while adding new link. Bugs fixed.
 
-2022年2月13日 V3.26
-基于vue-element-admin生成可直接运行的前端代码模板（需使用NodeJs）。Bugs修复.
+2022-02-13 V3.26
+Generate runnable code for vue-element-admin template (NodeJs needed). Bugs fixed.
 
-2022年2月27日 V3.27
-基于SpringBoot-JPA-swagger2-lombok生成可直接运行的Java后端代码模板（使用JDK8和maven）。Bugs修复.
+2022-02-27 V3.27
+Generate runnable code for SpringBoot-JPA-swagger2-lombok template (JDK8 & maven needed). Bugs fixed.
 
-2022年3月3日 V3.28
-右键菜单添加外键链接。Bugs修复.
+2022-03-03 V3.28
+Create FK-links by popup-menu. Bugs fixed.
 
-2022年3月11日 V3.29
-字段列表支持复制粘贴。Bugs修复.
+2022-03-11 V3.29
+Copy & paste in fields-list. Bugs fixed.
 
-2022年3月19日 V3.31
-隐藏左边列表目录开关（F11），键盘切换选择模型图中对象（Ctrl+上下左右），从数据库获取测试数据，支持达梦数据库dmoci连接。Bugs修复.
+2022-03-19 V3.31
+Show/hide left tree (F11), use keyboard to traverse graph objects (Ctrl+Arrow), retrieves test data rule from database (SQL). Bugs fixed.
 
+2022-03-27 V3.32
+Generate runnable code for Erupt template (JDK8 & maven needed). Bugs fixed.
 
-2022年3月27日 V3.32
-生成可运行的Erupt代码模板（使用JDK8和maven）。Bugs修复.
+2022-04-09 V3.33
+Toggle UI shape(PC/Pad/Phone). Bugs fixed.
 
-2022年4月9日 V3.33
-界面原型外观切换（台式机/平板/手机）。Bugs修复.
+2022-04-17 V3.35
+Add relation-map to table properties dialog, simplify UI and hide extended properties by default. Bugs fixed.
 
-2022年4月17日 V3.35
-表属性中添加表对象关联关系图，简化界面，默认隐藏扩展属性页。Bugs修复.
+2022-05-01 V3.36
+Generate test data insert SQLs, improved SQL tool. Bugs fixed.
 
-2022年5月1日 V3.36
-生成测试数据SQL，改进SQL工具。Bugs修复.
+2022-05-07 V3.37
+Improvements of Erupt code generation. Bugs fixed.
 
-2022年5月8日 V3.37
-生成Erupt代码改进。Bugs修复.
+2022-05-22 V3.38
+Save/load model files to/from database. Bugs fixed.
 
-2022年5月22日 V3.38
-保存模型文件到数据库，以及从数据库加载模型文件。Bugs修复.
+2022-06-04 V3.39
+Copy relate-query/join/insert SQLs. Bugs fixed.
 
-2022年6月4日 V3.39
-改进复制功能，可复制多表关联查询SQL、join和insert SQL。Bugs修复.
+2022-06-18 V3.41
+Auto-capitalize with new probability-dict, Chinese word segment. Bugs fixed.
 
-2022年6月18日 V3.41
-自动大小写采用新的带权重词库，支持中文下划线分词。Bugs修复.
+2022-07-30 V3.42
+Support importing and generating HIVE database, and creating many-to-many relation table. Bugs fixed.
 
-2022年7月30日 V3.42
-支持导入和生成HIVE，支持创建多对多关联表连接。Bugs修复.
+2022-09-24 V3.43
+Batch import from excel content, single record sheet for SQL editor. Bugs fixed.
 
-2022年9月24日 V3.43
-支持批量导入Excel内容，SQL工具支持单记录显示。Bugs修复.
+2022-10-15 V3.45
+Automatically notify other users of updates after modifying database files. Bugs fixed.
 
-2022年10月15日 V3.45
-修改数据库文件后，自动通知其他用户更新。Bugs修复.
+2022-11-06 V3.46
+Improvements of UI design notes. Bugs fixed.
 
-2022年11月06日 V3.46
-界面设计说明展示与批量编辑。Bugs修复.
+2022-11-13 V3.47
+Bugs fixed.
 
-2022年11月13日 V3.47
-Bugs修复.
+2022-12-03 V3.48
+Optimize SQL query tool. Bugs fixed.
 
-2022年12月3日 V3.48
-优化SQL查询工具。Bugs修复.
+2023-02-12 V3.51
+Support ChatGPT. Bugs fixed.
 
-2023年2月12日 V3.51
-支持ChatGPT。Bugs修复.
+2023-03-26 V3.52
+Add field weight settings. Bugs fixed.
 
-2023年3月26日 V3.52
-增加字段权重设置，可在模型图中突出重要字段或隐藏一些字段。Bugs修复.
+2023-06-23 V3.54
+Supports dragging entity grips to change size. Bugs fixed.
 
-2023年6月23日 V3.54
-支持拖动表对象夹点改变大小。Bugs修复.
+2023-07-23 V3.55
+Remember the view position of the model diagram. Bugs fixed.
 
-2023年7月23日 V3.55
-记住模型图的视图位置。Bugs修复.
-
-2023年12月2日 V3.56
-SQL工具支持自动完成（点号下拉字段列表）和简单SQL格式化，模型图支持双外键和自关联连线，Bugs修复.
-
+2023-12-02 V3.56
+SQL tools support automatic completion (. to dropdown field list) and simple SQL formatting, model diagrams support double foreign key and self relate links. Bugs fixed.

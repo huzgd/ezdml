@@ -315,82 +315,27 @@ function IsSameFileContent(// 比较两个文件是否相等
 var
   frmMainDml: TfrmMainDml;
 
-const
-  DEF_GSCRIPT_FN = 'GlobalScript.ps_';
-  DEF_GSCRIPT_PS = '//EZDML Global Event Scripts (Only support Pascal-Script) Ver20191006'
-    + #13#10 +
-    '//EZDML全局事件脚本（注：只支持Pascal脚本）' + #13#10 +
-    '' + #13#10 +
-    '//Generate SQL for a single Table. defRes is the default result.' + #13#10 +
-    '//生成单个表的SQL，传入表对象、是否生成创建表SQL、是否生成创建约束SQL、默认生成的SQL结果、数据库类型、选项，返回自定义结果SQL' + #13#10 +
-    'function OnEzdmlGenTbSqlEvent(tb: TCtMetaTable; bCreateTb, bCreateConstrains: Boolean; defRes, dbType, options: String): string;'
-    + #13#10 +
-    'begin' + #13#10 +
-    '  Result := defRes;' + #13#10 +
-    'end;' + #13#10 +
-    '' + #13#10 +
-    '//Generate upgrade SQL for an exists Table in a database. defRes is the default result.'
-    + #13#10 +
-    '//生成数据库的更新SQL，传入新旧表对象、默认生成的SQL结果、数据库类型、选项，返回自定义结果SQL'
-    + #13#10 +
-    'function OnEzdmlGenDbSqlEvent(designTb, dbTable: TCtMetaTable; defRes, dbType, options: String): string;'
-    + #13#10 +
-    'begin' + #13#10 +
-    '  Result := defRes;' + #13#10 +
-    'end;' + #13#10 +
-    '' + #13#10 +
-    '//Generate SQL for a single Field. defRes is the default result.' + #13#10 +
-    '//生成单个字段的类型（varchar(255) nullable），传入表对象、字段对象、默认生成的结果、数据库类型、选项，返回自定义结果' + #13#10 +
-    'function OnEzdmlGenFieldTypeDescEvent(tb: TCtMetaTable; fd: TCtMetaField; defRes, dbType, options: String): string;'
-    + #13#10 +
-    'begin' + #13#10 +
-    '  Result := defRes;' + #13#10 +
-    'end;' + #13#10 +
-    '' + #13#10 +
-    '//Generate upgrade SQL for an exists database-Field of a Table. defRes is the default result.'
-    + #13#10 +
-    '//生成增删改单个字段的SQL（alter table add xxx），传入要执行的操作(alter/add/drop)、表对象、新旧字段对象、默认生成的结果、数据库类型、选项，返回自定义结果' + #13#10 +
-    'function OnEzdmlGenAlterFieldEvent(action: String; tb: TCtMetaTable; designField, dbField: TCtMetaField; defRes, dbType, options: String): string;' + #13#10 +
-    'begin' + #13#10 +
-    '  Result := defRes;' + #13#10 +
-    'end;' + #13#10 +
-    '' + #13#10 +
-    '//Generate test Data Insert SQL for an exists database-table. defRes is the default result.'
-    + #13#10 +
-    '//生成插入测试数据的SQL，传入表对象、SQL类型（DQL_DML_SQL TEST_DATA_INSERT_SQL GET_MAX_KEY_SQL TEST_DATA_UPDATE_FK_SQL）、默认生成的结果、数据库类型、参数1、参数2、选项，返回自定义结果' + #13#10 +
-    'function OnEzdmlGenDataSqlEvent(tb: TCtMetaTable; sqlType, defRes, param1, param2, dbType, options: string): string;' + #13#10 +
-    'begin' + #13#10 +
-    '  Result := defRes;' + #13#10 +
-    'end;' + #13#10 +
-    '' + #13#10 +
-    '//Reserved custom events' + #13#10 +
-    '//自定义命令事件' + #13#10 +
-    'function OnEzdmlCmdEvent(cmd, param1, param2: String; parobj1, parobj2: TObject): string;'
-    + #13#10 +
-    'begin' + #13#10 +
-    '  //WriteLog(''OnEzdmlCmdEvent(''+cmd+'', ''+param1+'', ''+param2+'', obj1, obj2)'');'
-    + #13#10 +
-    '  Result := '''';' + #13#10 +
-    'end;' + #13#10 +
-    '' + #13#10 +
-    'begin' + #13#10 +
-    'end.';
-
 implementation
 
 uses
-  uFormImpTable, uFormGenSql, uFormCtDML, CtMetaOracleDb, CtMetaPdmImporter,
-  CtMetaOdbcDb,
-  ocidyn, mysql57dyn, mssqlconn, dblib, sqlite3dyn, CtMetaCustomDb,
+  uFormImpTable, uFormGenSql, uFormCtDML, CtMetaOracleDb, uFormEzdmlDbFile,
+  {$ifndef EZDML_LITE}
+  CtMetaPdmImporter, DmlPasScript, DmlGlobalPasScript, ide_editor, uFormGenCode,
+  uFormHttpSvr, FindHexDlg, wExcelImp, DmlScriptControl, uFormGenData, CtTestDataGen,
+  {$else}
+  DmlGlobalPasScriptLite, DmlPasScriptLite,
+  {$endif}  
   {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf,{$endif}
-  postgres3dyn, NetUtil, uFormEzdmlDbFile,
+  CtMetaOdbcDb, NetUtil,
+  ocidyn, mysql57dyn, mssqlconn, dblib, sqlite3dyn,
+  postgres3dyn,
   ezdmlstrs, dmlstrs, DMLObjs, IniFiles, AutoNameCapitalize, uDMLSqlEditor,
-  wAbout, wSettings, uFormCtTableProp,
-  uFormGenCode, uJSON, DmlScriptPublic, DmlGlobalPasScript, CtMetaSqliteDb, FindHexDlg,
-  ide_editor, uPSComponent, DmlPasScript, LCLTranslator, wExcelImp, uFormCtDbLogon,
+  wAbout, wSettings, uFormCtTableProp, uFormCtFieldProp,
+  uJSON, DmlScriptPublic, CtMetaSqliteDb,
+  uPSComponent, LCLTranslator, uFormCtDbLogon,
  {$IFDEF DARWIN}  MacOSAll,{$ENDIF}
-  CtMetaSqlsvrDb, CtMetaMysqlDb, CtMetaPostgreSqlDb, LCLProc, CtMetaHttpDb, uFormHttpSvr,
-  CtTestDataGen, uFormGenData, DmlScriptControl, MessageBoxOnTop;
+  CtMetaSqlsvrDb, CtMetaMysqlDb, CtMetaPostgreSqlDb, LCLProc, CtMetaHttpDb,
+  MessageBoxOnTop;
 
 {$R *.lfm}
 
@@ -454,13 +399,18 @@ begin
         ini.Free;
       end;
     end;
+    dir := '';
   {$IFDEF DARWIN}
     if S = '' then
       S := GetOSLanguageEz;
     dir := GetFolderPathOfAppExe('languages');
   {$ENDIF}
-    SetDefaultLang(S, dir, False);
+  {$IF FPC_FULLVERSION>30200} //不知哪个版本开始，语言设置的函数改了
+    S := SetDefaultLang(S, dir); //如果这句编译不过，可改用后面两句
+  {$ELSE}                       
+    SetDefaultLang(S, dir);
     S := GetDefaultLang;
+  {$ENDIF}
     SetEzdmlLang(S);
     InitCtChnNames;
   except
@@ -814,17 +764,21 @@ begin
   begin
     if FMainSplitterPos <> Self.FFrameCtTableDef.PanelCttbTree.Width then
       SaveIni;
+    {$ifndef EZDML_LITE}
     if Assigned(scriptIdeEditor) then
       FreeAndNil(scriptIdeEditor);
+    {$endif}
     ReleaseModelList;
   end;
 
-  try
-    CheckCaption;     
+  try       
+    {$ifndef EZDML_LITE}
+    CheckCaption;
     if CanClose then
     begin
       CheckForUpdates(False);
-    end;
+    end;    
+    {$endif}
   except
   end;
 end;
@@ -883,8 +837,10 @@ var
   db: TCtMetaDatabase;
   dpi: Integer;
 begin
-  Randomize;
+  Randomize;      
+  {$ifndef EZDML_LITE} 
   G_DmlImageListSwitchOnOff := Self.ImageListSwitchOnOff;
+  {$endif}
   //if LoadNewResourceModule($0409) <> 0 then
   //ReinitializeForms();
   dpi := Screen.PixelsPerInch;
@@ -968,7 +924,18 @@ begin
     db := TCtMetaHttpDb.Create;
     GetCtMetaDBReg('HTTP_JDBC')^.DbImpl := db;
   end;
-              
+
+  {$ifdef EZDML_LITE}
+  actEditGlobalScript.Visible:=False;
+  actImportFile.Visible:=False;          
+  actExecScript.Visible:=False;
+  actBrowseScripts.Visible:=False;     
+  actGenerateCode.Visible:=False;
+  actCharCodeTool.Visible:=False;    
+  actImportExcel.Visible:=False;
+  actCheckUpdates.Visible:=False;   
+  actGenerateTestData.Visible:=False;
+  {$endif}
   {$ifndef EZDML_CHATGPT}
   actChatGPT.Visible := False;
   FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Tag := 1;
@@ -1486,6 +1453,7 @@ procedure TfrmMainDml.ImportFromFile(fn: string);
 
   procedure ImportPDM;
   begin
+    {$ifndef EZDML_LITE}
     SetStatusBarMsg(Format(srEzdmlOpeningFileFmt, [GetStatusPanelFileName(fn)]));
     Self.Refresh;
     FCtDataModelList.Clear;
@@ -1511,7 +1479,10 @@ procedure TfrmMainDml.ImportFromFile(fn: string);
         FWaitWnd.Release;
         FWaitWnd := nil;
         FFrameCtTableDef.Init(FCtDataModelList, False);
-      end;
+      end;    
+    {$else}
+    raise Exception.Create(srEzdmlLiteNotSupportFun);
+    {$endif}
   end;
 
 var
@@ -2199,7 +2170,8 @@ begin
   GProc_OnEzdmlCmdEvent := nil;
   if Assigned(FGlobalScriptor) then
     FreeAndNil(FGlobalScriptor);
-
+           
+  {$ifndef EZDML_LITE}
   fn := DEF_GSCRIPT_FN;
   S := GetFolderPathOfAppExe;
   S := FolderAddFileName(S, fn);
@@ -2240,7 +2212,10 @@ begin
       if not bSuccess then
         FreeAndNil(FGlobalScriptor);
     end;
-
+  {$else} 
+  FGlobalScriptor := TDmlGlobalPasScriptLite.Create;
+  TDmlGlobalPasScriptLite(FGlobalScriptor).TakeGlobalEvents;
+  {$endif}
 end;
 
 procedure TfrmMainDml.CheckForUpdates(bForceNow: boolean);
@@ -2583,11 +2558,35 @@ procedure TfrmMainDml._OnCustomToolsClick(Sender: TObject);
   end;
 
 var
-  fn: string;
+  fn: string;         
+  {$ifdef EZDML_LITE}
+  ScLt : TDmlPasScriptorLite;
+  AOutput: TStrings;
+  {$endif}
 begin
   if Sender is TMenuItem then
   begin
     fn := TMenuItem(Sender).Hint;
+
+  {$ifdef EZDML_LITE}
+    ScLt := CreatePsLiteScriptor(fn, 'Tool');
+    if ScLt <> nil then
+    begin
+      AOutput := TStringList.Create;
+      try
+        with ScLt do
+        begin
+          Init('DML_SCRIPT', FFrameCtTableDef.GetCurTable, AOutput, nil);
+          Exec('DML_SCRIPT', '');
+        end;
+      finally
+        AOutput.Free;
+        ScLt.Free;
+      end;
+    end;
+    Exit;
+  {$endif}
+
     //ext := ExtractFileExt(fn);
     fn := FolderAddFileName(GetCustomToolsDir, fn);
 
@@ -2834,6 +2833,7 @@ procedure TfrmMainDml.actGenerateCodeExecute(Sender: TObject);
 var
   tbs: TCtMetaTableList;
 begin
+  {$ifndef EZDML_LITE}
   EzdmlMenuActExecuteEvt('Model_GenerateCode');
   CheckCanEditMeta;
   if not Assigned(frmCtGenCode) then
@@ -2858,7 +2858,10 @@ begin
   finally
     if tbs <> nil then
       tbs.Free;
-  end;
+  end;    
+  {$else}
+    raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
 end;
 
 procedure TfrmMainDml.actGenerateDatabaseExecute(Sender: TObject);   
@@ -3204,6 +3207,7 @@ procedure TfrmMainDml.actEditGlobalScriptExecute(Sender: TObject);
 var
   S, fn: string;
 begin
+  {$ifndef EZDML_LITE}
   fn := DEF_GSCRIPT_FN;
   S := GetFolderPathOfAppExe;
   S := FolderAddFileName(S, fn);
@@ -3235,7 +3239,10 @@ begin
     ActiveFile := fn;
     ShowModal;
   end;
-  CheckReloadGlobalScript;
+  CheckReloadGlobalScript;     
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
 end;
 
 procedure TfrmMainDml.actFullScreenExecute(Sender: TObject);
@@ -3321,6 +3328,7 @@ end;
 
 procedure TfrmMainDml.actGenerateLastCodeExecute(Sender: TObject);
 begin
+  {$ifndef EZDML_LITE}
   EzdmlMenuActExecuteEvt('Model_GenerateLastCode');
   CheckCanEditMeta;
   if not Assigned(frmCtGenCode) then
@@ -3330,13 +3338,17 @@ begin
 
   if frmCtGenCode.ShowModal = mrOk then
   begin
-  end;
+  end; 
+  {$else}
+    raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
 end;
 
 procedure TfrmMainDml.actGenerateTestDataExecute(Sender: TObject);   
 var
   tbs: TCtMetaTableList;
 begin
+  {$ifndef EZDML_LITE}
   EzdmlMenuActExecuteEvt('Model_GenerateTestData');
   CheckCanEditMeta;
   if not Assigned(frmCtGenData) then
@@ -3362,18 +3374,26 @@ begin
     if tbs <> nil then
       tbs.Free;
   end;
+  {$else}
+    raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
 end;
 
 procedure TfrmMainDml.actHttpServerExecute(Sender: TObject);
-begin
+begin                                   
+  {$ifndef EZDML_LITE}
   EzdmlMenuActExecuteEvt('Tools_HttpServer');
   if not Assigned(FfrmHttpServer) then
     FfrmHttpServer := TfrmHttpSvr.Create(Self);
   FfrmHttpServer.ShowModal;
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
 end;
 
 procedure TfrmMainDml.actImportExcelExecute(Sender: TObject);
 begin
+  {$ifndef EZDML_LITE}
   with TfrmExcelImp.Create(Self) do
   try
     FCtTbList := Self.FCtDataModelList.CurDataModel.Tables;
@@ -3384,14 +3404,21 @@ begin
     end;
   finally
     Release;
-  end;
+  end;    
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
 end;
 
 procedure TfrmMainDml.actCharCodeToolExecute(Sender: TObject);
 begin
+  {$ifndef EZDML_LITE} 
   if FFindHexDlg = nil then
     FFindHexDlg := TfrmFindHex.Create(Self);
   FFindHexDlg.ShowModal;
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
 end;
 
 procedure TfrmMainDml.actChatGPTExecute(Sender: TObject);
@@ -3609,6 +3636,8 @@ var
   dir: string;
 begin
   dir := GetFolderPathOfAppExe('CustomTools');
+  if not DirectoryExists(dir) then
+    dir := GetFolderPathOfAppExe('');
   CtOpenDir(dir);
 end;
 
@@ -3617,6 +3646,8 @@ var
   dir: string;
 begin
   dir := GetFolderPathOfAppExe('Templates');
+  if not DirectoryExists(dir) then
+    dir := GetFolderPathOfAppExe('');
   CtOpenDir(dir);
 end;
 
@@ -3640,7 +3671,7 @@ end;
 
 procedure TfrmMainDml.actSqlToolExecute(Sender: TObject);
 begin
-  ShowSqlEditorNew;
+  ShowSqlEditor;
 end;
 
 procedure TfrmMainDml.actTogglePhyViewExecute(Sender: TObject);
@@ -3897,8 +3928,14 @@ procedure TfrmMainDml.ReCreateCustomToolsMenu;
   var
     Sr: TSearchRec;
     AFolderName: string;
+    I: Integer;
   begin
-    Result := '';
+    Result := '';                
+  {$ifdef EZDML_LITE}
+    for I := 0 to High(CtPsLiteRegs) do
+      if CtPsLiteRegs[I].Cat='Tool' then
+        Result := Result + CtPsLiteRegs[I].Name + #13#10;
+  {$endif}
     AFolderName := GetCustomToolsDir;
     if not DirectoryExists(AFolderName) then
       Exit;
@@ -4055,8 +4092,10 @@ initialization
   Proc_JsonPropProc := Ezdml_JsonPropProc;
   Proc_CtObjToJsonStr := CtObjToJsonStr; //added by huz 20210214
   Proc_ReadCtObjFromJsonStr := ReadCtObjFromJsonStr;
-  Proc_GenDemoData := CtGenTestData;
+  {$ifndef EZDML_LITE}       
+  Proc_GenDemoData := CtGenTestData;   
   Proc_GetTableDemoDataJson := CtGenTableDemoDataJson;
+  {$endif}
 
   InitCtChnNames;
 

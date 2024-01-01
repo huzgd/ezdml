@@ -931,6 +931,7 @@ type
     procedure Pack; override;
     function TableCount: integer;
     function NewModelItem: TCtDataModelGraph;
+    //property CurDataModal: TCtDataModelGraph read GetCurDataModel;
     property CurDataModel: TCtDataModelGraph read GetCurDataModel write FCurDataModel;
     property Items[Index: integer]: TCtDataModelGraph read GetItem write PutItem;
       default;

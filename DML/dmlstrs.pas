@@ -242,7 +242,7 @@ resourcestring
   srSqlEditorRunning = 'Running...';
   srSqlEditorRunError = 'Error: ';
   srSqlEditorExecTip = 'Hold Ctrl key to execute SQL command only (no Result-Set)';
-  srSqlEditorRunFinishedFmt = 'Execute finished in %f seconds';
+  srSqlEditorRunFinishedFmt = 'Execute finished in %f seconds, %d rows affected';
   srNewFieldTypeItemTitle = 'New item';     
   srNewFieldTypeItemPrompt = 'Please enter new item:';
   srHugeMode = '(Huge mode)';    
