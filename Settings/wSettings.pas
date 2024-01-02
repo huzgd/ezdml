@@ -314,11 +314,14 @@ type
 
 function ShowEzdmlSettings: boolean;
 
+var
+  MsSql_DBLIBDLL: string;
+
 implementation
 
 uses
   WindowFuncs, IniFiles, CtMetaTable, AutoNameCapitalize, dmlstrs, postgres3dyn,
-  ocidyn, mysql57dyn, mssqlconn, dblib, sqlite3dyn, CtMetaCustomDb;
+  ocidyn, mysql57dyn, sqlite3dyn, CtMetaCustomDb;
 
 {$R *.lfm}
 
@@ -496,7 +499,7 @@ end;
 
 procedure TfrmSettings.btnSqlServerLibBrsClick(Sender: TObject);
 begin
-  BrowseLibFile(edtSQLSERVERLIB, DBLIBDLL, '');
+  BrowseLibFile(edtSQLSERVERLIB, MsSql_DBLIBDLL, '');
 end;
 
 procedure TfrmSettings.btnTpnRepNewClick(Sender: TObject);
@@ -1120,6 +1123,8 @@ begin
   ckbEnableCustomPropUI.Visible:=False;
   edtCustomPropUICaption.Visible:=False;    
   GroupBoxOthers.Visible:=False;
+  if MsSql_DBLIBDLL='' then
+    GroupBoxDBConnSqlServer.Visible:=False;
   {$endif}
 end;
 

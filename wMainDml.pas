@@ -5,11 +5,16 @@ unit wMainDml;
 {$WARN 4105 off : Implicit string type conversion with potential data loss from "$1" to "$2"}
                    
 {$define EZDML_CHATGPT}
-{$ifdef EZDML_LITE}    
-{$undef EZDML_CHATGPT}
-{$endif}
+{$define USE_MSSQL}
+     
 {$ifdef WIN32}
-{$undef EZDML_CHATGPT}
+  {$undef EZDML_CHATGPT}
+{$endif}
+{$ifdef EZDML_LITE}    
+  {$undef EZDML_CHATGPT}
+  {$ifdef DARWIN}
+  {$undef USE_MSSQL}
+  {$endif}
 {$endif}
 
 interface
@@ -327,14 +332,15 @@ uses
   {$endif}  
   {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf,{$endif}
   CtMetaOdbcDb, NetUtil,
-  ocidyn, mysql57dyn, mssqlconn, dblib, sqlite3dyn,
+  ocidyn, mysql57dyn,  sqlite3dyn,
   postgres3dyn,
   ezdmlstrs, dmlstrs, DMLObjs, IniFiles, AutoNameCapitalize, uDMLSqlEditor,
   wAbout, wSettings, uFormCtTableProp, uFormCtFieldProp,
   uJSON, DmlScriptPublic, CtMetaSqliteDb,
   uPSComponent, LCLTranslator, uFormCtDbLogon,
- {$IFDEF DARWIN}  MacOSAll,{$ENDIF}
-  CtMetaSqlsvrDb, CtMetaMysqlDb, CtMetaPostgreSqlDb, LCLProc, CtMetaHttpDb,
+  {$IFDEF DARWIN}  MacOSAll,{$ENDIF}
+  {$IFDEF USE_MSSQL} CtMetaSqlsvrDb, mssqlconn, dblib, {$ENDIF}
+  CtMetaMysqlDb, CtMetaPostgreSqlDb, LCLProc, CtMetaHttpDb,
   MessageBoxOnTop;
 
 {$R *.lfm}
@@ -392,9 +398,11 @@ begin
         G_AppDefFontSize := ini.ReadInteger('Options', 'AppDefFontSize', 0);
         G_AppFixWidthFontName := ini.ReadString('Options', 'AppFixWidthFontName', '');
         G_AppFixWidthFontSize := ini.ReadInteger('Options', 'AppFixWidthFontSize', 0);
-        G_DmlGraphFontName := ini.ReadString('Options', 'DmlGraphFontName', '');      
+        G_DmlGraphFontName := ini.ReadString('Options', 'DmlGraphFontName', '');
+        {$IFDEF USE_MSSQL}
         G_UseOdbcDriverForMsSql := ini.ReadBool('Options', 'UseOdbcDriverForMsSql',
           G_UseOdbcDriverForMsSql);
+        {$ENDIF}
       finally
         ini.Free;
       end;
@@ -894,11 +902,14 @@ begin
     db := TCtMetaOracleDb.Create;
     GetCtMetaDBReg('ORACLE')^.DbImpl := db;
   end;
+  {$IFDEF USE_MSSQL}
   if GetCtMetaDBReg('SQLSERVER')^.DbImpl = nil then
   begin
     db := TCtMetaSqlsvrDb.Create;
     GetCtMetaDBReg('SQLSERVER')^.DbImpl := db;
   end;
+  MsSql_DBLIBDLL := DBLIBDLL;
+  {$ENDIF}
   if GetCtMetaDBReg('MYSQL')^.DbImpl = nil then
   begin
     db := TCtMetaMysqlDb.Create;
@@ -1259,6 +1270,7 @@ begin
       MysqlLoadedLibrary := S;
     end;
 
+    {$IFDEF USE_MSSQL}
     S := ini.ReadString('Options', 'SQLSERVERLIB', '');
     if S = '' then
     begin
@@ -1271,6 +1283,7 @@ begin
     begin
       DBLibLibraryName := S;
     end;
+    {$ENDIF}
 
     S := ini.ReadString('Options', 'POSTGRESLIB', '');
     if S = '' then
