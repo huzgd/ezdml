@@ -51,18 +51,17 @@ end;
 
 procedure TCtMetaSqliteDb.SetFCLConnDatabase;
 begin
-  if Assigned(FDbConn) then
-    FDbConn.DatabaseName := Database;
+  if not Assigned(FDbConn) then
+    Exit;          
+  FDbConn.DatabaseName := Database;
+  if not FileExists(Database) then
+  begin
+    TSQLite3Connection(FDbConn).CreateDB;
+  end;
 end;
 
 procedure TCtMetaSqliteDb.SetConnected(const Value: boolean);
 begin
-  if Value then
-    if not FileExists(Database) then
-    begin
-      TSQLite3Connection(FDbConn).DatabaseName := Database;
-      TSQLite3Connection(FDbConn).CreateDB;
-    end;
   inherited SetConnected(Value);
 end;
 

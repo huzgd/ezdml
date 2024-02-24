@@ -59,40 +59,30 @@ object frmCtGenSQL: TfrmCtGenSQL
       end
       object tbsExecSQL: TTabSheet
         Caption = 'Execute'
-        ClientHeight = 0
-        ClientWidth = 0
+        ClientHeight = 371
+        ClientWidth = 561
         ImageIndex = 1
         object memExecSQL: TMemo
           Left = 0
-          Height = 373
+          Height = 371
           Top = 0
-          Width = 510
+          Width = 561
           Align = alClient
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Courier New'
-          ParentFont = False
           ScrollBars = ssBoth
           TabOrder = 0
         end
       end
       object tbsResError: TTabSheet
         Caption = 'Error'
-        ClientHeight = 0
-        ClientWidth = 0
+        ClientHeight = 371
+        ClientWidth = 561
         ImageIndex = 2
         object memError: TMemo
           Left = 0
-          Height = 373
+          Height = 371
           Top = 0
-          Width = 510
+          Width = 561
           Align = alClient
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Courier New'
-          ParentFont = False
           ScrollBars = ssBoth
           TabOrder = 0
         end

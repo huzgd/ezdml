@@ -762,7 +762,12 @@ begin
     end;
     if Sender = edtDataLength then
     begin
-      S := edtDataLength.Text;
+      S := edtDataLength.Text;   
+      if (UpperCase(Trim(S)) = 'LONG') or (UpperCase(Trim(S)) = 'MAX') then
+      begin
+        edtDataLength.Text := '99999';
+        S := edtDataLength.Text;
+      end;
       if Trim(S) = '' then
       begin
         FMetaField.DataLength := 0;

@@ -9,5 +9,10 @@
 {"hash":45044426,"name":"tfrmoradbconfig.rdbnetsvc.caption","sourcebytes":[84,104,114,111,117,103,104,32,108,111,99,97,108,32,115,101,114,118,105,99,101,32,110,97,109,101,58],"value":"Through local service name:"},
 {"hash":229387866,"name":"tfrmoradbconfig.rdbsvcparam.caption","sourcebytes":[83,112,101,99,105,102,121,32,104,111,115,116,32,112,97,114,97,109,101,116,101,114,115,58],"value":"Specify host parameters:"},
 {"hash":170048654,"name":"tfrmoradbconfig.label4.caption","sourcebytes":[78,111,116,101,58,32,69,90,68,77,76,32,110,101,101,100,115,32,111,114,97,99,108,101,32,99,108,105,101,110,116,32,47,32,105,110,115,116,97,110,116,45,99,108,105,101,110,116,32,116,111,32,108,111,103,111,110,46,32,89,111,117,32,99,97,110,32,115,112,101,99,105,102,121,32,116,104,101,32,108,111,99,97,116,105,111,110,32,111,102,32,108,105,98,111,99,105,101,105,46,100,121,108,105,98,47,46,115,111,47,111,99,105,46,100,108,108,32,105,110,32,109,97,105,110,32,115,101,116,116,105,110,103,115,32,100,105,97,108,111,103,32,40,97,32,114,101,115,116,97,114,116,32,119,105,108,108,32,98,101,32,110,101,101,100,101,100,41,46],"value":"Note: EZDML needs oracle client / instant-client to logon. You can specify the location of libociei.dylib/.so/oci.dll in main settings dialog (a restart will be needed)."},
-{"hash":322608,"name":"tfrmoradbconfig.btnhelp.caption","sourcebytes":[72,101,108,112],"value":"Help"}
+{"hash":322608,"name":"tfrmoradbconfig.btnhelp.caption","sourcebytes":[72,101,108,112],"value":"Help"},
+{"hash":213582195,"name":"tfrmoradbconfig.btnsettings.caption","sourcebytes":[83,101,116,116,105,110,103,115],"value":"Settings"},
+{"hash":106218906,"name":"tfrmoradbconfig.rbdodbcdsn.caption","sourcebytes":[79,68,66,67,32,68,83,78,58],"value":"ODBC DSN:"},
+{"hash":301082,"name":"tfrmoradbconfig.label6.caption","sourcebytes":[68,83,78,58],"value":"DSN:"},
+{"hash":77164181,"name":"tfrmoradbconfig.btnbrowsedsn.caption","sourcebytes":[66,114,111,119,115,101],"value":"Browse"},
+{"hash":79787546,"name":"tfrmoradbconfig.rdbodbcconnstr.caption","sourcebytes":[79,68,66,67,32,67,111,110,110,101,99,116,105,111,110,32,83,116,114,105,110,103,58],"value":"ODBC Connection String:"}
 ]}

@@ -31,9 +31,9 @@
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="3"/>
       <MinorVersionNr Value="5"/>
-      <RevisionNr Value="6"/>
-      <BuildNr Value="274"/>
-      <StringTable Comments="EZDML_X EMail:huzzz@163.com" CompanyName="huzzz@163.com" FileDescription="EZDML" InternalName="ezdml_x.exe" LegalCopyright="(c) 2007-2022 Huz(huzzz@163.com,http://www.ezdml.com)" LegalTrademarks="ezdml" OriginalFilename="ezdml_x.exe" ProductName="EZDML_X" ProductVersion="3.3"/>
+      <RevisionNr Value="7"/>
+      <BuildNr Value="286"/>
+      <StringTable Comments="EZDML_X EMail:huzzz@163.com" CompanyName="huzzz@163.com" FileDescription="EZDML" InternalName="ezdml_x.exe" LegalCopyright="(c) 2007-2024 Huz(huzzz@163.com,http://www.ezdml.com)" LegalTrademarks="ezdml" OriginalFilename="ezdml_x.exe" ProductName="EZDML_X" ProductVersion="3.5"/>
     </VersionInfo>
     <BuildModes Count="3">
       <Item1 Name="Default" Default="True"/>
@@ -258,7 +258,9 @@
       <Unit16>
         <Filename Value="Settings\wSettings.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmSettings"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit16>
       <Unit17>
         <Filename Value="DML\Ctobj\CtObjSerialer.pas"/>

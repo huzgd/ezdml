@@ -15,6 +15,7 @@ type
   TfrmSqlSvrDBConfig = class(TForm)
     btnHelp: TButton;
     btnBrowseDsn: TButton;
+    btnSettings: TButton;
     edtDbName: TEdit;
     edtDsnName: TEdit;
     Label1: TLabel;
@@ -28,22 +29,22 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
-    lbOdbcTip: TLabel;
     MemoOdbcConnStr: TMemo;
     rdbIPAddr: TRadioButton;
     rbdOdbcDsn: TRadioButton;
     rdbOdbcConnStr: TRadioButton;
     procedure btnBrowseDsnClick(Sender: TObject);
     procedure btnHelpClick(Sender: TObject);
+    procedure btnSettingsClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure rdbIPAddrChange(Sender: TObject);
   private
     { Private declarations }
-    procedure SetOdbcEnabled(bEnb: Boolean);
     function GenResult: string;
     procedure CheckControlReadOnly;
   public
     { Public declarations }
-    class function DoDBConfig(AString: string; bEnbODBC: Boolean): string;
+    class function DoDBConfig(AString: string): string;
   end;
 
 var
@@ -116,7 +117,7 @@ begin
   end;
 end;
 
-class function TfrmSqlSvrDBConfig.DoDBConfig(AString: string; bEnbODBC: Boolean): string;       
+class function TfrmSqlSvrDBConfig.DoDBConfig(AString: string): string;
 var
   po: Integer;
   V: String;
@@ -168,10 +169,11 @@ begin
       combAddr.Text:=V;
     end;
 
-    SetOdbcEnabled(bEnbODBC);
     CheckControlReadOnly;
     if ShowModal = mrOk then
-      Result := GenResult
+    begin
+      Result := GenResult;
+    end
     else
       Result := '';
   finally
@@ -228,6 +230,20 @@ begin
   CtOpenDoc(PChar(S));
 end;
 
+procedure TfrmSqlSvrDBConfig.btnSettingsClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 10, 4);
+end;
+
+procedure TfrmSqlSvrDBConfig.FormCloseQuery(Sender: TObject;
+  var CanClose: boolean);
+begin               
+  if ModalResult = mrOk then
+    if GenResult = '' then
+      CanClose := False;
+end;
+
+
 procedure TfrmSqlSvrDBConfig.btnBrowseDsnClick(Sender: TObject);
 begin
   {$IFDEF Windows}
@@ -252,16 +268,6 @@ begin
 end;
 
 
-procedure TfrmSqlSvrDBConfig.SetOdbcEnabled(bEnb: Boolean);
-begin
-  if bEnb then
-    Exit;
-  lbOdbcTip.Visible := True;
-  MemoOdbcConnStr.Visible := False;
-  rdbOdbcConnStr.Enabled:=False;         
-  rbdOdbcDsn.Enabled:=False;
-  rdbIPAddr.Checked := True;
-end;
 
 end.
 

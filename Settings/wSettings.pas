@@ -15,8 +15,7 @@ OCILIB                        String
 NLSLang                       String
 MYSQLLIB                      String
 POSTGRESLIB                   String
-SQLSERVERLIB                  String 
-UseOdbcDriverForMsSql         Bool
+SQLSERVERLIB                  String
 SQLITELIB                     String
 QuotReservedNames             Bool    
 QuotAllNames                  Bool
@@ -96,7 +95,6 @@ type
     ckbBigIntForIntKeys: TCheckBox;
     ckbCheckForUpdates: TCheckBox;
     ckbCreateForeignkeys: TCheckBox;
-    ckbRetainAfterCommit: TCheckBox;
     ckbCreateSeqForOracle: TCheckBox;
     ckbEnableAdvTbProp: TCheckBox;
     ckbEnableTbPropRelations: TCheckBox;
@@ -104,9 +102,9 @@ type
     ckbEnableTbPropData: TCheckBox;
     ckbEnableTbPropGenerate: TCheckBox;
     ckbEnableTbPropUIDesign: TCheckBox;
-    ckbUseOdbcDriverForMsSql: TCheckBox;
     ckbAddColCommentToCreateTbSql: TCheckBox;
     ckbCreateIndexForForeignkey: TCheckBox;
+    ckbRetainAfterCommit: TCheckBox;
     ckbTableDialogViewModeByDefault: TCheckBox;
     ckbQuotAllNames: TCheckBox;
     ckbSaveTempFileOnExit: TCheckBox;
@@ -119,6 +117,8 @@ type
     combLANG: TComboBox;
     combNLSLang: TComboBox;
     combHiveVersion: TComboBox;
+    combOdbcCharset: TComboBox;
+    edtDmlGraphDefScale: TComboBox;
     edtCustFldtpName: TEdit;
     edtCustFldtpPhyType: TEdit;
     edtCustomPropUICaption: TEdit;
@@ -144,6 +144,7 @@ type
     edtOCILIB: TComboBox;
     edtTableFieldMaxDrawCount: TEdit;
     edtFDGenRule: TEdit;
+    GroupBoxDBConnOthers: TGroupBox;
     GroupBoxOthers: TGroupBox;
     GroupBoxSQLDbSpec: TGroupBox;
     GroupBoxTbTabs: TGroupBox;
@@ -168,8 +169,10 @@ type
     GroupBoxOthersTb: TGroupBox;
     GroupBoxBaseFont: TGroupBox;
     Label1: TLabel;
+    lbGraphDefScale: TLabel;
     lbMysqlVersion: TLabel;
     lbNLSLang: TLabel;
+    lbOdbcCharset: TLabel;
     lbScreenDpiInfo: TLabel;
     lbKnownTbPrefixTip: TLabel;
     LabelLayoutSpacer1: TLabel;
@@ -267,7 +270,8 @@ type
     FMYSQLLIB: string;
     FSQLSERVERLIB: string;
     FPOSTGRESLIB: string;
-    FSQLITELIB: string;
+    FSQLITELIB: string;     
+    FOdbcCharset: string;
     FBigIntForIntKeys: boolean;
     FQuotReservedNames: boolean;
     FQuotAllNames: boolean;
@@ -279,6 +283,7 @@ type
     FCreateIndexForForeignkey: boolean;
     FHiveVersion: Integer;     
     FMysqlVersion: Integer;
+    FDmlGraphDefScale: String;
     FRetainAfterCommit: boolean;
     FEnableCustomPropUI: boolean;
     FCustomPropUICaption : String;   
@@ -288,7 +293,6 @@ type
     FEnableTbPropGenerate: boolean;
     FEnableTbPropData: boolean;
     FEnableTbPropUIDesign: boolean;
-    FUseOdbcDriverForMsSql: boolean;
     FLANG: string;
     FAppDefFontName: string;
     FAppDefFontSize: integer;
@@ -312,7 +316,7 @@ type
     procedure InitEditors;
   end;
 
-function ShowEzdmlSettings: boolean;
+function ShowEzdmlSettings(initPg: Integer): boolean;
 
 var
   MsSql_DBLIBDLL: string;
@@ -325,7 +329,7 @@ uses
 
 {$R *.lfm}
 
-function ShowEzdmlSettings: boolean;
+function ShowEzdmlSettings(initPg: Integer): boolean;
 var
   frm: TfrmSettings;
 begin
@@ -333,6 +337,8 @@ begin
   frm := TfrmSettings.Create(Application.MainForm);
   try
     frm.LoadSetting;
+    if (initPg >= 0) and (initPg < frm.PageControlMain.PageCount) then
+      frm.PageControlMain.ActivePageIndex:=initPg;
     if frm.ShowModal = mrOk then
     begin
       frm.SaveSetting;
@@ -731,10 +737,9 @@ begin
     FNLSLang := ini.ReadString('Options', 'NLSLang', '');
     FMYSQLLIB := ini.ReadString('Options', 'MYSQLLIB', FMYSQLLIB);
     FSQLSERVERLIB := ini.ReadString('Options', 'SQLSERVERLIB', FSQLSERVERLIB);
-    FUseOdbcDriverForMsSql := ini.ReadBool('Options', 'UseOdbcDriverForMsSql',
-      False);
     FPOSTGRESLIB := ini.ReadString('Options', 'POSTGRESLIB', FPOSTGRESLIB);
-    FSQLITELIB := ini.ReadString('Options', 'SQLITELIB', FSQLITELIB);
+    FSQLITELIB := ini.ReadString('Options', 'SQLITELIB', FSQLITELIB);   
+    FOdbcCharset := ini.ReadString('Options', 'OdbcCharset', '');
     FBigIntForIntKeys := ini.ReadBool('Options', 'BigIntForIntKeys',
       False);
     FQuotReservedNames := ini.ReadBool('Options', 'QuotReservedNames',
@@ -793,6 +798,8 @@ begin
     FTableDialogViewModeByDefault :=
       ini.ReadBool('Options', 'TableDialogViewModeByDefault',
       False);
+    FDmlGraphDefScale :=  ini.ReadString('Options', 'DmlGraphDefScale',
+      '');
 
     LoadFtList(ListBoxCustFldTps.Items, Ini, 'CustFieldTypes');
     LoadFtList(ListBoxDefPhyTypes.Items, Ini, 'DefaultFieldTypes');
@@ -831,6 +838,7 @@ begin
   edtFieldNameMaxDrawSize.Text := IntToStr(FFieldNameMaxDrawSize);
   edtFieldTypeMaxDrawSize.Text := IntToStr(FFieldTypeMaxDrawSize);
   edtTableFieldMaxDrawCount.Text := IntToStr(FTableFieldMaxDrawCount);
+  edtDmlGraphDefScale.Text := FDmlGraphDefScale;
 
   edtScreenDpi.Text := IntToStr(Screen.PixelsPerInch);
 
@@ -852,10 +860,10 @@ begin
   edtOCILIB.Text := FOCILIB;
   combNLSLang.Text := FNLSLang;
   edtMYSQLLIB.Text := FMYSQLLIB;
-  edtSQLSERVERLIB.Text := FSQLSERVERLIB;  
-  ckbUseOdbcDriverForMsSql.Checked := FUseOdbcDriverForMsSql;
+  edtSQLSERVERLIB.Text := FSQLSERVERLIB;
   edtPOSTGRESLIB.Text := FPOSTGRESLIB;
-  edtSQLITELIB.Text := FSQLITELIB;
+  edtSQLITELIB.Text := FSQLITELIB;    
+  combOdbcCharset.Text := FOdbcCharset;
 
 
   ckbWriteConstraintToDescribeStr.Checked := FWriteConstraintToDescribeStr;        
@@ -943,6 +951,7 @@ begin
     FFieldTypeMaxDrawSize);
   FTableFieldMaxDrawCount := StrToIntDef(edtTableFieldMaxDrawCount.Text,
     FTableFieldMaxDrawCount);
+  FDmlGraphDefScale := edtDmlGraphDefScale.Text;
 
   FBigIntForIntKeys := ckbBigIntForIntKeys.Checked;
   FQuotReservedNames := ckbQuotReservedNames.Checked;
@@ -963,8 +972,7 @@ begin
   FOCILIB := edtOCILIB.Text;
   FMYSQLLIB := edtMYSQLLIB.Text;
   FPOSTGRESLIB := edtPOSTGRESLIB.Text;
-  FSQLSERVERLIB := edtSQLSERVERLIB.Text;   
-  FUseOdbcDriverForMsSql := ckbUseOdbcDriverForMsSql.Checked;
+  FSQLSERVERLIB := edtSQLSERVERLIB.Text;
   FSQLITELIB := edtSQLITELIB.Text;
 
   {$ifndef WINDOWS}
@@ -979,7 +987,8 @@ begin
     end;
   end;
   {$endif}  
-  FNLSLang := combNLSLang.Text;
+  FNLSLang := combNLSLang.Text;      
+  FOdbcCharset := combOdbcCharset.Text;
 
 
   FWriteConstraintToDescribeStr := ckbWriteConstraintToDescribeStr.Checked;        
@@ -1011,9 +1020,9 @@ begin
     ini.WriteString('Options', 'NLSLang', FNLSLang);
     ini.WriteString('Options', 'MYSQLLIB', FMYSQLLIB);
     ini.WriteString('Options', 'SQLSERVERLIB', FSQLSERVERLIB);
-    ini.WriteBool('Options', 'UseOdbcDriverForMsSql', FUseOdbcDriverForMsSql);
     ini.WriteString('Options', 'POSTGRESLIB', FPOSTGRESLIB);
     ini.WriteString('Options', 'SQLITELIB', FSQLITELIB);
+    ini.WriteString('Options', 'OdbcCharset', FOdbcCharset);
     ini.WriteBool('Options', 'BigIntForIntKeys', FBigIntForIntKeys);
     ini.WriteBool('Options', 'QuotReservedNames', FQuotReservedNames);
     ini.WriteBool('Options', 'QuotAllNames', FQuotAllNames);
@@ -1045,7 +1054,8 @@ begin
     ini.WriteInteger('Options', 'FieldTypeMaxDrawSize', FFieldTypeMaxDrawSize);
     ini.WriteInteger('Options', 'TableFieldMaxDrawCount', FTableFieldMaxDrawCount);  
     ini.WriteBool('Options', 'TableDialogViewModeByDefault',
-      FTableDialogViewModeByDefault);
+      FTableDialogViewModeByDefault);      
+    ini.WriteString('Options', 'DmlGraphDefScale', FDmlGraphDefScale);
 
     SaveFtList(ListBoxCustFldTps.Items, Ini, 'CustFieldTypes');  
     FFrameCustPhyFieldTypes.Save(ListBoxDefPhyTypes.Items);

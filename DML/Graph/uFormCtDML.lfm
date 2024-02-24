@@ -6,6 +6,7 @@ object frmCtDML: TfrmCtDML
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Diagram'
   Color = clBtnFace
+  OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy

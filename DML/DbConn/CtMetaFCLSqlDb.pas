@@ -22,10 +22,12 @@ type
     FQuery: TSQLQuery;
     FQueryB: TSQLQuery;
     FLastCmdRowAffected: Integer;
+    FUseDriverType: string;
     procedure SetDbConn(AValue: TSQLConnection);
     function GetConnected: boolean; override;
     procedure SetConnected(const Value: boolean); override;
     function CreateSqlDbConn: TSQLConnection; virtual;
+    function NeedRecreateDbConn: Boolean; virtual;
     procedure ReCreateFCLDbConn; virtual;
     procedure SetFCLConnDatabase; virtual;
     procedure CheckDsUpdateMode(ds: TSQLQuery); virtual;
@@ -48,6 +50,13 @@ type
   end;
 
   TSQLConnectionXX = class(TSQLConnection)
+  end;
+
+  { TCtSQLTransaction }
+
+  TCtSQLTransaction = class(TSQLTransaction)
+  protected
+    Function AllowClose(DS: TDBDataset): Boolean; override;
   end;
 
   { TCtSQLQuery }
@@ -78,6 +87,14 @@ begin
   if G_SqlLogs=nil then
     G_SqlLogs := TStringList.Create;
   G_SqlLogs.Add(S);
+end;
+
+{ TCtSQLTransaction }
+
+function TCtSQLTransaction.AllowClose(DS: TDBDataset): Boolean;
+begin
+  //Result:=inherited AllowClose(DS);
+  Result:=False;
 end;
 
 { TCtSQLQuery }
@@ -145,7 +162,9 @@ end;
 procedure TCtMetaFCLSqlDb.SetConnected(const Value: boolean);
 begin
   if FConnected = Value then
-    Exit;
+    Exit;     
+  if Value then
+    ReCreateFCLDbConn;
   if Assigned(FDbConn) then
   begin
     if Value then
@@ -173,8 +192,25 @@ begin
   Result := nil;
 end;
 
-procedure TCtMetaFCLSqlDb.ReCreateFCLDbConn;
+function TCtMetaFCLSqlDb.NeedRecreateDbConn: Boolean;
+var
+  vUseDriverType: String;
 begin
+  Result := False;
+  if (Pos('DSN:', DataBase) = 1) or (Pos('ODBC:', DataBase) = 1) then
+    vUseDriverType := 'ODBC'
+  else
+    vUseDriverType := '';
+  if vUseDriverType <> FUseDriverType then
+    Result := True;
+end;
+
+procedure TCtMetaFCLSqlDb.ReCreateFCLDbConn;
+begin               
+  if Assigned(FInnerDbConn) and Assigned(FQuery) and Assigned(FTrans) then
+    if not NeedRecreateDbConn then
+      Exit;
+
   if Assigned(FQuery) then
     FreeAndNil(FQuery);
   if Assigned(FQueryB) then
@@ -190,7 +226,7 @@ begin
 
   FQuery := TCtSQLQuery.Create(nil);
   FQueryB := TCtSQLQuery.Create(nil);
-  FTrans := TSQLTransaction.Create(nil);
+  FTrans := TCtSQLTransaction.Create(nil);
   FInnerDbConn := CreateSqlDbConn;
   if FInnerDbConn <> nil then
     DbConn := FInnerDbConn;
@@ -234,7 +270,6 @@ begin
   inherited;
   FEngineType := 'FCLSQLDB';
   FLastCmdRowAffected := -1;
-  ReCreateFCLDbConn;
 end;
 
 destructor TCtMetaFCLSqlDb.Destroy;
@@ -411,7 +446,7 @@ begin
   try
     FLastCmdRowAffected := -1;
     Result.Open;
-    FLastCmdRowAffected := Result.RecordCount;
+    //FLastCmdRowAffected := Result.RecordCount;
     if Pos('[NO_CT_TRANS]', ASql) = 0 then
       FDbConn.Transaction.CommitRetaining;
   except

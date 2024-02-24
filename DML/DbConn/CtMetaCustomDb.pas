@@ -9,7 +9,9 @@ interface
 
 uses
   LCLIntf, LCLType, Messages, SysUtils, Variants, Classes, Graphics, Controls, ImgList,
-  CtMetaData, CtMetaTable, DB, memds, uJson;
+  CtMetaData, CtMetaTable, DB, memds, uJson
+  //, CtCustomSqlConn
+  ;
 
 type
 
@@ -56,7 +58,13 @@ type
   TCtMemDataSet=class(TMemDataSet)
   protected { IProviderSupport methods }
     FSqlText: string;
-    function PSGetTableName: string; override;
+    FDsReadOnly: Boolean;
+    procedure CheckDsReadOnly;
+    function PSGetTableName: string; override;  
+    procedure DoBeforeDelete; override;
+    procedure DoBeforeEdit; override;
+    procedure DoBeforeInsert; override;  
+    procedure DoBeforePost; override;
   end;
      
 function ConvertStrToJson(const str: string): TJSONObject;
@@ -178,6 +186,12 @@ end;
 
 { TCtMemDataSet }
 
+procedure TCtMemDataSet.CheckDsReadOnly;
+begin
+  if FDsReadOnly then
+    raise Exception.Create('DataSet is readonly');
+end;
+
 function TCtMemDataSet.PSGetTableName: string;
 begin
   Result:='';
@@ -185,6 +199,30 @@ begin
   if FSqlText <> '' then
     Result := TableNameOfSql(FSqlText);
   {$endif}
+end;
+
+procedure TCtMemDataSet.DoBeforeDelete;
+begin
+  CheckDsReadOnly;
+  inherited DoBeforeDelete;
+end;
+
+procedure TCtMemDataSet.DoBeforeEdit;
+begin                        
+  CheckDsReadOnly;
+  inherited DoBeforeEdit;
+end;
+
+procedure TCtMemDataSet.DoBeforeInsert;
+begin                     
+  CheckDsReadOnly;
+  inherited DoBeforeInsert;
+end;
+
+procedure TCtMemDataSet.DoBeforePost;
+begin             
+  CheckDsReadOnly;
+  inherited DoBeforePost;
 end;
 
 { TCtMetaCustomDb }
@@ -279,7 +317,8 @@ begin
         S := ASql
       else
         S := 'select * from ' + ASql;
-      TCtMemDataSet(Result).FSqlText:=S;
+      TCtMemDataSet(Result).FSqlText:=S;       
+      TCtMemDataSet(Result).FDsReadOnly:=True;
     end;
   finally
     map.Free;

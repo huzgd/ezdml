@@ -14,6 +14,7 @@ type
 
   TfrmLogonCtDB = class(TForm)
     btnHelp: TButton;
+    btnSettings: TButton;
     Label1: TLabel;
     combDbType: TComboBox;
     Label2: TLabel;
@@ -35,6 +36,8 @@ type
     procedure btnCancelClick(Sender: TObject);
     procedure btnHelpClick(Sender: TObject);
     procedure btnOKClick(Sender: TObject);
+    procedure btnSettingsClick(Sender: TObject);
+    procedure combDBNameCloseUp(Sender: TObject);
     procedure FormClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -49,9 +52,11 @@ type
   private
     { Private declarations }
     FLogonHistories: TStringList;
+    FCurConnDbNames: string;
     procedure _OnLogonHistMenuItemClicked(Sender: TObject);  
     procedure DoConnectDb(bForceReConnect: Boolean);
     procedure DisableAutoLogin;
+    procedure RegenCombDbDropdownList;
   public
     { Public declarations }
     procedure GetLastDbLogonInfo(dbTypeNeeded: Boolean);
@@ -415,10 +420,7 @@ var
 begin
   if Trim(his) = '' then
     Exit;
-  if adb = nil then
-    Exit;
   S := his;
-  db := TCtMetaDatabase(adb);
 
   po := Pos('@', S);
   if po > 0 then
@@ -458,9 +460,22 @@ begin
   end;
   if S <> '' then
   begin
-    db.Database := S;
-    db.User := U;
-    db.Password := P;
+    if adb <> nil then
+    begin    
+      db := TCtMetaDatabase(adb);
+      db.Database := S;
+      db.User := U;
+      db.Password := P;
+    end
+    else
+    begin
+      if combDBName.Text <> S then
+      begin
+        combDBName.Text := S;
+      end;
+      edtUserName.Text := U;
+      edtPassword.Text := P;
+    end;
   end;
 end;
 
@@ -618,6 +633,63 @@ begin
   end;
 end;
 
+procedure TfrmLogonCtDB.RegenCombDbDropdownList;
+
+  procedure AddHistDsCombo;
+  var
+    I, po: Integer;
+    Db, S: String;
+  begin
+    db := combDbType.Text;
+    if db='' then
+      Exit;
+    for I := 0 to FLogonHistories.Count - 1 do
+    begin
+      S := FLogonHistories[I];
+      if Trim(S) <> '' then
+      begin
+        po := Pos('||', S);
+        if po > 0 then
+        begin
+          S := Copy(S, 1, po - 1);
+        end;
+        if Trim(S) <> '' then
+          if Pos(db+':', S)=1 then
+          begin
+            S := Copy(S, Length(db+':')+1, Length(S));
+            po := Pos('@', S);
+            if po=1 then
+              S := Copy(S, po+1, Length(S));
+            combDBName.Items.AddObject(S, TObject(PtrInt(10000+I)));
+          end;
+      end;
+    end;
+  end;
+
+var
+  ss: TStringList;
+  I: Integer;
+  S: String;
+begin
+  combDBName.Items.Clear;
+  AddHistDsCombo; 
+  ss:= TStringList.Create;
+  try
+    ss.Text := FCurConnDbNames;
+    for I:=0 to ss.Count - 1 do
+    begin
+      S := ss[I];
+      if S<>'' then
+      begin
+        if combDBName.Items.IndexOf(S)<0 then
+          combDBName.Items.Add(S);
+      end;
+    end;
+  finally
+    ss.Free;
+  end;
+end;
+
 procedure TfrmLogonCtDB.btnLogonHistClick(Sender: TObject);
 var
   I, po: Integer;
@@ -673,10 +745,6 @@ begin
     edtPassword.Color := clWindow;
     edtPassword.ReadOnly := False;
 
-    try
-      combDBName.Items.Text := CtMetaDBRegs[I].DbImpl.GetDbNames;
-    except
-    end;
     combDBName.Text := CtMetaDBRegs[I].DbImpl.Database;
     edtUserName.Text := CtMetaDBRegs[I].DbImpl.User;
     edtPassword.Text := CtMetaDBRegs[I].DbImpl.Password;
@@ -684,6 +752,12 @@ begin
       ckbSavePwd.Checked := True
     else
       ckbSavePwd.Checked := False;
+         
+    try
+      FCurConnDbNames := CtMetaDBRegs[I].DbImpl.GetDbNames;
+    except
+    end;
+    RegenCombDbDropdownList;
   end
   else
   begin
@@ -731,6 +805,40 @@ begin
       btnCancel.Enabled := True;
     end;
   end;
+end;
+
+procedure TfrmLogonCtDB.btnSettingsClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 10, 4);
+end;
+
+procedure TfrmLogonCtDB.combDBNameCloseUp(Sender: TObject);
+var
+  I, po: Integer;
+  S: string;
+  obj: TObject;
+begin
+  I := combDBName.ItemIndex;
+  if I=-1 then
+    Exit;
+  Obj := combDBName.Items.Objects[I];
+  if Obj=nil then
+    Exit;
+  I := Integer(Obj);
+  if I<10000 then
+    Exit;
+  I := I-10000;
+  if I>= FLogonHistories.Count then
+    Exit;
+
+  S := FLogonHistories[I];
+  po := Pos(':', S);
+  if po = 0 then
+    Exit;
+  S := Copy(S, po + 1, Length(S));
+
+  SetLogonHistoryToDb(S, nil);
+
 end;
 
 procedure TfrmLogonCtDB.btnHelpClick(Sender: TObject);
@@ -804,7 +912,7 @@ begin
   finally
     ini.Free;
   end;
-
+  RegenCombDbDropdownList;
 end;
 
 procedure TfrmLogonCtDB.btnDBCfgClick(Sender: TObject);

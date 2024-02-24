@@ -13,8 +13,11 @@ type
   { TfrmCommDBConfig }
 
   TfrmCommDBConfig = class(TForm)
+    btnBrowseDsn: TButton;
     btnHelp: TButton;
+    btnSettings: TButton;
     combSveIp: TComboBox;
+    edtDsnName: TEdit;
     Label1: TLabel;
     edtPort: TEdit;
     Label2: TLabel;
@@ -22,12 +25,21 @@ type
     Label3: TLabel;
     btnOK: TButton;
     btnCancel: TButton;
+    Label6: TLabel;
+    MemoOdbcConnStr: TMemo;
+    rbdOdbcDsn: TRadioButton;
+    rdbIPAddr: TRadioButton;
+    rdbOdbcConnStr: TRadioButton;
+    procedure btnBrowseDsnClick(Sender: TObject);
     procedure btnHelpClick(Sender: TObject);
+    procedure btnSettingsClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure rdbIPAddrChange(Sender: TObject);
   private
     { Private declarations }
     FDBType: string;
     function GenResult: string;
+    procedure CheckControlReadOnly;
   public
     { Public declarations }
     class function DoDBConfig(AString, ADbType: string): string;
@@ -39,7 +51,7 @@ var
 implementation
 
 uses
-  CtMetaTable, WindowFuncs, dmlstrs, ezdmlstrs;
+  CtMetaTable, uFormWindowsOdbcCfg, WindowFuncs, dmlstrs, ezdmlstrs;
 
 {$R *.lfm}
 
@@ -53,42 +65,66 @@ begin
   with TfrmCommDBConfig.Create(nil) do
   try
     FDBType :=ADbType;
-    if AString <> '' then
-    begin     
-      po := Pos(':',AString);
-      if po>0 then
-      begin
-        combSveIp.Text:=Copy(AString, 1, po-1);
-        V:=Copy(AString, po+1, Length(AString));
-        po := Pos('@', V);
-        if po >0 then
-        begin
-          edtPort.Text := Copy(V,1,po-1);
-          edtDbName.Text := Copy(V,po+1,Length(V));
-        end
-        else
-        begin
-          edtPort.Text := V;
-          edtDbName.Text := '';
-        end;
-      end
-      else
-      begin          
-        edtPort.Text := '';
-        po := Pos('@', AString);
-        if po >0 then
-        begin
-          combSveIp.Text := Copy(AString,1,po-1);
-          edtDbName.Text := Copy(AString,po+1,Length(AString));
-        end
-        else
-        begin
-          combSveIp.Text := AString;
-          edtDbName.Text := '';
-        end;
-      end;
-
+    if FDBType = 'MYSQL' then
+    begin
+      MemoOdbcConnStr.Lines.Text := 'Driver=MySQL ODBC 8.0 Driver;Server=MyDbServer;Port=3306;Database={database_name};';
+    end
+    else if FDBType = 'POSTGRESQL' then
+    begin
+      MemoOdbcConnStr.Lines.Text := 'Driver=PostgreSQL Unicode;Server=MyDbServer;Port=5432;Database={database_name};';
     end;
+    if Copy(AString, 1,4)='DSN:' then
+    begin
+      rbdOdbcDsn.Checked := True;
+      edtDsnName.Text := Copy(AString, 5, Length(AString));
+    end
+    else if Copy(AString, 1, 5)='ODBC:' then
+    begin
+      rdbOdbcConnStr.Checked := True;
+      MemoOdbcConnStr.Lines.Text := Copy(AString, 6, Length(AString));
+    end
+    else
+    begin
+      rdbIPAddr.Checked := True;
+      if AString <> '' then
+      begin
+        po := Pos(':',AString);
+        if po>0 then
+        begin
+          combSveIp.Text:=Copy(AString, 1, po-1);
+          V:=Copy(AString, po+1, Length(AString));
+          po := Pos('@', V);
+          if po >0 then
+          begin
+            edtPort.Text := Copy(V,1,po-1);
+            edtDbName.Text := Copy(V,po+1,Length(V));
+          end
+          else
+          begin
+            edtPort.Text := V;
+            edtDbName.Text := '';
+          end;
+        end
+        else
+        begin
+          edtPort.Text := '';
+          po := Pos('@', AString);
+          if po >0 then
+          begin
+            combSveIp.Text := Copy(AString,1,po-1);
+            edtDbName.Text := Copy(AString,po+1,Length(AString));
+          end
+          else
+          begin
+            combSveIp.Text := AString;
+            edtDbName.Text := '';
+          end;
+        end;
+
+      end;
+    end;
+    CheckControlReadOnly;
+
     if ShowModal = mrOk then
       Result := GenResult
     else
@@ -104,6 +140,11 @@ begin
   if ModalResult = mrOk then
     if GenResult = ''  then
       CanClose := False;
+end;
+
+procedure TfrmCommDBConfig.rdbIPAddrChange(Sender: TObject);
+begin
+  CheckControlReadOnly;
 end;
 
 procedure TfrmCommDBConfig.btnHelpClick(Sender: TObject);
@@ -126,15 +167,106 @@ begin
   CtOpenDoc(PChar(S));
 end;
 
-function TfrmCommDBConfig.GenResult: string;
+procedure TfrmCommDBConfig.btnBrowseDsnClick(Sender: TObject);
 begin
-  Result := Trim(combSveIp.Text);
-  if Result='' then
-    Exit;
-  if Trim(edtPort.Text)<>'' then
-    Result :=  Result + ':' + Trim(edtPort.Text);    
-  if Trim(edtDbName.Text)<>'' then
-    Result :=  Result + '@' + Trim(edtDbName.Text);
+  {$IFDEF Windows}
+    with TfrmWindowsOdbcConfg.create(nil) do
+    try
+      RefreshDSNs;
+      if ShowModal = mrOk then
+      begin
+        edtDsnName.Text := GetSelectedDSN;
+      end;
+    finally
+      Free;
+    end;
+  {$ELSE}
+    ShowMessage('Enter User_or_System_DSN_Name');
+  {$ENDIF}
+end;
+
+procedure TfrmCommDBConfig.btnSettingsClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 10, 4);
+end;
+
+function TfrmCommDBConfig.GenResult: string;
+begin                 
+  Result := '';
+  if rdbIPAddr.Checked then
+  begin
+    Result := Trim(combSveIp.Text);
+    if Result='' then
+      Exit;
+    if Trim(edtPort.Text)<>'' then
+      Result :=  Result + ':' + Trim(edtPort.Text);
+    if Trim(edtDbName.Text)<>'' then
+      Result :=  Result + '@' + Trim(edtDbName.Text);
+  end
+  else if rbdOdbcDsn.Checked then
+  begin
+    if Trim(edtDsnName.Text) = '' then
+      Exit;
+    Result := 'DSN:'+Trim(edtDsnName.Text);
+  end
+  else if rdbOdbcConnStr.Checked then
+  begin
+    if Trim(MemoOdbcConnStr.Lines.Text) = '' then
+      Exit;
+    Result := 'ODBC:'+Trim(MemoOdbcConnStr.Lines.Text);
+  end;
+end;
+
+procedure TfrmCommDBConfig.CheckControlReadOnly;
+begin
+  if not rdbIPAddr.Checked then
+  begin
+    combSveIp.ParentColor := True;
+    combSveIp.Enabled := False;
+
+    edtPort.ParentColor := True;
+    edtPort.Enabled := False;
+
+    edtDbName.ParentColor := True;
+    edtDbName.Enabled := False;
+  end
+  else
+  begin
+    combSveIp.Color := clWindow;
+    combSveIp.Enabled := True;
+
+    edtPort.Color := clWindow;
+    edtPort.Enabled := True;
+
+    edtDbName.Color := clWindow;
+    edtDbName.Enabled := True;
+  end;
+
+  if not rbdOdbcDsn.Checked then
+  begin
+    btnBrowseDsn.Enabled := False;
+
+    edtDsnName.ParentColor := True;
+    edtDsnName.Enabled := False;
+  end
+  else
+  begin
+    btnBrowseDsn.Enabled := True;
+
+    edtDsnName.Color := clWindow;
+    edtDsnName.Enabled := True;
+  end;
+
+  if not rdbOdbcConnStr.Checked then
+  begin
+    MemoOdbcConnStr.ParentColor := True;
+    MemoOdbcConnStr.Enabled := False;
+  end
+  else
+  begin
+    MemoOdbcConnStr.Color := clWindow;
+    MemoOdbcConnStr.Enabled := True;
+  end;
 end;
 
 

@@ -1,12 +1,12 @@
 object frmColorStyles: TfrmColorStyles
   Left = 406
-  Height = 430
+  Height = 454
   Top = 163
   Width = 420
   BorderIcons = [biSystemMenu, biMaximize]
   BorderStyle = bsDialog
   Caption = 'Model Options'
-  ClientHeight = 430
+  ClientHeight = 454
   ClientWidth = 420
   Color = clBtnFace
   OnCreate = FormCreate
@@ -16,17 +16,17 @@ object frmColorStyles: TfrmColorStyles
   LCLVersion = '2.0.12.0'
   object PageControl1: TPageControl
     Left = 4
-    Height = 387
+    Height = 411
     Top = 4
     Width = 412
-    ActivePage = TabSheet3
+    ActivePage = TabSheet2
     Align = alClient
     BorderSpacing.Around = 4
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 0
     object TabSheet2: TTabSheet
       Caption = 'Objects'
-      ClientHeight = 355
+      ClientHeight = 381
       ClientWidth = 404
       ImageIndex = 1
       object Label15: TLabel
@@ -287,6 +287,49 @@ object frmColorStyles: TfrmColorStyles
         OnClick = btnLinkLineClick
         TabOrder = 11
       end
+      object Bevel12: TBevel
+        Left = 100
+        Height = 2
+        Top = 334
+        Width = 276
+        Shape = bsTopLine
+      end
+      object Label24: TLabel
+        Left = 9
+        Height = 17
+        Top = 324
+        Width = 63
+        Caption = 'Group box'
+        ParentColor = False
+      end
+      object Label25: TLabel
+        Left = 16
+        Height = 17
+        Top = 348
+        Width = 67
+        Caption = 'Edge color:'
+        ParentColor = False
+      end
+      object clbGroupEdgeColor: TColorBox
+        Left = 107
+        Height = 26
+        Top = 348
+        Width = 227
+        DefaultColorColor = clMaroon
+        NoneColorColor = clBlue
+        Selected = clMaroon
+        ItemHeight = 20
+        TabOrder = 12
+      end
+      object btnGroupEdge: TButton
+        Left = 340
+        Height = 24
+        Top = 348
+        Width = 18
+        Caption = '..'
+        OnClick = btnGroupEdgeClick
+        TabOrder = 13
+      end
     end
     object TabSheet1: TTabSheet
       Caption = 'Working Area'
@@ -516,7 +559,7 @@ object frmColorStyles: TfrmColorStyles
   object Panel1: TPanel
     Left = 0
     Height = 35
-    Top = 395
+    Top = 419
     Width = 420
     Align = alBottom
     AutoSize = True

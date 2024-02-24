@@ -50,14 +50,21 @@ type
     ckbGenCode: TCheckBox;
     ckbGenDatabase: TCheckBox;
     colobBgColor: TColorBox;
+    edtTxtSizeH: TEdit;
+    edtTbSizeW: TEdit;
     edtGenTxtFind: TEdit;
     edtPhysicalName: TEdit;
+    edtTbSizeH: TEdit;
+    edtTxtSizeW: TEdit;
     edtUIDisplayText: TEdit;
     edtOwnerCategory: TEdit;
     edtGroupName: TEdit;
     edtSQLAlias: TEdit;
     FindDialogTxt: TFindDialog;
     Label25: TLabel;
+    lbTxtSize: TLabel;
+    lbTbSizeX: TLabel;
+    lbTbSize: TLabel;
     lbTbFieldCount: TLabel;
     lbDesignNotes: TLabel;
     lbPartitionInfo: TLabel;
@@ -68,6 +75,7 @@ type
     lbOwnerCategory: TLabel;
     lbGroupName: TLabel;
     lbSQLAlias: TLabel;
+    lbTxtSizeX: TLabel;
     lbViewSQL: TLabel;
     lbGenTp: TLabel;
     lbExProps: TLabel;
@@ -103,6 +111,7 @@ type
     MNTabs_UIDesign: TMenuItem;
     MNTabs_Gen: TMenuItem;
     MNTabs_AdvPage: TMenuItem;
+    PanelTxtBottom: TPanel;
     PanelTbRelDml: TPanel;
     PanelRefInfo: TPanel;
     pmFsPaste: TMenuItem;
@@ -1063,8 +1072,11 @@ begin
   end;
   {$ifndef EZDML_LITE}
   fr.DefTableName := FCtMetaTable.Name;
-  {$endif}
-  sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, fr.FCtMetaDatabase);
+  {$endif}                     
+  if G_LogicNamesForTableData then
+    sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, fr.FCtMetaDatabase)
+  else
+    sql := FCtMetaTable.GenSelectSqlEx(G_MaxRowCountForTableData, '  t.*', '', '', '', dbType, fr.FCtMetaDatabase);
   if fr.AutoExecSql = sql then
     Exit;
   fr.AutoExecSql := sql;
@@ -1107,7 +1119,7 @@ begin
   TabSheetUI.Tag := 0;
 
   {$ifndef EZDML_LITE}
-  if (FCtMetaTable = nil) or FCtMetaTable.IsText then
+  if (FCtMetaTable = nil) or FCtMetaTable.IsText or FCtMetaTable.IsGroup then
   begin
     TFrameUIPreview(UIPreviewFrame).HideProps; 
     TFrameUIPreview(UIPreviewFrame).InitByTable(nil, True);
@@ -1403,7 +1415,10 @@ begin
           {$ifndef EZDML_LITE}
           DefTableName := FCtMetaTable.Name;
           {$endif}
-          sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, FCtMetaDatabase);
+          if G_LogicNamesForTableData then                                                                       
+            sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, FCtMetaDatabase)
+          else
+            sql := FCtMetaTable.GenSelectSqlEx(G_MaxRowCountForTableData, '  t.*', '', '', '', dbType, FCtMetaDatabase);
           if AutoExecSql <> sql then
           begin
             ClearSql;
@@ -1583,9 +1598,14 @@ begin
         if FLastActiveTabSheet.TabVisible then
           PageControlTbProp.ActivePage := FLastActiveTabSheet;
     end
-    else if ATb.IsText then
+    else if ATb.IsText or ATb.IsGroup then
     begin
+      if ATb.IsGroup then
+        TabSheetText.Caption := srGroup
+      else
+        TabSheetText.Caption := srText;
       edtTextName.Text := ATb.Name;
+      ckbIsSqlText.Visible:=ATb.IsText;
       ckbIsSqlText.Checked := ATb.IsSqlText;
       MemoTextContent.Lines.Text := ATb.Memo;
       with StringGridTableFields do
@@ -2309,9 +2329,19 @@ end;
 procedure TFrameCtTableProp.edtTextNameExit(Sender: TObject);
 begin
   if FCtMetaTable = nil then
-    Exit;
-  if FCtMetaTable.Name <> edtTableName.Text then
+    Exit;                         
+  if not IsValidTableName(edtTextName.Text, True) then
   begin
+    Abort;
+  end;
+  if FCtMetaTable.Name <> edtTextName.Text then
+  begin          
+    if not CheckCanRenameTable(FCtMetaTable, edtTextName.Text, False) then
+    begin
+      edtTextName.Text := FCtMetaTable.Name;
+      edtTextName.SetFocus;
+      Abort;
+    end;
     FCtMetaTable.Name := edtTextName.Text;
     if Assigned(Proc_OnPropChange) then
       Proc_OnPropChange(0, FCtMetaTable, nil, '');
@@ -2432,7 +2462,7 @@ begin
       po := Pos(',', T);
       if po = 0 then
       begin
-        if T = 'LONG' then
+        if (UpperCase(Trim(T)) = 'LONG') or (UpperCase(Trim(T))='MAX') then
           AField.DataLength := DEF_TEXT_CLOB_LEN
         else
           AField.DataLength := StrToIntDef(T, 0);

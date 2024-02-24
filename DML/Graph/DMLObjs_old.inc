@@ -103,6 +103,7 @@ type
     DefaultFKColor: TColor;
     DefaultBorderColor: TColor;
     DefaultLineColor: TColor;
+    DefaultGroupEdgeColor: TColor;
     DatabaseEngine: string;
 
     GenFKIndexesSQL: Boolean;
@@ -189,7 +190,7 @@ type
     FUserPars: string;
     FUserVal: Integer;
 
-    FDrawOnBackground: Boolean;
+    FDrawOnBackground: Integer;
     FDrawSelectGrips: Boolean;
     FBriefMode: Boolean;
   protected
@@ -230,7 +231,9 @@ type
     property Width: Double read GetWidth write SetWidth;
     property Height: Double read GetHeight write SetHeight;
     property OWidth: Double read FoWidth write FoWidth;
-    property OHeight: Double read FoHeight write FoHeight;
+    property OHeight: Double read FoHeight write FoHeight; 
+    property BWidth: Double read FbWidth write FbWidth;
+    property BHeight: Double read FbHeight write FbHeight;
 
     property OLeft: Double read FoLeft write FoLeft;
     property OTop: Double read FoTop write FoTop;
@@ -253,10 +256,12 @@ type
     property UserPars: string read FUserPars write FUserPars;
     property UserVal: Integer read FUserVal write FUserVal;
 
-    property DrawOnBackground: Boolean read FDrawOnBackground;
+    property DrawOnBackground: Integer read FDrawOnBackground;
     property BriefMode: Boolean read FBriefMode write SetBriefMode;
   end;
   TDMLObjClass = class of TDMLObj;
+
+  { TDMLEntityObj }
 
   TDMLEntityObj = class(TDMLObj)
   private
@@ -266,7 +271,8 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
-
+                              
+    function IsResizable: Boolean; virtual;
     procedure CheckResize; override;
     procedure CheckPositions; virtual;
     procedure CheckSizeForName(AName: string);
@@ -379,6 +385,18 @@ type
     procedure SetID(const Value: Integer); override;
   public
     constructor Create; override;
+  end;
+
+  { TDMLGroupBoxObj }
+
+  TDMLGroupBoxObj = class(TDMLTextObj)
+  protected
+    procedure SetID(const Value: Integer); override;
+  public
+    constructor Create; override;  
+    procedure CheckResize; override;   
+    function PointInObj(X, Y: Double): Boolean; override;
+    procedure PaintTo(const ADrawer: TDMLDrawer); override;
   end;
 
   { TDMLField }
@@ -1048,6 +1066,86 @@ begin
   end;
 end;
 
+{ TDMLGroupBoxObj }
+
+procedure TDMLGroupBoxObj.SetID(const Value: Integer);
+begin
+  inherited SetID(Value);
+  if FName = ClassName then
+    FName := srGroup + IntToStr(FID);
+end;
+
+constructor TDMLGroupBoxObj.Create;
+begin
+  inherited Create;
+  FBorderStyle := psDot;
+  FFillColor := clWhite;
+  FObjType := 'GROUP';
+  FDrawOnBackground := 2;
+end;
+
+procedure TDMLGroupBoxObj.CheckResize;
+var
+  w, h: Double;
+begin
+  w := Width;
+  h := Height;
+  if Self.BriefMode then
+  begin
+    if w < 200 then
+      w:= 200;
+    if h < 150 then
+      h := 150;
+  end
+  else
+  begin
+    if w < 400 then
+      w:= 400;
+    if h < 300 then
+      h := 300;
+  end;
+  inherited CheckResize;
+  if Width < w then
+    Width := w;
+  if Height < h then
+    Height := h;
+end;
+
+function TDMLGroupBoxObj.PointInObj(X, Y: Double): Boolean;
+begin
+  Result := False;
+  if (FillColor <>$ffffff) or ((GetKeyState(VK_SHIFT) and $80) <> 0) then
+    Result:=inherited PointInObj(X, Y);
+  if not Result then
+    Result := RectCrossOrTouchRect2(Self.Left, Self.Top, Self.Left, Self.Top+Self.Height,
+      X - DEF_DMLLINK_PICK_DIST, Y - DEF_DMLLINK_PICK_DIST, X + DEF_DMLLINK_PICK_DIST, Y + DEF_DMLLINK_PICK_DIST);
+  if not Result then
+    Result := RectCrossOrTouchRect2(Self.Left, Self.Top, Self.Left+Self.Width, Self.Top,
+      X - DEF_DMLLINK_PICK_DIST, Y - DEF_DMLLINK_PICK_DIST, X + DEF_DMLLINK_PICK_DIST, Y + DEF_DMLLINK_PICK_DIST);
+  if not Result then
+    Result := RectCrossOrTouchRect2(Self.Left+Self.Width, Self.Top, Self.Left+Self.Width, Self.Top+Self.Height,
+      X - DEF_DMLLINK_PICK_DIST, Y - DEF_DMLLINK_PICK_DIST, X + DEF_DMLLINK_PICK_DIST, Y + DEF_DMLLINK_PICK_DIST);
+  if not Result then
+    Result := RectCrossOrTouchRect2(Self.Left, Self.Top+Self.Height, Self.Left+Self.Width, Self.Top+Self.Height,
+      X - DEF_DMLLINK_PICK_DIST, Y - DEF_DMLLINK_PICK_DIST, X + DEF_DMLLINK_PICK_DIST, Y + DEF_DMLLINK_PICK_DIST);
+end;
+
+procedure TDMLGroupBoxObj.PaintTo(const ADrawer: TDMLDrawer);
+var
+  bW: Boolean;
+begin
+  TextColor := ADrawer.DefaultTitleColor;
+  bW := False;
+  if FFillColor = $FFFFFF then
+  begin
+    FFillColor := ADrawer.WorkAreaColor;
+    bW := True;
+  end;
+  inherited PaintTo(ADrawer);
+  if bW then
+    FFillColor := $FFFFFF;
+end;
+
 { TDMLObjList }
 
 procedure TDMLObjList.BeginUpdateLinks;
@@ -1236,7 +1334,7 @@ begin
   Result.BriefMode := Self.FBriefMode;
   if Assigned(DMLDrawer) then
     DMLDrawer.SetDefaultProps(Result);
-  if not Result.DrawOnBackground and FFindNewSpace then
+  if (Result.DrawOnBackground=0) and FFindNewSpace then
     FindSpace(Result);
 end;
 
@@ -1471,15 +1569,20 @@ end;
 
 function TDMLObjList.FindEntityAt(X, Y: Double): Integer;
 var
-  I: Integer;
+  I, J: Integer;
 begin
-  for I := 0 to Count - 1 do
-    if not Items[I].DrawOnBackground and Items[I].PointInObj(X, Y) then
-      if Items[I].Visible then
-      begin
-        Result := I;
-        Exit;
-      end;
+  for J := 0 to 2 do
+  begin
+    if J>=1 then
+      Continue;
+    for I := 0 to Count - 1 do
+      if (Items[I].DrawOnBackground=J) and Items[I].PointInObj(X, Y) then
+        if Items[I].Visible then
+        begin
+          Result := I;
+          Exit;
+        end;
+  end;
   Result := -1;
 end;
 
@@ -1517,20 +1620,17 @@ end;
 
 function TDMLObjList.FindItemAt(X, Y: Double): Integer;
 var
-  I: Integer;
+  I, J: Integer;
 begin
-  for I := 0 to Count - 1 do
-    if not Items[I].DrawOnBackground and Items[I].PointInObj(X, Y) then
-    begin
-      Result := I;
-      Exit;
-    end;
-  for I := 0 to Count - 1 do
-    if Items[I].DrawOnBackground and Items[I].PointInObj(X, Y) then
-    begin
-      Result := I;
-      Exit;
-    end;
+  for J:=0 to 2 do
+  begin
+    for I := 0 to Count - 1 do
+      if (Items[I].DrawOnBackground=J) and Items[I].PointInObj(X, Y) then
+      begin
+        Result := I;
+        Exit;
+      end;
+  end;
   Result := -1;
 end;
 
@@ -1548,7 +1648,7 @@ var
 begin
   if not Assigned(obj) then
     Exit;
-  if obj.DrawOnBackground then
+  if obj.DrawOnBackground<>0 then
     Exit;
   obj.BLeft := 0;
   obj.BTop := 0;
@@ -1574,7 +1674,7 @@ begin
     for I := 0 to Count - 1 do
     begin
       ot := Items[I];
-      if ot.Visible and (ot <> obj) and not ot.DrawOnBackground then
+      if ot.Visible and (ot <> obj) and (ot.DrawOnBackground=0) then
       begin
         if (DY = 50) and (Items[I] is TDMLEntityObj) and
           (TDMLEntityObj(Items[I]).Links.Count > 0) then
@@ -1952,7 +2052,7 @@ end;
 
 procedure TDMLObjList.PaintAll;
 var
-  I: Integer;
+  I, J: Integer;
   ADrawer: TDMLDrawer;
   S: string;
 begin
@@ -1976,18 +2076,13 @@ begin
     S := srEzdmlDefaultFontName;
 {$ENDIF}
   FDMLDrawer.Canvas.Font.Name := S;
-  for I := Count - 1 downto 0 do
-  begin
-    if Items[I].DrawOnBackground then
-      if not FDMLDrawer.DrawSelectedOnly or Items[I].Selected then
-        Items[I].PaintTo(FDMLDrawer);
-  end;
-  for I := Count - 1 downto 0 do
-  begin
-    if not Items[I].DrawOnBackground then
-      if not FDMLDrawer.DrawSelectedOnly or Items[I].Selected then
-        Items[I].PaintTo(FDMLDrawer);
-  end;
+  for J:=2 downto 0 do
+    for I := Count - 1 downto 0 do
+    begin
+      if Items[I].DrawOnBackground=J then
+        if not FDMLDrawer.DrawSelectedOnly or Items[I].Selected then
+          Items[I].PaintTo(FDMLDrawer);
+    end;
 
   ADrawer := FDMLDrawer;
   for I := Count + 18 downto 0 do
@@ -2104,7 +2199,7 @@ begin
     begin
       if Assigned(FOnObjProgress) then
         FOnObjProgress(Self, srRearrangeObjs, C - AC, C, bCont);
-      if bCont and not Items[I].DrawOnBackground then
+      if bCont and (Items[I].DrawOnBackground=0) then
       begin
         FindSpaceEx(Items[I], DX, DY, 50);
         Items[I].Visible := True;
@@ -2358,21 +2453,13 @@ end;
 
 procedure TDMLObjList.SelectItemAt(X, Y: Double; bCtrl: Boolean);
 var
-  I: Integer;
+  I, J: Integer;
 begin
   if not bCtrl then
     ClearSelection;
+  for J:=0 to 2 do
   for I := 0 to Count - 1 do
-    if not Items[I].DrawOnBackground and Items[I].PointInObj(X, Y) then
-    begin
-      if not bCtrl then
-        Items[I].Selected := True
-      else
-        Items[I].Selected := not Items[I].Selected;
-      Exit;
-    end;
-  for I := 0 to Count - 1 do
-    if Items[I].DrawOnBackground and Items[I].PointInObj(X, Y) then
+    if (Items[I].DrawOnBackground = J) and Items[I].PointInObj(X, Y) then
     begin
       if not bCtrl then
         Items[I].Selected := True
@@ -2384,17 +2471,15 @@ end;
 
 procedure TDMLObjList.SetBriefMode(const Value: Boolean);
 var
-  I: Integer;
+  I, J: Integer;
 begin
   FBriefMode := Value;
   BeginUpdateLinks;
   try
-    for I := 0 to Count - 1 do
-      if Items[I].DrawOnBackground then
-        Items[I].BriefMode := FBriefMode;
-    for I := 0 to Count - 1 do
-      if not Items[I].DrawOnBackground then
-        Items[I].BriefMode := FBriefMode;
+    for J := 2 downto 0 do
+      for I := 0 to Count - 1 do
+        if Items[I].DrawOnBackground = J then
+          Items[I].BriefMode := FBriefMode;
   finally
     EndUpdateLinks;
   end;
@@ -4472,6 +4557,7 @@ begin
     res.Add('DefaultFKColor=' + IntToStr(DefaultFKColor));
     res.Add('DefaultBorderColor=' + IntToStr(DefaultBorderColor));
     res.Add('DefaultLineColor=' + IntToStr(DefaultLineColor));
+    res.Add('DefaultGroupEdgeColor=' + IntToStr(DefaultGroupEdgeColor));
     res.Add('ShowFieldType=' + IntToStr(Integer(ShowFieldType)));
     res.Add('ShowFieldIcon=' + IntToStr(Integer(ShowFieldIcon)));
     res.Add('ShowPhyFieldName=' + IntToStr(ShowPhyFieldName));
@@ -4529,6 +4615,7 @@ begin
   DefaultFKColor := Ini.ReadInteger(Sec, 'DefaultFKColor', DefaultFKColor);
   DefaultBorderColor := Ini.ReadInteger(Sec, 'DefaultBorderColor', DefaultBorderColor);
   DefaultLineColor := Ini.ReadInteger(Sec, 'DefaultLineColor', DefaultLineColor);
+  DefaultGroupEdgeColor := Ini.ReadInteger(Sec, 'DefaultGroupEdgeColor', DefaultGroupEdgeColor);
   DatabaseEngine := Ini.ReadString(Sec, 'DatabaseEngine', DatabaseEngine);
   IndependPosForOverviewMode := Ini.ReadBool(Sec, 'IndependPosForOverviewMode', IndependPosForOverviewMode);
 end;
@@ -4569,6 +4656,7 @@ begin
   DefaultTitleColor := clRed;
   DefaultBorderColor := clSilver;
   DefaultLineColor := clBlue;
+  DefaultGroupEdgeColor := clMaroon;
   DatabaseEngine := 'ORACLE';
   DrawerWidth := 1000;
   DrawerHeight := 1600;
@@ -4597,6 +4685,7 @@ begin
   Ini.WriteInteger(Sec, 'DefaultFKColor', DefaultFKColor);
   Ini.WriteInteger(Sec, 'DefaultBorderColor', DefaultBorderColor);
   Ini.WriteInteger(Sec, 'DefaultLineColor', DefaultLineColor);
+  Ini.WriteInteger(Sec, 'DefaultGroupEdgeColor', DefaultGroupEdgeColor);
   Ini.WriteString(Sec, 'DatabaseEngine', DatabaseEngine);
   Ini.WriteBool(Sec, 'IndependPosForOverviewMode', IndependPosForOverviewMode);
 end;
@@ -4648,6 +4737,8 @@ begin
   DefaultBorderColor := StrToIntDef(S, DefaultBorderColor);
   S := ExtractCompStr(Des, #10'DefaultLineColor=', #10);
   DefaultLineColor := StrToIntDef(S, DefaultLineColor);
+  S := ExtractCompStr(Des, #10'DefaultGroupEdgeColor=', #10);
+  DefaultGroupEdgeColor := StrToIntDef(S, DefaultGroupEdgeColor);
 
   S := ExtractCompStr(Des, #10'ShowFieldIcon=', #10);
   ShowFieldIcon := (S <> '0');
@@ -4669,8 +4760,11 @@ begin
   if AObj = nil then
     Exit;
   if Pos('[CUSTOM_BKCOLOR=1]', Aobj.UserPars) = 0 then
-    AObj.FillColor := DefaultObjectColor;
-  AObj.BorderColor := DefaultBorderColor;
+    AObj.FillColor := DefaultObjectColor;   
+  if AObj is TDMLGroupBoxObj then
+    AObj.BorderColor := DefaultGroupEdgeColor
+  else
+    AObj.BorderColor := DefaultBorderColor;
   if AObj is TDMLTableObj then
   begin
     TDMLTableObj(AObj).FPKColor := DefaultPKColor;
@@ -6099,26 +6193,35 @@ begin
 end;
        
 procedure TDMLLinkObj.CheckLoadedPos;
+  function CalNearVal(val, start, dist: double; bEdge: Boolean): Double;
+  var
+    d1, d2: Double;
+  begin
+    if val<=start then
+      Result := start
+    else if val>=start+dist then
+      Result := start+dist
+    else
+    begin
+      Result := val;
+      if bEdge then
+      begin
+        d1 := Abs(val-start);
+        d2 := Abs(start+dist-val);
+        if d1<d2 then
+          Result := start
+        else
+          Result := start+dist;
+      end;
+    end;
+  end;
 begin
-  if FP1.X < FObj1.Left then
-    FP1.X := FObj1.Left
-  else if FP1.X >FObj1.Left+FObj1.Width then
-    FP1.X :=FObj1.Left+FObj1.Width;
+  //检查附着点的位置应在对象边框上
+  FP1.X := CalNearVal(FP1.X, FObj1.Left, FObj1.Width, FHorz1);
+  FP1.Y := CalNearVal(FP1.Y, FObj1.Top, FObj1.Height, not FHorz1);
 
-  if FP1.Y < FObj1.Top then
-    FP1.Y := FObj1.Top
-  else if FP1.Y >FObj1.Top+FObj1.Height then
-    FP1.Y :=FObj1.Top+FObj1.Height;
-                   
-  if FP4.X < FObj2.Left then
-    FP4.X := FObj2.Left
-  else if FP4.X >FObj2.Left+FObj2.Width then
-    FP4.X :=FObj2.Left+FObj2.Width;
-
-  if FP4.Y < FObj2.Top then
-    FP4.Y := FObj2.Top
-  else if FP4.Y >FObj2.Top+FObj2.Height then
-    FP4.Y :=FObj2.Top+FObj2.Height;
+  FP4.X := CalNearVal(FP4.X, FObj2.Left, FObj2.Width, FHorz2);
+  FP4.Y := CalNearVal(FP4.Y, FObj2.Top, FObj2.Height, not FHorz2);
 
   if FP1.X <= FP4.X then
     Left := FP1.X - 2
@@ -6142,7 +6245,7 @@ begin
   inherited;
 
   FObjType := 'LINK';
-  FDrawOnBackground := True;
+  FDrawOnBackground := 1;
   FFillColor := clWhite;
 
 end;
@@ -7308,6 +7411,16 @@ begin
   inherited;
 end;
 
+function TDMLEntityObj.IsResizable: Boolean;
+begin
+  Result := True;
+  if BriefMode then
+  begin
+    if Self.DrawOnBackground <> 2 then
+      Result := False;
+  end;
+end;
+
 procedure TDMLEntityObj.FindSpaceForLinkObjs(objs: TDMLObjList);
 var
   I: Integer;
@@ -7422,7 +7535,8 @@ initialization
   AddDMLObjReg('TABLE', TDMLTableObj);
   AddDMLObjReg('TEXT', TDMLTextObj);
   AddDMLObjReg('LINK', TDMLLinkObj);
-  AddDMLObjReg('STEP', TDMLFlowStepObj);
+  AddDMLObjReg('STEP', TDMLFlowStepObj); 
+  AddDMLObjReg('GROUP', TDMLGroupBoxObj);
   FieldNameMaxDrawSize := 64;
   FieldTypeMaxDrawSize := 48;
   TableFieldMaxDrawCount := 50;

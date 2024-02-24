@@ -55,7 +55,7 @@ EZDML即EzDML，是Easy Data Model Language（简易数据模型语言）的意�
 3.  精简版未提供脚本引擎，但提供了将原有PAS脚本直接引入源码一起编译的机制，示例参见DML\Scripts\PasGen_*.pas
 5.  代码未经整理，文档注释均欠缺，毕竟原本只是写给我自己看的，没有做到规范
 6.  编译警告也很多。以前在Delphi下是没有警告的，转到lazarus下突然多了很多警告，改不过来，干脆躺平，放弃治疗了
-7.  目前未提供安装程序相关源码和文件，如需要发布，建议在官方绿色版的基础上打包（将编译好的EZDML_lite.exe改名并覆盖掉绿色版的EZDML_x.exe），绿色版下载地址：https://gitee.com/huzgd/ezdml_green
+7.  目前未提供安装程序相关源码和文件，如需要发布，建议在官方绿色版的基础上打包（将编译好的EZDML_lite改名并覆盖掉绿色版的可执行文件），绿色版下载地址：https://gitee.com/huzgd/ezdml_green
 
 #### 下载EZDML
 
@@ -361,3 +361,5 @@ Bugs修复.
 2023年12月2日 V3.56
 SQL工具支持自动完成（点号下拉字段列表）和简单SQL格式化，模型图支持双外键和自关联连线，Bugs修复.
 
+2024年2月24日 V3.57
+增加分组框功能，ORACLE/MYSQL/POSTGRE支持通过ODBC驱动连接，在新窗口中查看模型图，优化SQL查询工具。Bugs修复.

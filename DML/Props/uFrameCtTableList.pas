@@ -535,13 +535,16 @@ begin
 
   if ACtNode is TCtMetaTable then
   begin
-    VNode.HasChildren := True;
+    if TCtMetaTable(ACtNode).IsTable then
+    begin
+      VNode.HasChildren := True;
     {if FCtDataModelList.IsHuge then
       VNode.HasChildren := True
     else
       with TCtMetaTable(ACtNode).MetaFields do
         for I := 0 to Count - 1 do
-          AddNodeToTree(VNode, Items[I]);}
+          AddNodeToTree(VNode, Items[I]);}  
+    end;
   end;
   Result := vNode;
 end;
@@ -2312,12 +2315,13 @@ var
 begin
   obj := CurCtNode;
   bSelObj := obj <> nil;
-  bMultiSel := Self.TreeViewCttbs.SelectionCount > 0;
+  bMultiSel := Self.TreeViewCttbs.SelectionCount > 1;
   actNewTable.Enabled := not FReadOnlyMode;
   actNewField.Enabled := (bSelObj or bMultiSel) and not FReadOnlyMode;
   actDelete.Enabled := (bSelObj or bMultiSel) and not FReadOnlyMode;
   actRename.Enabled := bSelObj and not FReadOnlyMode;
   actExpand.Enabled := CurTreeNode <> nil;
+  actProperty.Enabled := bSelObj and not bMultiSel;
                               
   if (obj=nil) and (TreeViewCttbs.SelectionCount > 0) then
     obj := GetCtNodeOfTreeNode(TreeViewCttbs.Selections[0]);
@@ -2359,7 +2363,7 @@ begin
 end;
 
 function TFrameCtTableList.CheckCtObjFilter(ACtObj: TCtMetaObject): boolean;
-  function CheckMatch(AKeyword: string): Boolean;
+  function CheckMatchEx(AKeyword: string): Boolean;
   var
     S: string;
     I: Integer;
@@ -2419,19 +2423,39 @@ function TFrameCtTableList.CheckCtObjFilter(ACtObj: TCtMetaObject): boolean;
       Result := False;
     end;
   end;
+
+  function CheckMatch(AKeyword: string): Boolean;
+  begin
+    if Trim(AKeyword)='' then
+      Result := True
+    else if Pos('-', AKeyword)=1 then
+    begin
+      AKeyword := Copy(AKeyword, 2,Length(AKeyword));   
+      if Trim(AKeyword)='' then
+        Result := True
+      else
+      begin
+        Result := not CheckMatch(AKeyword);
+      end;
+    end
+    else
+      Result := CheckMatchEx(AKeyword);
+  end;
 var
   k1, k2: string;
   po: Integer;
 begin
+  Result := True;           
+  if not (ACtObj is TCtMetaTable) then
+    Exit;               
   k1 := Trim(FTbFilter);
-  Result := True;
   while k1 <> '' do
   begin
     po := Pos(' ', k1);
     if po > 0 then
-    begin
-      k2 := Trim(Copy(k1, po + 1, Length(k1)));
-      k1 := Trim(Copy(k1, 1, po - 1));
+    begin                                      
+      k2 := Trim(Copy(k1, 1, po - 1));
+      k1 := Trim(Copy(k1, po + 1, Length(k1)));
     end
     else
     begin
@@ -2451,8 +2475,10 @@ function TFrameCtTableList.GetImageIndexOfCtNode(Nd: TCtObject;
 begin
   Result := 0;
   if (Nd is TCtMetaTable) then
-  begin
-    if TCtMetaTable(Nd).IsText then
+  begin               
+    if TCtMetaTable(Nd).IsGroup then
+      Result := 41
+    else if TCtMetaTable(Nd).IsText then
       Result := 21
     else
       Result := 1;

@@ -33,11 +33,11 @@ type
     FCurrentObject: TCtMetaObject;
     FShouldFocusUITick: Int64;
     FToLocCtObj: TCtMetaObject;
-    FfrmDMLGraph: TfrmCtDML;
     FFrameModified: boolean;
     FFramePropRefreshing: boolean;
     function GetShowLeftTree: Boolean;
     procedure SetShowLeftTree(AValue: Boolean);
+    procedure _actNewTableExecute(Sender: TObject);
     procedure _OnCtMetaNodeChange(Sender: TObject);
     procedure _OnCtFieldPropChange(Sender: TObject);
     procedure _OnCtObjShowProp(Sender: TObject);
@@ -119,6 +119,7 @@ begin
   FFrameCtTableList.OnSelectedChange := _OnCtMetaNodeChange;
   FFrameCtTableList.OnShowNodeProp := _OnCtObjShowProp;
   FFrameCtTableList.OnAltNodeClick := _OnCtMetaNodeFindLocation;
+  FFrameCtTableList.actNewTable.OnExecute := _actNewTableExecute;
 
   FFrameCtTableProp := TFrameCtTableProp.Create(Self);
   //FFrameCtTableProp.PanelFieldProps.Visible := True;      
@@ -293,6 +294,18 @@ begin
   end;
 end;
 
+procedure TFrameCtTableDef._actNewTableExecute(Sender: TObject);
+begin
+  if PanelDMLGraph.Visible then
+  begin
+    FFrameDMLGraph.FFrameCtDML.actNewObj.Execute;
+  end
+  else
+  begin
+    FFrameCtTableList.actNewTableExecute(Sender);
+  end;
+end;
+
 procedure TFrameCtTableDef._OnCtMetaNodeFindLocation(Sender: TObject; Node: TTreeNode);
 begin
   if (Node = nil) or (Node.Data = nil) then
@@ -318,8 +331,7 @@ begin
     ShowDMLGraph(nil)
   else if FCurrentObject is TCtDataModelGraph then
   begin
-    //FFrameCtTableList.actProperty.Caption := srViewModelDiagram;
-    FFrameCtTableList.actProperty.Enabled := False;
+    FFrameCtTableList.actProperty.Caption := srViewModelInNewWnd;
     //FFrameCtTableProp.actAddSysFields.Visible := False;
     FFrameCtTableList.actNewField.Visible := False;
     FFrameCtTableList.MN_RESERVED1.Visible := False;
@@ -328,7 +340,6 @@ begin
   else
   begin
     FFrameCtTableList.actProperty.Caption := srViewProperties;
-    FFrameCtTableList.actProperty.Enabled := True;
     if FCurrentObject is TCtMetaTable then
     begin
       FFrameCtTableList.actNewField.Visible := True;
@@ -514,7 +525,8 @@ end;
 procedure TFrameCtTableDef._OnCtObjShowProp(Sender: TObject);
 var
   tb: TCtMetaTable;
-  AField: TCtMetaField;
+  AField: TCtMetaField;    
+  vFrmDMLGraph: TfrmCtDML;
 begin
   CheckSelectedObjects;
   if FCurrentObject is TCtMetaTable then
@@ -543,22 +555,18 @@ begin
     end;
     Exit;
   end;
-
-  if not Assigned(FfrmDMLGraph) then
-    FfrmDMLGraph := TfrmCtDML.Create(Self);
-  with FfrmDMLGraph do
-    try
-      if FCtDataModelList = nil then
-        Init(nil, FReadOnlyMode or IsEditingMeta, True)
-      else
-        Init(FCtDataModelList.CurDataModel, FReadOnlyMode or IsEditingMeta, True);
-      if ShowModal = mrOk then
-      begin
-        FFrameModified := True;
-        Self.FFrameCtTableList.RefreshTheTree;
-      end;
-    finally
-    end;
+               
+  if FCtDataModelList = nil then
+    Exit;                     
+  if FCtDataModelList.CurDataModel = nil then
+    Exit;
+  vFrmDMLGraph := TfrmCtDML.Create(Application);
+  vFrmDMLGraph.Position := poDefault;
+  vFrmDMLGraph.BrowseMode := True;
+  vFrmDMLGraph.ShowInTaskBar := stAlways;
+  vFrmDMLGraph.Caption := vFrmDMLGraph.Caption + ' - ' + FCtDataModelList.CurDataModel.NameCaption;
+  vFrmDMLGraph.Show;     
+  vFrmDMLGraph.Init(FCtDataModelList.CurDataModel, True, True);
 end;
 
 procedure TFrameCtTableDef._OnCtTablePropChange(Tp: integer;

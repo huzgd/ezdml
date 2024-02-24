@@ -14,6 +14,7 @@
 {"hash":199470419,"name":"tfrmimportcttable.ckbimportdbtypenames.caption","sourcebytes":[73,109,112,111,114,116,32,100,97,116,97,45,116,121,112,101,32,110,97,109,101,115],"value":"Import data-type names"},
 {"hash":143064595,"name":"tfrmimportcttable.ckboverwriteexists.caption","sourcebytes":[79,118,101,114,119,114,105,116,101,32,101,120,105,115,116,32,116,97,98,108,101,115],"value":"Overwrite exist tables"},
 {"hash":194850764,"name":"tfrmimportcttable.ckbcheckall.caption","sourcebytes":[67,104,101,99,107,32,97,108,108],"value":"Check all"},
+{"hash":129404105,"name":"tfrmimportcttable.lbtbcount.caption","sourcebytes":[40,48,32,116,111,116,97,108,41],"value":"(0 total)"},
 {"hash":156399001,"name":"tfrmimportcttable.mn_checkselected.caption","sourcebytes":[67,104,101,99,107,47,117,110,99,104,101,99,107,32,40,115,101,108,101,99,116,101,100,41],"value":"Check/uncheck (selected)"},
 {"hash":244062041,"name":"tfrmimportcttable.mn_checkall.caption","sourcebytes":[67,104,101,99,107,47,117,110,99,104,101,99,107,32,40,97,108,108,41],"value":"Check/uncheck (all)"},
 {"hash":192777182,"name":"tfrmimportcttable.mn_inversesel.caption","sourcebytes":[73,110,118,101,114,115,101,32,115,101,108,101,99,116,105,111,110],"value":"Inverse selection"},

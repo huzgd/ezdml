@@ -13,7 +13,10 @@ type
   { TfrmOraDBConfig }
 
   TfrmOraDBConfig = class(TForm)
+    btnBrowseDsn: TButton;
     btnHelp: TButton;
+    btnSettings: TButton;
+    edtDsnName: TEdit;
     Label1: TLabel;
     edtIP: TEdit;
     edtPort: TEdit;
@@ -24,10 +27,16 @@ type
     btnCancel: TButton;
     combNetSvcName: TComboBox;
     Label4: TLabel;
+    Label6: TLabel;
+    MemoOdbcConnStr: TMemo;
+    rbdOdbcDsn: TRadioButton;
     rdbNetSvc: TRadioButton;
+    rdbOdbcConnStr: TRadioButton;
     rdbSvcParam: TRadioButton;
+    procedure btnBrowseDsnClick(Sender: TObject);
     procedure btnHelpClick(Sender: TObject);
-    procedure combNetSvcNameDropDown(Sender: TObject);
+    procedure btnSettingsClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure rdbNetSvcClick(Sender: TObject);
     procedure rdbSvcParamClick(Sender: TObject);
   private
@@ -45,7 +54,7 @@ var
 implementation
 
 uses
-  CtMetaTable, WindowFuncs, dmlstrs, ezdmlstrs;
+  CtMetaTable, uFormWindowsOdbcCfg, WindowFuncs, dmlstrs, ezdmlstrs;
 
 {$R *.lfm}
 
@@ -63,8 +72,9 @@ begin
     edtPort.Enabled := False;
     edtSvcName.ParentColor := True;
     edtSvcName.Enabled := False;
+    Label4.Enabled := True;
   end
-  else
+  else if rdbSvcParam.Checked then
   begin
     combNetSvcName.ParentColor := True;
     combNetSvcName.Enabled := False;
@@ -73,7 +83,46 @@ begin
     edtPort.Color := clWindow;
     edtPort.Enabled := True;
     edtSvcName.Color := clWindow;
-    edtSvcName.Enabled := True;
+    edtSvcName.Enabled := True;    
+    Label4.Enabled := True;
+  end
+  else
+  begin
+    combNetSvcName.ParentColor := True;
+    combNetSvcName.Enabled := False; 
+    edtIP.ParentColor := True;
+    edtIP.Enabled := False;
+    edtPort.ParentColor := True;
+    edtPort.Enabled := False;
+    edtSvcName.ParentColor := True;
+    edtSvcName.Enabled := False; 
+    Label4.Enabled := False;
+  end;
+
+  if not rbdOdbcDsn.Checked then
+  begin
+    btnBrowseDsn.Enabled := False;
+
+    edtDsnName.ParentColor := True;
+    edtDsnName.Enabled := False;
+  end
+  else
+  begin
+    btnBrowseDsn.Enabled := True;
+
+    edtDsnName.Color := clWindow;
+    edtDsnName.Enabled := True;
+  end;
+
+  if not rdbOdbcConnStr.Checked then
+  begin
+    MemoOdbcConnStr.ParentColor := True;
+    MemoOdbcConnStr.Enabled := False;
+  end
+  else
+  begin
+    MemoOdbcConnStr.Color := clWindow;
+    MemoOdbcConnStr.Enabled := True;
   end;
 end;
 
@@ -83,29 +132,42 @@ var
   V: string;
 begin
   with TfrmOraDBConfig.Create(nil) do
-  try
-    combNetSvcName.Text := AString;
-    edtIP.Text := ExtractCompStr(AString, '(HOST = ', ')', True, '');
-    edtPort.Text := ExtractCompStr(AString, '(PORT = ', ')', True, edtPort.Text);
-    edtSvcName.Text := ExtractCompStr(AString, '(SERVICE_NAME = ', ')', True);
-    if edtIP.Text <> '' then
-      rdbSvcParam.Checked := True
-    else if (Pos('(HOST', AString)=0) and (Pos('/', AString)>0) then
+  try                    
+    if Copy(AString, 1,4)='DSN:' then
     begin
-      V := AString;
-      po := Pos('/', V);
-      if po>0 then
+      rbdOdbcDsn.Checked := True;
+      edtDsnName.Text := Copy(AString, 5, Length(AString));
+    end
+    else if Copy(AString, 1, 5)='ODBC:' then
+    begin
+      rdbOdbcConnStr.Checked := True;
+      MemoOdbcConnStr.Lines.Text := Copy(AString, 6, Length(AString));
+    end
+    else
+    begin
+      combNetSvcName.Text := AString;
+      edtIP.Text := ExtractCompStr(AString, '(HOST = ', ')', True, '');
+      edtPort.Text := ExtractCompStr(AString, '(PORT = ', ')', True, edtPort.Text);
+      edtSvcName.Text := ExtractCompStr(AString, '(SERVICE_NAME = ', ')', True);
+      if edtIP.Text <> '' then
+        rdbSvcParam.Checked := True
+      else if (Pos('(HOST', AString)=0) and (Pos('/', AString)>0) then
       begin
-        edtSvcName.Text := Copy(V, po+1, Length(V));
-        V:= Copy(V,1,po-1);
-      end;   
-      po := Pos(':', V);
-      if po>0 then
-      begin
-        edtPort.Text := Copy(V, po+1, Length(V));
-        V:= Copy(V,1,po-1);
+        V := AString;
+        po := Pos('/', V);
+        if po>0 then
+        begin
+          edtSvcName.Text := Copy(V, po+1, Length(V));
+          V:= Copy(V,1,po-1);
+        end;
+        po := Pos(':', V);
+        if po>0 then
+        begin
+          edtPort.Text := Copy(V, po+1, Length(V));
+          V:= Copy(V,1,po-1);
+        end;
+        edtIP.Text := V;
       end;
-      edtIP.Text := V;
     end;
     CheckControlReadOnly;
     if ShowModal = mrOk then
@@ -119,20 +181,37 @@ end;
 
 function TfrmOraDBConfig.GenResult: string;
 begin
+  Result := '';
+
   if rdbNetSvc.Checked then
     Result := combNetSvcName.Text
-  else                       
+  else if rdbSvcParam.Checked then
+  begin
     Result := edtIP.Text + ':' + edtPort.Text + '/' + edtSvcName.Text;
    // Result := '(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = ' +
      // edtIP.Text + ')(PORT = ' + edtPort.Text + ')) ) (CONNECT_DATA = (SERVICE_NAME = ' + edtSvcName.Text + ') ) )';
+  end
+  else if rbdOdbcDsn.Checked then
+  begin
+    if Trim(edtDsnName.Text) = '' then
+      Exit;
+    Result := 'DSN:'+Trim(edtDsnName.Text);
+  end
+  else if rdbOdbcConnStr.Checked then
+  begin
+    if Trim(MemoOdbcConnStr.Lines.Text) = '' then
+      Exit;
+    Result := 'ODBC:'+Trim(MemoOdbcConnStr.Lines.Text);
+  end;
 end;
 
-procedure TfrmOraDBConfig.combNetSvcNameDropDown(Sender: TObject);
+
+procedure TfrmOraDBConfig.FormCloseQuery(Sender: TObject; var CanClose: boolean
+  );
 begin
-  if combNetSvcName.Items.Count = 0 then
-    if GetCtMetaDBReg('ORACLE') <> nil then
-      if GetCtMetaDBReg('ORACLE').DbImpl <> nil then
-        combNetSvcName.Items.Text := GetCtMetaDBReg('ORACLE').DbImpl.GetDbNames;
+  if ModalResult = mrOk then
+    if GenResult = ''  then
+      CanClose := False;
 end;
 
 procedure TfrmOraDBConfig.btnHelpClick(Sender: TObject);
@@ -152,6 +231,29 @@ begin
 
   S := 'http://www.'+S;
   CtOpenDoc(PChar(S));
+end;
+
+procedure TfrmOraDBConfig.btnBrowseDsnClick(Sender: TObject);
+begin
+  {$IFDEF Windows}
+    with TfrmWindowsOdbcConfg.create(nil) do
+    try
+      RefreshDSNs;
+      if ShowModal = mrOk then
+      begin
+        edtDsnName.Text := GetSelectedDSN;
+      end;
+    finally
+      Free;
+    end;
+  {$ELSE}
+    ShowMessage('Enter User_or_System_DSN_Name');
+  {$ENDIF}
+end;
+
+procedure TfrmOraDBConfig.btnSettingsClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 10, 4);
 end;
 
 procedure TfrmOraDBConfig.rdbNetSvcClick(Sender: TObject);

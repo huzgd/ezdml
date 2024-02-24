@@ -14,6 +14,7 @@ msgid "Backup database"
 msgstr ""
 
 #: dmlstrs.srbatchaddfields
+msgctxt "dmlstrs.srbatchaddfields"
 msgid "Batch add fields"
 msgstr ""
 
@@ -26,6 +27,7 @@ msgid "Please enter a field-name to remove:"
 msgstr ""
 
 #: dmlstrs.srbatchremovefields
+msgctxt "dmlstrs.srbatchremovefields"
 msgid "Batch remove fields"
 msgstr ""
 
@@ -703,6 +705,10 @@ msgstr ""
 msgid "%d/%d Generating SQL...%s"
 msgstr ""
 
+#: dmlstrs.srgroup
+msgid "Group"
+msgstr ""
+
 #: dmlstrs.srhours
 msgid "Hours"
 msgstr ""
@@ -765,7 +771,7 @@ msgid "Warning: Table name may be invalid - %s"
 msgstr ""
 
 #: dmlstrs.srinvalidtbnameerror
-msgid "Error: table name \"%s\" contains invalid characters"
+msgid "Error: object name \"%s\" contains invalid characters"
 msgstr ""
 
 #: dmlstrs.srlink
@@ -822,6 +828,14 @@ msgstr ""
 msgid "Model%d"
 msgstr ""
 
+#: dmlstrs.srnewdmlgroup
+msgid "NewGroup"
+msgstr ""
+
+#: dmlstrs.srnewdmlgroupprompt
+msgid "Enter the name of the new group:"
+msgstr ""
+
 #: dmlstrs.srnewdmltable
 msgid "NewTable"
 msgstr ""
@@ -848,6 +862,10 @@ msgstr ""
 
 #: dmlstrs.srnewfieldtypeitemtitle
 msgid "New item"
+msgstr ""
+
+#: dmlstrs.srnewgroupnamefmt
+msgid "Group%d"
 msgstr ""
 
 #: dmlstrs.srnewtabledesc
@@ -888,6 +906,14 @@ msgstr ""
 
 #: dmlstrs.srpastefromexcelprompt
 msgid "Copy content from EXCEL and paste here (may use <crlf> as row seperator):"
+msgstr ""
+
+#: dmlstrs.srpastejsonstrprompt
+msgid "Copy content with JSON format and paste here:"
+msgstr ""
+
+#: dmlstrs.srpasteoverwritewarning
+msgid "Warning: This operation may OVERWRITE exists record and cause data lost! This operation cannot be undone! Are you sure to continue?"
 msgstr ""
 
 #: dmlstrs.srprocessing
@@ -936,6 +962,12 @@ msgid "Error: "
 msgstr ""
 
 #: dmlstrs.srsqleditorrunfinishedfmt
+msgctxt "dmlstrs.srsqleditorrunfinishedfmt"
+msgid "Execute finished in %f seconds"
+msgstr ""
+
+#: dmlstrs.srsqleditorrunfinishedrowfmt
+msgctxt "dmlstrs.srsqleditorrunfinishedrowfmt"
 msgid "Execute finished in %f seconds, %d rows affected"
 msgstr ""
 
@@ -964,6 +996,11 @@ msgctxt "dmlstrs.srtable"
 msgid "Table"
 msgstr ""
 
+#: dmlstrs.srtbcountfmt
+msgctxt "dmlstrs.srtbcountfmt"
+msgid "(%d total)"
+msgstr ""
+
 #: dmlstrs.srtbdescinputdemo
 msgid ""
 "input demo:\n"
@@ -987,6 +1024,7 @@ msgid ""
 msgstr ""
 
 #: dmlstrs.srtbfieldcountfmt
+msgctxt "dmlstrs.srtbfieldcountfmt"
 msgid "(%d total)"
 msgstr ""
 
@@ -1016,8 +1054,8 @@ msgid ""
 "Hidden\n"
 msgstr ""
 
-#: dmlstrs.srviewmodeldiagram
-msgid "View diagram"
+#: dmlstrs.srviewmodelinnewwnd
+msgid "View in new window"
 msgstr ""
 
 #: dmlstrs.srviewproperties
@@ -2174,6 +2212,7 @@ msgid "Underline to Camel-Case"
 msgstr ""
 
 #: tframecttablelist.btnclearfilter.caption
+msgctxt "tframecttablelist.btnclearfilter.caption"
 msgid "x"
 msgstr ""
 
@@ -2612,6 +2651,7 @@ msgid "curTable.SQLWhereClause"
 msgstr ""
 
 #: tframecttableprop.lbtbfieldcount.caption
+msgctxt "tframecttableprop.lbtbfieldcount.caption"
 msgid "(0 total)"
 msgstr ""
 
@@ -2621,6 +2661,26 @@ msgstr ""
 
 #: tframecttableprop.lbtbphysicalname.hint
 msgid "curTable.physicalName"
+msgstr ""
+
+#: tframecttableprop.lbtbsize.caption
+msgctxt "tframecttableprop.lbtbsize.caption"
+msgid "Size:"
+msgstr ""
+
+#: tframecttableprop.lbtbsizex.caption
+msgctxt "tframecttableprop.lbtbsizex.caption"
+msgid "x"
+msgstr ""
+
+#: tframecttableprop.lbtxtsize.caption
+msgctxt "tframecttableprop.lbtxtsize.caption"
+msgid "Size:"
+msgstr ""
+
+#: tframecttableprop.lbtxtsizex.caption
+msgctxt "tframecttableprop.lbtxtsizex.caption"
+msgid "x"
 msgstr ""
 
 #: tframecttableprop.lbuidispname.caption
@@ -2868,6 +2928,11 @@ msgctxt "tframedml.actautocapitalize.caption"
 msgid "Auto Capitalize"
 msgstr ""
 
+#: tframedml.actbataddfields.caption
+msgctxt "tframedml.actbataddfields.caption"
+msgid "Batch add fields"
+msgstr ""
+
 #: tframedml.actbatchops.caption
 msgctxt "tframedml.actbatchops.caption"
 msgid "Exec Script"
@@ -2923,6 +2988,11 @@ msgstr ""
 
 #: tframedml.actbatcopyupdatesql.caption
 msgid "Update SQL"
+msgstr ""
+
+#: tframedml.actbatremovefields.caption
+msgctxt "tframedml.actbatremovefields.caption"
+msgid "Batch remove fields"
 msgstr ""
 
 #: tframedml.actbestfit.caption
@@ -3059,6 +3129,10 @@ msgctxt "tframedml.actexchangenamedisp.caption"
 msgid "Name to Logic-Name"
 msgstr ""
 
+#: tframedml.actexecsql.caption
+msgid "Execute SQL"
+msgstr ""
+
 #: tframedml.actexportxls.caption
 msgctxt "tframedml.actexportxls.caption"
 msgid "Export..."
@@ -3140,6 +3214,16 @@ msgstr ""
 #: tframedml.actnewflowobj.hint
 msgctxt "tframedml.actnewflowobj.hint"
 msgid "New flow step"
+msgstr ""
+
+#: tframedml.actnewgroupbox.caption
+msgctxt "tframedml.actnewgroupbox.caption"
+msgid "New group box"
+msgstr ""
+
+#: tframedml.actnewgroupbox.hint
+msgctxt "tframedml.actnewgroupbox.hint"
+msgid "New group box"
 msgstr ""
 
 #: tframedml.actnewobj.caption
@@ -3493,6 +3577,11 @@ msgctxt "tfrmcolorstyles.btnfill.caption"
 msgid ".."
 msgstr ""
 
+#: tfrmcolorstyles.btngroupedge.caption
+msgctxt "tfrmcolorstyles.btngroupedge.caption"
+msgid ".."
+msgstr ""
+
 #: tfrmcolorstyles.btnlinkline.caption
 msgctxt "tfrmcolorstyles.btnlinkline.caption"
 msgid ".."
@@ -3608,6 +3697,14 @@ msgctxt "tfrmcolorstyles.label23.caption"
 msgid " "
 msgstr ""
 
+#: tfrmcolorstyles.label24.caption
+msgid "Group box"
+msgstr ""
+
+#: tfrmcolorstyles.label25.caption
+msgid "Edge color:"
+msgstr ""
+
 #: tfrmcolorstyles.label3.caption
 msgctxt "tfrmcolorstyles.label3.caption"
 msgid "Color:"
@@ -3654,6 +3751,11 @@ msgctxt "tfrmcolorstyles.tabsheet3.caption"
 msgid "Database"
 msgstr ""
 
+#: tfrmcommdbconfig.btnbrowsedsn.caption
+msgctxt "tfrmcommdbconfig.btnbrowsedsn.caption"
+msgid "Browse"
+msgstr ""
+
 #: tfrmcommdbconfig.btncancel.caption
 msgctxt "tfrmcommdbconfig.btncancel.caption"
 msgid "Cancel"
@@ -3667,6 +3769,11 @@ msgstr ""
 #: tfrmcommdbconfig.btnok.caption
 msgctxt "tfrmcommdbconfig.btnok.caption"
 msgid "OK"
+msgstr ""
+
+#: tfrmcommdbconfig.btnsettings.caption
+msgctxt "tfrmcommdbconfig.btnsettings.caption"
+msgid "Settings"
 msgstr ""
 
 #: tfrmcommdbconfig.caption
@@ -3685,6 +3792,26 @@ msgstr ""
 #: tfrmcommdbconfig.label3.caption
 msgctxt "tfrmcommdbconfig.label3.caption"
 msgid "Database:"
+msgstr ""
+
+#: tfrmcommdbconfig.label6.caption
+msgctxt "tfrmcommdbconfig.label6.caption"
+msgid "DSN:"
+msgstr ""
+
+#: tfrmcommdbconfig.rbdodbcdsn.caption
+msgctxt "tfrmcommdbconfig.rbdodbcdsn.caption"
+msgid "ODBC DSN:"
+msgstr ""
+
+#: tfrmcommdbconfig.rdbipaddr.caption
+msgctxt "tfrmcommdbconfig.rdbipaddr.caption"
+msgid "Specify address:"
+msgstr ""
+
+#: tfrmcommdbconfig.rdbodbcconnstr.caption
+msgctxt "tfrmcommdbconfig.rdbodbcconnstr.caption"
+msgid "ODBC Connection String:"
 msgstr ""
 
 #: tfrmctdml.caption
@@ -4512,6 +4639,11 @@ msgctxt "tfrmimportcttable.labelprog.caption"
 msgid "0/0"
 msgstr ""
 
+#: tfrmimportcttable.lbtbcount.caption
+msgctxt "tfrmimportcttable.lbtbcount.caption"
+msgid "(0 total)"
+msgstr ""
+
 #: tfrmimportcttable.mn_checkall.caption
 msgctxt "tfrmimportcttable.mn_checkall.caption"
 msgid "Check/uncheck (all)"
@@ -4537,7 +4669,7 @@ msgstr ""
 
 #: tfrmlogonctdb.btndbcfg.caption
 msgctxt "tfrmlogonctdb.btndbcfg.caption"
-msgid "Config"
+msgid ".."
 msgstr ""
 
 #: tfrmlogonctdb.btndbcfg.hint
@@ -4546,11 +4678,17 @@ msgstr ""
 
 #: tfrmlogonctdb.btnhelp.caption
 msgctxt "tfrmlogonctdb.btnhelp.caption"
+msgid "?"
+msgstr ""
+
+#: tfrmlogonctdb.btnhelp.hint
+msgctxt "tfrmlogonctdb.btnhelp.hint"
 msgid "Help"
 msgstr ""
 
 #: tfrmlogonctdb.btnlogonhist.caption
-msgid "History"
+msgctxt "tfrmlogonctdb.btnlogonhist.caption"
+msgid "..."
 msgstr ""
 
 #: tfrmlogonctdb.btnlogonhist.hint
@@ -4560,6 +4698,16 @@ msgstr ""
 #: tfrmlogonctdb.btnok.caption
 msgctxt "tfrmlogonctdb.btnok.caption"
 msgid "OK"
+msgstr ""
+
+#: tfrmlogonctdb.btnsettings.caption
+msgctxt "tfrmlogonctdb.btnsettings.caption"
+msgid "*"
+msgstr ""
+
+#: tfrmlogonctdb.btnsettings.hint
+msgctxt "tfrmlogonctdb.btnsettings.hint"
+msgid "Settings"
 msgstr ""
 
 #: tfrmlogonctdb.caption
@@ -4873,6 +5021,11 @@ msgctxt "tfrmmessageboxontop.lbmessage.caption"
 msgid "Message"
 msgstr ""
 
+#: tfrmoradbconfig.btnbrowsedsn.caption
+msgctxt "tfrmoradbconfig.btnbrowsedsn.caption"
+msgid "Browse"
+msgstr ""
+
 #: tfrmoradbconfig.btncancel.caption
 msgctxt "tfrmoradbconfig.btncancel.caption"
 msgid "Cancel"
@@ -4886,6 +5039,11 @@ msgstr ""
 #: tfrmoradbconfig.btnok.caption
 msgctxt "tfrmoradbconfig.btnok.caption"
 msgid "OK"
+msgstr ""
+
+#: tfrmoradbconfig.btnsettings.caption
+msgctxt "tfrmoradbconfig.btnsettings.caption"
+msgid "Settings"
 msgstr ""
 
 #: tfrmoradbconfig.caption
@@ -4914,8 +5072,23 @@ msgstr ""
 msgid "Note: EZDML needs oracle client / instant-client to logon. You can specify the location of libociei.dylib/.so/oci.dll in main settings dialog (a restart will be needed)."
 msgstr ""
 
+#: tfrmoradbconfig.label6.caption
+msgctxt "tfrmoradbconfig.label6.caption"
+msgid "DSN:"
+msgstr ""
+
+#: tfrmoradbconfig.rbdodbcdsn.caption
+msgctxt "tfrmoradbconfig.rbdodbcdsn.caption"
+msgid "ODBC DSN:"
+msgstr ""
+
 #: tfrmoradbconfig.rdbnetsvc.caption
 msgid "Through local service name:"
+msgstr ""
+
+#: tfrmoradbconfig.rdbodbcconnstr.caption
+msgctxt "tfrmoradbconfig.rdbodbcconnstr.caption"
+msgid "ODBC Connection String:"
 msgstr ""
 
 #: tfrmoradbconfig.rdbsvcparam.caption
@@ -5091,7 +5264,7 @@ msgid "Quot reserved names"
 msgstr ""
 
 #: tfrmsettings.ckbretainaftercommit.caption
-msgid "Retain after commit"
+msgid "Retain after commit (enable PacketRecords, may cause error)"
 msgstr ""
 
 #: tfrmsettings.ckbsavetempfileonexit.caption
@@ -5100,10 +5273,6 @@ msgstr ""
 
 #: tfrmsettings.ckbtabledialogviewmodebydefault.caption
 msgid "View table prop by default (unless CTRL pressed)"
-msgstr ""
-
-#: tfrmsettings.ckbuseodbcdriverformssql.caption
-msgid "Use ODBC driver"
 msgstr ""
 
 #: tfrmsettings.ckbwriteconstrainttodescribestr.caption
@@ -5160,6 +5329,11 @@ msgstr ""
 
 #: tfrmsettings.groupboxdbconnoracle.caption
 msgid "Oracle"
+msgstr ""
+
+#: tfrmsettings.groupboxdbconnothers.caption
+msgctxt "tfrmsettings.groupboxdbconnothers.caption"
+msgid "Others"
 msgstr ""
 
 #: tfrmsettings.groupboxdbconnpostgre.caption
@@ -5324,6 +5498,14 @@ msgstr ""
 msgid "Use commas to separate multiple names, use % for partial match."
 msgstr ""
 
+#: tfrmsettings.lbgraphdefscale.caption
+msgid "Def scale:"
+msgstr ""
+
+#: tfrmsettings.lbgraphdefscale.hint
+msgid "Default Display Scale"
+msgstr ""
+
 #: tfrmsettings.lbhiveversion.caption
 msgid "Hive version:"
 msgstr ""
@@ -5373,6 +5555,10 @@ msgstr ""
 
 #: tfrmsettings.lbocilib.caption
 msgid "OCI lib:"
+msgstr ""
+
+#: tfrmsettings.lbodbccharset.caption
+msgid "Odbc Charset:"
 msgstr ""
 
 #: tfrmsettings.lbpostgrelib.caption
@@ -5448,6 +5634,7 @@ msgid "SQL"
 msgstr ""
 
 #: tfrmsqlsvrdbconfig.btnbrowsedsn.caption
+msgctxt "tfrmsqlsvrdbconfig.btnbrowsedsn.caption"
 msgid "Browse"
 msgstr ""
 
@@ -5464,6 +5651,11 @@ msgstr ""
 #: tfrmsqlsvrdbconfig.btnok.caption
 msgctxt "tfrmsqlsvrdbconfig.btnok.caption"
 msgid "OK"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.btnsettings.caption
+msgctxt "tfrmsqlsvrdbconfig.btnsettings.caption"
+msgid "Settings"
 msgstr ""
 
 #: tfrmsqlsvrdbconfig.caption
@@ -5498,22 +5690,22 @@ msgid "Note: Leave user-name empty for integrated security authentication"
 msgstr ""
 
 #: tfrmsqlsvrdbconfig.label6.caption
+msgctxt "tfrmsqlsvrdbconfig.label6.caption"
 msgid "DSN:"
 msgstr ""
 
-#: tfrmsqlsvrdbconfig.lbodbctip.caption
-msgid "Note: By default EZDML use FreeTDS to connect SQL Server. You can switch to ODBC by changing the driver config in main settings dialog (a restart will be needed)."
-msgstr ""
-
 #: tfrmsqlsvrdbconfig.rbdodbcdsn.caption
+msgctxt "tfrmsqlsvrdbconfig.rbdodbcdsn.caption"
 msgid "ODBC DSN:"
 msgstr ""
 
 #: tfrmsqlsvrdbconfig.rdbipaddr.caption
+msgctxt "tfrmsqlsvrdbconfig.rdbipaddr.caption"
 msgid "Specify address:"
 msgstr ""
 
 #: tfrmsqlsvrdbconfig.rdbodbcconnstr.caption
+msgctxt "tfrmsqlsvrdbconfig.rdbodbcconnstr.caption"
 msgid "ODBC Connection String:"
 msgstr ""
 

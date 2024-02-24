@@ -41,13 +41,24 @@ var
 
 implementation
 
-uses wOracleDBConfig, Forms, WindowFuncs;
+uses wOracleDBConfig, Forms, WindowFuncs, odbcconn;
 
 { TCtMetaOracleDb }
 
 
 function TCtMetaOracleDb.CreateSqlDbConn: TSQLConnection;
 begin
+  if (Pos('DSN:', DataBase) = 1) or (Pos('ODBC:', DataBase) = 1) then
+    FUseDriverType := 'ODBC'
+  else
+    FUseDriverType := '';
+  if FUseDriverType='ODBC' then
+  begin
+    Result := TODBCConnection.Create(nil);
+    Result.CharSet := Trim(G_OdbcCharset);
+    Exit;
+  end;
+
   Result := TOracleConnection.Create(nil);
 end;
 
@@ -58,15 +69,10 @@ var
 begin
   if FConnected = Value then
     Exit;
-  if Value then
-    if G_OracleNlsLang <> '' then
-    begin
-      if Pos('GBK', G_OracleNlsLang)>0 then    
-        FDbConn.CharSet := 'GBK';
-    end;
+
   inherited SetConnected(Value);
 
-  if FConnected then
+  if FConnected and (FDbConn.CharSet='') then
   begin
     with FQuery do
     try
@@ -92,8 +98,35 @@ var
   S: string;
 begin
   if FDbConn=nil then
-    Exit;
+    Exit;      
+  if FUseDriverType <> 'ODBC' then
+    if G_OracleNlsLang <> '' then
+    begin
+      if Pos('GBK', G_OracleNlsLang)>0 then
+        FDbConn.CharSet := 'GBK';
+    end;
   inherited SetFCLConnDatabase;
+
+  if FUseDriverType='ODBC' then
+  begin
+    S := FDbConn.HostName;
+
+    FDbConn.DatabaseName := '';
+    FDbConn.Params.Clear;
+
+    if Pos('DSN:', S) = 1 then
+    begin
+      FDbConn.DatabaseName := Copy(S, 5, Length(S));
+    end
+    else if Pos('ODBC:', S) = 1 then
+    begin
+      S := Copy(S, 6, Length(S));
+      S := StringReplace(S, ';', #10, [rfReplaceAll]);
+      FDbConn.Params.Text := S;
+    end;
+    Exit;
+  end;
+
   if FDbConn.DatabaseName = '' then
   begin
     S := FDbConn.HostName;
@@ -260,6 +293,7 @@ end;
 function TCtMetaOracleDb.GetDbNames: string;
 begin
   Result := 'ORCL'#13#10'127.0.0.1:1521/ORCL';
+  Result := Result + #10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=Oracle in instantclient_11_2;Server=My Db Server;UID=UserName;';
 end;
 
 function TCtMetaOracleDb.GetDbObjs(ADbUser: string): TStrings;

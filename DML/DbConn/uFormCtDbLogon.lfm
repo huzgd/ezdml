@@ -1,7 +1,7 @@
 object frmLogonCtDB: TfrmLogonCtDB
-  Left = 423
+  Left = 455
   Height = 287
-  Top = 253
+  Top = 295
   Width = 515
   BorderStyle = bsDialog
   Caption = 'Database connection'
@@ -87,9 +87,11 @@ object frmLogonCtDB: TfrmLogonCtDB
     Left = 112
     Height = 25
     Top = 59
-    Width = 302
+    Width = 288
+    DropDownCount = 32
     ItemHeight = 17
     OnClick = FormClick
+    OnCloseUp = combDBNameCloseUp
     OnDropDown = FormClick
     TabOrder = 1
   end
@@ -108,18 +110,17 @@ object frmLogonCtDB: TfrmLogonCtDB
     Height = 27
     Top = 235
     Width = 64
-    Cancel = True
     Caption = 'Cancel'
     OnClick = btnCancelClick
     TabOrder = 6
   end
   object btnDBCfg: TButton
-    Left = 422
+    Left = 400
     Height = 27
     Hint = 'Config...'
     Top = 58
-    Width = 70
-    Caption = 'Config'
+    Width = 14
+    Caption = '..'
     OnClick = btnDBCfgClick
     ParentShowHint = False
     ShowHint = True
@@ -147,8 +148,8 @@ object frmLogonCtDB: TfrmLogonCtDB
     Height = 27
     Hint = 'Logon history'
     Top = 19
-    Width = 70
-    Caption = 'History'
+    Width = 34
+    Caption = '...'
     OnClick = btnLogonHistClick
     ParentShowHint = False
     ShowHint = True
@@ -178,11 +179,26 @@ object frmLogonCtDB: TfrmLogonCtDB
   object btnHelp: TButton
     Left = 422
     Height = 25
+    Hint = 'Help'
     Top = 235
-    Width = 70
-    Caption = 'Help'
+    Width = 34
+    Caption = '?'
     OnClick = btnHelpClick
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 11
+  end
+  object btnSettings: TButton
+    Left = 388
+    Height = 25
+    Hint = 'Settings'
+    Top = 235
+    Width = 34
+    Caption = '*'
+    OnClick = btnSettingsClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 12
   end
   object TimerAutoLogin: TTimer
     Enabled = False
@@ -192,7 +208,7 @@ object frmLogonCtDB: TfrmLogonCtDB
     top = 240
   end
   object PopupMenuLogonHist: TPopupMenu
-    left = 392
-    top = 240
+    left = 464
+    top = 24
   end
 end

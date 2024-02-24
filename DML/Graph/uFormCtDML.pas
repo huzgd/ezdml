@@ -15,6 +15,7 @@ type
   { TfrmCtDML }
 
   TfrmCtDML = class(TForm)
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -40,10 +41,14 @@ type
     procedure actPasteUpdate(Sender: TObject);
     procedure actFindObjectExeucte(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
-    procedure actBatchOpsExecute(Sender: TObject);
+    procedure actBatchOpsExecute(Sender: TObject);   
+    procedure actExecSqlExecute(Sender: TObject);
     procedure actBriefModeExecute(Sender: TObject);
     procedure actCopyDmlTextExecuteEx(Sender: TObject);   
     procedure actDBGenSqlExecuteEx(Sender: TObject);
+
+    procedure actBatAddFieldsExecute(Sender: TObject);
+    procedure actBatRemoveFieldsExecute(Sender: TObject);
 
     procedure DMLGraphViewChangedEx(Sender: TObject);
 
@@ -107,7 +112,7 @@ implementation
 
 uses
   CTMetaData, uFormAddTbLink, dmlstrs, ezdmlstrs, CtObjXmlSerial, ClipBrd,
-  DmlScriptPublic, ImgView,
+  DmlScriptPublic, ImgView, uDMLSqlEditor, uFormDmlSearch,
   {$ifndef EZDML_LITE} ide_editor, {$else} DmlPasScriptLite, {$endif}
   AutoNameCapitalize, uFormGenSql, Toolwin;
 
@@ -265,6 +270,11 @@ begin
     FFrameCtDML.DMLGraph.Reset;
 end;
 
+procedure TfrmCtDML.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  CloseAction := caFree;
+end;
+
 procedure TfrmCtDML.FormCreate(Sender: TObject);
 begin
   FFrameCtDML := TFrameDML.Create(Self);
@@ -298,6 +308,11 @@ begin
   FFrameCtDML.actBatchOps.OnExecute := actBatchOpsExecute;
   FFrameCtDML.actBatchOps.Visible := True;
 
+  FFrameCtDML.actBatAddFields.OnExecute := actBatAddFieldsExecute;      
+  FFrameCtDML.actBatRemoveFields.OnExecute := actBatRemoveFieldsExecute;
+                                                 
+  FFrameCtDML.actExecSql.OnExecute := actExecSqlExecute;
+
   FFrameCtDML.DMLGraph.OnViewChanged := DMLGraphViewChangedEx;
 
   {FFrameCtDML.actFileNew.Visible := False;
@@ -313,6 +328,7 @@ begin
   FFrameCtDML.actCopy.Visible := True;
   FFrameCtDML.actPaste.Visible := True;
   FFrameCtDML.actNewFlowObj.Visible := False;
+  FFrameCtDML.actNewGroupBox.Visible := True;
   FFrameCtDML.actNewText.Visible := True;
   FFrameCtDML.actShowHideProps.Visible := False;
   FFrameCtDML.actAutoA.Visible := False;
@@ -345,7 +361,6 @@ procedure TfrmCtDML.actBatchOpsExecute(Sender: TObject);
   function EditScriptFile: boolean;
   var
     tb: TCtMetaTable;
-    I: integer;
   begin
     Result := False;
 
@@ -356,17 +371,7 @@ procedure TfrmCtDML.actBatchOpsExecute(Sender: TObject);
 
     CheckSelectedTb;
 
-    tb := nil;
-    with FFrameCtDML.DMLGraph.DMLObjs do
-      for I := 0 to Count - 1 do
-        if Items[I].Selected then
-          if Items[I] is TDMLTableObj then
-          begin
-            tb := TCtMetaTable(Items[I].UserObject);
-            if tb = nil then
-              Continue;
-            Break;
-          end;
+    tb := GetSelectedTable;
     {$ifndef EZDML_LITE}
     if not Assigned(scriptIdeEditor) then
       Application.CreateForm(TfrmScriptIDE, scriptIdeEditor);
@@ -403,6 +408,60 @@ var
     Free;
   end;  *)
   EditScriptFile;
+end;
+
+procedure TfrmCtDML.actExecSqlExecute(Sender: TObject);
+var
+  Sql, pk: String;
+  ob: TDMLObj;
+  pkd, fd: TCtMetaField;
+  tb, tb2: TCtMetaTable;
+  C: Integer;
+begin
+  CheckSelectedTb;
+  C := FFrameCtDML.DMLGraph.DMLObjs.SelectedCount;
+  Sql := '';
+  if C=1 then
+  begin                                                   
+    tb := GetSelectedTable;
+    ob := FFrameCtDML.DMLGraph.DMLObjs.GetSelectedItem(0);
+    if ob is TDMLTableObj then
+    begin
+      tb := TCtMetaTable(ob.UserObject);
+      if tb <> nil then
+      begin
+        pkd := tb.GetPrimaryKeyField;
+        if pkd<>nil then
+        begin
+          pk := pkd.Name;
+          Sql := 'select t.*'#13#10'  from '+tb.RealTableName+' t'#13#10' where 1=1'#13#10'--and t.'+pk+'='#13#10'--order by t.'+pk+' desc';
+        end
+        else
+          Sql := 'select t.*'#13#10'  from '+tb.RealTableName+' t'#13#10' where 1=1'#13#10'--and t'#13#10'--order by t desc';
+      end;
+    end
+    else if (ob is TDMLLinkObj) and (ob.UserObject is TCtMetaField) then
+    begin
+      fd := (ob.UserObject as TCtMetaField);
+      tb := fd.OwnerTable;
+      tb2 := fd.GetRelateTableObj;
+      if (tb <> nil) and (tb2 <> nil) then
+      begin         
+        pkd := tb.GetPrimaryKeyField;
+        if pkd<>nil then
+        begin
+          pk := pkd.Name;
+          Sql := 'select a.*, b.*'#13#10'  from '+tb.RealTableName+' a, '+tb2.RealTableName+' b'#13#10' where a.'
+           +fd.Name+' = b.'+fd.RelateField+#13#10'--and a.'+pk+'='#13#10'--order by a.'+pk+' desc';
+        end
+        else
+          Sql := 'select a.*, b.*'#13#10'  from '+tb.RealTableName+' a, '+tb2.RealTableName+' b'#13#10' where a.'
+           +fd.Name+' = b.'+fd.RelateField+#13#10'--and a'#13#10'--order by a desc';
+      end;
+    end;
+  end;
+
+  ShowSqlEditor(sql);
 end;
 
 procedure TfrmCtDML.actBriefModeExecute(Sender: TObject);
@@ -487,6 +546,117 @@ begin
   end;
 end;
 
+procedure TfrmCtDML.actBatAddFieldsExecute(Sender: TObject);
+var
+  I, C, fid: integer;
+  fd, fdn: TCtMetaField;
+  tb: TCtMetaTable;
+  S: string;
+begin
+  CheckCanEditMeta;
+  C := 0;   
+  with FFrameCtDML.DMLGraph.DMLObjs do
+    for I := 0 to Count - 1 do
+      if Items[I].Selected then
+        if Items[I] is TDMLTableObj then
+        begin
+          tb := TCtMetaTable(Items[I].UserObject);
+          if tb.IsTable then
+            Inc(C);
+        end;
+
+  if C <= 1 then
+    raise Exception.Create(srBatchTablesNotSelected);
+
+  fd := TCtMetaField.Create;
+  try
+    fd.CreateDate := Now;
+    fd.DataType := cfdtString;
+    fd.MetaModified := True;
+    if not Proc_ShowCtFieldProp(fd, False) then
+      Exit;
+
+    C := 0;       
+    with FFrameCtDML.DMLGraph.DMLObjs do
+      for I := 0 to Count - 1 do
+        if Items[I].Selected then
+          if Items[I] is TDMLTableObj then
+          begin
+            tb := TCtMetaTable(Items[I].UserObject);
+            if tb.IsTable then
+            begin
+              if tb.MetaFields.FieldByName(fd.Name) = nil then
+              begin
+                fdn := tb.MetaFields.NewMetaField;
+                fid := fdn.Id;
+                fdn.AssignFrom(fd);
+                fdn.ID := fid;
+                DoTablePropsChanged(tb);
+                Inc(C);
+              end;
+            end;
+          end;
+
+    FFrameCtDML.actRefresh.Execute;
+    S := srBatchAddFields + ': ' + Format(srBatchOpResultFmt, [C]);
+    Application.MessageBox(PChar(S), PChar(Application.Title), MB_OK or
+      MB_ICONINFORMATION);
+  finally
+    fd.Free;
+  end;
+end;
+
+procedure TfrmCtDML.actBatRemoveFieldsExecute(Sender: TObject);
+var
+  I, C: integer;
+  fd: TCtMetaField;
+  tb: TCtMetaTable;
+  S: string;
+begin
+  CheckCanEditMeta;
+  C := 0;
+  with FFrameCtDML.DMLGraph.DMLObjs do
+    for I := 0 to Count - 1 do
+      if Items[I].Selected then
+        if Items[I] is TDMLTableObj then
+        begin
+          tb := TCtMetaTable(Items[I].UserObject);
+          if tb.IsTable then
+            Inc(C);
+        end;
+  if C <= 1 then
+    raise Exception.Create(srBatchTablesNotSelected);
+
+  S := InputBox(srBatchRemoveFields, srBatchRemoveFieldNamePrompt, '');
+  if S = '' then
+    Exit;
+
+  C := 0;
+  with FFrameCtDML.DMLGraph.DMLObjs do
+    for I := 0 to Count - 1 do
+      if Items[I].Selected then
+        if Items[I] is TDMLTableObj then
+        begin
+          tb := TCtMetaTable(Items[I].UserObject);
+          if tb.IsTable then
+          begin
+            fd := tb.MetaFields.FieldByName(S);
+            if fd <> nil then
+            begin
+              tb.MetaFields.Remove(fd);
+              DoTablePropsChanged(tb);
+              Inc(C);
+            end;
+          end;
+        end;
+
+  FFrameCtDML.actRefresh.Execute;
+
+  S := srBatchRemoveFields + ': ' + Format(srBatchOpResultFmt, [C]);
+  Application.MessageBox(PChar(S), PChar(Application.Title), MB_OK or
+    MB_ICONINFORMATION);
+end;
+
 procedure TfrmCtDML.DMLGraphViewChangedEx(Sender: TObject);
 begin
   FFrameCtDML.DMLGraphViewChanged(Sender);
@@ -549,9 +719,11 @@ end;
 procedure TfrmCtDML.actDMLObjPropExecuteEx(Sender: TObject);
   function GetRealTable(tb: TCtMetaTable): TCtMetaTable;
   begin
-    //对于只读浏览的临时模型图，应调用全局列表中的表属性
+    //对于嵌入表属性里的只读浏览的临时模型图，应调用全局列表中的表属性
     Result := tb;
     if not BrowseMode then
+      Exit;
+    if Self.Parent = nil then
       Exit;
     if tb=nil then
       Exit;
@@ -684,14 +856,17 @@ begin
         end;
       end;
     end;
+    tb.UserObject['SIZE_DMLENTITY'] := TDMLTableObj(obj);
     if Assigned(cf) and Assigned(Proc_ShowCtTableOfField) then
       bRes := Proc_ShowCtTableOfField(tb, cf, bViewMode, False, False)
     else
-      bRes := Proc_ShowCtTableProp(tb, bViewMode, False);
+      bRes := Proc_ShowCtTableProp(tb, bViewMode, False);     
+    tb.UserObject['SIZE_DMLENTITY'] := nil;
     if bRes then
     begin
       if FReadOnlyMode then
         Exit;
+      _OnObjsMoved(nil);
       //SaveToTb(tb);
       //DoTablePropsChanged 表属性保存时会自动调用
       S := tb.Name;
@@ -773,11 +948,14 @@ begin
   begin
     tb := GetRealTable(TCtMetaTable(TDMLTextObj(obj).UserObject));
     if not Assigned(Proc_ShowCtTableProp) then
-      raise Exception.Create('Proc_ShowCtTableProp not defined');
+      raise Exception.Create('Proc_ShowCtTableProp not defined'); 
+    tb.UserObject['SIZE_DMLENTITY'] := TDMLTextObj(obj);
     if Proc_ShowCtTableProp(tb, FReadOnlyMode or IsTbPropDefViewMode, False) then
-    begin
+    begin          
+      tb.UserObject['SIZE_DMLENTITY'] := nil;
       if FReadOnlyMode then
-        Exit;
+        Exit;        
+      _OnObjsMoved(nil);
       //SaveToTb(tb);
       TDMLTextObj(obj).Comment := tb.Memo;
       TDMLTextObj(obj).CheckResize;
@@ -785,7 +963,8 @@ begin
       FLastRefreshTick := GetTickCount;
       if Assigned(Proc_OnPropChange) then
         Proc_OnPropChange(2, tb, nil, '');
-    end;
+    end;     
+    tb.UserObject['SIZE_DMLENTITY'] := nil;
     Exit;
   end;
 end;
@@ -1322,19 +1501,20 @@ begin
     StatusBar1.Visible := False;
     actNewObj.Visible := not FReadOnlyMode;
     actNewText.Visible := not FReadOnlyMode;
-    actAddLink.Visible := not FReadOnlyMode;
+    actAddLink.Visible := not FReadOnlyMode;   
+    actNewGroupBox.Visible := not FReadOnlyMode;
     actDeleteObj.Visible := not FReadOnlyMode; 
     actDeleteObj.Enabled := not FReadOnlyMode;
     actSetEntityColor.Visible := not FReadOnlyMode;
     actResetObjLinks.Visible := not FReadOnlyMode;
 
-    actDMLObjProp.Visible := Assigned(FMetaTableModel);
-    actCopyImage.Visible := Assigned(FMetaTableModel);
-    actCopyDmlText.Visible := Assigned(FMetaTableModel);
-    actSelectAll.Visible := Assigned(FMetaTableModel);
-    actExportXls.Visible := Assigned(FMetaTableModel);
-    actDBGenSql.Visible := Assigned(FMetaTableModel);
-    actFindObject.Visible := Assigned(FMetaTableModel);
+    actDMLObjProp.Visible := Assigned(FCurMetaTableModel);
+    actCopyImage.Visible := Assigned(FCurMetaTableModel);
+    actCopyDmlText.Visible := Assigned(FCurMetaTableModel);
+    actSelectAll.Visible := Assigned(FCurMetaTableModel);
+    actExportXls.Visible := Assigned(FCurMetaTableModel);
+    actDBGenSql.Visible := Assigned(FCurMetaTableModel);
+    actFindObject.Visible := Assigned(FCurMetaTableModel);
 
     actFileNew.Visible := not FBrowseMode;         
     actFileOpen.Visible := not FBrowseMode;
@@ -1361,6 +1541,9 @@ begin
     btnShowInGraph.Visible := not FBrowseMode;
                                      
     actRearrange.Visible := not FBrowseMode;
+
+    actBatAddFields.Visible := not FBrowseMode;
+    actBatRemoveFields.Visible := not FBrowseMode;
 
     if FBrowseMode then
     begin
@@ -1693,7 +1876,14 @@ begin
         if tbs.Items[I].GraphDesc <> '' then
         begin       
           tb := tbs.Items[I];
-          if tb.IsText then
+          if tb.IsGroup then
+          begin
+            o := TDMLGroupBoxObj.Create;
+            o.UserObject := tb;
+            o.Comment := tb.Memo;
+            o.Name := tb.Name;
+          end
+          else if tb.IsText then
           begin
             o := TDMLTextObj.Create;
             o.UserObject := tb;
@@ -1741,7 +1931,13 @@ begin
         begin
           tb := tbs.Items[I];
 
-          if tb.IsText then
+          if tb.IsGroup then
+          begin
+            o := TDMLGroupBoxObj.Create;
+            o.UserObject := tb;
+            o.Comment := tb.Memo;
+          end
+          else if tb.IsText then
           begin
             o := TDMLTextObj.Create;
             o.UserObject := tb;
@@ -1784,7 +1980,7 @@ begin
   if not FCtDmlRefreshing and (Abs(int64(GetTickCount) - FLastRefreshTick) > 600) then
   begin                      
     S := Trim(mdl.CustomAttr1);
-    if Copy(S,1,4)='DVS:' then //恢复视图
+    if not BrowseMode and (Copy(S,1,4)='DVS:') then //恢复视图
     begin
       S := Copy(S, 5, Length(S));
       vCenterX := ReadCornerNumber(S, S, FFrameCtDML.DMLGraph.ViewCenterX);
@@ -1943,6 +2139,8 @@ begin
     if not Obj.AutoSize then
     begin
       Result := Result+Format(#13#10'Width=%f'#13#10'Height=%f'#13#10'AutoSize=0', [Obj.OWidth, Obj.OHeight]);
+      if Obj is TDMLGroupBoxObj then         
+        Result := Result+Format(#13#10'BWidth=%f'#13#10'BHeight=%f', [Obj.BWidth, Obj.BHeight]);
     end;
 
     //if Pos('[CUSTOM_BKCOLOR=1]', Obj.UserPars) > 0 then
@@ -2067,6 +2265,16 @@ begin
       begin
         Obj.OWidth := StrToFloatDef(S1, Obj.OWidth);
         Obj.OHeight := StrToFloatDef(S2, Obj.OHeight);
+      end;    
+      if Obj is TDMLGroupBoxObj then
+      begin
+        S1 := ExtractCompStr(Des, #10'BWidth=', #10);
+        S2 := ExtractCompStr(Des, #10'BHeight=', #10);
+        if (S1 <> '') and (S2 <> '') then
+        begin
+          Obj.BWidth := StrToFloatDef(S1, Obj.BWidth);
+          Obj.BHeight := StrToFloatDef(S2, Obj.BHeight);
+        end;
       end;
     end;
 
@@ -2134,6 +2342,7 @@ begin
             TCtMetaTable(Items[I].UserObject).GraphDesc :=
               Self.GetLocationDesc(Items[I]);
 
+          if Sender <> nil then  //sender为nil时，表字段可能已经删除，不可以访问
           if not FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
           begin
             for J := 0 to Count - 1 do
@@ -2150,7 +2359,8 @@ begin
               end;
 
           end;
-        end;
+        end;          
+        if Sender <> nil then
         if not FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
           if Items[I] is TDMLLinkObj then
             if TDMLLinkObj(Items[I]).UserObject is TCtMetaField then
@@ -2158,7 +2368,8 @@ begin
                 Self.GetLocationDesc(Items[I]);
       end;
   end;
-
+                             
+  if Sender <> nil then
   if not FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
     with FFrameCtDML.DMLGraph.DMLObjs.FAutoCheckedLinks do
       for I := 0 to Count - 1 do
@@ -2897,7 +3108,13 @@ begin
   begin
     if Act = 1 then
     begin
-      if Obj is TDMLTextObj then
+      if Obj is TDMLGroupBoxObj then
+      begin
+        tb := FCurMetaTableModel.Tables.NewTableItem('GROUP');
+        tb.Memo := tb.Name;
+        tb.BgColor:= Obj.FillColor;
+      end
+      else if Obj is TDMLTextObj then
         tb := FCurMetaTableModel.Tables.NewTableItem('TEXT')
       else
         tb := FCurMetaTableModel.Tables.NewTableItem;
@@ -2909,13 +3126,15 @@ begin
       //tb.Describe := TDMLTableObj(Obj).Describe;
       //tb.GraphDesc := GetLocationDesc(Obj);
       if Assigned(Proc_ShowCtTableProp) then
-      begin
+      begin                          
+        tb.UserObject['SIZE_DMLENTITY'] := TDMLTableObj(obj);
         if not Proc_ShowCtTableProp(tb, False, True) then
         begin
           Result := False;
           FCurMetaTableModel.Tables.Remove(tb);
           Exit;
-        end;
+        end; 
+        tb.UserObject['SIZE_DMLENTITY'] := nil;
         if (Obj is TDMLTableObj) then
         begin
           TDMLTableObj(Obj).Describe := tb.Describe;

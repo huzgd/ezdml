@@ -45,8 +45,6 @@ type
 
 function ShowCtMetaFieldDialog(AField: TCtMetaField; bReadOnly: Boolean): Boolean;
 
-var
-  FfrmCtMetaFieldProp: TfrmCtMetaFieldProp;
 
 implementation
 
@@ -59,12 +57,7 @@ function ShowCtMetaFieldDialog(AField: TCtMetaField; bReadOnly: Boolean): Boolea
 var
   frm: TfrmCtMetaFieldProp;
 begin
-  if FfrmCtMetaFieldProp = nil then
-    FfrmCtMetaFieldProp := TfrmCtMetaFieldProp.Create(Application);
-  if FfrmCtMetaFieldProp.Showing or bReadOnly then
-    frm := TfrmCtMetaFieldProp.Create(Application)
-  else
-    frm := FfrmCtMetaFieldProp;
+  frm := TfrmCtMetaFieldProp.Create(Application)    ;
   with frm do
   try  
     if not bReadOnly then
@@ -74,21 +67,12 @@ begin
     begin
       GProc_OnEzdmlCmdEvent('FIELD_PROP_DIALOG', 'SHOW', '', AField, frm);
     end;   
-    if bReadOnly then
-    begin
-      FormStyle := fsStayOnTop;
-      Position := poDefaultPosOnly;
-      Show;
-      Result := False;
-    end
-    else
-      Result := (ShowModal = mrOk);
+    Result := (ShowModal = mrOk);
   finally           
     if not bReadOnly then
     begin
       EndTbPropUpdate(AField.OwnerTable);
-      if frm <> FfrmCtMetaFieldProp then
-        frm.Free;
+      frm.Free;
     end;
   end;
 end;

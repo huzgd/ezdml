@@ -142,7 +142,7 @@ Type
     end;
 
   { @abstract(Classe que representa um objeto JSON) }
-  //注意：请不要直接使用JSONOBJECT和JSONARRAY，请改用THwMap和THwList代替之
+  //
   TJSONObject = class (TZAbstractObject)
   private
     myHashMap : TStringList;

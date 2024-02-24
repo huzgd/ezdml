@@ -16,6 +16,7 @@ type
     btnOK: TButton;
     btnCancel: TButton;
     ckbCheckAll: TCheckBox;
+    lbTbCount: TLabel;
     MN_TableProps: TMenuItem;
     MenuItem2: TMenuItem;
     PopupMenu1: TPopupMenu;
@@ -278,7 +279,8 @@ begin
   end;
   for I := 0 to cklbDbObjs.Items.Count - 1 do
     cklbDbObjs.Checked[I] := True;
-  MN_CheckAll.Checked := True; 
+  MN_CheckAll.Checked := True;     
+  lbTbCount.Caption := Format(srTbCountFmt, [cklbDbObjs.Items.Count]);
   if combDBUser.Text <> '' then
     G_LastMetaDbSchema := combDBUser.Text;
 end;
@@ -706,38 +708,113 @@ procedure TfrmImportCtTable.combObjFilterChange(Sender: TObject);
           Exit;
         end;
   end;
-var
-  S: string;
-  I: Integer;
+
+  function CheckKeyword(keyword, aname: string): Boolean;
+  begin
+    Result := False;    
+    if Copy(keyword,1,1)='*' then      
+      if Copy(keyword, Length(keyword), 1)='*' then   
+        keyword := Copy(keyword, 2, Length(keyword)-2);
+    if Copy(keyword,1,1)='*' then
+    begin
+      keyword := Copy(keyword, 2, Length(keyword));  
+      if keyword = Copy(aname, Length(aname)-Length(keyword)+1,Length(keyword)) then
+        Result := True;
+    end
+    else if Copy(keyword, Length(keyword), 1)='*' then
+    begin
+      keyword := Copy(keyword, 1, Length(keyword)-1);  
+      if Pos(keyword, aname)=1 then
+        Result := True;
+    end
+    else if Pos(keyword, aname)>0 then
+      Result := True;
+  end;
+
+  function FilterMatched(filter, aname: string): Boolean;
+  var
+    k1, k2: string;
+    po: Integer;
+  begin
+    Result := True;
+    k1 := Trim(filter);
+    while k1 <> '' do
+    begin
+      po := Pos(' ', k1);
+      if po > 0 then
+      begin
+        k2 := Trim(Copy(k1, 1, po - 1));
+        k1 := Trim(Copy(k1, po + 1, Length(k1)));
+      end
+      else
+      begin
+        k2 := Trim(k1);
+        k1 := '';
+      end;
+      if k2='' then
+        Continue;
+      if Copy(k2,1,1)='-' then
+      begin
+        k2 := Copy(k2,2,Length(k2));
+        if k2='' then
+          Continue;      
+        if k2='*' then
+          Continue;
+        if CheckKeyword(k2,aname) then
+        begin
+          Result := False;
+          Exit;
+        end;
+      end
+      else if not CheckKeyword(k2, aname) then
+      begin
+        Result := False;
+        Exit;
+      end;
+    end;
+  end;
+  procedure doFilter;
+  var
+    S: string;
+    I: Integer;
+  begin
+    cklbDbObjs.Items.Text := FOrigObjs.Text;
+    S := Trim(LowerCase(combObjFilter.Text));
+    if S = '' then
+      Exit;
+    if combObjFilter.Text = combObjFilter.Items[0] then
+      Exit;
+
+    if combObjFilter.Text = combObjFilter.Items[1] then
+    begin
+      for I := cklbDbObjs.Items.Count - 1 downto 0 do
+        if ObjExistsInDML(cklbDbObjs.Items[I]) then
+          cklbDbObjs.Items.Delete(I);
+      Exit;
+    end;
+
+    if combObjFilter.Text = combObjFilter.Items[2] then
+    begin
+      for I := cklbDbObjs.Items.Count - 1 downto 0 do
+        if not ObjExistsInDML(cklbDbObjs.Items[I]) then
+          cklbDbObjs.Items.Delete(I);
+      Exit;
+    end;
+
+    for I := cklbDbObjs.Items.Count - 1 downto 0 do
+      if not FilterMatched(S, LowerCase(cklbDbObjs.Items[I])) then
+        cklbDbObjs.Items.Delete(I);
+    for I := cklbDbObjs.Items.Count - 1 downto 0 do
+      cklbDbObjs.Checked[I] := True;
+  end;
 begin
-  cklbDbObjs.Items.Text := FOrigObjs.Text;
-  S := Trim(LowerCase(combObjFilter.Text));
-  if S = '' then
-    Exit;
-  if combObjFilter.Text = combObjFilter.Items[0] then
-    Exit;
-
-  if combObjFilter.Text = combObjFilter.Items[1] then
-  begin
-    for I := cklbDbObjs.Items.Count - 1 downto 0 do
-      if ObjExistsInDML(cklbDbObjs.Items[I]) then
-        cklbDbObjs.Items.Delete(I);
-    Exit;
+  cklbDbObjs.Items.BeginUpdate;
+  try
+    doFilter;
+  finally
+    cklbDbObjs.Items.EndUpdate;
   end;
-
-  if combObjFilter.Text = combObjFilter.Items[2] then
-  begin
-    for I := cklbDbObjs.Items.Count - 1 downto 0 do
-      if not ObjExistsInDML(cklbDbObjs.Items[I]) then
-        cklbDbObjs.Items.Delete(I);
-    Exit;
-  end;
-
-  for I := cklbDbObjs.Items.Count - 1 downto 0 do
-    if Pos(S, LowerCase(cklbDbObjs.Items[I])) = 0 then
-      cklbDbObjs.Items.Delete(I);
-  for I := cklbDbObjs.Items.Count - 1 downto 0 do
-    cklbDbObjs.Checked[I] := True;
+  lbTbCount.Caption := Format(srTbCountFmt, [cklbDbObjs.Items.Count]);
 end;
 
 end.

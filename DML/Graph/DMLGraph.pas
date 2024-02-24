@@ -113,7 +113,8 @@ type
     procedure LoadFromStream(AStream: TStream); virtual;
 
     function ImageToScreenX2(X: Double): Integer; virtual;
-    function ImageToScreenY2(Y: Double): Integer; virtual;
+    function ImageToScreenY2(Y: Double): Integer; virtual; 
+    function CalDefViewScale: Double; virtual;
 
     procedure ExportImage(Cnv: TCanvas; rLeft, rTop, rWidth, rHeight: Double); virtual;
 
@@ -131,6 +132,9 @@ type
   end;
 
 implementation
+
+uses
+  WindowFuncs;
 
 { TDMLGraph }
 
@@ -689,8 +693,10 @@ begin
     inherited;
     Exit;
   end;
-  FViewCenterX := -FDMLDrawer.DrawerWidth div 2 + Width div 2 * 96 div Screen.PixelsPerInch  - 4;
-  FViewCenterY := -FDMLDrawer.DrawerHeight div 2 + Height div 2 * 96 div Screen.PixelsPerInch - 4;
+  FViewScale := CalDefViewScale;
+
+  FViewCenterX := -FDMLDrawer.DrawerWidth div 2 + Width div 2 / FViewScale  - 4;
+  FViewCenterY := -FDMLDrawer.DrawerHeight div 2 + Height div 2 / FViewScale - 4;
   FHookX := -4;
   FHookY := -4;
   if FDMLObjs.SelectedCount > 0 then
@@ -701,7 +707,6 @@ begin
       FViewCenterY := (Y1 + Y2) / 2 - FDMLDrawer.DrawerHeight div 2;
     end;
   end;
-  FViewScale := Forms.Screen.PixelsPerInch/96;
 end;
 
 procedure TDMLGraph.AutoCheckGraphSize;
@@ -1067,6 +1072,27 @@ procedure TDMLGraph.CheckViewChanged;
 begin
   inherited;
   AutoCheckGraphSize;
+end;
+
+function TDMLGraph.CalDefViewScale: Double;
+var
+  S: String;
+  sc: Integer;
+begin
+  Result := Forms.Screen.PixelsPerInch/96;
+  if G_DmlGraphDefScale <> '' then
+  begin
+    S := Trim(G_DmlGraphDefScale);
+    if S <> '' then
+      if S[Length(S)]='%' then
+        Delete(S, Length(S), 1);
+    if Trim(S)<>'' then
+    begin
+      sc := StrToIntDef(S, 0);
+      if sc>0 then
+        Result := sc * 1.0/100.0;
+    end;
+  end;
 end;
 
 procedure TDMLGraph.DrawRectLine(X, Y: Integer; bClearLast: Boolean);

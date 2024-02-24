@@ -13,10 +13,15 @@ type
   { TfrmColorStyles }
 
   TfrmColorStyles = class(TForm)
+    Bevel12: TBevel;
     btnCancel: TButton;
+    btnGroupEdge: TButton;
     btnOK: TButton;
     ckbIndependPosForOverviewMode: TCheckBox;
+    clbGroupEdgeColor: TColorBox;
     Label23: TLabel;
+    Label24: TLabel;
+    Label25: TLabel;
     PageControl1: TPageControl;
     Panel1: TPanel;
     TabSheet2: TTabSheet;
@@ -77,6 +82,7 @@ type
     clbLineColor: TColorBox;
     btnLinkLine: TButton;
     procedure btnBorderColorClick(Sender: TObject);
+    procedure btnGroupEdgeClick(Sender: TObject);
     procedure btnLinkLineClick(Sender: TObject);
     procedure btnPKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -160,7 +166,9 @@ begin
     8:
       Result := clbPrimaryKey.Selected;
     9:
-      Result := clbLineColor.selected;
+      Result := clbLineColor.selected;      
+    10:
+      Result := clbGroupEdgeColor.selected;
   end;
 
 end;
@@ -182,85 +190,42 @@ begin
 end;
 
 procedure TfrmColorStyles.SetColor(ctrlid: integer; colorval: TColor);
-var
-  clCustom: integer;
+  procedure SetToCLB(clb: TColorBox); 
+  var
+    clCustom: integer;
+  begin
+    if (clb.Items.IndexOfObject(TObject(colorval)) = -1) then
+    begin
+      clCustom := clb.Items.IndexOf('clCustom');
+      if clCustom < 0 then
+        clCustom := clb.Items.Add('clCustom');
+      clb.Items.Objects[clCustom] := Tobject(colorval);
+    end;
+    clb.Selected := colorval;
+  end;
 begin
   case ctrlid of
     1: //clbtitle
-      begin
-        if (clbTitle.Items.IndexOfObject(TObject(colorval)) = -1) then
-        begin
-          clCustom := clbTitle.Items.IndexOf('clCustom');
-          clbTitle.Items.Objects[clCustom] := Tobject(colorval);
-        end;
-        clbTitle.Selected := colorval;
-      end;
+      SetToCLB(clbTitle);
     2: //clbText
       begin
       end;
     3: //clbFill
-      begin
-        if (clbFill.Items.IndexOfObject(TObject(colorval)) = -1) then
-        begin
-          clCustom := clbFill.Items.IndexOf('clCustom');
-          clbFill.Items.Objects[clCustom] := Tobject(colorval);
-        end;
-        clbFill.Selected := colorval;
-      end;
-    4: //clbBorder
-      begin
-        if (clbBorderColor.Items.IndexOfObject(TObject(colorval)) = -1) then
-        begin
-          clCustom := clbBorderColor.Items.IndexOf('clCustom');
-          clbBorderColor.Items.Objects[clCustom] := Tobject(colorval);
-        end;
-        clbBorderColor.Selected := colorval;
-      end;
-    5: //clbBackGround
-      begin
-        if (clbBackGround.Items.IndexOfObject(TObject(colorval)) = -1) then
-        begin
-          clCustom := clbbackground.Items.IndexOf('clCustom');
-          clbBackGround.Items.Objects[clCustom] := Tobject(colorval);
-        end;
-        clbBackGround.Selected := colorval;
-      end;
-    6: //clbSelect
-      begin
-        if (clbSelect.Items.IndexOfObject(TObject(colorval)) = -1) then
-        begin
-          clCustom := clbSelect.Items.IndexOf('clCustom');
-          clbSelect.Items.Objects[clCustom] := Tobject(colorval);
-        end;
-        clbSelect.Selected := colorval;
-      end;
-    7: //clbExkey
-      begin
-        if (clbExkey.Items.IndexOfObject(TObject(colorval)) = -1) then
-        begin
-          clCustom := clbExkey.Items.IndexOf('clCustom');
-          clbExkey.Items.Objects[clCustom] := Tobject(colorval);
-        end;
-        clbExkey.Selected := colorval;
-      end;
-    8: //clbPrimaryKey
-      begin
-        if (clbPrimaryKey.Items.IndexOfObject(TObject(colorval)) = -1) then
-        begin
-          clCustom := clbPrimaryKey.Items.IndexOf('clCustom');
-          clbPrimaryKey.Items.Objects[clCustom] := Tobject(colorval);
-        end;
-        clbPrimaryKey.Selected := colorval;
-      end;
-    9: //clbLinkLine
-      begin
-        if (clbLineColor.Items.IndexOfObject(TObject(colorval)) = -1) then
-        begin
-          clCustom := clbLineColor.Items.IndexOf('clCustom');
-          clbLineColor.Items.Objects[clCustom] := Tobject(colorval);
-        end;
-        clbLineColor.Selected := colorval;
-      end;
+      SetToCLB(clbFill);
+    4: //clbBorder 
+      SetToCLB(clbBorderColor);
+    5: //clbBackGround   
+      SetToCLB(clbBackGround);
+    6: //clbSelect  
+      SetToCLB(clbSelect);
+    7: //clbExkey     
+      SetToCLB(clbExkey);
+    8: //clbPrimaryKey   
+      SetToCLB(clbPrimaryKey);
+    9: //clbLinkLine   
+      SetToCLB(clbLineColor);
+    10: //clbGroupEdgeColor 
+      SetToCLB(clbGroupEdgeColor);
   end;
 end;
 
@@ -407,6 +372,11 @@ end;
 procedure TfrmColorStyles.btnBorderColorClick(Sender: TObject);
 begin
   doSelectColor(clbBorderColor);
+end;
+
+procedure TfrmColorStyles.btnGroupEdgeClick(Sender: TObject);
+begin
+  doSelectColor(clbGroupEdgeColor);
 end;
 
 procedure TfrmColorStyles.btnExKeyClick(Sender: TObject);

@@ -153,25 +153,25 @@ object FrameDML: TFrameDML
       Top = 0
       Style = tbsDivider
     end
-    object ToolButtonDML13: TToolButton
-      Left = 330
-      Top = 0
-      Action = actNewFlowObj
-    end
     object ToolButtonDML14: TToolButton
-      Left = 353
+      Left = 330
       Top = 0
       Action = actNewObj
     end
     object ToolButtonDML15: TToolButton
-      Left = 376
+      Left = 353
       Top = 0
       Action = actNewText
     end
     object ToolButtonDML16: TToolButton
-      Left = 399
+      Left = 376
       Top = 0
       Action = actAddLink
+    end
+    object ToolButtonDML13: TToolButton
+      Left = 399
+      Top = 0
+      Action = actNewGroupBox
     end
     object ToolButtonDMLsp4: TToolButton
       Left = 422
@@ -1747,86 +1747,6 @@ object FrameDML: TFrameDML
       OnExecute = actAddLinkExecute
       ShortCut = 16471
     end
-    object actNewFlowObj: TAction
-      Category = 'DML'
-      Caption = 'New flow step'
-      Hint = 'New flow step'
-      ImageIndex = 77
-      OnExecute = actNewFlowObjExecute
-    end
-    object actNewText: TAction
-      Category = 'DML'
-      Caption = 'Add text'
-      Hint = 'Add text'
-      ImageIndex = 74
-      OnExecute = actNewTextExecute
-    end
-    object actDeleteObj: TAction
-      Category = 'DML'
-      Caption = 'Delete'
-      Hint = 'Delete object'
-      ImageIndex = 8
-      OnExecute = actDeleteObjExecute
-    end
-    object actImportDB: TAction
-      Category = 'DML'
-      Caption = 'Import DB'
-      Hint = 'Import DB'
-      ImageIndex = 43
-      OnExecute = actImportDBExecute
-    end
-    object actRearrange: TAction
-      Category = 'DML'
-      Caption = 'Re-arrange'
-      Hint = 'Re-arrange'
-      ImageIndex = 17
-      OnExecute = actRearrangeExecute
-    end
-    object actDMLObjProp: TAction
-      Category = 'DML'
-      Caption = 'Properties'
-      Hint = 'Properties'
-      ImageIndex = 55
-      OnExecute = actDMLObjPropExecute
-      ShortCut = 16433
-    end
-    object actShowFieldType: TAction
-      Category = 'DML'
-      AutoCheck = True
-      Caption = 'Show field type'
-      Checked = True
-      Hint = 'Show field type'
-      ImageIndex = 29
-      OnExecute = actShowFieldTypeExecute
-    end
-    object actCheckFKLinks: TAction
-      Category = 'DML'
-      Caption = 'Check Links'
-      Hint = 'Check Links'
-      ImageIndex = 33
-      OnExecute = actCheckFKLinksExecute
-    end
-    object actColorStyles: TAction
-      Category = 'DML'
-      Caption = 'Color and styles'
-      Hint = 'Color and styles'
-      ImageIndex = 34
-      OnExecute = actColorStylesExecute
-    end
-    object actRefresh: TAction
-      Category = 'DML'
-      Caption = 'Refresh'
-      Hint = 'Refresh'
-      ImageIndex = 35
-      OnExecute = actRefreshExecute
-      ShortCut = 116
-    end
-    object actDBGenSql: TAction
-      Category = 'DML'
-      Caption = 'Generate Database'
-      ImageIndex = 41
-      OnExecute = actDBGenSqlExecute
-    end
     object actShowHideProps: TAction
       Category = 'View'
       AutoCheck = True
@@ -1834,14 +1754,6 @@ object FrameDML: TFrameDML
       Checked = True
       ImageIndex = 61
       OnExecute = actShowHidePropsExecute
-    end
-    object actShowPhyView: TAction
-      Category = 'DML'
-      Caption = 'Physical/logic view'
-      Hint = 'Physical/logic view'
-      ImageIndex = 67
-      OnExecute = actShowPhyViewExecute
-      ShortCut = 118
     end
     object actPaste: TAction
       Category = 'Edit'
@@ -1872,33 +1784,7 @@ object FrameDML: TFrameDML
       Caption = 'Find Object'
       Hint = 'Find Object'
       ImageIndex = 23
-    end
-    object actBriefMode: TAction
-      Category = 'DML'
-      Caption = 'Overview Mode'
-      Hint = 'Overview Mode'
-      ImageIndex = 12
-      OnExecute = actBriefModeExecute
-      ShortCut = 119
-    end
-    object actBatchOps: TAction
-      Category = 'DML'
-      Caption = 'Exec Script'
-      OnExecute = actBatchOpsExecute
-      Visible = False
-    end
-    object actSetEntityColor: TAction
-      Category = 'DML'
-      Caption = 'Set Entity Color'
-      Hint = 'Set Entity Color'
-      ImageIndex = 79
-      OnExecute = actSetEntityColorExecute
-    end
-    object actResetObjLinks: TAction
-      Category = 'DML'
-      Caption = 'Reset Entity Size/Links'
-      OnExecute = actResetObjLinksExecute
-      ShortCut = 117
+      OnExecute = actFindObjectExecute
     end
     object actCopyDmlText: TAction
       Category = 'Edit'
@@ -1913,13 +1799,6 @@ object FrameDML: TFrameDML
       ImageIndex = 70
       ShortCut = 123
       Visible = False
-    end
-    object actFullTableView: TAction
-      Category = 'DML'
-      Caption = 'Table prop view'
-      Hint = 'Table prop view'
-      OnExecute = actFullTableViewExecute
-      ShortCut = 120
     end
     object actCapUppercase: TAction
       Category = 'Cap'
@@ -2021,13 +1900,6 @@ object FrameDML: TFrameDML
       Caption = 'Join query SQL'
       OnExecute = actBatCopyExplicitJoinSQLExecute
     end
-    object actRun: TAction
-      Category = 'DML'
-      Caption = 'Run generation'
-      Hint = 'Run generation'
-      ImageIndex = 81
-      OnExecute = actRunExecute
-    end
     object actShowHideList: TAction
       Tag = 82
       Category = 'View'
@@ -2056,12 +1928,162 @@ object FrameDML: TFrameDML
       Caption = 'Chinese word segment'
       OnExecute = actCnWordSegmentExecute
     end
+    object actNewGroupBox: TAction
+      Category = 'DML'
+      Caption = 'New group box'
+      Hint = 'New group box'
+      ImageIndex = 86
+      OnExecute = actNewGroupBoxExecute
+    end
+    object actNewFlowObj: TAction
+      Category = 'DML'
+      Caption = 'New flow step'
+      Hint = 'New flow step'
+      ImageIndex = 77
+      OnExecute = actNewFlowObjExecute
+    end
+    object actNewText: TAction
+      Category = 'DML'
+      Caption = 'Add text'
+      Hint = 'Add text'
+      ImageIndex = 74
+      OnExecute = actNewTextExecute
+    end
+    object actDeleteObj: TAction
+      Category = 'DML'
+      Caption = 'Delete'
+      Hint = 'Delete object'
+      ImageIndex = 8
+      OnExecute = actDeleteObjExecute
+    end
+    object actImportDB: TAction
+      Category = 'DML'
+      Caption = 'Import DB'
+      Hint = 'Import DB'
+      ImageIndex = 43
+      OnExecute = actImportDBExecute
+    end
+    object actRearrange: TAction
+      Category = 'DML'
+      Caption = 'Re-arrange'
+      Hint = 'Re-arrange'
+      ImageIndex = 17
+      OnExecute = actRearrangeExecute
+    end
+    object actDMLObjProp: TAction
+      Category = 'DML'
+      Caption = 'Properties'
+      Hint = 'Properties'
+      ImageIndex = 55
+      OnExecute = actDMLObjPropExecute
+      ShortCut = 16433
+    end
+    object actShowFieldType: TAction
+      Category = 'DML'
+      AutoCheck = True
+      Caption = 'Show field type'
+      Checked = True
+      Hint = 'Show field type'
+      ImageIndex = 29
+      OnExecute = actShowFieldTypeExecute
+    end
+    object actCheckFKLinks: TAction
+      Category = 'DML'
+      Caption = 'Check Links'
+      Hint = 'Check Links'
+      ImageIndex = 33
+      OnExecute = actCheckFKLinksExecute
+    end
+    object actColorStyles: TAction
+      Category = 'DML'
+      Caption = 'Color and styles'
+      Hint = 'Color and styles'
+      ImageIndex = 34
+      OnExecute = actColorStylesExecute
+    end
+    object actRefresh: TAction
+      Category = 'DML'
+      Caption = 'Refresh'
+      Hint = 'Refresh'
+      ImageIndex = 35
+      OnExecute = actRefreshExecute
+      ShortCut = 116
+    end
+    object actDBGenSql: TAction
+      Category = 'DML'
+      Caption = 'Generate Database'
+      ImageIndex = 41
+      OnExecute = actDBGenSqlExecute
+    end
+    object actShowPhyView: TAction
+      Category = 'DML'
+      Caption = 'Physical/logic view'
+      Hint = 'Physical/logic view'
+      ImageIndex = 67
+      OnExecute = actShowPhyViewExecute
+      ShortCut = 118
+    end
+    object actBriefMode: TAction
+      Category = 'DML'
+      Caption = 'Overview Mode'
+      Hint = 'Overview Mode'
+      ImageIndex = 12
+      OnExecute = actBriefModeExecute
+      ShortCut = 119
+    end
+    object actBatchOps: TAction
+      Category = 'DML'
+      Caption = 'Exec Script'
+      OnExecute = actBatchOpsExecute
+      Visible = False
+    end
+    object actSetEntityColor: TAction
+      Category = 'DML'
+      Caption = 'Set Entity Color'
+      Hint = 'Set Entity Color'
+      ImageIndex = 79
+      OnExecute = actSetEntityColorExecute
+    end
+    object actResetObjLinks: TAction
+      Category = 'DML'
+      Caption = 'Reset Entity Size/Links'
+      OnExecute = actResetObjLinksExecute
+      ShortCut = 117
+    end
+    object actFullTableView: TAction
+      Category = 'DML'
+      Caption = 'Table prop view'
+      Hint = 'Table prop view'
+      OnExecute = actFullTableViewExecute
+      ShortCut = 120
+    end
+    object actRun: TAction
+      Category = 'DML'
+      Caption = 'Run generation'
+      Hint = 'Run generation'
+      ImageIndex = 81
+      OnExecute = actRunExecute
+    end
     object actChatGPT: TAction
       Category = 'DML'
       Caption = 'ChatGPT'
       Hint = 'Use ChatGPT AI to assist in generating model design'
       ImageIndex = 85
       OnExecute = actChatGPTExecute
+    end
+    object actExecSql: TAction
+      Category = 'DML'
+      Caption = 'Execute SQL'
+      ImageIndex = 1
+      OnExecute = actExecSqlExecute
+    end
+    object actBatAddFields: TAction
+      Category = 'DML'
+      Caption = 'Batch add fields'
+    end
+    object actBatRemoveFields: TAction
+      Category = 'DML'
+      Caption = 'Batch remove fields'
     end
   end
   object PopupMenu1: TPopupMenu
@@ -2089,6 +2111,9 @@ object FrameDML: TFrameDML
       Action = actAddLink
       AutoCheck = True
     end
+    object MN_AddGroupBox: TMenuItem
+      Action = actNewGroupBox
+    end
     object MNSetEntityColor1: TMenuItem
       Action = actSetEntityColor
       GroupIndex = 1
@@ -2097,16 +2122,11 @@ object FrameDML: TFrameDML
       Action = actResetObjLinks
       GroupIndex = 1
     end
+    object MenuItem13: TMenuItem
+      Caption = '-'
+    end
     object MNP_Delete1: TMenuItem
       Action = actDeleteObj
-      GroupIndex = 1
-    end
-    object MN_CopyText1: TMenuItem
-      Action = actCopyDmlText
-      GroupIndex = 1
-    end
-    object N7: TMenuItem
-      Action = actCopyImage
       GroupIndex = 1
     end
     object N5: TMenuItem
@@ -2124,6 +2144,18 @@ object FrameDML: TFrameDML
       Action = actSelectAll
       GroupIndex = 1
     end
+    object N2: TMenuItem
+      Caption = '-'
+      GroupIndex = 1
+    end
+    object MN_CopyText1: TMenuItem
+      Action = actCopyDmlText
+      GroupIndex = 1
+    end
+    object N7: TMenuItem
+      Action = actCopyImage
+      GroupIndex = 1
+    end
     object ExporttoExcel1: TMenuItem
       Action = actExportXls
       GroupIndex = 1
@@ -2132,12 +2164,20 @@ object FrameDML: TFrameDML
       Action = actBatchOps
       GroupIndex = 1
     end
+    object MenuItem12: TMenuItem
+      Action = actExecSql
+    end
     object MN_GenSql: TMenuItem
       Action = actDBGenSql
     end
-    object Find1: TMenuItem
-      Action = actFindObject
-      GroupIndex = 1
+    object MenuItem16: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem14: TMenuItem
+      Action = actBatAddFields
+    end
+    object MenuItem15: TMenuItem
+      Action = actBatRemoveFields
     end
     object MN_BatchCopy: TMenuItem
       Caption = 'Batch copy'
@@ -2220,28 +2260,6 @@ object FrameDML: TFrameDML
         Action = actExchangeNameDisp
       end
     end
-    object N2: TMenuItem
-      Caption = '-'
-      GroupIndex = 1
-    end
-    object N35: TMenuItem
-      Action = actRectSelect
-      AutoCheck = True
-      GroupIndex = 1
-    end
-    object H2: TMenuItem
-      Action = actPan
-      AutoCheck = True
-      GroupIndex = 1
-    end
-    object Z2: TMenuItem
-      Action = actZoomIn
-      GroupIndex = 1
-    end
-    object X2: TMenuItem
-      Action = actZoomOut
-      GroupIndex = 1
-    end
     object N22: TMenuItem
       Caption = '-'
       GroupIndex = 1
@@ -2255,7 +2273,7 @@ object FrameDML: TFrameDML
     left = 109
     top = 117
     Bitmap = {
-      4C69560000001000000010000000000000000000000000000000000000000000
+      4C69570000001000000010000000000000000000000000000000000000000000
       00000000000000000000848400FF000084FF0000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000848400FF848400FF000000FF000000FF000000000000
@@ -5007,7 +5025,39 @@ object FrameDML: TFrameDML
       75FF99A671FF97A46EFF9CA975FFA5B182FF9EAB78FF96A46DFF9CA975FF9CA9
       75FF9CA975FF9CA975FFFF80FF00FF80FF00FF80FF00BCC5A0FFA0AD7BFF9CA9
       75FF9CA976FF9DAA77FF9BA874FF99A671FF9BA873FF9DA976FF9CA975FF9BA8
-      74FF9CA975FFFF80FF00FF80FF00
+      74FF9CA975FFFF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
+      FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
+      FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
+      FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
+      FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00D19E7CFFC481
+      55FFC48155FFC48155FFC48155FFC48155FFD29E7CFFFF80FF00FF80FF00FF80
+      FF00FF80FF00FF80FF00FF80FF00FF80FF00A0A0A0FF999999FFA66940FFA669
+      40FFA66940FFA66940FFA66940FFA66940FFA66940FF999999FF999999FF9999
+      99FF999999FFA0A0A0FFFF80FF00FF80FF00999999FFEFEFEFFFA07559FF8750
+      2BFF87502BFF87502BFF87502BFF87502BFFA0765AFFF1F1F1FFF1F1F1FFF1F1
+      F1FFECECECFF999999FFFF80FF00FF80FF00999999FFF5F5F5FFFBFBFBFFFAFA
+      FAFFFAFAFAFFF9F9F9FFF9F9F9FFF9F9F9FFF8F8F8FFF8F8F8FFF8F8F8FFF7F7
+      F7FFF0F0F0FF999999FFFF80FF00FF80FF00999999FFF5F5F5FFFAFAFAFFFAFA
+      FAFFFAFAFAFFF9F9F9FFF9F9F9FFF8F8F8FFF8F8F8FFF8F8F8FFF7F7F7FFF7F7
+      F7FFF0F0F0FF999999FFFF80FF00FF80FF00999999FFF4F4F4FFFAFAFAFFFAFA
+      FAFFF9F9F9FFF9F9F9FFF8F8F8FFF8F8F8FFF8F8F8FFF7F7F7FFF7F7F7FFF7F7
+      F7FFF0F0F0FF999999FFFF80FF00FF80FF00999999FFF4F4F4FFFAFAFAFFF9F9
+      F9FFF9F9F9FFF8F8F8FFF8F8F8FFF8F8F8FFF7F7F7FFF7F7F7FFF7F7F7FFF6F6
+      F6FFF0F0F0FF999999FFFF80FF00FF80FF00999999FFF4F4F4FFF9F9F9FFF9F9
+      F9FFF9F9F9FFF8F8F8FFF8F8F8FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF6F6
+      F6FFF0F0F0FF999999FFFF80FF00FF80FF00999999FFF3F3F3FFF9F9F9FFF9F9
+      F9FFF8F8F8FFF8F8F8FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF6F6F6FFF6F6
+      F6FFF0F0F0FF999999FFFF80FF00FF80FF00999999FFF1F1F1FFF7F7F7FFF6F6
+      F6FFF6F6F6FFF5F5F5FFF5F5F5FFF5F5F5FFF4F4F4FFF4F4F4FFF4F4F4FFF3F3
+      F3FFEDEDEDFF999999FFFF80FF00FF80FF00999999FFECECECFFF0F0F0FFF0F0
+      F0FFF0F0F0FFEFEFEFFFEFEFEFFFEEEEEEFFEEEEEEFFEEEEEEFFEDEDEDFFEDED
+      EDFFE8E8E8FF999999FFFF80FF00FF80FF00A0A0A0FF999999FF999999FF9999
+      99FF999999FF999999FF999999FF999999FF999999FF999999FF999999FF9999
+      99FF999999FFA0A0A0FFFF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
+      FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
+      FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
+      FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
+      FF00FF80FF00FF80FF00FF80FF00
     }
   end
   object OpenDialog1: TOpenDialog

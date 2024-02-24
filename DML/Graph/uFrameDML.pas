@@ -36,6 +36,10 @@ type
     actBatCopyImplicitJoinSQL: TAction;
     actCnWordSegment: TAction;
     actChatGPT: TAction;
+    actExecSql: TAction;
+    actBatAddFields: TAction;
+    actBatRemoveFields: TAction;
+    actNewGroupBox: TAction;
     actShowHideList: TAction;
     actPasteAsCopy: TAction;
     actRun: TAction;
@@ -44,6 +48,12 @@ type
     ImageList2: TImageList;
     MenuItem1: TMenuItem;
     MenuItem10: TMenuItem;
+    MenuItem12: TMenuItem;
+    MenuItem13: TMenuItem;
+    MenuItem14: TMenuItem;
+    MenuItem15: TMenuItem;
+    MenuItem16: TMenuItem;
+    MN_AddGroupBox: TMenuItem;
     MNRun_SqlTool: TMenuItem;
     MNCnWordSegment: TMenuItem;
     MenuItem2: TMenuItem;
@@ -93,15 +103,11 @@ type
     actFileOpen: TAction;
     actRectSelect: TAction;
     PopupMenu1: TPopupMenu;
-    N35: TMenuItem;
-    H2: TMenuItem;
     TimerDelayCmd: TTimer;
     ToolButtonDMLSp0: TToolButton;
     ToolButtonSHideList: TToolButton;
     ToolButtonRun: TToolButton;
     ToolButtonFullScrn: TToolButton;
-    Z2: TMenuItem;
-    X2: TMenuItem;
     N22: TMenuItem;
     ImageList1: TImageList;
     ToolBar1: TToolBar;
@@ -170,7 +176,6 @@ type
     actSelectAll: TAction;
     Selectall1: TMenuItem;
     actFindObject: TAction;
-    Find1: TMenuItem;
     ToolButtonFindObjs: TToolButton;
     actBriefMode: TAction;
     ToolButtonDML06: TToolButton;
@@ -218,7 +223,10 @@ type
     procedure actConvertChnToPyExecute(Sender: TObject);
     procedure actExchangeDispCommExecute(Sender: TObject);
     procedure actExchangeNameDispExecute(Sender: TObject);
+    procedure actExecSqlExecute(Sender: TObject);
+    procedure actFindObjectExecute(Sender: TObject);
     procedure actFullTableViewExecute(Sender: TObject);
+    procedure actNewGroupBoxExecute(Sender: TObject);
     procedure actPasteAsCopyExecute(Sender: TObject);
     procedure actResetObjLinksExecute(Sender: TObject);
     procedure actBriefModeExecute(Sender: TObject);
@@ -430,8 +438,8 @@ begin
     begin
       if DMLGraph.IsBestFitScale then
       begin
-        if not VE(DMLGraph.ViewScale, Forms.Screen.PixelsPerInch/96) then
-          DMLGraph.SetViewXYSc(xx - DMLGraph.DMLDrawer.DrawerWidth / 2, yy - DMLGraph.DMLDrawer.DrawerHeight / 2, Forms.Screen.PixelsPerInch/96)
+        if not VE(DMLGraph.ViewScale, DMLGraph.CalDefViewScale) then
+          DMLGraph.SetViewXYSc(xx - DMLGraph.DMLDrawer.DrawerWidth / 2, yy - DMLGraph.DMLDrawer.DrawerHeight / 2, DMLGraph.CalDefViewScale)
         else if DMLGraph.IsBestFit then
         begin
           DMLGraph.Reset;
@@ -743,6 +751,65 @@ begin
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 2, 0);
 end;
 
+procedure TFrameDML.actNewGroupBoxExecute(Sender: TObject);
+  function RandBkColor: TColor;
+  {var
+    st, r, g, b: Integer;}
+  begin
+    {st := $CC;
+    r := st + Random(256-st);
+    g := st + Random(256-st);
+    b := st + Random(256-st);
+    Result := RGBToColor(r, g, b);}
+    Result := clWhite;
+  end;
+var
+  S: string;
+  o: TDMLGroupBoxObj;
+begin        
+  if not Assigned(Proc_OnObjAddOrRemove) then
+  begin
+    S := PvtInputBox(srNewDmlGroup, srNewDmlGroupPrompt, '');
+    if S = '' then
+      Exit;
+  end
+  else
+    S := srNewDmlGroup;
+
+  o := TDMLGroupBoxObj(DMLGraph.DMLObjs.CreateDMLObj('GROUP'));
+  o.FillColor:=RandBkColor;
+  o.UserPars := AddOrModifyCompStr(o.UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
+
+  if (DMLGraph.LastMouseDownPos.X <> DEF_INIT_LAST_IMGV_MOUSE_POS_X)
+    and (DMLGraph.LastMouseDownPos.Y <> DEF_INIT_LAST_IMGV_MOUSE_POS_Y) then
+  begin
+    o.Left := DMLGraph.LastMouseDownPos.X;
+    o.Top := DMLGraph.LastMouseDownPos.Y;
+  end;
+  SetDMLModified;
+  o.Comment := S;
+  o.CheckResize;
+  DMLGraph.DMLObjs.ClearSelection;
+  o.Selected := True;
+  DMLGraphSelectObj(nil);
+  DMLGraph.MakeObjVisible(o);
+  DMLGraph.Refresh;           
+  if not Proc_OnObjAddOrRemove(o, 1) then
+  begin
+    o.PrepareDelete(DMLGraph.DMLObjs);
+    DMLGraph.DMLObjs.Remove(o);
+    DMLGraph.Refresh;
+    Exit;
+  end;
+
+  o.CheckResize;
+  DMLGraph.DMLObjs.ClearSelection;
+  o.Selected := True;
+  DMLGraphSelectObj(nil);
+  DMLGraph.MakeObjVisible(o);
+  DMLGraph.Refresh;
+end;
+
 procedure TFrameDML.actPasteAsCopyExecute(Sender: TObject);
 begin
   if Assigned(actPaste.OnExecute) then
@@ -782,6 +849,16 @@ end;
 procedure TFrameDML.actExchangeNameDispExecute(Sender: TObject);
 begin
   DoCapitalizeProc('NameToLogicName');
+end;
+
+procedure TFrameDML.actExecSqlExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TFrameDML.actFindObjectExecute(Sender: TObject);
+begin
+  //
 end;
 
 procedure TFrameDML.actCapLowercaseExecute(Sender: TObject);
@@ -978,12 +1055,14 @@ var
 begin
   if DMLGraph.DMLObjs.SelectedCount = 2 then
     if (DMLGraph.DMLObjs.GetSelectedItem(0) is TDMLEntityObj) and
-       (DMLGraph.DMLObjs.GetSelectedItem(1) is TDMLEntityObj) then
+       (DMLGraph.DMLObjs.GetSelectedItem(0).DrawOnBackground=0) and
+       (DMLGraph.DMLObjs.GetSelectedItem(1) is TDMLEntityObj) and
+       (DMLGraph.DMLObjs.GetSelectedItem(1).DrawOnBackground=0) then
     begin
       _OnLinkObjSelected(DMLGraph, DMLGraph.DMLObjs.GetSelectedItem(0), DMLGraph.DMLObjs.GetSelectedItem(1));
       Exit;
     end;
-  if (DMLGraph.DMLObjs.SelectedObj is TDMLEntityObj) and
+  if (DMLGraph.DMLObjs.SelectedObj is TDMLEntityObj) and (DMLGraph.DMLObjs.SelectedObj.DrawOnBackground=0) and
     actAddLink.Checked then
   begin
     DMLGraph.SelectLinkingObj := True;
@@ -1029,7 +1108,8 @@ begin
     if not Proc_OnObjAddOrRemove(o, 1) then
     begin
       o.PrepareDelete(DMLGraph.DMLObjs);
-      DMLGraph.DMLObjs.Remove(o);
+      DMLGraph.DMLObjs.Remove(o); 
+      DMLGraph.Refresh;
       Exit;
     end;
 
@@ -1270,6 +1350,7 @@ begin
     begin
       o.PrepareDelete(DMLGraph.DMLObjs);
       DMLGraph.DMLObjs.Remove(o);
+      DMLGraph.Refresh;
       Exit;
     end;
 
@@ -1325,41 +1406,65 @@ end;
 
 procedure TFrameDML.Checkacts;
 var
-  C: Integer;
+  I, C: Integer;
+  bSelTb, bSelEnt, bSelBg: Boolean;
 begin
   C := DMLGraph.DMLObjs.SelectedCount;
+  bSelTb := False;
+  bSelEnt := False;
+  for I:=0 to C - 1 do
+  begin
+    if DMLGraph.DMLObjs.GetSelectedItem(I) is TDMLTableObj then
+    begin
+      bSelTb := True;
+      bSelEnt := True;
+      Break;
+    end;    
+    if DMLGraph.DMLObjs.GetSelectedItem(I) is TDMLEntityObj then 
+      bSelEnt := True;
+  end;
   //actDMLObjProp.Enabled := (C = 1);
   actSetEntityColor.Enabled := (C > 0);    
   actFullTableView.Enabled := (C = 1) and (DMLGraph.DMLObjs.SelectedObj is TDMLTableObj);
-  actAddLink.Enabled := (C=0) or ((C<=2) and (DMLGraph.DMLObjs.GetSelectedItem(0) is TDMLEntityObj));
+  bSelBg := False;
+  if C>=1 then
+    if DMLGraph.DMLObjs.GetSelectedItem(0).DrawOnBackground <> 0 then
+      bSelBg := True;
+  if C>=2 then
+    if DMLGraph.DMLObjs.GetSelectedItem(1).DrawOnBackground <> 0 then
+      bSelBg := True;
+  actAddLink.Enabled := (C=0) or ((C<=2) and (DMLGraph.DMLObjs.GetSelectedItem(0) is TDMLEntityObj)) and not bSelBg;
   actAddLink.Checked := DMLGraph.SelectLinkingObj;
   actDeleteObj.Enabled := (C > 0);
-  actCopy.Enabled := (C > 0);
+  actCopy.Enabled := (C > 0) and bSelEnt;
 
-  actCamelCaseToUnderline.Enabled := (C > 0);
-  actUnderlineToCamelCase.Enabled := (C > 0);
-  actCapUppercase.Enabled := (C > 0);
-  actCapLowercase.Enabled := (C > 0);
-  actAutoCapitalize.Enabled := (C > 0);
-  actExchangeDispComm.Enabled := (C > 0);
-  actExchangeNameDisp.Enabled := (C > 0);
-  actCheckWithMyDict.Enabled := (C > 0);
-  actConvertChnToPy.Enabled := (C > 0);
-  MN_Capitalize.Enabled := (C > 0);
+  actCamelCaseToUnderline.Enabled := (C > 0) and bSelTb;
+  actUnderlineToCamelCase.Enabled := (C > 0) and bSelTb;
+  actCapUppercase.Enabled := (C > 0) and bSelTb;
+  actCapLowercase.Enabled := (C > 0) and bSelTb;
+  actAutoCapitalize.Enabled := (C > 0) and bSelTb;
+  actExchangeDispComm.Enabled := (C > 0) and bSelTb;
+  actExchangeNameDisp.Enabled := (C > 0) and bSelTb;
+  actCheckWithMyDict.Enabled := (C > 0) and bSelTb;
+  actConvertChnToPy.Enabled := (C > 0) and bSelTb;
+  MN_Capitalize.Enabled := (C > 0) and bSelTb;
+                                      
+  actBatAddFields.Enabled := (C > 0) and bSelTb;
+  actBatRemoveFields.Enabled := (C > 0) and bSelTb;
 
-  actBatCopyTbName.Enabled := (C > 0);    
-  actBatCopyFieldName.Enabled := (C > 0);       
-  actBatCopyFieldNType.Enabled := (C > 0);
-  actBatCopyExcelText.Enabled := (C > 0);
-  actBatCopyDescText.Enabled := (C > 0);
-  actBatCopyFieldNType.Enabled := (C > 0);
-  actBatCopyCreateSQL.Enabled := (C > 0);
-  actBatCopySelectSQL.Enabled := (C > 0);       
-  actBatCopyExplicitJoinSQL.Enabled := (C > 0);
-  actBatCopyInsertSQL.Enabled := (C > 0);
-  actBatCopyUpdateSQL.Enabled := (C > 0);
-  actBatCopyFieldNameComma.Enabled := (C > 0);
-  MN_BatchCopy.Enabled := (C > 0);
+  actBatCopyTbName.Enabled := (C > 0) and bSelTb;    
+  actBatCopyFieldName.Enabled := (C > 0) and bSelTb;       
+  actBatCopyFieldNType.Enabled := (C > 0) and bSelTb;
+  actBatCopyExcelText.Enabled := (C > 0) and bSelTb;
+  actBatCopyDescText.Enabled := (C > 0) and bSelTb;
+  actBatCopyFieldNType.Enabled := (C > 0) and bSelTb;
+  actBatCopyCreateSQL.Enabled := (C > 0) and bSelTb;
+  actBatCopySelectSQL.Enabled := (C > 0) and bSelTb;       
+  actBatCopyExplicitJoinSQL.Enabled := (C > 0) and bSelTb;
+  actBatCopyInsertSQL.Enabled := (C > 0) and bSelTb;
+  actBatCopyUpdateSQL.Enabled := (C > 0) and bSelTb;
+  actBatCopyFieldNameComma.Enabled := (C > 0) and bSelTb;
+  MN_BatchCopy.Enabled := (C > 0) and bSelTb;
 end;
 
 procedure TFrameDML.CheckLinkLines;
@@ -1792,7 +1897,8 @@ begin
   FfrmColorStyles.SetShowFieldType(DMLGraph.DMLDrawer.ShowFieldType);
   FfrmColorStyles.SetColor(3, DMLGraph.DMLDrawer.DefaultObjectColor);
   FfrmColorStyles.SetColor(4, DMLGraph.DMLDrawer.DefaultBorderColor);
-  FfrmColorStyles.SetColor(9, DMLGraph.DMLDrawer.DefaultLineColor); //
+  FfrmColorStyles.SetColor(9, DMLGraph.DMLDrawer.DefaultLineColor); //    
+  FfrmColorStyles.SetColor(10, DMLGraph.DMLDrawer.DefaultGroupEdgeColor);
   FfrmColorStyles.SetDbEngine(DMLGraph.DMLDrawer.DatabaseEngine);  
   FfrmColorStyles.ckbIndependPosForOverviewMode.Checked := DMLGraph.DMLDrawer.IndependPosForOverviewMode;
 
@@ -1813,7 +1919,8 @@ begin
   DMLGraph.DMLDrawer.ShowFieldType := FfrmColorStyles.GetShowFieldType;
   DMLGraph.DMLDrawer.DefaultObjectColor := FfrmColorStyles.GetColor(3);
   DMLGraph.DMLDrawer.DefaultBorderColor := FfrmColorStyles.GetColor(4);
-  DMLGraph.DMLDrawer.DefaultLineColor := FfrmColorStyles.GetColor(9);
+  DMLGraph.DMLDrawer.DefaultLineColor := FfrmColorStyles.GetColor(9);    
+  DMLGraph.DMLDrawer.DefaultGroupEdgeColor := FfrmColorStyles.GetColor(10);
   DMLGraph.DMLDrawer.DatabaseEngine := FfrmColorStyles.GetDbEngine;    
   DMLGraph.DMLDrawer.IndependPosForOverviewMode := FfrmColorStyles.ckbIndependPosForOverviewMode.Checked;
 

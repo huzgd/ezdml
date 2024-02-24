@@ -239,6 +239,9 @@ begin
 
   FSave_memError := memError.Lines.Text;
   memError.Lines.Clear;
+
+  combModels.Items.Clear;
+  FAllTbGraph.Tables.Clear;
 end;
 
 procedure TfrmCtGenSQL.MN_ModelTableInfoClick(Sender: TObject);
@@ -691,6 +694,8 @@ begin
 
   chkPause.Left := Panel2.Width - chkPause.Width - 8;
   ckbRecreateTable.Left := chkPause.Left - ckbRecreateTable.Width - 8;
+
+  CtSetFixWidthFont(memSQL);
 
   ProgressBar1.Position := 0;
   InitListObj;

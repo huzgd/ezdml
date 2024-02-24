@@ -53,10 +53,8 @@ uses
 
 function TCtMetaOdbcDb.CreateSqlDbConn: TSQLConnection;
 begin
-  Result := TODBCConnection.Create(nil);     
-{$ifdef WINDOWS}
-  Result.CharSet := 'CP_ACP'; 
-{$endif}
+  Result := TODBCConnection.Create(nil);
+  Result.CharSet := Trim(G_OdbcCharset);
 end;
 
 procedure TCtMetaOdbcDb.SetFCLConnDatabase;

@@ -329,7 +329,8 @@ type
       AQuotDbType: string = ''): string;
     function GetPossibleKeyName(keyFieldTp: TCtKeyFieldType): string;
     function GetTitleFieldName: string;
-    function IsSeqNeeded: boolean; virtual;
+    function IsSeqNeeded: boolean; virtual; 
+    function IsGroup: boolean; virtual;
     function IsText: boolean; virtual;
     function IsTable: boolean; virtual;
     function IsSqlText: boolean; virtual;
@@ -521,6 +522,7 @@ type
     FUILogic: string;              
     FOldName: string;
     FIsHidden: boolean;
+    function GetRelateTableRealName: string;
     procedure SetRelateTable(AValue: string);
   protected
     FValueMin: string;
@@ -656,6 +658,8 @@ type
     property KeyFieldType: TCtKeyFieldType read FKeyFieldType write FKeyFieldType;
     //关联表
     property RelateTable: string read FRelateTable write SetRelateTable;
+    //关联表的物理名
+    property RelateTableRealName: string read GetRelateTableRealName;
     //关联字段
     property RelateField: string read FRelateField write FRelateField;
     //索引类型_0无1唯一2普通
@@ -1091,6 +1095,7 @@ var
   CtCustFieldDataGenRules: array of string;
   FGlobeDataModelList: TCtDataModelGraphList;   
   G_LastMetaDbSchema: string;
+  G_OdbcCharset: string;
   G_CheckForUpdates: boolean;
   G_CreateSeqForOracle: boolean;
   G_GenSqlSketchMode: boolean;
@@ -1411,7 +1416,7 @@ const
     cfdtFloat, //排序号
     cfdtString //其它
     );
-  DEF_TEXT_CLOB_LEN = 1000000;
+  DEF_TEXT_CLOB_LEN = 99999;
   DEF_RESERVED_KEYWORDS =
     ',action,add,aggregate,all,alter,after,and,as,asc,avg,avg_row_length,auto_increment,between,'
     +
@@ -1942,7 +1947,7 @@ begin
   Result := False;
   if dbType = 'POSTGRESQL' then
   begin
-    if res = 'varchar' then
+    if LowerCase(res) = 'varchar' then
     begin
       if len = 0 then
         Result := True
@@ -1959,11 +1964,12 @@ begin
   begin
     if len > 8000 then
     begin
-      if res = 'VARCHAR' then
-        res := 'VARCHAR(MAX)'
+      if UpperCase(res) = 'VARCHAR' then
+        res := res+'(MAX)'
       else
         res := 'TEXT'; 
       if Trim(custTpName) <> '' then
+        if UpperCase(Trim(custTpName))<>'VARCHAR' then
         res := custTpName;
       Result := True;
     end;
@@ -3675,7 +3681,7 @@ begin
             sFK := sFK + 'alter  table ' + vTbn + #13#10 +
               '       add constraint ' + GetQuotName('FK_' + T) +
               ' foreign key (' + sFPN + ')' + #13#10 +
-              '       references ' + GetQuotName(F.RelateTable) +
+              '       references ' + GetQuotName(F.RelateTableRealName) +
               '(' + GetQuotName(F.RelateField) + ');';
           end;
         end;
@@ -3691,7 +3697,7 @@ begin
             //foreign key(classes_id) references classes(id)
             sFdEx := sFdEx + ',' + #13#10 + ExtStr(' ', 6) +
               ExtStr('foreign key', 16) + ' (' + sFPN + GetIndexPrefixInfo(F) + ')'
-              + ' references ' + F.RelateTable + '(' + F.RelateField + ')';
+              + ' references ' + F.RelateTableRealName + '(' + F.RelateField + ')';
           end
           else if (dbType = 'MYSQL') and (Trim(F.DefaultValue) =
             DEF_VAL_auto_increment) then
@@ -3701,7 +3707,7 @@ begin
             sFdEx := sFdEx + ',' + #13#10 + ExtStr(' ', 6) +
               ExtStr('constraint', 16) + ' ' + GetQuotName('IDU_' + T)
               + ' foreign key(' + sFPN + GetIndexPrefixInfo(F) + ')'
-              + ' references ' + F.RelateTable + '(' + F.RelateField + ')';
+              + ' references ' + F.RelateTableRealName + '(' + F.RelateField + ')';
           end
           else if (dbType = 'HIVE') and (G_HiveVersion < 3) then
           begin  //hive2不支持主外键
@@ -3713,7 +3719,7 @@ begin
             sFK := sFK + 'alter  table ' + vTbn + #13#10 +
               '       add constraint ' + GetQuotName('FK_' + T) +
               ' foreign key (' + sFPN + ')' + #13#10 +
-              '       references ' + GetQuotName(F.RelateTable) +
+              '       references ' + GetQuotName(F.RelateTableRealName) +
               '(' + GetQuotName(F.RelateField) + ');';
           end;
         end;
@@ -4016,6 +4022,8 @@ begin
       else
         S := S + '  ' + vFdn;
     end;
+    if S='' then
+      S := ' t.*';
     if S <> '' then
       if dbType = 'ORACLE' then
         S := S + ','#13#10'  t.rowid';
@@ -5344,6 +5352,11 @@ begin
     Result := False;
 end;
 
+function TCtMetaTable.IsGroup: boolean;
+begin
+  Result := TypeName = 'GROUP';
+end;
+
 function TCtMetaTable.IsSqlText: boolean;
 begin
   Result := False;
@@ -5625,6 +5638,11 @@ begin
   begin
     Result.TypeName := 'TEXT';
     Result.Name := Format(srNewTextNameFmt, [Result.ID]);
+  end
+  else if (tp = 'GROUP') then
+  begin
+    Result.TypeName := 'GROUP';
+    Result.Name := Format(srNewGroupNameFmt, [Result.ID]);
   end
   else
   begin
@@ -7104,6 +7122,21 @@ begin
   FRelateTable:=AValue;
 end;
 
+function TCtMetaField.GetRelateTableRealName: string;
+var
+  rtb: TCtMetaTable;
+begin
+  Result := RelateTable;
+  if Result <> '' then
+  begin
+    rtb := GetRelateTableObj;
+    if rtb<>nil then
+    begin
+      Result:=rtb.RealTableName;
+    end;
+  end;
+end;
+
 procedure TCtMetaField.SetDefaultValue(const Value: string);
 begin
   FDefaultValue := Value;
@@ -7131,12 +7164,12 @@ begin
       begin
         //Result := Result + ' primary key'; //removed by huz 20230617: 转为独立声明  CONSTRAINT xxx PRIMARY KEY(xxx)
         if (RelateTable <> '') and (RelateField <> '') and (Pos('{Link:', RelateField)=0) then
-          Result := Result + ' references ' + RelateTable + '(' + RelateField + ')';
+          Result := Result + ' references ' + RelateTableRealName + '(' + RelateField + ')';
       end
       else if Self.KeyFieldType = cfktRID then
       begin
         if (RelateTable <> '') and (RelateField <> '') and (Pos('{Link:', RelateField)=0) then
-          Result := Result + ' references ' + RelateTable + '(' + RelateField + ')';
+          Result := Result + ' references ' + RelateTableRealName + '(' + RelateField + ')';
       end;
     end
     else if ((dbType = 'MYSQL') and (Trim(DefaultValue) = DEF_VAL_auto_increment)) then
@@ -7145,7 +7178,7 @@ begin
       begin
         Result := Result + ' primary key';
         if (RelateTable <> '') and (RelateField <> '') then
-          Result := Result + ' references ' + RelateTable + '(' + RelateField + ')';
+          Result := Result + ' references ' + RelateTableRealName + '(' + RelateField + ')';
       end;
     end;
     if Assigned(GProc_OnEzdmlGenFieldTypeDescEvent) then
@@ -8063,13 +8096,20 @@ begin
   Result := CheckLRQ(S);
 end;
 
-function TCtMetaField.GetFieldComments: string;
+function TCtMetaField.GetFieldComments: string; 
+  function IsDivChar(ch: String): boolean;
+  const
+    sDivChars='`~!@#$%^&*()-=_+{}[]:"|;''\<>?,./ '#13#10#9;
+  begin
+    Result := Pos(ch, sDivChars)>0;
+  end;
 begin
   Result := Memo;
   if Result <> '' then
   begin
     if (Name <> '') and (DisplayName <> '') and (Name <> DisplayName) then
-      Result := DisplayName + ' ' + Result;
+      if (Pos(DisplayName, Result)<>1) or not IsDivChar(Copy(Result, Length(DisplayName)+1, 1)) then
+        Result := DisplayName + ' ' + Result;
   end
   else if DisplayName <> '' then
     Result := DisplayName;
@@ -9650,7 +9690,7 @@ begin
                 strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
                   '       add constraint ' + GetQuotName('FK_' + T) +
                   ' foreign key (' + GetQuotName(ctF.Name) + ')' + #13#10 +
-                  '       references ' + GetQuotName(ctF.RelateTable) +
+                  '       references ' + GetQuotName(ctF.RelateTableRealName) +
                   '(' + GetQuotName(ctF.RelateField) + ');';
                 ResFKSQL.Add(strSQL);
               end;
@@ -9728,7 +9768,7 @@ begin
           if not bDiff and (ctF.Nullable <> dbF.Nullable) then
             if (EngineType<>'HIVE') or (G_HiveVersion>=3) then
               bDiff := True;        
-          if not bDiff and (EngineType<>'HIVE') then //HIVE字段的注释与其它属性一起修改
+          if not bDiff and (EngineType='HIVE') then //HIVE字段的注释与其它属性一起修改
             if not MaybeSameStr(dbF.GetFieldComments, ctF.GetFieldComments) then
               bDiff := True;
           if bDiff then
@@ -9774,6 +9814,13 @@ begin
             else if EngineType = 'HIVE' then
             begin
               //HIVE统一在修改字段时设置属性
+            end       
+            else if (EngineType = '') or (EngineType = 'STANDARD') then
+            begin
+              //标准SQL不支持注释         
+              ResTbSQL.Add('-- Modify comment of ' + dmlLsTbObj.RealTableName + '.' + dbF.Name);
+              strSQL := '--  comment: ''' + ReplaceSingleQuotmark(ctF.GetFieldComments) + '''';
+              ResTbSQL.Add(strSQL);
             end
             else
             begin
@@ -9807,7 +9854,7 @@ begin
                       '       add constraint ' + GetQuotName('FK_' + T) +
                       ' foreign key (' +
                       GetQuotName(ctF.Name) + ')' + #13#10 +
-                      '       references ' + GetQuotName(ctF.RelateTable) +
+                      '       references ' + GetQuotName(ctF.RelateTableRealName) +
                       '(' + GetQuotName(ctF.RelateField) + ');';
                     ResFKSQL.Add(strsql);
                   end;
@@ -9822,7 +9869,7 @@ begin
                 strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
                   '       add constraint ' + GetQuotName('FK_' + T) + ' foreign key (' +
                   GetQuotName(ctF.Name) + ')' + #13#10 +
-                  '       references ' + GetQuotName(ctF.RelateTable) +
+                  '       references ' + GetQuotName(ctF.RelateTableRealName) +
                   '(' + GetQuotName(ctF.RelateField) + ');';
                 ResFKSQL.Add(strsql);
               end;
@@ -9915,7 +9962,7 @@ begin
           strSQL := 'alter  table ' + GetQuotTbName(dmlLsTbObj.RealTableName) + #13#10 +
             '       add constraint ' + GetQuotName('FK_' + T) + ' foreign key (' +
             GetQuotName(ctF.Name) + ')' + #13#10 +
-            '       references ' + GetQuotName(ctF.RelateTable) + '(' +
+            '       references ' + GetQuotName(ctF.RelateTableRealName) + '(' +
             GetQuotName(ctF.RelateField) + ');';
           ResFKSQL.Add(strsql);
         end;
@@ -10219,6 +10266,9 @@ begin
     //粗略近似模式下，小整数、枚举、布尔型可以看成是一样的
     if Fd1.DataType in [cfdtInteger, cfdtBool, cfdtEnum] then
       if Fd2.DataType in [cfdtInteger, cfdtBool, cfdtEnum] then
+        Exit;
+    if Fd1.DataType in [cfdtFloat] then //数据库浮点和模型整数可以兼容
+      if Fd2.DataType in [cfdtInteger] then
         Exit;
   end;
   if UpperCase(Fd1.GetFieldTypeDesc(True, EngineType)) =

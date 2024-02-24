@@ -399,10 +399,6 @@ begin
         G_AppFixWidthFontName := ini.ReadString('Options', 'AppFixWidthFontName', '');
         G_AppFixWidthFontSize := ini.ReadInteger('Options', 'AppFixWidthFontSize', 0);
         G_DmlGraphFontName := ini.ReadString('Options', 'DmlGraphFontName', '');
-        {$IFDEF USE_MSSQL}
-        G_UseOdbcDriverForMsSql := ini.ReadBool('Options', 'UseOdbcDriverForMsSql',
-          G_UseOdbcDriverForMsSql);
-        {$ENDIF}
       finally
         ini.Free;
       end;
@@ -750,10 +746,8 @@ begin
   FFrameCtTableDef.Init(nil, False);
   Self.Caption := srEzdmlAppTitle + ' - ' + srEzdmlExiting;
   Self.SetStatusBarMsg(srEzdmlExiting);
-  if FFrameCtTableDef.FFrameCtTableList.TreeViewCttbs.Items.GetFirstNode <> nil then
-    FFrameCtTableDef.FFrameCtTableList.TreeViewCttbs.Items.GetFirstNode.Text :=
-      srEzdmlExiting;
-  Self.Refresh;
+  Self.Refresh;   
+  Application.ProcessMessages;
   try
     SaveIni;
     if not bHuge then
@@ -1075,6 +1069,7 @@ begin
     G_AppFixWidthFontName := ini.ReadString('Options', 'AppFixWidthFontName', '');
     G_AppFixWidthFontSize := ini.ReadInteger('Options', 'AppFixWidthFontSize', 0);
     G_DmlGraphFontName := ini.ReadString('Options', 'DmlGraphFontName', '');
+    G_DmlGraphDefScale := ini.ReadString('Options', 'DmlGraphDefScale', '');
 
     I := 0;
     FRecentFiles.Clear;
@@ -1310,6 +1305,8 @@ begin
     begin
       SQLiteDefaultLibrary := S;
     end;
+
+    G_OdbcCharset := ini.ReadString('Options', 'OdbcCharset', '');
 
     G_LastMetaDbSchema := ini.ReadString('Options', 'LastMetaDbSchema', '');
 
@@ -2496,7 +2493,11 @@ begin
   if FFileWorking then
     Exit;     
   if Application.ModalLevel > 0 then
+  begin
+    Self.Tag := 55678;
     Exit;
+  end;
+  Self.Tag := 0;
   if FCheckingFileDate then
     Exit;
   FCheckingFileDate := True;
@@ -2728,6 +2729,19 @@ begin
   if msg.wParam = 8 then  //ChatGPT
   begin
     actChatGPT.Execute;
+    Exit;
+  end;      
+  if msg.wParam = 9 then  //检查文件变更
+  begin
+    Self._OnAppActivate(nil);
+    Exit;
+  end;
+  if msg.wParam = 10 then  //设置
+  begin
+    if ShowEzdmlSettings(msg.LParam) then
+    begin
+      LoadIni;
+    end;
     Exit;
   end;
 end;
@@ -3171,7 +3185,7 @@ begin
     actEditSettingFile.Execute;
     Exit;
   end;
-  if ShowEzdmlSettings then
+  if ShowEzdmlSettings(0) then
   begin
     LoadIni;
   end;
@@ -4087,7 +4101,7 @@ initialization
   G_CreateIndexForForeignkey := False;
   G_HiveVersion := 2;                         
   G_MysqlVersion := 5;
-  G_RetainAfterCommit := True;
+  G_RetainAfterCommit := False;
   G_EnableCustomPropUI := False;       
   G_EnableAdvTbProp := False;
   G_EnableTbPropGenerate := True;

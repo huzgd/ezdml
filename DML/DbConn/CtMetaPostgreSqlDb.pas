@@ -41,14 +41,25 @@ type
 
 implementation
 
-uses Dialogs, wCommonDBConfig, Forms, dmlstrs;
+uses Dialogs, wCommonDBConfig, Forms, dmlstrs, odbcconn;
 
 
 { TCtMetaPostgreSqlDb }
 
 
 function TCtMetaPostgreSqlDb.CreateSqlDbConn: TSQLConnection;
-begin
+begin                           
+  if (Pos('DSN:', DataBase) = 1) or (Pos('ODBC:', DataBase) = 1) then
+    FUseDriverType := 'ODBC'
+  else
+    FUseDriverType := '';
+  if FUseDriverType='ODBC' then
+  begin
+    Result := TODBCConnection.Create(nil);
+    Result.CharSet := Trim(G_OdbcCharset);
+    Exit;
+  end;
+
   Result := TPQConnection.Create(nil);
 end;
 
@@ -70,7 +81,27 @@ var
 begin
   inherited SetFCLConnDatabase;
   if not Assigned(FDbConn) then
+    Exit;        
+  if FUseDriverType='ODBC' then
+  begin
+    S := FDbConn.HostName;
+
+    FDbConn.DatabaseName := '';
+    FDbConn.Params.Clear;
+
+    if Pos('DSN:', S) = 1 then
+    begin
+      FDbConn.DatabaseName := Copy(S, 5, Length(S));
+    end
+    else if Pos('ODBC:', S) = 1 then
+    begin
+      S := Copy(S, 6, Length(S));
+      S := StringReplace(S, ';', #10, [rfReplaceAll]);
+      FDbConn.Params.Text := S;
+    end;
     Exit;
+  end;
+
   FDbConn.Params.Clear;
   po := Pos(':', FDbConn.HostName);
   if po > 0 then
@@ -126,6 +157,7 @@ end;
 function TCtMetaPostgreSqlDb.GetDbNames: string;
 begin
   Result := 'localhost:5432@test';
+  Result := Result + #10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=PostgreSQL Unicode;Server=MyDbServer;Port=3306;Database={database_name};';
 end;
 
 function TCtMetaPostgreSqlDb.GetDbObjs(ADbUser: string): TStrings;

@@ -14,20 +14,22 @@ type
   TfrmDmlSqlEditorN = TfrmDmlSqlEditorO;
 {$endif}
 
-procedure ShowSqlEditor;
+procedure ShowSqlEditor(initSql: string='');
 
 implementation
 
-uses
-  ezdmlstrs;
-
-procedure ShowSqlEditor;
+procedure ShowSqlEditor(initSql: string);
 var
   vDmlSqlEditorForm: TfrmDmlSqlEditorN;
   bRect: TRect;
 begin
   vDmlSqlEditorForm := TfrmDmlSqlEditorN.Create(Application);
   vDmlSqlEditorForm.PanelTbs.Tag := 1;
+  if initSql <> '' then
+  begin
+    vDmlSqlEditorForm.MemoSql.Text := initSql;      
+    vDmlSqlEditorForm.AutoExecSql := initSql;
+  end;
   vDmlSqlEditorForm.ShowModal;
 {$ifndef EZDML_LITE}
   if G_LastSqlText <> '' then
@@ -40,7 +42,8 @@ begin
     G_LastSqlText := '';
     vDmlSqlEditorForm.Position:=poDesigned;
     vDmlSqlEditorForm.BoundsRect := bRect;
-    vDmlSqlEditorForm.FormStyle:=fsStayOnTop;
+    //vDmlSqlEditorForm.FormStyle:=fsStayOnTop;     
+    vDmlSqlEditorForm.ShowInTaskBar := stAlways;
     vDmlSqlEditorForm.Show;
   end;   
 {$endif}

@@ -107,7 +107,8 @@ var
 implementation
 
 uses
-  CTMetaData, dmlstrs, ezdmlstrs, AutoNameCapitalize, WindowFuncs, WSForms, InterfaceBase, IniFiles;
+  CTMetaData, dmlstrs, ezdmlstrs, AutoNameCapitalize, WindowFuncs, WSForms,
+  InterfaceBase, IniFiles, DMLObjs;
 
 {$R *.lfm}
 
@@ -125,8 +126,11 @@ var
   ss: TStrings;
   bOk, hHasOthers: Boolean;
   I, mrs: Integer;
+  nw, nh: Double;
+  szObj: TDMLEntityObj;
 begin
   Result := False;
+  szObj := nil;
 
   if not bReadOnly and bIsNew then
   begin
@@ -164,6 +168,9 @@ begin
   end
   else if not bReadOnly then
     CheckCanEditMeta;
+
+  if ATb.UserObject['SIZE_DMLENTITY'] <> nil then
+    szObj := TDMLEntityObj(ATb.UserObject['SIZE_DMLENTITY']);
 
   hHasOthers := False;
   for I:=Screen.FormCount - 1 downto 0 do
@@ -208,6 +215,59 @@ begin
       end;
       Init(ATb, bReadOnly);
       FocusToField(AField);
+      with FFrameCtTableProp do
+      if szObj <> nil then
+      begin
+        if ATb.IsTable then
+        begin
+          lbTbSize.Visible := True;
+          lbTbSizeX.Visible := True;
+          edtTbSizeW.Visible := True;    
+          edtTbSizeH.Visible := True;
+          edtTbSizeW.Text := IntToStr(Trunc(szObj.Width));
+          edtTbSizeH.Text := IntToStr(Trunc(szObj.Height));
+          if not szObj.IsResizable then
+          begin
+            edtTbSizeW.Enabled := False;
+            edtTbSizeH.Enabled := False;
+          end
+          else
+          begin
+            edtTbSizeW.Enabled := True;
+            edtTbSizeH.Enabled := True;
+          end;
+        end;
+        if ATb.IsText or ATb.IsGroup then
+        begin
+          PanelTxtBottom.Visible := True;    
+          edtTxtSizeW.Text := IntToStr(Trunc(szObj.Width));
+          edtTxtSizeH.Text := IntToStr(Trunc(szObj.Height));
+          if not szObj.IsResizable then
+          begin
+            edtTxtSizeW.Enabled := False;
+            edtTxtSizeH.Enabled := False;
+          end
+          else
+          begin
+            edtTxtSizeW.Enabled := True;
+            edtTxtSizeH.Enabled := True;
+          end;
+        end;
+      end
+      else
+      begin
+        if ATb.IsTable then
+        begin
+          lbTbSize.Visible := False;
+          lbTbSizeX.Visible := False;
+          edtTbSizeW.Visible := False;
+          edtTbSizeH.Visible := False;
+        end;  
+        if ATb.IsText or ATb.IsGroup then
+        begin
+          PanelTxtBottom.Visible := False;
+        end;
+      end;
       if bIsNew then
       begin
         if ATb.IsTable then
@@ -272,11 +332,37 @@ begin
         end
         else
           mrs := ShowModal;
-        if mrs = mrOk then
+        if (mrs = mrOk) or FModalResOk then
         begin
           if not FReadOnlyMode then
           begin
-            SaveToTb(atb);
+            SaveToTb(atb);  
+            if (szObj <> nil) and szObj.IsResizable then
+            with FFrameCtTableProp do
+            begin
+              if ATb.IsTable then
+              begin
+                nw := StrToFloatDef(edtTbSizeW.Text, szObj.Width);
+                nh := StrToFloatDef(edtTbSizeH.Text, szObj.Height);
+                if (Trunc(szObj.Width) <> Trunc(nw)) or (Trunc(szObj.Height)<>Trunc(nh)) then
+                begin
+                  szObj.Width := nw;
+                  szObj.Height := nh;
+                  szObj.AutoSize:=False;
+                end;
+              end;
+              if ATb.IsText or ATb.IsGroup then
+              begin                   
+                nw := StrToFloatDef(edtTxtSizeW.Text, szObj.Width);
+                nh := StrToFloatDef(edtTxtSizeH.Text, szObj.Height);
+                if (Trunc(szObj.Width) <> Trunc(nw)) or (Trunc(szObj.Height)<>Trunc(nh)) then
+                begin
+                  szObj.Width := nw;
+                  szObj.Height := nh;
+                  szObj.AutoSize:=False;
+                end;
+              end;
+            end;
             Result := True;
             if Assigned(GProc_OnEzdmlCmdEvent) then
             begin
@@ -361,8 +447,10 @@ begin
 
   FFrameCtTableProp.Init(FTempMetaTable, FReadOnlyMode);
   if Assigned(FTempMetaTable) then
-  begin
-    if FTempMetaTable.IsText then
+  begin                    
+    if FTempMetaTable.IsGroup then
+      Caption := srGroup + ' - ' + FTempMetaTable.Name
+    else if FTempMetaTable.IsText then
       Caption := srText + ' - ' + FTempMetaTable.Name
     else
       Caption := FOrginalCaption + ' - ' + FTempMetaTable.NameCaption;
@@ -627,7 +715,34 @@ const
   WMZ_CUSTCMD = WM_USER + $1001;
 
 procedure TfrmCtTableProp.bbtnViewClick(Sender: TObject);
-begin
+begin          
+  if CheckModified then
+  begin
+    case Application.MessageBox(PChar(srEzdmlConfirmCloseModified), PChar(Self.Caption),
+      MB_YESNOCANCEL or MB_ICONWARNING or MB_DEFBUTTON3) of
+      IDYES:
+      begin
+        if not FReadOnlyMode then
+        begin
+          try
+            btnOk.SetFocus;
+          except
+          end;
+          if FMetaTable.Name <> FTempMetaTable.Name then
+            CheckCanRenameTable(FMetaTable, FTempMetaTable.Name, True);
+          FMetaTable.AssignFrom(FTempMetaTable);
+          DoTablePropsChanged(FMetaTable);
+          FModalResOk := True;
+          FConfirmedClose := True;
+          ModalResult := mrOk;
+        end;
+      end;
+      IDNO:
+        FConfirmedClose := True;
+    else
+      Abort;
+    end;
+  end;
   G_WMZ_CUSTCMD_Object := FMetaTable;
   G_WMZ_CUSTCMD_WndRect := Self.BoundsRect;
   PostMessage(Application.MainForm.Handle, WMZ_CUSTCMD, 5, 1);
@@ -642,12 +757,20 @@ begin
 end;
 
 procedure TfrmCtTableProp.btnOkClick(Sender: TObject);
+var
+  ATb: TCtMetaTable;
 begin        
   btnOk.SetFocus;
   if FReadOnlyMode then
   begin
+    atb := FGlobeDataModelList.GetTableOfName(Self.FTempMetaTable.Name);
+    if atb=nil then
+    begin
+      btnOk.Enabled:=False;
+      Exit;
+    end;
     CheckCanEditMeta;
-    G_WMZ_CUSTCMD_Object := FMetaTable;
+    G_WMZ_CUSTCMD_Object := atb;
     G_WMZ_CUSTCMD_WndRect := Self.BoundsRect;
     PostMessage(Application.MainForm.Handle, WMZ_CUSTCMD, 5, 0);
     FConfirmedClose := True;
@@ -656,7 +779,14 @@ begin
     //TimerDelayCmd.Enabled := True;
   end
   else
+  begin         
+{$IFDEF DARWIN}
+    TimerDelayCmd.Tag := 3;
+    TimerDelayCmd.Enabled := True;
+{$else}
     ModalResult := mrOk;
+{$ENDIF}
+  end;
 end;
 
 procedure TfrmCtTableProp.FormClose(Sender: TObject;
@@ -689,7 +819,7 @@ begin
 end;
 
 procedure TfrmCtTableProp.TimerDelayCmdTimer(Sender: TObject);
-var
+var             
   ATb: TCtMetaTable;
   tg: integer;
 begin
@@ -706,7 +836,11 @@ begin
     begin
       ATb := FMetaTable;
       ShowCtMetaTableDialog(ATb, False, False);
-    end;
+    end;    
+  end
+  else if tg = 3 then
+  begin
+    ModalResult := mrOk;
   end;
 end;
 

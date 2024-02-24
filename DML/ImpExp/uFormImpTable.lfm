@@ -194,11 +194,25 @@ object frmImportCtTable: TfrmImportCtTable
   object ckbCheckAll: TCheckBox
     Left = 24
     Height = 21
-    Top = 156
+    Top = 184
     Width = 74
     Caption = 'Check all'
+    Checked = True
     OnChange = ckbCheckAllChange
+    State = cbChecked
     TabOrder = 12
+  end
+  object lbTbCount: TLabel
+    Left = 28
+    Height = 17
+    Top = 156
+    Width = 45
+    Caption = '(0 total)'
+    Font.Color = clGrayText
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
   end
   object PopupMenu1: TPopupMenu
     OnPopup = PopupMenu1Popup

@@ -1,13 +1,14 @@
 object frmOraDBConfig: TfrmOraDBConfig
   Left = 408
-  Height = 361
+  Height = 573
   Top = 310
   Width = 473
   BorderStyle = bsDialog
   Caption = 'ORACLE Connection'
-  ClientHeight = 361
+  ClientHeight = 573
   ClientWidth = 473
   Color = clBtnFace
+  OnCloseQuery = FormCloseQuery
   ParentFont = True
   Position = poMainFormCenter
   LCLVersion = '2.0.12.0'
@@ -60,7 +61,7 @@ object frmOraDBConfig: TfrmOraDBConfig
   object btnOK: TButton
     Left = 268
     Height = 27
-    Top = 312
+    Top = 496
     Width = 100
     Caption = 'OK'
     Default = True
@@ -70,7 +71,7 @@ object frmOraDBConfig: TfrmOraDBConfig
   object btnCancel: TButton
     Left = 376
     Height = 27
-    Top = 312
+    Top = 496
     Width = 64
     Cancel = True
     Caption = 'Cancel'
@@ -83,7 +84,10 @@ object frmOraDBConfig: TfrmOraDBConfig
     Top = 40
     Width = 392
     ItemHeight = 17
-    OnDropDown = combNetSvcNameDropDown
+    Items.Strings = (
+      'ORCL'
+      '127.0.0.1:1521/ORCL'
+    )
     TabOrder = 1
   end
   object rdbNetSvc: TRadioButton
@@ -119,10 +123,71 @@ object frmOraDBConfig: TfrmOraDBConfig
   object btnHelp: TButton
     Left = 20
     Height = 25
-    Top = 312
+    Top = 496
     Width = 74
     Caption = 'Help'
     OnClick = btnHelpClick
     TabOrder = 8
+  end
+  object btnSettings: TButton
+    Left = 100
+    Height = 25
+    Top = 496
+    Width = 70
+    Caption = 'Settings'
+    OnClick = btnSettingsClick
+    TabOrder = 9
+  end
+  object rbdOdbcDsn: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 304
+    Width = 90
+    Caption = 'ODBC DSN:'
+    OnClick = rdbNetSvcClick
+    TabOrder = 10
+  end
+  object Label6: TLabel
+    Left = 48
+    Height = 17
+    Top = 340
+    Width = 29
+    Caption = 'DSN:'
+    ParentColor = False
+  end
+  object edtDsnName: TEdit
+    Left = 116
+    Height = 25
+    Top = 336
+    Width = 256
+    TabOrder = 11
+  end
+  object btnBrowseDsn: TButton
+    Left = 376
+    Height = 25
+    Top = 336
+    Width = 64
+    Caption = 'Browse'
+    OnClick = btnBrowseDsnClick
+    TabOrder = 12
+  end
+  object rdbOdbcConnStr: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 380
+    Width = 167
+    Caption = 'ODBC Connection String:'
+    OnClick = rdbNetSvcClick
+    TabOrder = 13
+  end
+  object MemoOdbcConnStr: TMemo
+    Left = 48
+    Height = 66
+    Top = 412
+    Width = 392
+    Lines.Strings = (
+      'Driver=Oracle in instantclient_11_2;Server=My Db Server;UID=UserName;'
+    )
+    TabOrder = 14
   end
 end

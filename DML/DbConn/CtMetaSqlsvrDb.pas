@@ -39,9 +39,6 @@ type
 
   end;
 
-var
-  G_UseOdbcDriverForMsSql: boolean = False;
-
 implementation
 
 uses
@@ -51,13 +48,15 @@ uses
 
 
 function TCtMetaSqlsvrDb.CreateSqlDbConn: TSQLConnection;
-begin
-  if G_UseOdbcDriverForMsSql then
+begin                
+  if (Pos('DSN:', DataBase) = 1) or (Pos('ODBC:', DataBase) = 1) then
+    FUseDriverType := 'ODBC'
+  else
+    FUseDriverType := '';
+  if FUseDriverType='ODBC' then
   begin
     Result := TODBCConnection.Create(nil);
-  {$ifdef WINDOWS}
-    Result.CharSet := 'CP_ACP';
-  {$endif}  
+    Result.CharSet := Trim(G_OdbcCharset);
     if Pos('[GSQL_FIELD_NULL]', FExtraOpt) > 0 then
       FExtraOpt := StringReplace(FExtraOpt, '[GSQL_FIELD_NULL]', '', []);
   end
@@ -132,7 +131,7 @@ begin
   inherited SetFCLConnDatabase;
   if not Assigned(FDbConn) then
     Exit;
-  if G_UseOdbcDriverForMsSql then
+  if FUseDriverType='ODBC' then
   begin
     S := FDbConn.HostName;
 
@@ -148,34 +147,6 @@ begin
       S := Copy(S, 6, Length(S));
       S := StringReplace(S, ';', #10, [rfReplaceAll]);
       FDbConn.Params.Text := S;
-    end
-    else
-    begin
-      //192.168.1.123:1433\MSSQLSERVER@master
-
-      po := Pos('\', S);
-      ip := '';
-      db := '';
-      po := Pos('@', S);
-      if po > 0 then
-      begin
-        db := Copy(S, po + 1, Length(S));
-        ip := Copy(S, 1, po - 1);
-      end
-      else
-        ip := S;
-
-      FDbConn.Params.Values['Driver'] := 'SQL Server';
-      if ip <> '' then
-      begin
-        if Pos(':', ip) > 0 then
-          ip := StringReplace(ip, ':', ',', []);
-        FDbConn.Params.Values['Server'] := ip;
-      end;
-      if db <> '' then
-        FDbConn.Params.Values['Database'] := ip;
-      if User = '' then
-        FDbConn.Params.Values['Integrated Security'] := 'SSPI';
     end;
   end
   else
@@ -206,7 +177,7 @@ function TCtMetaSqlsvrDb.ShowDBConfig(AHandle: THandle): boolean;
 var
   S: string;
 begin
-  S := TfrmSqlSvrDBConfig.DoDbConfig(Database, G_UseOdbcDriverForMsSql);
+  S := TfrmSqlSvrDBConfig.DoDbConfig(Database);
   if S <> '' then
   begin
     Database := S;
@@ -224,8 +195,7 @@ end;
 function TCtMetaSqlsvrDb.GetDbNames: string;
 begin
   Result := 'localhost\MSSQLSERVER@master'#10'192.168.1.123:1433\MSSQLSERVER@master';
-  if G_UseOdbcDriverForMsSql then
-    Result := Result + #10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;';
+  Result := Result + #10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;';
 end;
 
 function TCtMetaSqlsvrDb.GetDbObjs(ADbUser: string): TStrings;

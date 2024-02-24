@@ -8,16 +8,16 @@ object FrameCtTableProp: TFrameCtTableProp
   OnResize = FrameResize
   TabOrder = 0
   TabStop = True
-  DesignLeft = 199
-  DesignTop = 99
+  DesignLeft = 248
+  DesignTop = 37
   object PageControlTbProp: TPageControl
     Left = 0
     Height = 766
     Top = 0
     Width = 838
-    ActivePage = TabSheetDesc
+    ActivePage = TabSheetText
     Align = alClient
-    TabIndex = 1
+    TabIndex = 4
     TabOrder = 0
     OnChange = PageControlTbPropChange
     OnChanging = PageControlTbPropChanging
@@ -655,7 +655,7 @@ object FrameCtTableProp: TFrameCtTableProp
         Height = 736
         Top = 0
         Width = 830
-        HorzScrollBar.Page = 596
+        HorzScrollBar.Page = 696
         VertScrollBar.Page = 732
         VertScrollBar.Tracking = True
         Align = alClient
@@ -703,16 +703,16 @@ object FrameCtTableProp: TFrameCtTableProp
           TabOrder = 14
         end
         object ckbGenDatabase: TCheckBox
-          Left = 312
+          Left = 120
           Height = 21
           Hint = 'curTable.genDatabase'
-          Top = 181
+          Top = 144
           Width = 133
           Caption = 'Generate database'
           OnClick = MemoTableCommentExit
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 6
+          TabOrder = 5
         end
         object edtUIDisplayText: TEdit
           Left = 120
@@ -723,16 +723,16 @@ object FrameCtTableProp: TFrameCtTableProp
           TabOrder = 2
         end
         object ckbGenCode: TCheckBox
-          Left = 488
+          Left = 308
           Height = 21
           Hint = 'curTable.genCode'
-          Top = 181
+          Top = 144
           Width = 108
           Caption = 'Generate code'
           OnClick = MemoTableCommentExit
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 7
+          TabOrder = 6
         end
         object Label41: TLabel
           Left = 121
@@ -922,7 +922,7 @@ object FrameCtTableProp: TFrameCtTableProp
           DropDownCount = 48
           ItemHeight = 16
           OnChange = MemoTableCommentExit
-          TabOrder = 5
+          TabOrder = 7
         end
         object Label25: TLabel
           Left = 8
@@ -1019,7 +1019,7 @@ object FrameCtTableProp: TFrameCtTableProp
         end
         object memoDesignNotes: TMemo
           Left = 120
-          Height = 88
+          Height = 56
           Top = 80
           Width = 674
           Anchors = [akTop, akLeft, akRight]
@@ -1078,6 +1078,40 @@ object FrameCtTableProp: TFrameCtTableProp
           OnExit = MemoTableCommentExit
           TabOrder = 9
         end
+        object lbTbSize: TLabel
+          Left = 411
+          Height = 17
+          Top = 180
+          Width = 26
+          Caption = 'Size:'
+          ParentColor = False
+          Visible = False
+        end
+        object edtTbSizeW: TEdit
+          Left = 519
+          Height = 25
+          Top = 180
+          Width = 80
+          TabOrder = 19
+          Visible = False
+        end
+        object lbTbSizeX: TLabel
+          Left = 604
+          Height = 17
+          Top = 180
+          Width = 6
+          Caption = 'x'
+          ParentColor = False
+          Visible = False
+        end
+        object edtTbSizeH: TEdit
+          Left = 616
+          Height = 25
+          Top = 180
+          Width = 80
+          TabOrder = 20
+          Visible = False
+        end
       end
     end
     object TabSheetText: TTabSheet
@@ -1087,7 +1121,7 @@ object FrameCtTableProp: TFrameCtTableProp
       ImageIndex = 3
       object MemoTextContent: TMemo
         Left = 0
-        Height = 705
+        Height = 667
         Top = 31
         Width = 830
         Align = alClient
@@ -1134,6 +1168,48 @@ object FrameCtTableProp: TFrameCtTableProp
           Width = 59
           Caption = 'Is SQL'
           OnClick = ckbIsSqlTextClick
+          TabOrder = 1
+        end
+      end
+      object PanelTxtBottom: TPanel
+        Left = 0
+        Height = 38
+        Top = 698
+        Width = 830
+        Align = alBottom
+        BevelOuter = bvNone
+        ClientHeight = 38
+        ClientWidth = 830
+        TabOrder = 2
+        Visible = False
+        object lbTxtSize: TLabel
+          Left = 3
+          Height = 17
+          Top = 8
+          Width = 26
+          Caption = 'Size:'
+          ParentColor = False
+        end
+        object edtTxtSizeW: TEdit
+          Left = 57
+          Height = 25
+          Top = 7
+          Width = 80
+          TabOrder = 0
+        end
+        object lbTxtSizeX: TLabel
+          Left = 144
+          Height = 17
+          Top = 12
+          Width = 6
+          Caption = 'x'
+          ParentColor = False
+        end
+        object edtTxtSizeH: TEdit
+          Left = 156
+          Height = 25
+          Top = 7
+          Width = 80
           TabOrder = 1
         end
       end

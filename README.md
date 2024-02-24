@@ -347,3 +347,6 @@ Remember the view position of the model diagram. Bugs fixed.
 
 2023-12-02 V3.56
 SQL tools support automatic completion (. to dropdown field list) and simple SQL formatting, model diagrams support double foreign key and self relate links. Bugs fixed.
+
+2024-02-24 V3.57
+Add group box, enable ODBC connection for ORACLE/MYSQL/POSTGRE, view diagrams in new window, optimize SQL query tool. Bugs fixed.

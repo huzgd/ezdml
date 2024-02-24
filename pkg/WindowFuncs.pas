@@ -171,7 +171,8 @@ var
   G_AppDefFontSize: integer = 0;
   G_AppFixWidthFontName: string = '';
   G_AppFixWidthFontSize: integer = 0;
-  G_DmlGraphFontName: string = '';
+  G_DmlGraphFontName: string = '';      
+  G_DmlGraphDefScale: string = '';
   GProc_Toast: procedure(const Msg: variant; closeTimeMs: integer);
 
 const
@@ -528,15 +529,18 @@ begin
         if (S = '') or (S = 'default') then
         begin
 {$ifdef WINDOWS}
-          S := 'Courier New';
-          sz := 10;
+          S := 'Courier New';  
+          if sz = 0 then
+            sz := 10;
 {$else}
 {$IFDEF DARWIN}
           S := 'Monaco';
-          sz := 10;
+          if sz = 0 then
+            sz := 10;
 {$else}
           S := 'Mono';
-          sz := 10;
+          if sz = 0 then
+            sz := 10;
 {$ENDIF}
 {$endif}
 
@@ -1677,7 +1681,10 @@ procedure TCtAppFormHandler.ScreenFormVisibleChgEvent(Sender: TObject;
   Form: TCustomForm);
 begin
   if Form.Visible then
-    CheckFormScaleDPIEx(Form);
+    CheckFormScaleDPIEx(Form)
+  else if Assigned(Application.MainForm) and (Form <> Application.MainForm)
+    and (Application.MainForm.Tag = 55678) then
+    PostMessage(Application.MainForm.Handle, 1024+$1001,9,0);
 end;
 
 { TCtMutex }

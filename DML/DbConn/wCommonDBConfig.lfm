@@ -1,11 +1,11 @@
 object frmCommDBConfig: TfrmCommDBConfig
   Left = 408
-  Height = 220
+  Height = 425
   Top = 310
   Width = 473
   BorderStyle = bsDialog
   Caption = 'Database Connection'
-  ClientHeight = 220
+  ClientHeight = 425
   ClientWidth = 473
   Color = clBtnFace
   OnCloseQuery = FormCloseQuery
@@ -13,47 +13,47 @@ object frmCommDBConfig: TfrmCommDBConfig
   Position = poMainFormCenter
   LCLVersion = '2.0.12.0'
   object Label1: TLabel
-    Left = 40
-    Height = 17
-    Top = 36
-    Width = 40
+    Left = 48
+    Height = 12
+    Top = 56
+    Width = 42
     Caption = 'Server:'
     ParentColor = False
   end
   object Label2: TLabel
-    Left = 312
-    Height = 17
-    Top = 36
-    Width = 27
+    Left = 320
+    Height = 12
+    Top = 56
+    Width = 30
     Caption = 'Port:'
     ParentColor = False
   end
   object Label3: TLabel
-    Left = 40
-    Height = 17
-    Top = 76
-    Width = 58
+    Left = 48
+    Height = 12
+    Top = 96
+    Width = 54
     Caption = 'Database:'
     ParentColor = False
   end
   object edtPort: TEdit
-    Left = 360
+    Left = 368
     Height = 25
-    Top = 32
+    Top = 52
     Width = 72
     TabOrder = 1
   end
   object edtDbName: TEdit
-    Left = 108
+    Left = 116
     Height = 25
-    Top = 72
+    Top = 92
     Width = 324
     TabOrder = 2
   end
   object btnOK: TButton
-    Left = 256
+    Left = 272
     Height = 27
-    Top = 160
+    Top = 364
     Width = 96
     Caption = 'OK'
     Default = True
@@ -61,9 +61,9 @@ object frmCommDBConfig: TfrmCommDBConfig
     TabOrder = 3
   end
   object btnCancel: TButton
-    Left = 360
+    Left = 376
     Height = 27
-    Top = 160
+    Top = 364
     Width = 64
     Cancel = True
     Caption = 'Cancel'
@@ -71,18 +71,18 @@ object frmCommDBConfig: TfrmCommDBConfig
     TabOrder = 4
   end
   object btnHelp: TButton
-    Left = 40
+    Left = 28
     Height = 27
-    Top = 160
+    Top = 364
     Width = 71
     Caption = 'Help'
     OnClick = btnHelpClick
     TabOrder = 5
   end
   object combSveIp: TComboBox
-    Left = 108
+    Left = 116
     Height = 25
-    Top = 32
+    Top = 52
     Width = 188
     ItemHeight = 17
     Items.Strings = (
@@ -91,5 +91,77 @@ object frmCommDBConfig: TfrmCommDBConfig
       '192.168.1.123'
     )
     TabOrder = 0
+  end
+  object btnSettings: TButton
+    Left = 108
+    Height = 27
+    Top = 364
+    Width = 71
+    Caption = 'Settings'
+    OnClick = btnSettingsClick
+    TabOrder = 6
+  end
+  object rdbIPAddr: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 15
+    Width = 117
+    Caption = 'Specify address:'
+    Checked = True
+    OnChange = rdbIPAddrChange
+    TabOrder = 7
+    TabStop = True
+  end
+  object rbdOdbcDsn: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 160
+    Width = 90
+    Caption = 'ODBC DSN:'
+    OnChange = rdbIPAddrChange
+    TabOrder = 8
+  end
+  object Label6: TLabel
+    Left = 48
+    Height = 12
+    Top = 196
+    Width = 24
+    Caption = 'DSN:'
+    ParentColor = False
+  end
+  object edtDsnName: TEdit
+    Left = 116
+    Height = 25
+    Top = 192
+    Width = 256
+    TabOrder = 9
+  end
+  object btnBrowseDsn: TButton
+    Left = 376
+    Height = 25
+    Top = 192
+    Width = 64
+    Caption = 'Browse'
+    OnClick = btnBrowseDsnClick
+    TabOrder = 10
+  end
+  object rdbOdbcConnStr: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 236
+    Width = 167
+    Caption = 'ODBC Connection String:'
+    OnChange = rdbIPAddrChange
+    TabOrder = 11
+  end
+  object MemoOdbcConnStr: TMemo
+    Left = 48
+    Height = 66
+    Top = 268
+    Width = 392
+    Lines.Strings = (
+      'Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;'
+    )
+    TabOrder = 12
   end
 end

@@ -106,7 +106,9 @@ resourcestring
   srNewDmlTable = 'NewTable';
   srNewDmlTbPrompt = 'Enter the name of the new table:';
   srNewDmlText = 'NewText';
-  srNewDmlTextPrompt = 'Enter the content of the new text:';
+  srNewDmlTextPrompt = 'Enter the content of the new text:';   
+  srNewDmlGroup = 'NewGroup';
+  srNewDmlGroupPrompt = 'Enter the name of the new group:';
   srConfirmDMLBriefMode =
     'Entering brief mode may cause the position of links reset. Continue?';
   srDmlGraphStatusFmt = 'Scale:%d%% Center:%d, %d';
@@ -118,7 +120,8 @@ resourcestring
   srDmlSelectedTableFieldFmt = 'Selected: table %s, field %s';
   srImportingObjsFmt = '%d/%d Importing...%s';
   srNewTableNameFmt = 'Table%d';
-  srNewTextNameFmt = 'Text%d';
+  srNewTextNameFmt = 'Text%d';   
+  srNewGroupNameFmt = 'Group%d';
   srNewFieldNameFmt = 'Field%d';
   srNewDiagramNameFmt = 'Model%d';  
   srNewComplexIndexNameFmt = 'CpxIndex%d';
@@ -161,14 +164,16 @@ resourcestring
   srConfirmDeleteDbFileFmt = 'Are you sure to delete database file %s?';    
   srOverwriteDbFileWarning = 'Database file %s already exists, are you sure to OVERWRITE?';
   srOverwriteSameDbFileWarning = 'Database file %s (%s) already exists and its contents are exactly the same as those to be saved. Continue saving anyway?';
-  srViewModelDiagram = 'View diagram';
+  srViewModelInNewWnd = 'View in new window';
   srViewProperties = 'View properties';
   srConfirmAbort = 'Are you sure to abort current process?';
   srCapAbort = 'Abort';
   srInvalidTableNameWarningFmt = 'Warning: Table name may be invalid - %s';
   srInvalidFieldNameWarningFmt = 'Warning: Field name may be invalid - %s';
   srDuplicateFieldNameWarningFmt = 'Warning: Duplicate field name - %s';
-  srPasteFromExcelPrompt = 'Copy content from EXCEL and paste here (may use <crlf> as row seperator):';
+  srPasteFromExcelPrompt = 'Copy content from EXCEL and paste here (may use <crlf> as row seperator):';   
+  srPasteJsonStrPrompt = 'Copy content with JSON format and paste here:';
+  srPasteOverwriteWarning = 'Warning: This operation may OVERWRITE exists record and cause data lost! This operation cannot be undone! Are you sure to continue?';
   srCtobjFuns = 'CT Object Functions';
   srListNameFmt = '%sList';
   srListName2Fmt = 'List class %s';
@@ -180,7 +185,8 @@ resourcestring
   srLink = 'Link';
   srLink_OneToMany = 'one to many';
   srLink_OneToOne = 'one to one';
-  srStep = 'Step';
+  srStep = 'Step';   
+  srGroup = 'Group';
   srDmlGraphFontName = 'default';   
   srDmlDefaultColor = 'Auto';        
   srDmlCustomColor = 'Custom Color...';
@@ -233,7 +239,7 @@ resourcestring
     'Warning: The database is about to be modified, make sure you have backed up your data before continue. Do you still want to modify database now?';
   srRestoreDatabaseWarning =
     'Warning: The database is about to be restored, all data in selected tables will be lost. Do you still want to restore tables now?';
-  srInvalidTbNameError = 'Error: table name "%s" contains invalid characters';
+  srInvalidTbNameError = 'Error: object name "%s" contains invalid characters';
   srRenameToExistsError = 'Error: Objects "%s" already exists, please choose another name';
   srRenameToExistsFeildError = 'Error: Field "%s" already exists, please choose another name';
   //srRenameToDulObjleWarning =
@@ -242,7 +248,8 @@ resourcestring
   srSqlEditorRunning = 'Running...';
   srSqlEditorRunError = 'Error: ';
   srSqlEditorExecTip = 'Hold Ctrl key to execute SQL command only (no Result-Set)';
-  srSqlEditorRunFinishedFmt = 'Execute finished in %f seconds, %d rows affected';
+  srSqlEditorRunFinishedFmt = 'Execute finished in %f seconds';
+  srSqlEditorRunFinishedRowFmt = 'Execute finished in %f seconds, %d rows affected';
   srNewFieldTypeItemTitle = 'New item';     
   srNewFieldTypeItemPrompt = 'Please enter new item:';
   srHugeMode = '(Huge mode)';    
@@ -305,7 +312,8 @@ resourcestring
     'QRCode' + #13#10 +
     'Chart';
 
-  srTbFieldCountFmt = '(%d total)';
+  srTbFieldCountFmt = '(%d total)';   
+  srTbCountFmt = '(%d total)';
 
   srFieldWeights=     
     '1=High' + #13#10 +
