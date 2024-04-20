@@ -906,6 +906,7 @@ type
     function GetItem(Index: integer): TCtDataModelGraph;
     procedure PutItem(Index: integer; const Value: TCtDataModelGraph);
   protected
+    FTbSeqCounter: Integer;
     function CreateObj: TCtObject; override;
     procedure Notify(Ptr: Pointer; Action: TListNotification); override;
   public       
@@ -921,7 +922,8 @@ type
     function GetAllTableCount: integer;
     function GetAllSubItemCount: integer;
     function IsHuge: boolean;
-    function GetTableOfName(AName: string): TCtMetaTable;
+    function GetTableOfName(AName: string): TCtMetaTable;     
+    function GenNewTableID: Integer; virtual;
 
     //修改过表后，同步到所有同名对象上
     procedure SyncTableProps(ATb: TCtMetaTable); virtual;
@@ -932,7 +934,8 @@ type
     procedure DoOnTableRename(ATb: TCtMetaTable; AOldName, ANewName: string); virtual;
 
     procedure SortByOrderNo; override;
-    procedure Pack; override;
+    procedure Pack; override;      
+    procedure Clear; override;
     function TableCount: integer;
     function NewModelItem: TCtDataModelGraph;
     //property CurDataModal: TCtDataModelGraph read GetCurDataModel;
@@ -3633,9 +3636,12 @@ begin
       begin
         if dbType = 'SQLITE' then
         begin
-          //SQLITE主键在字段中直接定义
+          if Trim(F.DefaultValue) = DEF_VAL_auto_increment then
+          begin
+            //SQLITE主键在字段中直接定义
+          end
           //removed by huz 20230617: 改在字段中直接定义
-          if not pkAdded then
+          else if not pkAdded then
           begin
             pkAdded := True;
             //CONSTRAINT xxx PRIMARY KEY (xxx)
@@ -5631,30 +5637,47 @@ end;
 function TCtMetaTableList.NewTableItem(tp: string): TCtMetaTable;
 var
   S: string;
-begin
-  Result := TCtMetaTable(NewObj);
-  Result.CreateDate := Now;
-  if (tp = 'TEXT') then
-  begin
-    Result.TypeName := 'TEXT';
-    Result.Name := Format(srNewTextNameFmt, [Result.ID]);
-  end
-  else if (tp = 'GROUP') then
-  begin
-    Result.TypeName := 'GROUP';
-    Result.Name := Format(srNewGroupNameFmt, [Result.ID]);
-  end
+  rID: Integer;
+begin                  
+  if Assigned(OwnerModel) and Assigned(OwnerModel.OwnerList) then
+    rID := OwnerModel.OwnerList.GenNewTableID
   else
+    rId := 0;
+  Result := TCtMetaTable(NewObj);
+  if rId > 0 then
+    Result.ID := rId;
+  Result.CreateDate := Now;
+  while True do
   begin
-    if LangIsEnglish then
-      Result.Name := Format(srNewTableNameFmt, [Result.ID])
+    if (tp = 'TEXT') then
+    begin
+      Result.TypeName := 'TEXT';
+      Result.Name := Format(srNewTextNameFmt, [Result.ID]);
+    end
+    else if (tp = 'GROUP') then
+    begin
+      Result.TypeName := 'GROUP';
+      Result.Name := Format(srNewGroupNameFmt, [Result.ID]);
+    end
     else
     begin
-      Result.Name := Format('Table%d', [Result.ID]);
-      S := Format(srNewTableNameFmt, [Result.ID]);
-      if S <> Result.Name then
-        Result.Caption := S;
-    end;
+      if LangIsEnglish then
+        Result.Name := Format(srNewTableNameFmt, [Result.ID])
+      else
+      begin
+        Result.Name := Format('Table%d', [Result.ID]);
+        S := Format(srNewTableNameFmt, [Result.ID]);
+        if S <> Result.Name then
+          Result.Caption := S;
+      end;
+    end;   
+    if Assigned(OwnerModel) and Assigned(OwnerModel.OwnerList) then
+      if OwnerModel.OwnerList.HasSameNameTables(Result, Result.Name) then
+      begin
+        Result.Id := OwnerModel.OwnerList.GenNewTableID;
+        Continue;
+      end;
+    Break;
   end;
   Result.MetaModified := True;
 end;
@@ -7165,6 +7188,9 @@ begin
         //Result := Result + ' primary key'; //removed by huz 20230617: 转为独立声明  CONSTRAINT xxx PRIMARY KEY(xxx)
         if (RelateTable <> '') and (RelateField <> '') and (Pos('{Link:', RelateField)=0) then
           Result := Result + ' references ' + RelateTableRealName + '(' + RelateField + ')';
+        //added by huz 20240416: 自增型的仍在这里声明
+        if Trim(DefaultValue) = DEF_VAL_auto_increment then
+          Result := Result + ' primary key';
       end
       else if Self.KeyFieldType = cfktRID then
       begin
@@ -8667,6 +8693,25 @@ begin
   end;
 end;
 
+function TCtDataModelGraphList.GenNewTableID: Integer;   
+var
+  I, J: integer;
+  md: TCtDataModelGraph;
+begin
+  if FTbSeqCounter=0 then
+  begin        
+    for I := 0 to Count - 1 do
+    begin
+      md := FGlobeDataModelList.Items[I];
+      for J:=0 to md.Tables.Count - 1 do
+        if md.Tables[J].ID > FTbSeqCounter then
+          FTbSeqCounter := md.Tables[J].ID;
+    end;
+  end;
+  Inc(FTbSeqCounter);
+  Result := FTbSeqCounter;
+end;
+
 procedure TCtDataModelGraphList.LoadFromFile(fn: string);
 var
   fs: TCtObjSerialer;
@@ -8756,10 +8801,24 @@ begin
 end;
 
 function TCtDataModelGraphList.NewModelItem: TCtDataModelGraph;
+var
+  S: String;
 begin
   Result := TCtDataModelGraph(NewObj);
   Result.CreateDate := Now;
-  Result.Name := Format(srNewDiagramNameFmt, [Result.ID]);
+  while True do
+  begin
+    S := Format(srNewDiagramNameFmt, [Result.ID]);
+    if Self.ItemByName(S) = nil then
+    begin
+      Result.Name := S;
+      Break;
+    end
+    else
+      Result.ID := Self.GlobeList.GenNewItemID;
+  end;
+  if GlobeList.SeqCounter<Result.ID then
+    GlobeList.SeqCounter := Result.ID;
 end;
 
 procedure TCtDataModelGraphList.Notify(Ptr: Pointer; Action: TListNotification);
@@ -8810,6 +8869,15 @@ begin
     for J := 0 to item.Tables.Count - 1 do
       item.Tables[J].MetaFields.Pack;
   end;
+end;
+
+procedure TCtDataModelGraphList.Clear;
+begin
+  inherited Clear;  
+  FCurDataModel := nil;
+  FTbSeqCounter := 0;
+  if Assigned(GlobeList) then
+    GlobeList.SeqCounter:=0;
 end;
 
 procedure TCtDataModelGraphList.PutItem(Index: integer; const Value: TCtDataModelGraph);

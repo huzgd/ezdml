@@ -8,6 +8,8 @@ uses
   Classes, {$IFDEF Windows}windows, {$ENDIF}SysUtils, process;
            
 function GetThisComputerName: string;
+var
+  G_MyComputerId: string;
 
 implementation
 

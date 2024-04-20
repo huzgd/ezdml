@@ -350,3 +350,6 @@ SQL tools support automatic completion (. to dropdown field list) and simple SQL
 
 2024-02-24 V3.57
 Add group box, enable ODBC connection for ORACLE/MYSQL/POSTGRE, view diagrams in new window, optimize SQL query tool. Bugs fixed.
+
+2024-04-20 V3.58
+Lock/unlock database files, handling charset issue of ODBC. Bugs fixed.

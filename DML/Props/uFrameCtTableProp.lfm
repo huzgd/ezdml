@@ -15,9 +15,9 @@ object FrameCtTableProp: TFrameCtTableProp
     Height = 766
     Top = 0
     Width = 838
-    ActivePage = TabSheetText
+    ActivePage = TabSheetTable
     Align = alClient
-    TabIndex = 4
+    TabIndex = 0
     TabOrder = 0
     OnChange = PageControlTbPropChange
     OnChanging = PageControlTbPropChanging

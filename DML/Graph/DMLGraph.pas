@@ -451,7 +451,7 @@ begin
       Pen.Style := psSolid;
       Pen.Width := 1;
       Pen.Color := Color;
-      Rectangle(0, 0, w, h);
+      Rectangle(0, 0, w+2, h+2);
     end;
 
     GetDrawInfo;

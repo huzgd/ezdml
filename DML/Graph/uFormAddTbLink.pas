@@ -15,6 +15,10 @@ type
 
   TfrmAddTbLink = class(TForm)
     btnClose: TButton;
+    btnSFieldProp: TButton;
+    btnMTbProp: TButton;
+    btnMFieldProp: TButton;
+    btnSTbProp: TButton;
     ckbCreateM2MTb: TCheckBox;
     ckbCreateNewField: TCheckBox;
     edtNewFieldName: TEdit;
@@ -31,6 +35,10 @@ type
     Label5: TLabel;
     edtDetailTb: TEdit;
     lbLinkInfo: TLabel;
+    procedure btnMFieldPropClick(Sender: TObject);
+    procedure btnMTbPropClick(Sender: TObject);
+    procedure btnSFieldPropClick(Sender: TObject);
+    procedure btnSTbPropClick(Sender: TObject);
     procedure ckbCreateM2MTbClick(Sender: TObject);
     procedure ckbCreateNewFieldChange(Sender: TObject);
     procedure combRelateFieldChange(Sender: TObject);
@@ -198,7 +206,8 @@ begin
   edtNewFieldName.Text := '';
   ckbCreateNewField.Checked := False;
   edtNewFieldName.Visible := False; 
-  combRelateField.Visible := True;
+  combRelateField.Visible := True;     
+  btnSFieldProp.Enabled := True;
   RefreshLinkInfo;
 end;
 
@@ -243,7 +252,7 @@ begin
     lbLinkInfo.Hide
   else
   begin
-    if cf.KeyFieldType = cfktId then
+    if (cf.KeyFieldType = cfktId) and (Ftb2.GetPrimaryKeyNames=cf.Name) then
       lbLinkInfo.Caption := srLink_OneToOne
     else if cf.IndexType = cfitUnique then
       lbLinkInfo.Caption := srLink_OneToOne
@@ -259,6 +268,7 @@ begin
   FReadOnlyMode:=AValue;
   combMasterField.Enabled := not FReadOnlyMode;
   combRelateField.Enabled := not FReadOnlyMode;
+  btnSFieldProp.Enabled := not FReadOnlyMode;
   ckbCreateNewField.Enabled := not FReadOnlyMode;
   combLinkType.Enabled := not FReadOnlyMode;         
   btnOk.Visible := not FReadOnlyMode;
@@ -278,6 +288,7 @@ var
 begin
   edtNewFieldName.Visible:=ckbCreateNewField.Checked;            
   combRelateField.Visible:=not ckbCreateNewField.Checked;
+  btnSFieldProp.Enabled := combRelateField.Visible;
   if edtNewFieldName.Visible and (edtNewFieldName.Text='') then
   begin
     if Ftb1.IsTable then
@@ -324,6 +335,58 @@ begin
     end;
   end;
   RefreshLinkInfo;
+end;
+
+procedure TfrmAddTbLink.btnMTbPropClick(Sender: TObject);
+var
+  cf: TCtMetaField;
+begin
+  if Ftb1=nil then
+    Exit;
+  cf := nil;
+  if combMasterField.ItemIndex>=0 then
+    cf := TCtMetaField(combMasterField.Items.Objects[combMasterField.ItemIndex]);
+  if Assigned(Proc_ShowCtTableOfField) then
+    Proc_ShowCtTableOfField(Ftb1, cf, True, False, True);
+end;
+
+procedure TfrmAddTbLink.btnSFieldPropClick(Sender: TObject);
+var
+  cf: TCtMetaField;
+begin
+  if combRelateField.ItemIndex<0 then
+    Exit;
+  cf := TCtMetaField(combRelateField.Items.Objects[combRelateField.ItemIndex]);
+  if cf=nil then
+    Exit;
+  if Assigned(Proc_ShowCtFieldProp) then
+    Proc_ShowCtFieldProp(cf, True);
+end;
+
+procedure TfrmAddTbLink.btnMFieldPropClick(Sender: TObject);
+var
+  cf: TCtMetaField;
+begin
+  if combMasterField.ItemIndex<0 then
+    Exit;
+  cf := TCtMetaField(combMasterField.Items.Objects[combMasterField.ItemIndex]);
+  if cf=nil then
+    Exit;
+  if Assigned(Proc_ShowCtFieldProp) then
+    Proc_ShowCtFieldProp(cf, True);
+end;
+
+procedure TfrmAddTbLink.btnSTbPropClick(Sender: TObject);    
+var
+  cf: TCtMetaField;
+begin
+  if Ftb2=nil then
+    Exit;
+  cf := nil;  
+  if combRelateField.ItemIndex>=0 then
+    cf := TCtMetaField(combRelateField.Items.Objects[combRelateField.ItemIndex]);
+  if Assigned(Proc_ShowCtTableOfField) then
+    Proc_ShowCtTableOfField(Ftb2, cf, True, False, True);
 end;
 
 

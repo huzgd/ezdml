@@ -159,11 +159,20 @@ resourcestring
   srCanInitWaitWnd =
     'Can not init waiting window, it may already be displayed or disabled.';
   srCreateDbFileSystemPrompt = 'The program will open the Generate Database window to create/sync the ezdml file system tables. Do you want to continue?';
-  srDbFileComment = 'File comment:'; 
+  srDbFileComment = 'File comment:';
+  srDbFileEditSave = 'edit and save';
   srDbFileRenamePrompt = 'Rename database file to:';
   srConfirmDeleteDbFileFmt = 'Are you sure to delete database file %s?';    
   srOverwriteDbFileWarning = 'Database file %s already exists, are you sure to OVERWRITE?';
   srOverwriteSameDbFileWarning = 'Database file %s (%s) already exists and its contents are exactly the same as those to be saved. Continue saving anyway?';
+  srUnlockMyDbFilePromptFmt = 'Unlock database file %s?';
+  srForceUnlockDbFilePromptFmt = 'Database file %s is currently locked by %s. Do you want to forcibly unlock it?';    
+  srForceLockDbFilePromptFmt = 'Database file %s is currently locked by %s. Do you want to forcibly lock it?';
+  srDbFileLockComment = 'File lock comment:';   
+  srNeedUnlockDbFilePromptFmt = 'Database file %s is currently locked by %s. Please unlock it before continue';
+  srNoLock = 'Not locked';
+  srLockByMe = 'Locked by me';
+  srLockByUserFmt = 'Locked by %s';
   srViewModelInNewWnd = 'View in new window';
   srViewProperties = 'View properties';
   srConfirmAbort = 'Are you sure to abort current process?';

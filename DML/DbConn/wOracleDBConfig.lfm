@@ -1,11 +1,11 @@
 object frmOraDBConfig: TfrmOraDBConfig
   Left = 408
-  Height = 573
+  Height = 539
   Top = 310
   Width = 473
   BorderStyle = bsDialog
   Caption = 'ORACLE Connection'
-  ClientHeight = 573
+  ClientHeight = 539
   ClientWidth = 473
   Color = clBtnFace
   OnCloseQuery = FormCloseQuery

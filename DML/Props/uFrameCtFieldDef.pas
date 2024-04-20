@@ -713,7 +713,9 @@ begin
     S1 := FMetaField.JsonStr;
 
     if Sender = edtName then
-    begin
+    begin                          
+      if edtName.Text <> Trim(edtName.Text) then
+        edtName.Text := Trim(edtName.Text);
       if FMetaField.Name <> edtName.Text then
       begin
         if not FMetaField.CheckCanRenameTo(edtName.Text) then

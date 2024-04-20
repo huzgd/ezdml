@@ -29,9 +29,11 @@ type
     combDBUser: TComboBox;
     combObjFilter: TComboBox;
     Label6: TLabel;
+    Label8: TLabel;
     ListViewFiles: TListView;
     MemoDML: TMemo;
     MenuItem1: TMenuItem;
+    MN_Lock: TMenuItem;
     Mn_Memo: TMenuItem;
     MN_Refresh: TMenuItem;
     MN_Info: TMenuItem;
@@ -39,13 +41,18 @@ type
     MN_Rename: TMenuItem;
     MN_ShowHist: TMenuItem;
     PopupMenuFiles: TPopupMenu;
+    rdbLock: TRadioButton;
+    rdbUnlock: TRadioButton;
+    rdbCurLock: TRadioButton;
     TimerFilter: TTimer;
     TimerInit: TTimer;
     procedure ListViewFilesChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
+    procedure ListViewFilesClick(Sender: TObject);
     procedure ListViewFilesDblClick(Sender: TObject);
     procedure MN_DeleteClick(Sender: TObject);
     procedure MN_InfoClick(Sender: TObject);
+    procedure MN_LockClick(Sender: TObject);
     procedure Mn_MemoClick(Sender: TObject);
     procedure MN_RefreshClick(Sender: TObject);
     procedure MN_RenameClick(Sender: TObject);
@@ -70,6 +77,8 @@ type
     FLastAutoSelDBUser: string;
     FResultFileID: string;
     FResultFileName: string;
+    sKeepCurLock: string;
+    FLastOpenLockMemo: string;
 
     FShowHistories: boolean;
     FHistoryFileFilter: string;
@@ -77,18 +86,22 @@ type
     procedure RefreshDbInfo;
     procedure RefreshDbInfoEx;
     procedure RefreshObjList;
+    procedure RefreshLVItemInfo;
        
     function GenDbFileSql(sels, where, orderby: string): string;
     procedure SetIsSaveMode(AValue: boolean);
     procedure SyncDML;
-    procedure ToogleHistoryView;
+    procedure ToogleHistoryView;          
+    function GetDbFileModifier(fn: string): string;
     function DbFileExists(fn: string): boolean;
+    function PromptLockCurItem(op: Integer; mode: Integer=0): Boolean;
   public
     { Public declarations }
     Proc_OnDbFileMemoChanged: procedure(Sender: TObject; fn: string) of object;
     function PrepareToLoadFile(fn: string): boolean;
     function CheckDbFileState(fn: string; var fileSize: Integer; var fileDate: TDateTime; bForce: Boolean): Integer;     
     function GetDbFileModifierInfo(fn: string; var modifier, fileMemo: string): boolean;
+    procedure CheckLockAfterOpen;
 
     procedure LoadFromDbFile(AData: TStream; AFileId: string);
     function SaveDataToDbFile(AData: TStream; AFileName: string; bPromptMemo: Boolean): Boolean;
@@ -102,12 +115,13 @@ function ParseDbFileName(fn: string; out ptr, eng, usr, db, doc, fid: string): b
 
 var
   frmEzdmlDbFile: TfrmEzdmlDbFile;
+  G_LockUserId: string;
 
 implementation
 
 uses
   uFormCtDbLogon, WindowFuncs, dmlstrs, AutoNameCapitalize,
-  CTMetaData, uFormGenSql, PvtInput, CtSysInfo, Md5;
+  CTMetaData, uFormGenSql, PvtInput, CtSysInfo, Md5, IniFiles;
 
 {$R *.lfm}
             
@@ -187,9 +201,72 @@ begin
   Result := True;
 end;
 
+function GetMyLockId: string;
+  procedure SaveMyComputerId;
+  var
+    ini: TIniFile;
+  begin
+    ini := TIniFile.Create(GetConfFileOfApp);
+    try
+      ini.WriteString('Updates', 'UID', G_MyComputerId);
+    finally
+      ini.Free;
+    end;
+  end;
+begin
+  if G_MyComputerId=''then
+  begin
+    G_MyComputerId := CtGenGuid;
+    SaveMyComputerId;
+  end;
+  Result := LowerCase(Copy(G_MyComputerId,1,6));
+end;
+
+function GetLockState(mstr: string): Integer;
+var
+  S: String;
+begin
+  //0无锁 1我锁 2他人锁
+  S := Trim(ExtractCompStr(mstr,'<lock:','>'));
+  if S='' then
+    Result := 0
+  else if S=GetMyLockId then
+    Result := 1
+  else
+    Result := 2;
+end;
+
+function GetLockerName(mstr: string): string;
+var
+  po: Integer;
+  S: String;
+begin
+  //0无锁 1我锁 2他人锁
+  Result := '';
+  po := Pos('<lock:', mstr);
+  if po=0 then
+    Exit;
+  Result := Trim(Copy(mstr, 1, po-1));
+  S := Trim(ExtractCompStr(mstr,'<lock:','>'));
+  if S<>'' then
+    Result := Result+'('+S+')';
+end;
+
+function GetMyComputerId: string;
+begin
+  Result := GetThisComputerName;
+end;
+
+function GetMyNameWithLockId: string;
+begin
+  Result := GetMyComputerId+' <lock:'+GetMyLockId+'>';
+end;
+
+
 procedure TfrmEzdmlDbFile.FormCreate(Sender: TObject);
 begin
-  FLinkDbNo := -1;
+  FLinkDbNo := -1;                   
+  sKeepCurLock := rdbCurLock.Caption;
   RefreshDbInfo;
 end;
 
@@ -307,6 +384,7 @@ procedure TfrmEzdmlDbFile.RefreshObjList;
     lv := ListViewFiles.Items.Add;
     lv.Caption := srNoFilePrompt;
     lv.ImageIndex:=1;
+    RefreshLVItemInfo;
   end;
 var
   sql, ft, sel: String;
@@ -383,6 +461,36 @@ begin
 
   if combDBUser.Text <> '' then
     G_LastMetaDbSchema := combDBUser.Text;
+  RefreshLVItemInfo;
+  rdbLock.Enabled := not FShowHistories;
+  rdbUnlock.Enabled := not FShowHistories;      
+  MN_Lock.Enabled := not FShowHistories;
+  MN_Rename.Enabled := not FShowHistories;
+  Mn_Memo.Enabled := not FShowHistories;
+end;
+
+procedure TfrmEzdmlDbFile.RefreshLVItemInfo;
+  function GetCurLockInfo(mstr: string): string;
+  var
+    lk: Integer;
+  begin
+    lk := GetLockState(mstr);
+    if lk = 0 then
+      Result := srNoLock
+    else if lk=1 then
+      Result := srLockByMe
+    else
+      Result := Format(srLockByUserFmt, [GetLockerName(mstr)]);
+    Result := ': '+ Result;
+  end;
+begin          
+  if ListViewFiles.Selected = nil then
+    Exit;
+  if ListViewFiles.Selected.SubItems.Count = 0 then
+    Exit;
+
+  edtFileName.Text := ListViewFiles.Selected.Caption;
+  rdbCurLock.Caption := sKeepCurLock + GetCurLockInfo(ListViewFiles.Selected.SubItems[2]);
 end;
 
 function TfrmEzdmlDbFile.GenDbFileSql(sels, where, orderby: string): string;
@@ -439,8 +547,25 @@ begin
   FHistoryFileFilter := '';
   if FShowHistories then
     if ListViewFiles.Selected <> nil then
-      FHistoryFileFilter := ListViewFiles.Selected.Caption;    
+      FHistoryFileFilter := ListViewFiles.Selected.Caption;
+  rdbCurLock.Checked := True;
   RefreshObjList;
+end;
+
+function TfrmEzdmlDbFile.GetDbFileModifier(fn: string): string;
+var
+  Sql: String;
+  ds:TDataSet;
+begin
+  Result := '';
+  Sql := 'select ModifierName from ezdml_meta_file where fileName='''+fn+''' and fileStatus = 0';
+  ds := FCtMetaDatabase.OpenTable(sql, '');
+  if (ds<>nil) then
+  begin
+    if not ds.Eof then
+      Result := ds.Fields[0].AsString;
+    ds.Free;
+  end;
 end;
 
 function TfrmEzdmlDbFile.DbFileExists(fn: string): boolean;
@@ -457,6 +582,124 @@ begin
       Result := True;
     ds.Free;
   end;
+end;
+
+function TfrmEzdmlDbFile.PromptLockCurItem(op: Integer; mode: Integer): Boolean;
+var
+  sql, fid, fn, memo,lkMemo, mstr, opstr: String;
+  ds: TDataSet;
+  st: Integer;
+begin
+  //mode: 0提示并执行 1仅提示 2仅执行
+  Result:=False;
+  if mode<>2 then
+    FLastOpenLockMemo := '';
+  if ListViewFiles.Selected = nil then
+    Exit;
+  if ListViewFiles.Selected.SubItems.Count = 0 then
+    Exit;
+  fn := ListViewFiles.Selected.Caption;
+  mstr := ListViewFiles.Selected.SubItems[2];   
+  memo := ListViewFiles.Selected.SubItems[3];
+  st := GetLockState(mstr);
+  if op=0 then
+  begin
+    if st=1 then
+    begin
+      if mode <> 2 then
+      if Application.MessageBox(PChar(Format(srUnlockMyDbFilePromptFmt,[fn])),
+        PChar(Application.Title), MB_OKCANCEL or MB_ICONQUESTION) <> idOk then
+        Exit;
+      op := 2;
+    end
+    else if st=2 then
+    begin
+      if mode <> 2 then
+      if Application.MessageBox(PChar(Format(srForceUnlockDbFilePromptFmt,[fn, GetLockerName(mstr)])),
+        PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+        Exit;
+      op := 2;
+    end
+    else
+      op := 1;
+  end
+  else if op=1 then
+  begin
+    if st=1 then
+    begin
+      Result := True;
+      Exit;
+    end;
+    if (st=2) and (mode <> 2) then
+      if Application.MessageBox(PChar(Format(srForceLockDbFilePromptFmt,[fn, GetLockerName(mstr)])),
+        PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+        Exit;
+  end
+  else if op=2 then
+  begin
+    if (st=2) and (mode<>2) then
+      if Application.MessageBox(PChar(Format(srForceUnlockDbFilePromptFmt,[fn, GetLockerName(mstr)])),
+        PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+        Exit;
+  end;
+  if op=1 then
+    opstr := rdbLock.Caption
+  else if op=2 then
+    opstr := rdbUnlock.Caption
+  else
+    opstr := Mn_Lock.Caption;
+  if mode = 2 then
+    memo := FLastOpenLockMemo
+  else
+  begin
+    lkMemo := opstr+' by ' +GetMyComputerId+' '+ FormatDateTime('yyyy-mm-dd hh:nn:ss', Now);
+    if not PvtInput.PvtMemoQuery(opstr+' - '+fn, srDbFileLockComment, lkMemo, False) then
+      Exit;
+    if lkMemo<>'' then
+      memo := lkMemo+#13#10+memo;
+    if mode = 1 then
+    begin
+      FLastOpenLockMemo := lkMemo;
+      Result := True;
+      Exit;
+    end;
+  end;
+
+  fid := ListViewFiles.Selected.SubItems[4];
+  sql := GenDbFileSql('fileGuid, modifierName, modifyDate, fileMemo', 'fileGuid='''+fid+'''', '');
+  ds := FCtMetaDatabase.OpenTable(sql, '');
+  if ds<>nil then
+  try
+    if not ds.Eof then
+    begin
+      ds.Edit;
+      if op=1 then
+        mstr := GetMyNameWithLockId
+      else
+        mstr := GetMyComputerId;
+      ds.FieldByName('modifierName').AsString := mstr;
+      ds.FieldByName('modifyDate').AsDateTime := Now;
+      ds.FieldByName('fileMemo').AsString := memo;
+      ds.Post;
+    end;
+  finally
+    ds.Free;
+  end;
+
+  FCtMetaDatabase.ExecCmd('commit','','');
+  RefreshObjList;
+  if Assigned(Proc_OnDbFileMemoChanged) then
+  begin
+    fn := edtFileName.Text;
+    if Assigned(FCtMetaDatabase) and (combDBUser.Text <> '') then
+      if UpperCase(Trim(FCtMetaDatabase.User)) <> UpperCase(Trim(combDBUser.Text)) then
+        fn := combDBUser.Text + '/' + fn;
+    fn := 'db://'+GetLastCtDbIdentStr+'/'+fn;
+    Proc_OnDbFileMemoChanged(Self, fn);
+  end;
+
+  FLastOpenLockMemo := '';
+  Result := True;
 end;
 
 function TfrmEzdmlDbFile.PrepareToLoadFile(fn: string): boolean;
@@ -659,6 +902,33 @@ begin
   end;
 end;
 
+procedure TfrmEzdmlDbFile.CheckLockAfterOpen;
+var
+  mstr: String;
+begin
+  if ListViewFiles.Selected=nil then
+    Exit;
+  if ListViewFiles.Selected.SubItems.Count=0 then
+    Exit;
+  if rdbLock.Checked then
+  begin
+    mstr := ListViewFiles.Selected.SubItems[2];
+    if GetLockState(mstr)=2 then
+    begin
+      Application.MessageBox(PChar(Format(srNeedUnlockDbFilePromptFmt, [ListViewFiles.Selected.Caption, GetLockerName(mstr)])),
+        PChar(Application.Title), MB_OK or MB_ICONERROR);
+      Exit;
+    end
+    else if PromptLockCurItem(1, 2) then
+      rdbCurLock.Checked := True;
+  end
+  else if rdbUnlock.Checked then
+  begin
+    if PromptLockCurItem(2, 2) then
+      rdbCurLock.Checked := True;
+  end;
+end;
+
 
 procedure TfrmEzdmlDbFile.LoadFromDbFile(AData: TStream;
   AFileId: string);    
@@ -695,11 +965,11 @@ end;
 function TfrmEzdmlDbFile.SaveDataToDbFile(AData: TStream; AFileName: string;
   bPromptMemo: Boolean): Boolean;
 var
-  sql, hisId, fid,creatorName,modifierName,fileHash,oldHash, uSql: String;
+  sql, hisId, fid,creatorName,modifierName,mstr,fileHash,oldHash, uSql: String;
   createDate: TDateTime;
-  po,L, fileVersion:Integer;
+  po,L,lk, fileVersion:Integer;
   ds:TDataSet;
-  sch, AMemo, buf: String;
+  sch, AMemo, buf, opstr: String;
   fd: TField;
 begin
   Result := False;
@@ -716,13 +986,13 @@ begin
     end;
   end;
   //旧文件改成历史记录  
-  sql := GenDbFileSql('fileGuid,historyGuid,createDate,creatorName,fileHash,fileVersion', 'fileName='''+AFileName+''' and fileStatus=0', '');
+  sql := GenDbFileSql('fileGuid,historyGuid,createDate,creatorName,fileHash,modifierName,fileVersion', 'fileName='''+AFileName+''' and fileStatus=0', '');
   hisId:='';
   fileVersion:=0;
   createDate:=Now;
   creatorName:='';
   oldHash:='';
-  modifierName:=GetThisComputerName;
+  mstr:='';
 
   L:=AData.Size;
   SetLength(buf, L);
@@ -732,6 +1002,7 @@ begin
 
 
   ds := FCtMetaDatabase.OpenTable(sql, '');
+  fid := '';
   if ds<>nil then
   try
     ds.first;
@@ -751,21 +1022,50 @@ begin
       fileVersion := ds.FieldByName('fileVersion').AsInteger;
       if ds.FieldByName('createDate').AsDateTime > 0 then
         createDate := ds.FieldByName('createDate').AsDateTime;
-      creatorName := ds.FieldByName('creatorName').AsString;
-      uSql := 'update ezdml_meta_file set fileStatus=1 where fileGuid='''+fid+'''';
-      FCtMetaDatabase.ExecSql(uSql);
+      creatorName := ds.FieldByName('creatorName').AsString;         
+      mstr := ds.FieldByName('modifierName').AsString;
       ds.next;
     end;
   finally
     ds.Free;
   end;
+              
+  lk := GetLockState(mstr);
+  opstr:=srDbFileEditSave;
+  if rdbLock.Checked then
+  begin
+    modifierName := GetMyNameWithLockId;
+    if lk<>1 then
+      opstr := opstr+'('+rdbLock.Caption+') ';
+  end
+  else if rdbUnlock.Checked then
+  begin
+    modifierName:=GetMyComputerId;
+    if lk=1 then
+      opstr := opstr+'('+rdbUnlock.Caption+') ';
+  end
+  else
+  begin
+    if lk=1 then
+    begin
+      modifierName := GetMyNameWithLockId;
+    end
+    else
+      modifierName:=GetMyComputerId;
+  end;
         
   AMemo:='';
   if bPromptMemo then
   begin
-    AMemo := 'by '+modifierName+' '+DateTimeToStr(Now);
-    if not PvtInput.PvtInputQuery(Self.Caption, srDbFileComment, AMemo) then
+    AMemo := opstr+' by ' +GetMyComputerId+' '+ FormatDateTime('yyyy-mm-dd hh:nn:ss', Now);
+    if not PvtInput.PvtMemoQuery(Self.Caption, srDbFileComment, AMemo, False) then
       Exit;
+  end;
+
+  if fid <> '' then
+  begin
+    uSql := 'update ezdml_meta_file set fileStatus=1 where fileGuid='''+fid+'''';
+    FCtMetaDatabase.ExecSql(uSql);
   end;
 
   //生成新记录
@@ -776,7 +1076,7 @@ begin
     fileVersion := 0;
   Inc(fileVersion);
   if creatorName='' then
-    creatorName := modifierName;
+    creatorName := GetMyComputerId;
 
   sql := GenDbFileSql('*', 'fileName='''+AFileName+''' and fileStatus=0', '');
   ds := FCtMetaDatabase.OpenTable(sql, '');
@@ -850,9 +1150,12 @@ end;
 procedure TfrmEzdmlDbFile.ListViewFilesChange(Sender: TObject; Item: TListItem;
   Change: TItemChange);
 begin
-  if Assigned(Item) then
-    if Item.SubItems.Count > 0 then
-      edtFileName.Text := Item.Caption;
+  RefreshLVItemInfo();
+end;
+
+procedure TfrmEzdmlDbFile.ListViewFilesClick(Sender: TObject);
+begin
+  RefreshLVItemInfo;
 end;
 
 procedure TfrmEzdmlDbFile.ListViewFilesDblClick(Sender: TObject);
@@ -926,6 +1229,12 @@ begin
   PvtInput.PvtMemoQuery(Application.Title, MN_Info.Caption, S, True);
 end;
 
+procedure TfrmEzdmlDbFile.MN_LockClick(Sender: TObject);
+begin
+  if PromptLockCurItem(0) then
+    RefreshLVItemInfo;
+end;
+
 procedure TfrmEzdmlDbFile.Mn_MemoClick(Sender: TObject);
 var
   sql, fid, fn, memo: String;
@@ -937,7 +1246,7 @@ begin
     Exit;
   fn := ListViewFiles.Selected.Caption;
   memo := ListViewFiles.Selected.SubItems[3];
-  if not PvtInput.PvtInputQuery(Mn_Memo.Caption+' - '+fn, srDbFileComment, memo) then
+  if not PvtInput.PvtMemoQuery(Mn_Memo.Caption+' - '+fn, srDbFileComment, memo, False) then
     Exit;
   if memo = ListViewFiles.Selected.SubItems[3] then
     Exit;
@@ -950,7 +1259,7 @@ begin
     if not ds.Eof then
     begin
       ds.Edit;
-      ds.FieldByName('modifierName').AsString := GetThisComputerName;    
+      ds.FieldByName('modifierName').AsString := GetMyComputerId;    
       ds.FieldByName('modifyDate').AsDateTime := Now;
       ds.FieldByName('fileMemo').AsString := memo;
       ds.Post;
@@ -1023,6 +1332,8 @@ end;
 
 
 procedure TfrmEzdmlDbFile.btnOKClick(Sender: TObject);
+var
+  mstr: String;
 begin
   edtFileName.Text := Trim(edtFileName.Text);
   if edtFileName.Text='' then
@@ -1044,9 +1355,30 @@ begin
       Exit;
     end;
     if DbFileExists(edtFileName.Text) then
+    begin        
+      //if rdbLock.Checked or rdbUnlock.Checked or IsSaveMode then
+      begin
+        mstr := GetDbFileModifier(edtFileName.Text);
+        if GetLockState(mstr)=2 then
+        begin
+          if rdbUnlock.Checked then
+          begin
+            if PromptLockCurItem(2) then
+              rdbCurLock.Checked := True;
+            Exit;
+          end
+          else
+          begin
+            Application.MessageBox(PChar(Format(srNeedUnlockDbFilePromptFmt, [edtFileName.Text, GetLockerName(mstr)])),
+              PChar(Application.Title), MB_OK or MB_ICONERROR);
+            Exit;
+          end;
+        end;
+      end;
       if Application.MessageBox(PChar(Format(srOverwriteDbFileWarning,[edtFileName.Text])),
         PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
         Exit;
+    end;
   end
   else
   begin
@@ -1057,6 +1389,30 @@ begin
     FResultFileID := ListViewFiles.Selected.SubItems[4];
     if FResultFileID = '' then
       Exit;
+    if rdbLock.Checked then
+    begin
+      mstr := ListViewFiles.Selected.SubItems[2];
+      if GetLockState(mstr)=2 then
+      begin
+        Application.MessageBox(PChar(Format(srNeedUnlockDbFilePromptFmt, [edtFileName.Text, GetLockerName(mstr)])),
+          PChar(Application.Title), MB_OK or MB_ICONERROR);
+        Exit;
+      end
+      else if not PromptLockCurItem(1, 1) then
+        Exit;
+    end
+    else if rdbUnlock.Checked then
+    begin  
+      mstr := ListViewFiles.Selected.SubItems[2];
+      if GetLockState(mstr)=2 then
+      begin
+        if PromptLockCurItem(2) then
+          rdbCurLock.Checked := True;
+        Exit;
+      end
+      else if not PromptLockCurItem(2, 1) then
+        Exit;
+    end;
   end;
   FResultFileName := edtFileName.Text;  
   if Assigned(FCtMetaDatabase) and (combDBUser.Text <> '') then
@@ -1072,6 +1428,8 @@ end;
 procedure TfrmEzdmlDbFile.FormShow(Sender: TObject);
 begin
   TimerInit.Enabled := True;
+  rdbCurLock.Checked := True;
+  rdbCurLock.Caption := sKeepCurLock;
 end;
 
 procedure TfrmEzdmlDbFile.btnCancelClick(Sender: TObject);

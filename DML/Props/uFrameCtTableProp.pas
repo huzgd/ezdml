@@ -2293,11 +2293,15 @@ begin
 end;
 
 procedure TFrameCtTableProp.edtTableNameExit(Sender: TObject);
+var
+  I: Integer;
 begin
   if FCtMetaTable = nil then
     Exit;  
   if Self.FReadOnlyMode then
-    Exit;
+    Exit;                                      
+  if edtTableName.Text <> Trim(edtTableName.Text) then
+    edtTableName.Text := Trim(edtTableName.Text);
   if FCtMetaTable.Name = edtTableName.Text then
     if FCtMetaTable.Caption = edtDispName.Text then
       Exit;
@@ -2315,6 +2319,9 @@ begin
   begin
     Abort;
   end;
+  for I:=0 to FCtMetaTable.MetaFields.Count - 1 do
+    if FCtMetaTable.MetaFields[I].RelateTable = FCtMetaTable.Name then
+      FCtMetaTable.MetaFields[I].RelateTable := edtTableName.Text;
   FCtMetaTable.Name := edtTableName.Text;
   FCtMetaTable.Caption := edtDispName.Text;
   DoTablePropsChanged(FCtMetaTable);
@@ -2329,7 +2336,9 @@ end;
 procedure TFrameCtTableProp.edtTextNameExit(Sender: TObject);
 begin
   if FCtMetaTable = nil then
-    Exit;                         
+    Exit;
+  if edtTextName.Text <> Trim(edtTextName.Text) then
+    edtTextName.Text := Trim(edtTextName.Text);
   if not IsValidTableName(edtTextName.Text, True) then
   begin
     Abort;
@@ -4655,7 +4664,8 @@ end;
 procedure TFrameCtTableProp.FrameResize(Sender: TObject);
 begin
   if not Panel_TbB.Visible then
-    Exit;
+    Exit;      
+  PanelFieldToolbar.Top := (Panel_TbB.Height - PanelFieldToolbar.Height) div 2;
 
   if FFieldPropSplitPercent < 0.2 then
     FFieldPropSplitPercent := 0.2

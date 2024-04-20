@@ -118,6 +118,8 @@ function DmlStrCut(const S: string; dLen: Integer): String;
 function CtUTF8Encode(const s: string): string;
 function CtUTF8Decode(const s: string): string;
 
+function CtCsToUTF8(const s, charset: string): string;
+function CtUTF8toCs(const s, charset: string): string;
 
 procedure ctalert(s: string);    
 procedure ctToast(s: variant; closeTimeMs: integer);   
@@ -695,6 +697,26 @@ function CtUTF8Decode(const s: string): string;
 begin
   //Result := UTF8ToCP936(s);
   Result := PChar(UTF8ToWinCP(s));
+end;
+
+function CtCsToUTF8(const s, charset: string): string;
+begin
+  if Trim(charset)='' then
+    Result := s
+  else if (LowerCase(charset)='gbk') or (LowerCase(charset)='gb2312') then
+    Result := ConvertEncoding(s, 'cp936', 'utf8')
+  else
+    Result := ConvertEncoding(s, charset, 'utf8');
+end;
+
+function CtUTF8toCs(const s, charset: string): string;
+begin
+  if Trim(charset)='' then
+    Result := s
+  else if (LowerCase(charset)='gbk') or (LowerCase(charset)='gb2312') then
+    Result := ConvertEncoding(s, 'utf8', 'cp936')
+  else
+    Result := ConvertEncoding(s, 'utf8', charset);
 end;
 
 function CtGenGUID: string;

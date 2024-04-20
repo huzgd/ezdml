@@ -327,7 +327,7 @@ begin
     cql := '';
     while not EOF do
     begin
-     // cql := Fields[0].AsString;
+      cql := Fields[0].AsString;
       Break;
     end;
     if cql <> '' then
@@ -350,6 +350,8 @@ begin
               begin
                 fd.DisplayName := fd2.DisplayName;
                 fd.Memo := fd2.Memo;
+                if fd.DefaultValue='' then
+                  fd.DefaultValue:=fd2.DefaultValue;
               end;
             end;
           end;

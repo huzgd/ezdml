@@ -220,6 +220,7 @@ type
     FCurFileSize: integer;
     FMainSplitterPos: integer;
     FCurFileDate: TDateTime;
+    FFileDbConnectOk: Boolean;
 
     FfrmMetaImport: TForm;
     FfrmHttpServer: TForm;
@@ -332,7 +333,7 @@ uses
   {$endif}  
   {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf,{$endif}
   CtMetaOdbcDb, NetUtil,
-  ocidyn, mysql57dyn,  sqlite3dyn,
+  ocidyn, mysql57dyn,  sqlite3dyn, CtSysInfo,
   postgres3dyn,
   ezdmlstrs, dmlstrs, DMLObjs, IniFiles, AutoNameCapitalize, uDMLSqlEditor,
   wAbout, wSettings, uFormCtTableProp, uFormCtFieldProp,
@@ -679,8 +680,6 @@ procedure TfrmMainDml.FormCloseQuery(Sender: TObject; var CanClose: boolean);
         Screen.Cursor := crAppStart;
       try
         FCtDataModelList.Clear;
-        FCtDataModelList.SeqCounter := 0;
-        FCtDataModelList.GlobeList.SeqCounter := 0;
         if FCtDataModelList.CurDataModel = nil then
           Exit;
         //FFrameCtTableDef.Init(FCtDataModelList, False);
@@ -1315,10 +1314,22 @@ begin
     //if S<>'' then
     //  SetDefaultLang(S);
 
+    G_MyComputerId := ini.ReadString('Updates', 'UID', '');
+
     FMainSplitterPos := ini.ReadInteger('MainForm', 'MainSplitterPos', FMainSplitterPos);
     FStartMaximized := ini.ReadBool('MainForm', 'Maximized', False); 
   {$ifdef EZDML_CHATGPT}
     G_ChatGPTKey := ini.ReadString('Options', 'ChatGPTKey', '');
+    if G_ChatGPTKey <> '' then
+    begin
+      FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Tag := 2;
+      FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Visible := True;
+    end
+    else 
+    begin
+      FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Tag := 0;
+      FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Visible := False;
+    end;
   {$endif}
   finally
     ini.Free;
@@ -1559,6 +1570,7 @@ begin
       FFrameCtTableDef.IsInitLoading := True;
       FCtDataModelList.LoadFromSerialer(fs);
       FCurDmlFileName := '';
+      FFileDbConnectOk := True;
 
     finally
       fs.Free;
@@ -1592,6 +1604,8 @@ begin
   //检查数据库文件状态
   //返回：0未连接 1连接失败 2不存在 3存在
   Result := frmEzdmlDbFile.CheckDbFileState(fn, fileSize, fileDate, bForce);
+  if Result <= 1 then
+    FFileDbConnectOk := False;
 end;
 
 function TfrmMainDml.IsTmpFile(fn: string): boolean;
@@ -1802,7 +1816,6 @@ end;
 procedure TfrmMainDml.SaveIni;
 var
   ini: TIniFile;
-  I: integer;
 begin
   ini := TIniFile.Create(GetConfFileOfApp);
   try
@@ -1816,6 +1829,9 @@ begin
     else
       ini.WriteBool('MainForm', 'Maximized', False);    
     ini.WriteString('Options', 'LastMetaDbSchema', G_LastMetaDbSchema);
+    if G_MyComputerId=''then
+      G_MyComputerId := CtGenGuid;
+    ini.WriteString('Updates', 'UID', G_MyComputerId);
   finally
     ini.Free;
   end;
@@ -2133,7 +2149,9 @@ begin
   if IsDBFile(fn) then
     LoadFromDbFile(fn)
   else
-    LoadFromFile(fn);
+    LoadFromFile(fn);   
+  if IsDBFile(sfn) then
+    FFileDbConnectOk := True;
   FCurFileName := sfn;
   FCurDmlFileName := FCurFileName;
   RememberFileDateSize;
@@ -2255,12 +2273,12 @@ begin
     end;
     ini.WriteDateTime('Updates', 'LastCheckDate', Now);
 
-    uid := ini.ReadString('Updates', 'UID', '');
-    if uid = '' then
+    if G_MyComputerId = '' then
     begin
-      uid := CtGenGUID;
-      ini.WriteString('Updates', 'UID', uid);
+      G_MyComputerId := CtGenGUID;
+      ini.WriteString('Updates', 'UID', G_MyComputerId);
     end;
+    uid := G_MyComputerId;
 
   {$IFDEF Windows}
   {$ifdef WIN32}
@@ -2469,12 +2487,13 @@ procedure TfrmMainDml._OnAppActivate(Sender: TObject);
     for I:= Screen.FormCount - 1 downto 0 do
     begin
       frm := Screen.Forms[I];
-      if frm <> Self then
-      begin
-        L := L+1;
-        SetLength(cFrms, L);
-        cFrms[L-1] := frm;
-      end;
+      if frm <> Self then 
+        if (frm.Parent = nil) and frm.Visible and frm.Showing then
+        begin
+          L := L+1;
+          SetLength(cFrms, L);
+          cFrms[L-1] := frm;
+        end;
     end;
 
     EditMetaForceRelease;
@@ -2529,7 +2548,6 @@ begin
         Exit;
       end;
 
-      SaveDmlToTmpFile;
     end
     else
     begin
@@ -2546,6 +2564,8 @@ begin
       end;
 
     end;
+       
+    SaveDmlToTmpFile;
 
     CloseSubForms;
 
@@ -2984,8 +3004,6 @@ begin
   try
     FCtDataModelList.Clear;
     FFrameCtTableDef.Init(FCtDataModelList, True);
-    FCtDataModelList.SeqCounter := 0;
-    FCtDataModelList.GlobeList.SeqCounter := 0;
     if FCtDataModelList.CurDataModel = nil then
       Exit;
     FFrameCtTableDef.Init(FCtDataModelList, False);
@@ -3495,6 +3513,8 @@ begin
   end;
 
   PromptOpenFile(fn);
+  if FCurFileName = fn then
+    frmEzdmlDbFile.CheckLockAfterOpen;
 end;
 
 procedure TfrmMainDml.actQuickStartExecute(Sender: TObject);
@@ -3716,13 +3736,15 @@ begin
   else
   begin
     Caption := FOrginalCaption + ' - ' + FCurFileName;
+    if IsDbFile(FCurFileName) and not FFileDbConnectOk then
+      Caption := Caption +' '+ srEzdmlDbOfflineTip;
     Application.Title := srEzdmlAppTitle + ' - ' + ExtractFileName(FCurFileName);
   end;
 end;
 
 function TfrmMainDml.CheckCurFileDateSizeChanged: boolean;
 var
-  sz: integer;
+  sz, st: integer;
   vFileDate: TDateTime;
 begin
   Result := False;
@@ -3737,10 +3759,28 @@ begin
   begin
     sz := 0;
     vfileDate := Now;
-    if frmEzdmlDbFile.CheckDbFileState(FCurFileName, sz, vfileDate, False) <= 2 then
+    st := frmEzdmlDbFile.CheckDbFileState(FCurFileName, sz, vfileDate, False);
+    if st <= 2 then
     begin
+      if FFileDbConnectOk then
+      begin
+        FFileDbConnectOk := False;
+        CheckCaption;
+        if ShowMessageOnTop(srEzdmlPromptDbFileDisconnected, Application.Title)=IDOK then
+        begin
+          if ExecCtDbLogon >= 0 then
+            Result := CheckCurFileDateSizeChanged;
+        end;
+      end;
       Exit;
     end;
+    if not FFileDbConnectOk then
+    begin            
+      FFileDbConnectOk := True;
+      CheckCaption;
+    end
+    else
+      FFileDbConnectOk := True;
 
     if sz <> Self.FCurFileSize then
     begin

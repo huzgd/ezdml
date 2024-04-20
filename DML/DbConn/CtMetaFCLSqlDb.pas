@@ -238,7 +238,10 @@ var
   po: integer;
 begin
   if not Assigned(FDbConn) then
-    Exit;
+    Exit;       
+  if FUseDriverType = 'ODBC' then
+    if FDbConn.CharSet<>Trim(G_OdbcCharset) then
+      FDbConn.CharSet := Trim(G_OdbcCharset);
   S := DataBase;
   if Pos('$<', S) > 0 then
   begin

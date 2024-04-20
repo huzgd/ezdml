@@ -1,11 +1,11 @@
 object frmEzdmlDbFile: TfrmEzdmlDbFile
   Left = 470
-  Height = 617
+  Height = 631
   Top = 119
   Width = 865
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Database file'
-  ClientHeight = 617
+  ClientHeight = 631
   ClientWidth = 865
   Color = clBtnFace
   OnCreate = FormCreate
@@ -43,7 +43,7 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   object Label5: TLabel
     Left = 661
     Height = 17
-    Top = 524
+    Top = 500
     Width = 28
     Alignment = taRightJustify
     Anchors = [akRight, akBottom]
@@ -53,7 +53,7 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   object btnOK: TButton
     Left = 650
     Height = 27
-    Top = 571
+    Top = 585
     Width = 117
     Anchors = [akRight, akBottom]
     Caption = 'OK'
@@ -63,7 +63,7 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   object btnCancel: TButton
     Left = 771
     Height = 27
-    Top = 571
+    Top = 585
     Width = 71
     Anchors = [akRight, akBottom]
     Caption = 'Cancel'
@@ -105,7 +105,7 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   object combObjFilter: TComboBox
     Left = 701
     Height = 25
-    Top = 520
+    Top = 496
     Width = 148
     Anchors = [akRight, akBottom]
     DropDownCount = 48
@@ -116,7 +116,7 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   object Label4: TLabel
     Left = 22
     Height = 17
-    Top = 524
+    Top = 500
     Width = 55
     Anchors = [akLeft, akBottom]
     Caption = 'File name'
@@ -125,14 +125,14 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   object edtFileName: TEdit
     Left = 128
     Height = 25
-    Top = 520
+    Top = 496
     Width = 447
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 6
   end
   object ListViewFiles: TListView
     Left = 128
-    Height = 368
+    Height = 338
     Top = 140
     Width = 721
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -173,6 +173,7 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
     TabOrder = 7
     ViewStyle = vsReport
     OnChange = ListViewFilesChange
+    OnClick = ListViewFilesClick
     OnDblClick = ListViewFilesDblClick
   end
   object MemoDML: TMemo
@@ -344,6 +345,44 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
     }
     Stretch = True
   end
+  object rdbLock: TRadioButton
+    Left = 128
+    Height = 21
+    Top = 540
+    Width = 49
+    Anchors = [akLeft, akBottom]
+    Caption = 'Lock'
+    TabOrder = 9
+  end
+  object rdbUnlock: TRadioButton
+    Left = 216
+    Height = 21
+    Top = 540
+    Width = 62
+    Anchors = [akLeft, akBottom]
+    Caption = 'Unlock'
+    TabOrder = 10
+  end
+  object rdbCurLock: TRadioButton
+    Left = 316
+    Height = 21
+    Top = 540
+    Width = 97
+    Anchors = [akLeft, akBottom]
+    Caption = 'Keep current'
+    Checked = True
+    TabOrder = 11
+    TabStop = True
+  end
+  object Label8: TLabel
+    Left = 22
+    Height = 17
+    Top = 540
+    Width = 91
+    Anchors = [akLeft, akBottom]
+    Caption = 'Lock operation:'
+    ParentColor = False
+  end
   object TimerInit: TTimer
     Enabled = False
     Interval = 500
@@ -365,6 +404,10 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
     object MN_ShowHist: TMenuItem
       Caption = 'Show history files'
       OnClick = MN_ShowHistClick
+    end
+    object MN_Lock: TMenuItem
+      Caption = 'Lock/Unlock...'
+      OnClick = MN_LockClick
     end
     object Mn_Memo: TMenuItem
       Caption = 'Edit memo'

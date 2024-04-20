@@ -1533,7 +1533,7 @@ begin
     actBatchOps.Visible:=False;
     actCnWordSegment.Visible:=False;
     {$else} 
-    actChatGPT.Visible := not FBrowseMode and (actChatGPT.Tag=0);
+    actChatGPT.Visible := not FBrowseMode and (actChatGPT.Tag=2);
     {$endif}           
     SpeedButtonChatGPT.Visible := actChatGPT.Visible;
     actRun.Visible := not FBrowseMode;

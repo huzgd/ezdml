@@ -3813,7 +3813,11 @@ begin
     end;
 
   with ADrawer.Canvas do
-  begin
+  begin         
+    L := ADrawer.GetX(Left);
+    W := ADrawer.GetX(Left + Self.Width);
+    TK := ADrawer.GetY(Top + RowHeight + 2);
+    ADrawer.DrawLine(L, TK, W, TK);
 
     Font.Color := FTbnameColor;
     Font.Height := ADrawer.GetFontH;
@@ -3828,8 +3832,8 @@ begin
           S := FName;
         if ADrawer.RectInRange(Left + 1, Top + 1, Length(S) * 7, RowHeight) then
         begin
-          pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 3),
-            ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 2));
+          pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 2),
+            ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 4));
           DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER);
 
         end;
@@ -3843,8 +3847,8 @@ begin
           S := FPhyTbName + '(' + FName + ')';
         if ADrawer.RectInRange(Left + 1, Top + 1, Length(S) * 7, RowHeight) then
         begin
-          pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 3),
-            ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 2));
+          pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 2),
+            ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 4));
           DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER);
 
         end;
@@ -3856,8 +3860,8 @@ begin
           S := FPhyTbName;
         if ADrawer.RectInRange(Left + 1, Top + 1, Length(S) * 7, RowHeight) then
         begin
-          pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 3),
-            ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 2));
+          pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 2),
+            ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 4));
           DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER);
 
         end;
@@ -4075,11 +4079,6 @@ begin
 
       end;
   end;
-  L := ADrawer.GetX(Left);
-  W := ADrawer.GetX(Left + Self.Width);
-  TK := ADrawer.GetY(Top + RowHeight + 2);
-
-  ADrawer.DrawLine(L, TK, W, TK);
   DrawSelectedGrips(ADrawer);
 end;
 

@@ -2070,6 +2070,7 @@ object FrameDML: TFrameDML
       Hint = 'Use ChatGPT AI to assist in generating model design'
       ImageIndex = 85
       OnExecute = actChatGPTExecute
+      Visible = False
     end
     object actExecSql: TAction
       Category = 'DML'

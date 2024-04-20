@@ -7,8 +7,6 @@
 *.res
 *.compiled
 *.dbg
-*.ppu
-*.o
 *.or
 *.a
 
@@ -28,4 +26,5 @@ lib/
 
 # Application bundle for Mac OS
 *.app/
-/rename_readme.bat
+/jdbc/EzdmlJdbcServer/bin
+target

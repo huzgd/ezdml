@@ -236,6 +236,14 @@ msgstr ""
 msgid "File comment:"
 msgstr ""
 
+#: dmlstrs.srdbfileeditsave
+msgid "edit and save"
+msgstr ""
+
+#: dmlstrs.srdbfilelockcomment
+msgid "File lock comment:"
+msgstr ""
+
 #: dmlstrs.srdbfilerenameprompt
 msgid "Rename database file to:"
 msgstr ""
@@ -687,6 +695,14 @@ msgctxt "dmlstrs.srfilter"
 msgid "Filter"
 msgstr ""
 
+#: dmlstrs.srforcelockdbfilepromptfmt
+msgid "Database file %s is currently locked by %s. Do you want to forcibly lock it?"
+msgstr ""
+
+#: dmlstrs.srforceunlockdbfilepromptfmt
+msgid "Database file %s is currently locked by %s. Do you want to forcibly unlock it?"
+msgstr ""
+
 #: dmlstrs.srgeneratecode
 msgctxt "dmlstrs.srgeneratecode"
 msgid "Generate Code"
@@ -795,6 +811,14 @@ msgstr ""
 msgid "%sList"
 msgstr ""
 
+#: dmlstrs.srlockbyme
+msgid "Locked by me"
+msgstr ""
+
+#: dmlstrs.srlockbyuserfmt
+msgid "Locked by %s"
+msgstr ""
+
 #: dmlstrs.srlogicname
 msgid "Logic Name"
 msgstr ""
@@ -814,6 +838,10 @@ msgstr ""
 
 #: dmlstrs.srneedenginetype
 msgid "Please select an DB-Engine-Type first"
+msgstr ""
+
+#: dmlstrs.srneedunlockdbfilepromptfmt
+msgid "Database file %s is currently locked by %s. Please unlock it before continue"
 msgstr ""
 
 #: dmlstrs.srnewcomplexindexdispname
@@ -885,6 +913,10 @@ msgstr ""
 
 #: dmlstrs.srnofileprompt
 msgid "No file found"
+msgstr ""
+
+#: dmlstrs.srnolock
+msgid "Not locked"
 msgstr ""
 
 #: dmlstrs.sroverwritedbfilewarning
@@ -1054,6 +1086,10 @@ msgid ""
 "Hidden\n"
 msgstr ""
 
+#: dmlstrs.srunlockmydbfilepromptfmt
+msgid "Unlock database file %s?"
+msgstr ""
+
 #: dmlstrs.srviewmodelinnewwnd
 msgid "View in new window"
 msgstr ""
@@ -1129,6 +1165,10 @@ msgstr ""
 
 #: ezdmlstrs.srezdmldbfilesavedfmt
 msgid "Database file saved: %s. Do you want to open the Generate-Database dialog?"
+msgstr ""
+
+#: ezdmlstrs.srezdmldbofflinetip
+msgid "(Offline)"
 msgstr ""
 
 #: ezdmlstrs.srezdmldbtmpfileignoredfmt
@@ -1221,6 +1261,10 @@ msgstr ""
 
 #: ezdmlstrs.srezdmlopenlastfilefmt
 msgid "Open last recent file %s?"
+msgstr ""
+
+#: ezdmlstrs.srezdmlpromptdbfiledisconnected
+msgid "Database file is disconnected and will enter offline mode. Do you want to reconnect now?"
 msgstr ""
 
 #: ezdmlstrs.srezdmlpromptnevershown
@@ -3509,9 +3553,49 @@ msgctxt "tfrmaddtblink.btnclose.caption"
 msgid "Close"
 msgstr ""
 
+#: tfrmaddtblink.btnmfieldprop.caption
+msgctxt "tfrmaddtblink.btnmfieldprop.caption"
+msgid "~"
+msgstr ""
+
+#: tfrmaddtblink.btnmfieldprop.hint
+msgctxt "tfrmaddtblink.btnmfieldprop.hint"
+msgid "Show field properties"
+msgstr ""
+
+#: tfrmaddtblink.btnmtbprop.caption
+msgctxt "tfrmaddtblink.btnmtbprop.caption"
+msgid "~"
+msgstr ""
+
+#: tfrmaddtblink.btnmtbprop.hint
+msgctxt "tfrmaddtblink.btnmtbprop.hint"
+msgid "Show table properties"
+msgstr ""
+
 #: tfrmaddtblink.btnok.caption
 msgctxt "tfrmaddtblink.btnok.caption"
 msgid "OK"
+msgstr ""
+
+#: tfrmaddtblink.btnsfieldprop.caption
+msgctxt "tfrmaddtblink.btnsfieldprop.caption"
+msgid "~"
+msgstr ""
+
+#: tfrmaddtblink.btnsfieldprop.hint
+msgctxt "tfrmaddtblink.btnsfieldprop.hint"
+msgid "Show field properties"
+msgstr ""
+
+#: tfrmaddtblink.btnstbprop.caption
+msgctxt "tfrmaddtblink.btnstbprop.caption"
+msgid "~"
+msgstr ""
+
+#: tfrmaddtblink.btnstbprop.hint
+msgctxt "tfrmaddtblink.btnstbprop.hint"
+msgid "Show table properties"
 msgstr ""
 
 #: tfrmaddtblink.caption
@@ -4449,6 +4533,10 @@ msgstr ""
 msgid "EZDML supports saving model files to the database. As long as you can access the database, you can load the model at any time, and notify other users of updates in real time after saving changes, so as to realize model sharing and simple collaboration. Please note that saving the database model file will not change any existing database table structure. You still need to perform the database generation operation to make the model design results effective."
 msgstr ""
 
+#: tfrmezdmldbfile.label8.caption
+msgid "Lock operation:"
+msgstr ""
+
 #: tfrmezdmldbfile.listviewfiles.columns[0].caption
 msgctxt "tfrmezdmldbfile.listviewfiles.columns[0].caption"
 msgid "Name"
@@ -4490,6 +4578,10 @@ msgstr ""
 msgid "File info"
 msgstr ""
 
+#: tfrmezdmldbfile.mn_lock.caption
+msgid "Lock/Unlock..."
+msgstr ""
+
 #: tfrmezdmldbfile.mn_memo.caption
 msgid "Edit memo"
 msgstr ""
@@ -4506,6 +4598,18 @@ msgstr ""
 
 #: tfrmezdmldbfile.mn_showhist.caption
 msgid "Show history files"
+msgstr ""
+
+#: tfrmezdmldbfile.rdbcurlock.caption
+msgid "Keep current"
+msgstr ""
+
+#: tfrmezdmldbfile.rdblock.caption
+msgid "Lock"
+msgstr ""
+
+#: tfrmezdmldbfile.rdbunlock.caption
+msgid "Unlock"
 msgstr ""
 
 #: tfrmgentabcust.btnbottom.caption

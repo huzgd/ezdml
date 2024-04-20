@@ -17,35 +17,23 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.57';
-  srEzdmlVersionDate = '2024-02-24';
+  srEzdmlVersionNum = '3.58';
+  srEzdmlVersionDate = '2024-04-20';
 
 {$ifdef EZDML_LITE}
 
-{$ifdef WINDOWS}
 {$ifdef WIN32}
   srEzdmlAppTitleOS = 'EZDML Lite (win32)';
-{$else}
-  srEzdmlAppTitleOS = 'EZDML Lite (win64)';
-{$endif}
 {$else}
   srEzdmlAppTitleOS = 'EZDML Lite';
 {$endif}
 
 {$else}
 
-{$ifdef WINDOWS}
 {$ifdef WIN32}   
   srEzdmlAppTitleOS = 'EZDML for win32';
 {$else}
-  srEzdmlAppTitleOS = 'EZDML for win64';
-{$endif}
-{$else}
-{$IFDEF DARWIN}
-  srEzdmlAppTitleOS = 'EZDML for mac64';
-{$else}
-  srEzdmlAppTitleOS = 'EZDML for linux64';
-{$ENDIF}
+  srEzdmlAppTitleOS = 'EZDML';
 {$endif}
 
 {$endif}
@@ -92,6 +80,8 @@ resourcestring
   srEzdmlPromptSaveFile = 'Save current file before continue?';         
   srEzdmlPromptReloadOnFileDateSizeChanged = 'Current file is changed by other program, do you want to re-open it?'; 
   srEzdmlPromptReloadDbFileChanged = 'Current file is changed in database by %s (%s), do you want to re-open it?';
+  srEzdmlPromptDbFileDisconnected = 'Database file is disconnected and will enter offline mode. Do you want to reconnect now?';
+  srEzdmlDbOfflineTip = '(Offline)';
   srEzdmlConfirmCloseModified = 'Do you want to save and apply changes before close?';
   srEzdmlSaveingFileFmt = 'Saving file %s...';
   srEzdmlSaveFile = 'Save file';

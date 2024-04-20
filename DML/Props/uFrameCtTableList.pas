@@ -580,7 +580,7 @@ procedure TFrameCtTableList.DeleteSelectedNodes(bConfirm: Boolean);
 var
   vNode, sNode: TTreeNode;
   vCtNode: TCtMetaObject;
-  I, mdc, tbc, fldc: integer;
+  I, J, mdc, tbc, fldc: integer;
   vDelNodes, vRefreshTbs: TList;
   S: string;
 begin
@@ -638,6 +638,12 @@ begin
       begin
         DoTablePropsChanged(TCtMetaField(vCtNode).OwnerTable);
         RefreshOtherSameNameTbs(vCtNode);
+      end
+      else if vCtNode is TCtDataModelGraph then
+      begin
+        with TCtDataModelGraph(vCtNode).Tables do
+          for I:=0 to Count - 1 do
+            Items[I].DataLevel:=ctdlDeleted;
       end;
     end;
   end
@@ -660,9 +666,17 @@ begin
                 begin
                   vCtNode.DataLevel := ctdlDeleted;
                   if vCtNode is TCtMetaField then
+                  begin
                     if TCtMetaField(vCtNode).OwnerTable <> nil then
                       if vRefreshTbs.IndexOf(TCtMetaField(vCtNode).OwnerTable) < 0 then
                         vRefreshTbs.Add(TCtMetaField(vCtNode).OwnerTable);
+                  end
+                  else if vCtNode is TCtDataModelGraph then
+                  begin
+                    with TCtDataModelGraph(vCtNode).Tables do
+                      for J:=0 to Count - 1 do
+                        Items[J].DataLevel:=ctdlDeleted;
+                  end;
                 end;
               end;
             end;
@@ -1053,12 +1067,13 @@ begin
     Exit;
   FAltFocusNode := nil;
   FAltFocusTick := 0;
-  if (GetKeyState(VK_MENU) and $80) <> 0 then
-  begin
-    FAltFocusNode := Node;
-    FAltFocusTick := GetTickCount64;
-    AllowChange := False;
-  end;
+  if (GetKeyState(VK_MENU) and $80) <> 0 then 
+    if Assigned(Node) and Assigned(Node.Parent) then
+    begin
+      FAltFocusNode := Node;
+      FAltFocusTick := GetTickCount64;
+      AllowChange := False;
+    end;
 end;
 
 procedure TFrameCtTableList.TreeViewCttbsEdited(Sender: TObject;
@@ -2326,6 +2341,8 @@ begin
   if (obj=nil) and (TreeViewCttbs.SelectionCount > 0) then
     obj := GetCtNodeOfTreeNode(TreeViewCttbs.Selections[0]);
   actCopyTb.Enabled := (obj<>nil) and ((obj is TCtDataModelGraph) or (obj is TCtMetaTable) or
+    (obj is TCtMetaField));
+  actFindInGraph.Enabled:=(obj<>nil) and ((obj is TCtMetaTable) or
     (obj is TCtMetaField));
 
   if FReadOnlyMode then

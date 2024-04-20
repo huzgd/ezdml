@@ -10,14 +10,14 @@ object frmAddTbLink: TfrmAddTbLink
   Color = clBtnFace
   OnCloseQuery = FormCloseQuery
   OnDestroy = FormDestroy
-  ParentFont = True
   Position = poMainFormCenter
   LCLVersion = '2.0.12.0'
   object edtNewFieldName: TEdit
     Left = 408
     Height = 25
     Top = 61
-    Width = 210
+    Width = 194
+    ParentFont = False
     TabOrder = 8
     Visible = False
   end
@@ -28,6 +28,7 @@ object frmAddTbLink: TfrmAddTbLink
     Width = 55
     Caption = 'Link type:'
     ParentColor = False
+    ParentFont = False
   end
   object Label4: TLabel
     Left = 16
@@ -36,6 +37,7 @@ object frmAddTbLink: TfrmAddTbLink
     Width = 73
     Caption = 'Master field:'
     ParentColor = False
+    ParentFont = False
   end
   object Label2: TLabel
     Left = 16
@@ -44,6 +46,7 @@ object frmAddTbLink: TfrmAddTbLink
     Width = 77
     Caption = 'Master table:'
     ParentColor = False
+    ParentFont = False
   end
   object Label3: TLabel
     Left = 325
@@ -52,6 +55,7 @@ object frmAddTbLink: TfrmAddTbLink
     Width = 68
     Caption = 'Relate field:'
     ParentColor = False
+    ParentFont = False
   end
   object Label5: TLabel
     Left = 325
@@ -60,6 +64,7 @@ object frmAddTbLink: TfrmAddTbLink
     Width = 69
     Caption = 'Detail table:'
     ParentColor = False
+    ParentFont = False
   end
   object combLinkType: TComboBox
     Left = 99
@@ -74,6 +79,7 @@ object frmAddTbLink: TfrmAddTbLink
       'Opposite direct'
     )
     OnChange = combLinkTypeChange
+    ParentFont = False
     Style = csDropDownList
     TabOrder = 0
   end
@@ -81,9 +87,10 @@ object frmAddTbLink: TfrmAddTbLink
     Left = 99
     Height = 25
     Top = 60
-    Width = 210
+    Width = 194
     DropDownCount = 48
     ItemHeight = 17
+    ParentFont = False
     Style = csDropDownList
     TabOrder = 1
   end
@@ -95,6 +102,7 @@ object frmAddTbLink: TfrmAddTbLink
     Caption = 'OK'
     Default = True
     ModalResult = 1
+    ParentFont = False
     TabOrder = 2
   end
   object btnCancel: TButton
@@ -105,14 +113,16 @@ object frmAddTbLink: TfrmAddTbLink
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
+    ParentFont = False
     TabOrder = 3
   end
   object edtMasterTb: TEdit
     Left = 99
     Height = 25
     Top = 22
-    Width = 210
+    Width = 194
     ParentColor = True
+    ParentFont = False
     ReadOnly = True
     TabOrder = 4
   end
@@ -120,10 +130,11 @@ object frmAddTbLink: TfrmAddTbLink
     Left = 408
     Height = 25
     Top = 60
-    Width = 210
+    Width = 194
     DropDownCount = 48
     ItemHeight = 17
     OnChange = combRelateFieldChange
+    ParentFont = False
     Style = csDropDownList
     TabOrder = 5
   end
@@ -131,8 +142,9 @@ object frmAddTbLink: TfrmAddTbLink
     Left = 408
     Height = 25
     Top = 22
-    Width = 210
+    Width = 194
     ParentColor = True
+    ParentFont = False
     ReadOnly = True
     TabOrder = 6
   end
@@ -143,6 +155,7 @@ object frmAddTbLink: TfrmAddTbLink
     Width = 23
     Caption = 'Link'
     ParentColor = False
+    ParentFont = False
   end
   object ckbCreateNewField: TCheckBox
     Left = 410
@@ -151,6 +164,7 @@ object frmAddTbLink: TfrmAddTbLink
     Width = 116
     Caption = 'Create new field'
     OnChange = ckbCreateNewFieldChange
+    ParentFont = False
     TabOrder = 7
     Visible = False
   end
@@ -161,6 +175,7 @@ object frmAddTbLink: TfrmAddTbLink
     Width = 108
     Caption = 'Close'
     ModalResult = 2
+    ParentFont = False
     TabOrder = 9
     Visible = False
   end
@@ -171,6 +186,55 @@ object frmAddTbLink: TfrmAddTbLink
     Width = 229
     Caption = 'Create many-to-many relation table'
     OnClick = ckbCreateM2MTbClick
+    ParentFont = False
     TabOrder = 10
+  end
+  object btnMTbProp: TButton
+    Left = 292
+    Height = 27
+    Hint = 'Show table properties'
+    Top = 21
+    Width = 19
+    Caption = '~'
+    OnClick = btnMTbPropClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 11
+  end
+  object btnSTbProp: TButton
+    Left = 599
+    Height = 27
+    Hint = 'Show table properties'
+    Top = 21
+    Width = 19
+    Caption = '~'
+    OnClick = btnSTbPropClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 12
+  end
+  object btnMFieldProp: TButton
+    Left = 292
+    Height = 27
+    Hint = 'Show field properties'
+    Top = 59
+    Width = 19
+    Caption = '~'
+    OnClick = btnMFieldPropClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 13
+  end
+  object btnSFieldProp: TButton
+    Left = 599
+    Height = 27
+    Hint = 'Show field properties'
+    Top = 59
+    Width = 19
+    Caption = '~'
+    OnClick = btnSFieldPropClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 14
   end
 end
