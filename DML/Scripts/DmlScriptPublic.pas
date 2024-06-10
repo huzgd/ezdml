@@ -97,9 +97,7 @@ function ExecCtDbLogon(DbType, database, username, password: string;
   bSavePwd, bAutoLogin, bShowDialog: boolean; opt: string): string;
 function ExecSql(sql, opts: string): TDataSet;
 function ExecAppCmd(Cmd, param1, param2: string): string;
-function GetEnv(const AName: string): string;   
-function GetEnvVar(const AName, ADef: string): string;
-procedure SetEnvVar(const AName, AValue: string);
+function GetEnv(const AName: string): string;
 function GetSelectedCtMetaObj: TCtMetaObject;
 function CtObjToJsonStr(ACtObj: TCtMetaObject): string;
 function ReadCtObjFromJsonStr(ACtObj: TCtMetaObject; AJsonStr: string): boolean;
@@ -555,52 +553,6 @@ begin
   end
   else
     Result := GetEnvVar(AName, Result);
-end;
-
-{$ifdef WINDOWS}
-function GetEnvironmentVariable(lpName: PChar; lpBuffer: PChar; nSize: DWORD): DWORD; stdcall;
-  external 'kernel32.dll' Name 'GetEnvironmentVariableA';
-function SetEnvironmentVariable(lpName, lpValue: PChar): BOOL; stdcall;
-  external 'kernel32.dll' Name 'SetEnvironmentVariableA';
-{$endif}
-{$IFDEF UNIX}
-function getenv_lib(_para1: PChar): PChar;
-  cdecl; external 'libc' Name 'getenv';
-function setenv(_para1: PChar; _para2: PChar; _para3: longint): longint;
-  cdecl; external 'libc' Name 'setenv';
-{$ENDIF UNIX}
-
-
-function GetEnvVar(const AName, ADef: string): string;
-{$ifdef WINDOWS}
-var
-  Len: integer; 
-{$endif}
-begin
-  Result := '';  
-  {$ifdef WINDOWS}
-  Len := GetEnvironmentVariable(PChar(AName), nil, 0);
-  if Len > 0 then
-  begin
-    SetLength(Result, Len - 1);
-    GetEnvironmentVariable(PChar(AName), PChar(Result), Len);
-  end;  
-  {$endif}  
-  {$IFDEF UNIX}
-  Result := getenv_lib(PChar(AName));
-  {$endif}
-  if Result='' then
-    Result := ADef;
-end;
-
-procedure SetEnvVar(const AName, AValue: string);
-begin
-  {$ifdef WINDOWS}
-  SetEnvironmentVariable(PAnsiChar(AName), PAnsiChar(AValue));
-  {$endif}
-  {$IFDEF UNIX}
-  setenv(PChar(AName), PChar(AValue), 1);
-  {$ENDIF}
 end;
 
 function GetSelectedCtMetaObj: TCtMetaObject;

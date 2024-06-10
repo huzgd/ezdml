@@ -265,7 +265,6 @@ resourcestring
   srPasBeginEndNeededTip = 'Seems that then <begin-end.> symbol needed for pascal script is missing. Add <begin-end.> before continue?';
   srCheckEditingMetaFailedFmt = 'Please close the editing window (%s) before continue';
   srHugeModeArrangeHint = 'Hint: Using fast layout algorithms for model diagrams under Huge-Mode';
-  srHttpJdbcConfigTip = 'Access JDBC through HTTP: we need java vm, JDBC driver and configs (JDBC url, username, password, etc.), then run the local HTTP server for EZDML HTTP_JDBC to call.'#10'Click OK to continue.';
   srPasteCopySuffix = 'Copy';
   srClearTestDataRuleWarning =
     'Warning: Old test data rule will be clear, are you sure to continue?';
@@ -501,6 +500,14 @@ resourcestring
   srChatGPTReqFailed = 'Request for ChatGPT service failed';
   srChatGPTRecoFailed = 'The content returned by ChatGPT service is not recognized. Please modify the text or try again later';
   srSqlLogEnabled = 'SQL log enabled';
+
+  srEzJdbcDriverList = 'ORACLE=driver=oracle.jdbc.OracleDriver;url=jdbc:oracle:thin:@127.0.0.1:1521:{database}' + #13#10 +
+    'MYSQL=driver=com.mysql.jdbc.Driver;url=jdbc:mysql://127.0.0.1:3306/{database}' + #13#10 +
+    'POSTGRESQL=driver=org.postgresql.Driver;url=jdbc:postgresql://127.0.0.1:5432/{database}' + #13#10 +
+    'SQLSERVER=driver=com.microsoft.sqlserver.jdbc.SQLServerDriver;url=jdbc:sqlserver://127.0.0.1:1433#59#DatabaseName={database}' + #13#10 +
+    'H2=driver=org.h2.Driver;url=jdbc:h2:{file}' + #13#10 +
+    'DAMENG=driver=dm.jdbc.driver.DmDriver;url=jdbc:dm://127.0.0.1:5236' + #13#10 +
+    'HIVE=driver=org.apache.hive.jdbc.HiveDriver;url=jdbc:hive2://127.0.0.1:10000/default';
 
 
 implementation

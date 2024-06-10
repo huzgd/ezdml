@@ -94,7 +94,6 @@ TestDataRules  String
 UILogic        String
 BusinessLogic  String
 
-
 CtDataModelGraph(数据模型图)
 -----------------------------------
 ID                         PK
@@ -105,6 +104,12 @@ DefDbEngine(缺省数据连接)  String
 DbConnectStr(数据连接名)   String
 ConfigStr(选项设置串)      String
 Tables(数据表)             List
+  
+CtModelFileConfig(模型文件配置)
+-----------------------------------------------------
+Id(编号)                               PKInteger
+LastModel(最近使用模型图)              String
+CustFieldTypes(自定义字段类型)         String
 
 *)
 
@@ -892,6 +897,31 @@ type
 
     property OwnerList: TCtDataModelGraphList read FOwnerList;
   end;
+           
+  { 模型文件配置 }
+
+  { TCtModelFileConfig }
+
+  TCtModelFileConfig = class(TCtObject)
+  private
+  protected
+    FLastModel      : String;
+    FCustFieldTypes : String;
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+
+    //CT Object Functions
+    procedure Reset; override;
+    procedure AssignFrom(ACtObj: TCtObject); override;
+    procedure LoadFromSerialer(ASerialer: TCtObjSerialer); override;
+    procedure SaveToSerialer(ASerialer: TCtObjSerialer); override;
+
+    //最近使用模型图
+    property LastModel     : String        read FLastModel      write FLastModel     ;
+    //自定义字段类型
+    property CustFieldTypes: String        read FCustFieldTypes write FCustFieldTypes;
+  end;
 
   { 数据模型图列表 }
 
@@ -900,6 +930,7 @@ type
   TCtDataModelGraphList = class(TCtObjectList)
   private
     FCurDataModel: TCtDataModelGraph;
+    FModelFileConfig: TCtModelFileConfig;
     FOnObjProgress: TMetaObjProgressEvent;
     FSyncingTbProp: boolean;
     function GetCurDataModel: TCtDataModelGraph;
@@ -942,6 +973,7 @@ type
     property CurDataModel: TCtDataModelGraph read GetCurDataModel write FCurDataModel;
     property Items[Index: integer]: TCtDataModelGraph read GetItem write PutItem;
       default;
+    property ModelFileConfig: TCtModelFileConfig read FModelFileConfig;
     property OnObjProgress: TMetaObjProgressEvent
       read FOnObjProgress write FOnObjProgress;
   end;
@@ -1114,8 +1146,10 @@ var
   G_CreateForeignkeys: boolean;
   G_CreateIndexForForeignkey: boolean;
   G_HiveVersion: Integer;             
-  G_MysqlVersion: Integer;
-  G_RetainAfterCommit: boolean;
+  G_MysqlVersion: Integer;   
+  G_AutoCommit: boolean;
+  G_RetainAfterCommit: boolean;       
+  G_ShowJdbcConsole: boolean;
   G_EnableCustomPropUI: boolean;
   G_CustomPropUICaption: string;  
   G_EnableAdvTbProp: boolean;
@@ -2739,6 +2773,61 @@ begin
         CtMetaDBRegs[I].DbImpl := nil;
       end;
   SetLength(CtMetaDBRegs, 0);
+end;
+
+{ TCtModelFileConfig }
+
+constructor TCtModelFileConfig.Create;
+begin
+  inherited Create;
+end;
+
+destructor TCtModelFileConfig.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TCtModelFileConfig.Reset;
+begin
+  inherited Reset;   
+  FLastModel      := '';
+  FCustFieldTypes := '';
+end;
+
+procedure TCtModelFileConfig.AssignFrom(ACtObj: TCtObject);   
+var
+  cobj: TCtModelFileConfig;
+begin
+  inherited AssignFrom(ACtObj);
+  if not (ACtObj is TCtModelFileConfig) then
+    Exit;
+  cobj:= TCtModelFileConfig(ACtObj);
+  FLastModel      := cobj.FLastModel;
+  FCustFieldTypes := cobj.FCustFieldTypes;
+end;
+
+procedure TCtModelFileConfig.LoadFromSerialer(ASerialer: TCtObjSerialer);
+begin
+  BeginSerial(ASerialer, True);
+  try
+    inherited LoadFromSerialer(ASerialer);
+    ASerialer.ReadString('LastModel', FLastModel);
+    ASerialer.ReadString('CustFieldTypes', FCustFieldTypes);
+  finally
+    EndSerial(ASerialer, True);
+  end;
+end;
+
+procedure TCtModelFileConfig.SaveToSerialer(ASerialer: TCtObjSerialer);
+begin                
+  BeginSerial(ASerialer, False);
+  try
+    inherited SaveToSerialer(ASerialer);
+    ASerialer.WriteString('LastModel', FLastModel);
+    ASerialer.WriteString('CustFieldTypes', FCustFieldTypes);
+  finally
+    EndSerial(ASerialer, False);
+  end;
 end;
 
 
@@ -8760,7 +8849,9 @@ begin
     FOnObjProgress(Self, '', 0, C, bCont);
     if not bCont then
       Exit;
-  end;
+  end;        
+  if ASerialer.CurCtVer >= 37 then
+    Self.ModelFileConfig.LoadFromSerialer(ASerialer);
 
   ASerialer.ReadInteger('Count', C);
   ASerialer.BeginChildren('');
@@ -8798,6 +8889,7 @@ begin
       end;
     end;
   ASerialer.EndChildren('');
+
 end;
 
 function TCtDataModelGraphList.NewModelItem: TCtDataModelGraph;
@@ -8849,10 +8941,12 @@ end;
 constructor TCtDataModelGraphList.Create;
 begin
   inherited Create;
+  FModelFileConfig:= TCtModelFileConfig.Create;
 end;
 
 destructor TCtDataModelGraphList.Destroy;
 begin
+  FreeAndNil(FModelFileConfig);
   inherited Destroy;
 end;
 
@@ -8876,6 +8970,8 @@ begin
   inherited Clear;  
   FCurDataModel := nil;
   FTbSeqCounter := 0;
+  if Assigned(FModelFileConfig) then
+    FModelFileConfig.Reset;
   if Assigned(GlobeList) then
     GlobeList.SeqCounter:=0;
 end;
@@ -8924,6 +9020,11 @@ begin
   ASerialer.WriteBuffer('CTVER', Length(S), Pointer(S)^);
 
   ASerialer.WriteInteger('TableCount', C);
+  ModelFileConfig.LastModel:='';
+  if Self.FCurDataModel <> nil then
+    if FCurDataModel <> Self.Items[0] then
+      ModelFileConfig.LastModel:=FCurDataModel.Name;
+  Self.ModelFileConfig.SaveToSerialer(ASerialer);
 
   C := Count;
   ASerialer.WriteInteger('Count', C);
@@ -8940,6 +9041,7 @@ begin
     end;
   end;
   ASerialer.EndChildren('');
+
 end;
 
 procedure TCtDataModelGraphList.SortByOrderNo;

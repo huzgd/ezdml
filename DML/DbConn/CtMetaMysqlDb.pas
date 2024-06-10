@@ -54,7 +54,7 @@ type
 
 implementation
 
-uses Dialogs, wCommonDBConfig, Forms, dmlstrs, odbcconn;
+uses Dialogs, wCommonDBConfig, Forms, dmlstrs, odbcconn, EzJdbcConn;
 
 { TCtMetaMysqlDb }
 
@@ -62,13 +62,23 @@ uses Dialogs, wCommonDBConfig, Forms, dmlstrs, odbcconn;
 function TCtMetaMysqlDb.CreateSqlDbConn: TSQLConnection;
 begin
   if (Pos('DSN:', DataBase) = 1) or (Pos('ODBC:', DataBase) = 1) then
-    FUseDriverType := 'ODBC'
+    FUseDriverType := 'ODBC'        
+  else if Pos('JDBC:', DataBase) = 1 then
+    FUseDriverType := 'JDBC'
   else
     FUseDriverType := '';
+
   if FUseDriverType='ODBC' then
   begin
     Result := TODBCConnection.Create(nil);      
     Result.CharSet := Trim(G_OdbcCharset);
+    Exit;
+  end;
+
+  if FUseDriverType='JDBC' then
+  begin
+    Result := TEzJdbcSqlConnection.Create(nil);
+    TEzJdbcSqlConnection(Result).EzDbType := 'MYSQL';
     Exit;
   end;
 
@@ -127,6 +137,16 @@ begin
       FDbConn.Params.Text := S;
     end;
     Exit;
+  end;          
+  if FUseDriverType='JDBC' then
+  begin
+    S := FDbConn.HostName; 
+    if Pos('JDBC:', S) = 1 then
+      S := Copy(S, 6, Length(S));
+
+    FDbConn.DatabaseName := S;
+
+    Exit;
   end;
 
   po := Pos(':', FDbConn.HostName);
@@ -182,7 +202,7 @@ end;
 function TCtMetaMysqlDb.GetDbNames: string;
 begin
   Result := 'localhost:3306@test'; 
-  Result := Result + #10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=MySQL ODBC 8.0 Driver;Server=MyDbServer;Port=3306;Database={database_name};';
+  Result := Result + #10'JDBC:jdbc:mysql://192.168.1.1:3306/dbname'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=MySQL ODBC 8.0 Driver;Server=MyDbServer;Port=3306;Database={database_name};';
 end;
 
 function TCtMetaMysqlDb.GetDbObjs(ADbUser: string): TStrings;
@@ -253,6 +273,30 @@ end;
 
 
 function TCtMetaMysqlDb.GetObjInfos(ADbUser, AObjName, AOpt: string): TCtMetaObject;
+  function FieldByNameTg(AName: string):TField;
+  var
+    vName: String;
+  begin
+    vName := AName;
+    if FUseDriverType='JDBC' then
+    begin
+      if vName='Field' then
+        vName := 'COLUMN_NAME'
+      else if vName='Type' then
+        vName := 'COLUMN_TYPE'
+      else if vName='Extra' then
+        vName := 'EXTRA'
+      else if vName='Null' then
+        vName := 'IS_NULLABLE'
+      else if vName='Key' then
+        vName := 'COLUMN_KEY'
+      else if vName='Default' then
+        vName := 'COLUMN_DEFAULT'
+      else if vName='Comment' then
+        vName := 'COLUMN_COMMENT';
+    end;
+    Result := FQueryB.FieldByName(vName);
+  end;
 var
   o: TCtMetaTable;
   f: TCtMetaField;
@@ -300,8 +344,8 @@ begin
     begin
       with o.MetaFields.NewMetaField do
       begin
-        Name := FieldByName('Field').AsString;
-        T := LowerCase(FieldByName('Type').AsString);
+        Name := FieldByNameTg('Field').AsString;
+        T := LowerCase(FieldByNameTg('Type').AsString);
         po := Pos('(', T);
         if po > 0 then
         begin
@@ -344,7 +388,7 @@ begin
             DataType := cfdtBool
           else if iSz = 2 then
             DataType := cfdtEnum;
-          if Pos('auto_increment', FieldByName('Extra').AsString) > 0 then
+          if Pos('auto_increment', FieldByNameTg('Extra').AsString) > 0 then
             DefaultValue := DEF_VAL_auto_increment;
         end
         else if (T = 'decimal') then
@@ -358,7 +402,7 @@ begin
               DataType := cfdtEnum;
               DataLength := 0;
             end;
-            if Pos('auto_increment', FieldByName('Extra').AsString) > 0 then
+            if Pos('auto_increment', FieldByNameTg('Extra').AsString) > 0 then
               DefaultValue := DEF_VAL_auto_increment;
           end
           else
@@ -406,7 +450,7 @@ begin
         if (Pos('[DBTYPENAMES]', AOpt) > 0) then
           DataTypeName := T;
 
-        T := LowerCase(FieldByName('Key').AsString);
+        T := LowerCase(FieldByNameTg('Key').AsString);
         if T = 'pri' then
           KeyFieldType := cfktId
         {else if T = 'uni' then
@@ -414,15 +458,15 @@ begin
         else if T = 'mul' then
           IndexType := cfitNormal};
 
-        T := FieldByName('Null').AsString;
+        T := FieldByNameTg('Null').AsString;
         if T = 'NO' then
           Nullable := False;
 
-        T := FieldByName('Default').AsString;
+        T := FieldByNameTg('Default').AsString;
         if T<>'' then
           DefaultValue := T;
 
-        T := FieldByName('Comment').AsString;
+        T := FieldByNameTg('Comment').AsString;
         Memo := T;
       end;
       Next;

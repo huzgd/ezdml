@@ -41,7 +41,7 @@ var
 
 implementation
 
-uses wOracleDBConfig, Forms, WindowFuncs, odbcconn;
+uses wOracleDBConfig, Forms, WindowFuncs, odbcconn, EzJdbcConn;
 
 { TCtMetaOracleDb }
 
@@ -50,8 +50,18 @@ function TCtMetaOracleDb.CreateSqlDbConn: TSQLConnection;
 begin
   if (Pos('DSN:', DataBase) = 1) or (Pos('ODBC:', DataBase) = 1) then
     FUseDriverType := 'ODBC'
+  else if Pos('JDBC:', DataBase) = 1 then
+    FUseDriverType := 'JDBC'
   else
     FUseDriverType := '';
+
+  if FUseDriverType='JDBC' then
+  begin
+    Result := TEzJdbcSqlConnection.Create(nil);
+    TEzJdbcSqlConnection(Result).EzDbType := 'ORACLE';
+    Exit;
+  end;
+
   if FUseDriverType='ODBC' then
   begin
     Result := TODBCConnection.Create(nil);
@@ -106,6 +116,17 @@ begin
         FDbConn.CharSet := 'GBK';
     end;
   inherited SetFCLConnDatabase;
+
+  if FUseDriverType='JDBC' then
+  begin
+    S := FDbConn.HostName;
+    if Pos('JDBC:', S) = 1 then
+      S := Copy(S, 6, Length(S));
+
+    FDbConn.DatabaseName := S;
+
+    Exit;
+  end;
 
   if FUseDriverType='ODBC' then
   begin
@@ -293,7 +314,7 @@ end;
 function TCtMetaOracleDb.GetDbNames: string;
 begin
   Result := 'ORCL'#13#10'127.0.0.1:1521/ORCL';
-  Result := Result + #10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=Oracle in instantclient_11_2;Server=My Db Server;UID=UserName;';
+  Result := Result + #10'JDBC:jdbc:oracle:thin:@192.168.1.5:1521:orcl'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=Oracle in instantclient_11_2;Server=My Db Server;UID=UserName;';
 end;
 
 function TCtMetaOracleDb.GetDbObjs(ADbUser: string): TStrings;

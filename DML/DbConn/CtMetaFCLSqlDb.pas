@@ -30,7 +30,6 @@ type
     function NeedRecreateDbConn: Boolean; virtual;
     procedure ReCreateFCLDbConn; virtual;
     procedure SetFCLConnDatabase; virtual;
-    procedure CheckDsUpdateMode(ds: TSQLQuery); virtual;
     procedure DoDbConnLog(Sender : TSQLConnection; EventType : TDBEventType;
       Const Msg : String); virtual;
   public
@@ -62,11 +61,15 @@ type
   { TCtSQLQuery }
 
   TCtSQLQuery = class(TSQLQuery)
-  protected            
+  protected
+    FIsCursorType: Boolean;
     procedure InternalOpen; override;
-  public
+  public             
+    procedure Prepare; override;
     procedure ExecSQL; override;
   end;
+              
+procedure CheckDsUpdateMode(ds: TSQLQuery);
 
 var
   G_SqlLogEnalbed: Boolean;
@@ -75,7 +78,9 @@ var
 implementation
 
 uses
-  WindowFuncs;
+  WindowFuncs, EzJdbcConn
+  {$ifndef EZDML_LITE},CtCustomSqlConn {$endif}
+  ;
 
 procedure WriteSqlLog(const msg: string);
 var
@@ -88,6 +93,72 @@ begin
     G_SqlLogs := TStringList.Create;
   G_SqlLogs.Add(S);
 end;
+             
+procedure CheckDsUpdateMode(ds: TSQLQuery);
+var
+  I: Integer;
+  fd: TField;
+  S: string;
+begin
+  if ds=nil then
+    Exit;
+  if not ds.Active then
+  begin
+    ds.UpdateMode:=upWhereAll;
+    Exit;
+  end;
+  for I:=0 to ds.FieldCount - 1 do
+  begin
+    fd := ds.Fields[I];
+    if fd.DataType in [ftUnknown, ftBytes, ftVarBytes, ftBlob, ftGraphic,
+      ftParadoxOle, ftDBaseOle, ftTypedBinary, ftCursor, ftADT, ftArray, ftReference,
+      ftDataSet, ftOraBlob, ftVariant, ftInterface, ftIDispatch] then
+    begin
+      //fd.ReadOnly:=True;
+    end;
+  end;
+  for I:=0 to ds.FieldCount - 1 do
+  begin
+    fd := ds.Fields[I];
+    S := UpperCase(fd.FieldName);
+    if (S='ROWID') then
+    begin
+      fd.ProviderFlags:=fd.ProviderFlags+[pfInKey];
+      fd.ReadOnly := True;
+      ds.UpdateMode:=upWhereKeyOnly;
+      Exit;
+    end;
+  end;
+
+  for I:=0 to ds.FieldCount - 1 do
+  begin
+    fd := ds.Fields[I];
+    S := UpperCase(fd.FieldName);
+    if (S='ID') or (S='GUID') or (S='UUID') or (S='CTGUID') then
+    begin
+      fd.ProviderFlags:=fd.ProviderFlags+[pfInKey];
+      //fd.ReadOnly := True;
+      ds.UpdateMode:=upWhereKeyOnly;
+      Exit;
+    end;
+  end;
+
+  ds.UpdateMode:=upWhereAll;
+  for I:=0 to ds.FieldCount - 1 do
+  begin
+    fd := ds.Fields[I];
+    if fd.DataType in [ftString, ftSmallint, ftInteger, ftWord, ftBCD, ftAutoInc,
+      ftFixedChar, ftWideString, ftLargeint, ftGuid, ftFixedWideChar] then
+    begin
+      fd.ProviderFlags:=fd.ProviderFlags+[pfInWhere];
+    end
+    else
+    begin
+      fd.ProviderFlags:=fd.ProviderFlags-[pfInWhere];
+    end;
+  end;
+
+end;
 
 { TCtSQLTransaction }
 
@@ -99,9 +170,17 @@ end;
 
 { TCtSQLQuery }
 
+procedure TCtSQLQuery.Prepare;
+begin
+  inherited Prepare;
+  if Self.Cursor is TCtCustDbCursor then
+    TCtCustDbCursor(Self.Cursor).FSelectCursorType:=FIsCursorType;
+end;
+
 procedure TCtSQLQuery.InternalOpen;
 begin                   
-  try             
+  try
+    FIsCursorType := True;
     if G_SqlLogEnalbed then
       WriteSqlLog('OpenSQL: '+Self.SQL.Text);
     inherited InternalOpen;   
@@ -117,9 +196,11 @@ begin
   end;
 end;
 
+
 procedure TCtSQLQuery.ExecSQL;
 begin
-  try     
+  try
+    FIsCursorType := False;
     if G_SqlLogEnalbed then
       WriteSqlLog('ExecSQL: '+Self.SQL.Text);
     inherited ExecSQL;    
@@ -198,7 +279,9 @@ var
 begin
   Result := False;
   if (Pos('DSN:', DataBase) = 1) or (Pos('ODBC:', DataBase) = 1) then
-    vUseDriverType := 'ODBC'
+    vUseDriverType := 'ODBC'    
+  else if Pos('JDBC:', DataBase) = 1 then
+    vUseDriverType := 'JDBC'
   else
     vUseDriverType := '';
   if vUseDriverType <> FUseDriverType then
@@ -250,7 +333,7 @@ begin
     S := StringReplace(S, '$<XXX>', '', []);
     FDbConn.DatabaseName := S;
   end
-  else
+  else if FUseDriverType = '' then
   begin
     po := Pos('@', S);
     if po > 0 then
@@ -263,6 +346,11 @@ begin
       FDbConn.HostName := S;
       FDbConn.DatabaseName := '';
     end;
+  end
+  else
+  begin
+    FDbConn.HostName := S;
+    FDbConn.DatabaseName := '';
   end;
   FDbConn.OnLog:=Self.DoDbConnLog;
 
@@ -277,6 +365,12 @@ end;
 
 destructor TCtMetaFCLSqlDb.Destroy;
 begin
+  if Connected then
+  try
+    Connected := False;
+  except
+    Application.HandleException(Self);
+  end;
   FreeAndNil(FQuery);
   FreeAndNil(FQueryB);
   FreeAndNil(FTrans);
@@ -303,6 +397,18 @@ begin
   try
     if G_SqlLogEnalbed then
       WriteSqlLog('ExecCmd: '+ACmd+':'+AParam1+':'+AParam2);
+    if ACmd='CT_BEFORE_RECONNECT' then
+    begin
+      if Connected and (FUseDriverType='JDBC') then
+        if AParam1=Self.Database then
+          if AParam2=(Self.User+'/'+Self.Password) then
+            if Assigned(FDbConn) and (FDbConn is TEzJdbcSqlConnection)
+            {  and TEzJdbcSqlConnection(FDbConn).JdbcProcActive} then
+            begin
+              Result := '_HANDLED';
+              Exit;
+            end;
+    end;
     Result:=inherited ExecCmd(ACmd, AParam1, AParam2);
     if LowerCase(ACmd)='commit' then
     begin
@@ -377,15 +483,18 @@ begin
   S := LowerCase(Trim(S));
   if S='' then
     Exit;
-  if S='commit' then
+  if G_AutoCommit then
   begin
-    ExecCmd('commit', '', '');
-    Exit;
-  end;    
-  if S='rollback' then
-  begin
-    ExecCmd('rollback', '', '');
-    Exit;
+    if S='commit' then
+    begin
+      ExecCmd('commit', '', '');
+      Exit;
+    end;
+    if S='rollback' then
+    begin
+      ExecCmd('rollback', '', '');
+      Exit;
+    end;
   end;
   with FQuery do
   begin
@@ -395,11 +504,11 @@ begin
     try
       ExecSQL;
       FLastCmdRowAffected := RowsAffected;
-      if Pos('[NO_CT_TRANS]', ASql) = 0 then
+      if G_AutoCommit and (Pos('[NO_CT_TRANS]', ASql) = 0) then
         ExecCmd('commit', '', '');
     except
       try
-        if Pos('[NO_CT_TRANS]', ASql) = 0 then
+        if G_AutoCommit and (Pos('[NO_CT_TRANS]', ASql) = 0) then
           ExecCmd('rollback', '', '');
       except
       end;
@@ -441,8 +550,10 @@ begin
     S := 'select * from ' + ASql;
   Result := TCtSQLQuery.Create(nil);
   TSQLQuery(Result).DataBase := FDbConn;
-  TSQLQuery(Result).Sql.Text := S;        
-  if G_RetainAfterCommit then                      
+  TSQLQuery(Result).Sql.Text := S;
+  if not G_AutoCommit then       
+    TSQLQuery(Result).Options := [sqoAutoApplyUpdates]
+  else if G_RetainAfterCommit then
     TSQLQuery(Result).Options := [sqoAutoApplyUpdates]
   else
     TSQLQuery(Result).Options := [sqoKeepOpenOnCommit, sqoAutoApplyUpdates];
@@ -450,11 +561,11 @@ begin
     FLastCmdRowAffected := -1;
     Result.Open;
     //FLastCmdRowAffected := Result.RecordCount;
-    if Pos('[NO_CT_TRANS]', ASql) = 0 then
+    if G_AutoCommit and (Pos('[NO_CT_TRANS]', ASql) = 0) then
       FDbConn.Transaction.CommitRetaining;
   except
     try
-      if Pos('[NO_CT_TRANS]', ASql) = 0 then
+      if G_AutoCommit and (Pos('[NO_CT_TRANS]', ASql) = 0) then
         FDbConn.Transaction.RollbackRetaining;
     except
     end;
@@ -462,72 +573,7 @@ begin
   end;
   CheckDsUpdateMode(TSQLQuery(Result));
 end;
-    
-procedure TCtMetaFCLSqlDb.CheckDsUpdateMode(ds: TSQLQuery);
-var
-  I: Integer;
-  fd: TField;  
-  S: string;
-begin
-  if ds=nil then
-    Exit;
-  if not ds.Active then
-  begin
-    ds.UpdateMode:=upWhereAll;
-    Exit;
-  end;
-  for I:=0 to ds.FieldCount - 1 do
-  begin
-    fd := ds.Fields[I];
-    if fd.DataType in [ftUnknown, ftBytes, ftVarBytes, ftBlob, ftGraphic,
-      ftParadoxOle, ftDBaseOle, ftTypedBinary, ftCursor, ftADT, ftArray, ftReference,
-      ftDataSet, ftOraBlob, ftVariant, ftInterface, ftIDispatch] then
-    begin
-      //fd.ReadOnly:=True;
-    end;
-  end;
-  for I:=0 to ds.FieldCount - 1 do
-  begin
-    fd := ds.Fields[I];
-    S := UpperCase(fd.FieldName);
-    if (S='ROWID') then
-    begin
-      fd.ProviderFlags:=fd.ProviderFlags+[pfInKey];
-      fd.ReadOnly := True;
-      ds.UpdateMode:=upWhereKeyOnly;
-      Exit;
-    end;
-  end;
 
-  for I:=0 to ds.FieldCount - 1 do
-  begin
-    fd := ds.Fields[I];
-    S := UpperCase(fd.FieldName);
-    if (S='ID') or (S='GUID') or (S='UUID') or (S='CTGUID') then
-    begin
-      fd.ProviderFlags:=fd.ProviderFlags+[pfInKey];  
-      //fd.ReadOnly := True;
-      ds.UpdateMode:=upWhereKeyOnly;
-      Exit;
-    end;
-  end;
-               
-  ds.UpdateMode:=upWhereAll;
-  for I:=0 to ds.FieldCount - 1 do
-  begin
-    fd := ds.Fields[I];
-    if fd.DataType in [ftString, ftSmallint, ftInteger, ftWord, ftBCD, ftAutoInc,
-      ftFixedChar, ftWideString, ftLargeint, ftGuid, ftFixedWideChar] then
-    begin
-      fd.ProviderFlags:=fd.ProviderFlags+[pfInWhere];
-    end
-    else
-    begin
-      fd.ProviderFlags:=fd.ProviderFlags-[pfInWhere];
-    end;
-  end;
-
-end;
 
 procedure TCtMetaFCLSqlDb.DoDbConnLog(Sender: TSQLConnection;
   EventType: TDBEventType; const Msg: String);

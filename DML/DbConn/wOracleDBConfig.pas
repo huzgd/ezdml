@@ -28,8 +28,10 @@ type
     combNetSvcName: TComboBox;
     Label4: TLabel;
     Label6: TLabel;
+    MemoJdbcConnStr: TMemo;
     MemoOdbcConnStr: TMemo;
     rbdOdbcDsn: TRadioButton;
+    rdbJdbcConnStr: TRadioButton;
     rdbNetSvc: TRadioButton;
     rdbOdbcConnStr: TRadioButton;
     rdbSvcParam: TRadioButton;
@@ -99,6 +101,22 @@ begin
     Label4.Enabled := False;
   end;
 
+  {$ifdef EZDML_LITE}
+  rdbJdbcConnStr.Enabled:=False;
+  if rdbJdbcConnStr.Checked then
+    rdbJdbcConnStr.Checked := False;
+  {$endif}
+  if not rdbJdbcConnStr.Checked then
+  begin
+    MemoJdbcConnStr.ParentColor := True;
+    MemoJdbcConnStr.Enabled := False;
+  end
+  else
+  begin
+    MemoJdbcConnStr.Color := clWindow;
+    MemoJdbcConnStr.Enabled := True;
+  end;
+
   if not rbdOdbcDsn.Checked then
   begin
     btnBrowseDsn.Enabled := False;
@@ -129,11 +147,24 @@ end;
 class function TfrmOraDBConfig.DoOracleNetConfig(AString: string): string;
 var
   po: Integer;
-  V: string;
+  V, S: string;
 begin
   with TfrmOraDBConfig.Create(nil) do
-  try                    
-    if Copy(AString, 1,4)='DSN:' then
+  try
+    if Copy(AString, 1, 5)='JDBC:' then
+    begin
+      rdbJdbcConnStr.Checked := True;
+      S := Copy(AString, 6, Length(AString));
+      if S<>'' then             
+        if (Pos(';', S)=0) and (Pos('url=', S)=0) then
+        begin
+          S:='url='+S;
+          if Copy(S, Length(S), 1)<>';' then
+            S:=S+';';
+        end;
+      MemoJdbcConnStr.Lines.Text := S;
+    end
+    else if Copy(AString, 1,4)='DSN:' then
     begin
       rbdOdbcDsn.Checked := True;
       edtDsnName.Text := Copy(AString, 5, Length(AString));
@@ -180,6 +211,8 @@ begin
 end;
 
 function TfrmOraDBConfig.GenResult: string;
+var
+  S: string;
 begin
   Result := '';
 
@@ -190,6 +223,22 @@ begin
     Result := edtIP.Text + ':' + edtPort.Text + '/' + edtSvcName.Text;
    // Result := '(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = ' +
      // edtIP.Text + ')(PORT = ' + edtPort.Text + ')) ) (CONNECT_DATA = (SERVICE_NAME = ' + edtSvcName.Text + ') ) )';
+  end           
+  else if rdbJdbcConnStr.Checked then
+  begin
+    if Trim(MemoJdbcConnStr.Lines.Text) = '' then
+      Exit;
+    S := Trim(MemoJdbcConnStr.Lines.Text);
+    while Copy(S, Length(S),1)=';' do
+      Delete(S, Length(S), 1);
+    if Copy(S, 1,4)='url=' then
+    begin
+      if Pos(';', S)=0 then
+        S := Copy(S, 5, Length(S));
+    end;         
+    S:=StringReplace(S, #13#10, ';', [rfReplaceAll]);
+    S:=StringReplace(S, #10, ';', [rfReplaceAll]);
+    Result := 'JDBC:'+S;
   end
   else if rbdOdbcDsn.Checked then
   begin

@@ -798,7 +798,10 @@ begin
     S := Caption;
     try
       Caption := lbConnectingTip.Caption;
-      DoConnectDb(True);
+      if CtMetaDBRegs[I].DbImpl.ExecCmd('CT_BEFORE_RECONNECT', combDBName.Text, edtUserName.Text+'/'+edtPassword.Text) = '_HANDLED' then
+        ModalResult := mrOk
+      else
+        DoConnectDb(True);
     finally                    
       Caption := S;
       btnOK.Enabled := True;

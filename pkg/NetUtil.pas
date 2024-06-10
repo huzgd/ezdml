@@ -26,7 +26,8 @@ function GetUrlData_Net_ExX(URL: string; PostData: string; headers: string; Opts
 function URLEncodeEx(const VS: string): string;
 function URLDecodeEx(const S: string): string;
 function GetJSessionId_Net: string;
-procedure SetJSessionId_Net(svr, ssid: string);
+procedure SetJSessionId_Net(svr, ssid: string); 
+function IsPortAvailable(Aport: Word): Boolean;
 
 var
   G_NetLogEnabled: Boolean;
@@ -36,11 +37,68 @@ implementation
 
 uses 
 {$IFDEF USE_IDHTTP}
-  IdHttp, IdCookieManager, IdMultipartFormData, IdSSLOpenSSL, IdGlobalProtocols,
+  IdHttp, IdCookieManager, IdMultipartFormData, IdSSLOpenSSL, IdGlobalProtocols, IdTCPClient,
 {$else}
-  fphttpclient,
+  fphttpclient, Sockets,
 {$ENDIF}
   ThreadWait, WindowFuncs, Forms, ezdmlstrs;
+
+
+function IsPortAvailable(Aport: Word): Boolean; 
+{$IFDEF USE_IDHTTP}
+begin
+  Result := True;
+  with TIdTCPClient.Create(nil) do
+  try
+    ConnectTimeout := 200;
+    try
+      Connect('127.0.0.1', APort);
+      Result := False;
+      DisConnect;
+    except
+    end;
+  finally
+    Free;
+  end;
+end;
+{$else}
+var
+  sock: TSocket;
+  addr: TInetSockAddr;
+  timeout: Integer;
+begin
+  // 创建一个 socket 连接
+  sock := fpSocket(AF_INET, SOCK_STREAM, 0);
+  if sock = INVALID_SOCKET then
+  begin
+    Result := False; // 创建失败，端口可能被占用
+    Exit;
+  end;
+
+  // 设置地址信息
+  addr.sin_family := AF_INET;
+  addr.sin_port := htons(Aport);
+  addr.sin_addr.s_addr := htonl($7f000001{INADDR_LOOPBACK}); // 本地地址
+
+  timeout := 200;
+  fpSetSockOpt(sock, SOL_SOCKET, SO_SNDTIMEO, @timeout, sizeof(timeout));  
+  fpSetSockOpt(sock, SOL_SOCKET, SO_RCVTIMEO, @timeout, sizeof(timeout));
+
+  // 尝试连接
+  if fpConnect(sock, @addr, SizeOf(addr)) = 0 then
+  begin
+    // 连接成功，端口已被占用
+    CloseSocket(sock);
+    Result := False;
+  end
+  else
+  begin
+    // 连接失败，端口可用
+    CloseSocket(sock);
+    Result := True;
+  end;
+end;     
+{$ENDIF}
 
                   
 procedure AddNetLog(const msg: string; bAddDate: Boolean=True);
@@ -213,7 +271,8 @@ begin
           tmOut := 90000;
         S := ExtractCompStr(Opts, '[READ_TIMEOUT=', ']');
         if S <> '' then
-          tmOut := StrToIntDef(S, tmOut);
+          tmOut := StrToIntDef(S, tmOut); 
+        ConnectTimeout := tmOut div 2;
         ReadTimeout := tmOut;
         AllowCookies := True;
         if Pos('[NO_REDIR]', opts) > 0 then

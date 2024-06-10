@@ -27,7 +27,9 @@ CreateForeignkeys             Bool
 CreateIndexForForeignkey      Bool
 HiveVersion                   Integer   
 MysqlVersion                  Integer
-RetainAfterCommit             Bool
+AutoCommit                    Bool
+RetainAfterCommit             Bool     
+ShowJdbcConsole               Bool
 EnableCustomPropUI            Bool
 CustomPropUICaption           String
 ChatGPTKey                    String
@@ -92,6 +94,8 @@ type
     btnFDGenNew: TButton;
     btnTpnRepRemove: TButton;
     btnFDGenRemove: TButton;
+    ckbAutoCommit: TCheckBox;
+    ckbShowJdbcConsole: TCheckBox;
     ckbBigIntForIntKeys: TCheckBox;
     ckbCheckForUpdates: TCheckBox;
     ckbCreateForeignkeys: TCheckBox;
@@ -248,6 +252,7 @@ type
     procedure btnSqlServerLibBrsClick(Sender: TObject);
     procedure btnTpnRepNewClick(Sender: TObject);
     procedure btnTpnRepRemoveClick(Sender: TObject);
+    procedure ckbAutoCommitChange(Sender: TObject);
     procedure ckbEnableCustomPropUIChange(Sender: TObject);
     procedure edtCustFldtpNameChange(Sender: TObject);
     procedure edtFDGenRuleChange(Sender: TObject);
@@ -284,7 +289,9 @@ type
     FHiveVersion: Integer;     
     FMysqlVersion: Integer;
     FDmlGraphDefScale: String;
-    FRetainAfterCommit: boolean;
+    FRetainAfterCommit: boolean;      
+    FAutoCommit: boolean;
+    FShowJdbcConsole: boolean;
     FEnableCustomPropUI: boolean;
     FCustomPropUICaption : String;   
     FChatGPTKey : String;
@@ -536,6 +543,11 @@ begin
   end;
 end;
 
+procedure TfrmSettings.ckbAutoCommitChange(Sender: TObject);
+begin
+  ckbRetainAfterCommit.Enabled := ckbAutoCommit.Checked;
+end;
+
 procedure TfrmSettings.ckbEnableCustomPropUIChange(Sender: TObject);
 begin
   edtCustomPropUICaption.Visible:=ckbEnableCustomPropUI.Checked and ckbEnableCustomPropUI.Visible;
@@ -765,7 +777,11 @@ begin
     FMysqlVersion :=
       ini.ReadInteger('Options', 'MysqlVersion', 5);
     FRetainAfterCommit :=
-      ini.ReadBool('Options', 'RetainAfterCommit', True);
+      ini.ReadBool('Options', 'RetainAfterCommit', False);     
+    FAutoCommit :=
+      ini.ReadBool('Options', 'AutoCommit', True);
+    FShowJdbcConsole :=
+      ini.ReadBool('Options', 'ShowJdbcConsole', True);
     FEnableCustomPropUI := ini.ReadBool('Options', 'EnableCustomPropUI',
       False);       
     FCustomPropUICaption := ini.ReadString('Options', 'CustomPropUICaption', '');   
@@ -850,7 +866,10 @@ begin
   ckbCreateForeignkeys.Checked := FCreateForeignkeys;
   combHiveVersion.Text := IntToStr(FHiveVersion);     
   combMysqlVersion.Text := IntToStr(FMysqlVersion);
-  ckbRetainAfterCommit.Checked := FRetainAfterCommit;
+  ckbRetainAfterCommit.Checked := FRetainAfterCommit;     
+  ckbAutoCommit.Checked := FAutoCommit;
+  ckbRetainAfterCommit.Enabled:= FAutoCommit;
+  ckbShowJdbcConsole.Checked := FShowJdbcConsole;
   ckbCreateIndexForForeignkey.Checked := FCreateIndexForForeignkey;
   ckbCreateSeqForOracle.Checked := FCreateSeqForOracle;
 
@@ -962,7 +981,9 @@ begin
   FCreateForeignkeys := ckbCreateForeignkeys.Checked;
   FHiveVersion := StrToIntDef(combHiveVersion.Text, FHiveVersion);   
   FMysqlVersion := StrToIntDef(combMysqlVersion.Text, FMysqlVersion);  
-  FRetainAfterCommit := ckbRetainAfterCommit.Checked;
+  FRetainAfterCommit := ckbRetainAfterCommit.Checked;                    
+  FAutoCommit := ckbAutoCommit.Checked;
+  FShowJdbcConsole := ckbShowJdbcConsole.Checked;
   FCreateSeqForOracle := ckbCreateSeqForOracle.Checked;
 
   FMaxRowCountForTableData := StrToIntDef(edtMaxRowCountForTableData.Text,
@@ -1036,7 +1057,9 @@ begin
     ini.WriteBool('Options', 'EnableCustomPropUI', FEnableCustomPropUI);               
     ini.WriteInteger('Options', 'HiveVersion', FHiveVersion);
     ini.WriteInteger('Options', 'MysqlVersion', FMysqlVersion);
-    ini.WriteBool('Options', 'RetainAfterCommit', FRetainAfterCommit);
+    ini.WriteBool('Options', 'RetainAfterCommit', FRetainAfterCommit);    
+    ini.WriteBool('Options', 'AutoCommit', FAutoCommit);
+    ini.WriteBool('Options', 'ShowJdbcConsole', FShowJdbcConsole);
     ini.WriteString('Options', 'CustomPropUICaption', FCustomPropUICaption);   
     ini.WriteString('Options', 'ChatGPTKey', FChatGPTKey);
     ini.WriteBool('Options', 'EnableAdvTbProp', FEnableAdvTbProp);        

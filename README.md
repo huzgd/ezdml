@@ -353,3 +353,6 @@ Add group box, enable ODBC connection for ORACLE/MYSQL/POSTGRE, view diagrams in
 
 2024-04-20 V3.58
 Lock/unlock database files, handling charset issue of ODBC. Bugs fixed.
+
+2024-05-26 V3.59
+Locate last model when opening file. JDBC connection for ORACLE/MYSQL/POSTGRE/SQLSERVER. Bugs fixed.

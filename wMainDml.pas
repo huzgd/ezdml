@@ -84,6 +84,7 @@ type
     MnSaveFile: TMenuItem;
     MnExit: TMenuItem;
     MnQuickStart: TMenuItem;
+    TimerDelayCmd: TTimer;
     TimerInit: TTimer;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
@@ -179,6 +180,7 @@ type
     procedure lbNewVerInfoClick(Sender: TObject);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure TimerDelayCmdTimer(Sender: TObject);
     procedure TimerInitTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -833,6 +835,19 @@ begin
   lbNewVerInfoClick(nil);
 end;
 
+procedure TfrmMainDml.TimerDelayCmdTimer(Sender: TObject);
+begin
+  TimerDelayCmd.Enabled := False;
+  if TimerDelayCmd.Tag = 1 then
+  begin
+    if FCtDataModelList.ModelFileConfig.LastModel <> '' then
+    begin
+      FFrameCtTableDef.FFrameCtTableList.FocusToModel(FCtDataModelList.ModelFileConfig.LastModel);
+      FCtDataModelList.ModelFileConfig.LastModel := '';
+    end;
+  end;
+end;
+
 procedure TfrmMainDml.FormCreate(Sender: TObject);
 var
   db: TCtMetaDatabase;
@@ -1032,6 +1047,11 @@ begin
                    
           FFrameCtTableDef.IsInitLoading := False;
           FFrameCtTableDef.Init(FCtDataModelList, False);
+        end;           
+        if FCtDataModelList.ModelFileConfig.LastModel <> '' then
+        begin
+          TimerDelayCmd.Tag := 1;
+          TimerDelayCmd.Enabled := True;
         end;
         SetStatusBarMsg(GetStatusPanelFileName(fn));
         FCurFileName := fn;
@@ -1209,8 +1229,12 @@ begin
       ini.ReadInteger('Options', 'HiveVersion', G_HiveVersion);  
     G_MysqlVersion :=
       ini.ReadInteger('Options', 'MysqlVersion', G_MysqlVersion);     
+    G_AutoCommit :=
+      ini.ReadBool('Options', 'AutoCommit', G_AutoCommit);
     G_RetainAfterCommit :=
       ini.ReadBool('Options', 'RetainAfterCommit', G_RetainAfterCommit);
+    G_ShowJdbcConsole :=
+      ini.ReadBool('Options', 'ShowJdbcConsole', G_ShowJdbcConsole);
     G_EnableCustomPropUI := ini.ReadBool('Options', 'EnableCustomPropUI',
       G_EnableCustomPropUI); 
     G_CustomPropUICaption := ini.ReadString('Options', 'CustomPropUICaption', '');   
@@ -1314,7 +1338,11 @@ begin
     //if S<>'' then
     //  SetDefaultLang(S);
 
-    G_MyComputerId := ini.ReadString('Updates', 'UID', '');
+    G_MyComputerId := ini.ReadString('Updates', 'UID', '');  
+    if ini.ReadBool('Options', 'EnableHttpServer', False) then
+    begin
+      Self.actHttpServer.Visible := True;
+    end;
 
     FMainSplitterPos := ini.ReadInteger('MainForm', 'MainSplitterPos', FMainSplitterPos);
     FStartMaximized := ini.ReadBool('MainForm', 'Maximized', False); 
@@ -1578,6 +1606,12 @@ begin
       FWaitWnd := nil;
       FFrameCtTableDef.IsInitLoading := False;
       FFrameCtTableDef.Init(FCtDataModelList, False);
+    end;
+
+    if FCtDataModelList.ModelFileConfig.LastModel <> '' then
+    begin
+      TimerDelayCmd.Tag := 1;
+      TimerDelayCmd.Enabled := True;
     end;
 
     SetStatusBarMsg(GetStatusPanelFileName(fn));
@@ -2308,15 +2342,18 @@ begin
     if bForceNow then
     begin
       opt := '[SHOW_PROGRESS]';
-      opt := opt + '[WAIT_TICKS=0]';
+      opt := opt + '[WAIT_TICKS=0][READ_TIMEOUT=20000]';
       opt := opt + '[MSG=' + srEzdmlCheckingForUpdates + ']';
     end
     else
-      opt := '';
+      opt := '[READ_TIMEOUT=1800]';
     try
       try    
         if not bForceNow then
+        begin
           Self.Hide;
+          Application.ProcessMessages;
+        end;
       except
       end;
       jstr := GetUrlData_Net(url, '', opt);
@@ -4141,7 +4178,9 @@ initialization
   G_CreateIndexForForeignkey := False;
   G_HiveVersion := 2;                         
   G_MysqlVersion := 5;
-  G_RetainAfterCommit := False;
+  G_AutoCommit := True;
+  G_RetainAfterCommit := False;    
+  G_ShowJdbcConsole := True;
   G_EnableCustomPropUI := False;       
   G_EnableAdvTbProp := False;
   G_EnableTbPropGenerate := True;

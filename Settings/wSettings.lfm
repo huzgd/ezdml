@@ -1440,12 +1440,12 @@ object frmSettings: TfrmSettings
         end
         object GroupBoxDBConnOthers: TGroupBox
           Left = 8
-          Height = 100
+          Height = 124
           Top = 488
           Width = 520
           Align = alTop
           Caption = 'Others'
-          ClientHeight = 78
+          ClientHeight = 102
           ClientWidth = 516
           TabOrder = 5
           object lbOdbcCharset: TLabel
@@ -1481,10 +1481,27 @@ object frmSettings: TfrmSettings
           object ckbRetainAfterCommit: TCheckBox
             Left = 24
             Height = 21
-            Top = 44
+            Top = 68
             Width = 379
             Caption = 'Retain after commit (enable PacketRecords, may cause error)'
+            TabOrder = 3
+          end
+          object ckbShowJdbcConsole: TCheckBox
+            Left = 300
+            Height = 21
+            Top = 8
+            Width = 136
+            Caption = 'Show JDBC console'
             TabOrder = 1
+          end
+          object ckbAutoCommit: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 47
+            Width = 96
+            Caption = 'Auto commit'
+            OnChange = ckbAutoCommitChange
+            TabOrder = 2
           end
         end
       end

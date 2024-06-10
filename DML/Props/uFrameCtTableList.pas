@@ -182,7 +182,8 @@ type
     procedure DeleteSelectedNodes(bConfirm: Boolean = True);
 
     function GetCtNodeOfTreeNode(Node: TTreeNode): TCtMetaObject;
-    function GetTreeNodeOfCtNode(ACtobj: TCtMetaObject): TTreeNode;   
+    function GetTreeNodeOfCtNode(ACtobj: TCtMetaObject): TTreeNode;
+    procedure FocusToModel(AModelName: string);
     procedure FocusToTable(ATbName: string);
     procedure FocusSibling(bUp: Boolean);
 
@@ -877,7 +878,11 @@ begin
       bExped := TreeViewCttbs.Selected.Expanded
     else
       bExped := False;
-    cto := SelectedCtNode;    
+    cto := SelectedCtNode;
+    if (cto=nil) and Assigned(FCtDataModelList) and (CtDataModelList.ModelFileConfig.LastModel <> '') then
+    begin
+      cto := TCtMetaObject(CtDataModelList.ItemByName(CtDataModelList.ModelFileConfig.LastModel));
+    end;
     cto1 := nil;
     cto2 := nil;
 
@@ -958,7 +963,9 @@ begin
     else if psNode <> nil then
       TreeViewCttbs.Selected := psNode
     else
+    begin
       TreeViewCttbs.Selected := TreeViewCttbs.Items.GetFirstNode;
+    end;
 
     if TreeViewCttbs.Selected = nil then
     begin
@@ -1795,6 +1802,18 @@ begin
     begin
       Result := TreeViewCttbs.Items[I];
       Exit;
+    end;
+end;
+
+procedure TFrameCtTableList.FocusToModel(AModelName: string);
+var
+  md: TCtObject;
+begin
+  md := CtDataModelList.ItemByName(AModelName);
+  if md <> nil then
+    if GetSelectedCtNode <> md then
+    begin
+      Self.SelectedCtNode := TCtMetaObject(md);
     end;
 end;
 

@@ -107,6 +107,8 @@
 {"hash":90893459,"name":"tfrmsettings.groupboxdbconnothers.caption","sourcebytes":[79,116,104,101,114,115],"value":"Others"},
 {"hash":186763450,"name":"tfrmsettings.lbodbccharset.caption","sourcebytes":[79,100,98,99,32,67,104,97,114,115,101,116,58],"value":"Odbc Charset:"},
 {"hash":252922217,"name":"tfrmsettings.ckbretainaftercommit.caption","sourcebytes":[82,101,116,97,105,110,32,97,102,116,101,114,32,99,111,109,109,105,116,32,40,101,110,97,98,108,101,32,80,97,99,107,101,116,82,101,99,111,114,100,115,44,32,109,97,121,32,99,97,117,115,101,32,101,114,114,111,114,41],"value":"Retain after commit (enable PacketRecords, may cause error)"},
+{"hash":250877909,"name":"tfrmsettings.ckbshowjdbcconsole.caption","sourcebytes":[83,104,111,119,32,74,68,66,67,32,99,111,110,115,111,108,101],"value":"Show JDBC console"},
+{"hash":116328724,"name":"tfrmsettings.ckbautocommit.caption","sourcebytes":[65,117,116,111,32,99,111,109,109,105,116],"value":"Auto commit"},
 {"hash":90893459,"name":"tfrmsettings.tabshtothers.caption","sourcebytes":[79,116,104,101,114,115],"value":"Others"},
 {"hash":79384371,"name":"tfrmsettings.groupboxotherstb.caption","sourcebytes":[84,97,98,108,101,32,112,114,111,112,101,114,116,105,101,115],"value":"Table properties"},
 {"hash":4447156,"name":"tfrmsettings.ckbwriteconstrainttodescribestr.caption","sourcebytes":[87,114,105,116,101,32,99,111,110,115,116,114,97,105,110,116,32,116,111,32,116,97,98,108,101,45,100,101,115,99,114,105,112,116,105,111,110,45,116,101,120,116],"value":"Write constraint to table-description-text"},

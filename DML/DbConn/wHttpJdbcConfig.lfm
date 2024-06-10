@@ -1,0 +1,147 @@
+object frmHttpJdbcConfig: TfrmHttpJdbcConfig
+  Left = 408
+  Height = 433
+  Top = 310
+  Width = 473
+  BorderStyle = bsDialog
+  Caption = 'HTTP_JDBC Connection'
+  ClientHeight = 433
+  ClientWidth = 473
+  Color = clBtnFace
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object edtHttpUrl: TEdit
+    Left = 48
+    Height = 25
+    Top = 48
+    Width = 392
+    TabOrder = 0
+  end
+  object btnOK: TButton
+    Left = 272
+    Height = 27
+    Top = 384
+    Width = 96
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 1
+  end
+  object btnCancel: TButton
+    Left = 376
+    Height = 27
+    Top = 384
+    Width = 64
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 2
+  end
+  object btnHelp: TButton
+    Left = 28
+    Height = 27
+    Top = 384
+    Width = 71
+    Caption = 'Help'
+    OnClick = btnHelpClick
+    TabOrder = 3
+  end
+  object btnSettings: TButton
+    Left = 108
+    Height = 27
+    Top = 384
+    Width = 71
+    Caption = 'Settings'
+    OnClick = btnSettingsClick
+    TabOrder = 4
+  end
+  object rdbHttp: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 15
+    Width = 77
+    Caption = 'Http URL:'
+    Checked = True
+    OnChange = rdbHttpChange
+    TabOrder = 5
+    TabStop = True
+  end
+  object rdbJdbc: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 140
+    Width = 55
+    Caption = 'JDBC:'
+    OnChange = rdbHttpChange
+    TabOrder = 6
+  end
+  object btnStartHttpSv: TButton
+    Left = 49
+    Height = 25
+    Top = 90
+    Width = 135
+    Caption = 'Start JDBC Server'
+    OnClick = btnStartHttpSvClick
+    TabOrder = 7
+  end
+  object Label1: TLabel
+    Left = 49
+    Height = 12
+    Top = 184
+    Width = 48
+    Caption = 'DB Type:'
+    ParentColor = False
+  end
+  object combDbType: TComboBox
+    Left = 136
+    Height = 25
+    Top = 180
+    Width = 304
+    ItemHeight = 17
+    OnCloseUp = combDbTypeCloseUp
+    TabOrder = 8
+  end
+  object Label2: TLabel
+    Left = 49
+    Height = 12
+    Top = 228
+    Width = 42
+    Caption = 'Drvier:'
+    ParentColor = False
+  end
+  object edtDriver: TEdit
+    Left = 136
+    Height = 25
+    Top = 228
+    Width = 304
+    TabOrder = 9
+  end
+  object edtJdbcUrl: TEdit
+    Left = 136
+    Height = 25
+    Top = 268
+    Width = 304
+    TabOrder = 10
+  end
+  object Label3: TLabel
+    Left = 49
+    Height = 12
+    Top = 268
+    Width = 24
+    Caption = 'Url:'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 32
+    Height = 64
+    Top = 312
+    Width = 410
+    AutoSize = False
+    Caption = 'Note: JDBC requires the Java runtime environment, and database driver jar files should be placed in the EZDML/jdbc/lib directory.'
+    ParentColor = False
+    WordWrap = True
+  end
+end

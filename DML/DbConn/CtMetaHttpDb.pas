@@ -8,16 +8,22 @@ unit CtMetaHttpDb;
 interface
 
 uses
-  LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, ImgList,
-  CtMetaData, CtMetaTable, CtMetaCustomDb, uJson;
+  LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, ImgList, DB, SqlDB,
+  CtMetaData, CtMetaTable, CtMetaCustomDb, uJson, EzJdbcConn;
 
 type
+
+  TEzHttpJdbcConnection=class(TEzJdbcSqlConnection)
+  end;
 
   { TCtMetaHttpDb }
 
   TCtMetaHttpDb = class(TCtMetaCustomDb)
   private
-  protected
+  protected      
+    FCtJdbcConn: TEzHttpJdbcConnection;  
+    FTrans: TSQLTransaction;
+
     FAccessToken: string; //访问令牌，连接时获取
     function ExecCustomDbCmd(cmd, par1, par2, buf: string): string; override; //子类必须实现此方法
 
@@ -31,15 +37,17 @@ type
 
     function ShowDBConfig(AHandle: THandle): boolean; override;
 
+    function ExecCmd(ACmd, AParam1, AParam2: string): string; override;
+    function OpenTable(ASql, op: string): TDataSet; override;
+
     function GetDbNames: string; override;
   end;
 
 
 implementation
 
-uses            
-  {$ifdef EZDML_LITE}DmlPasScriptLite, {$endif}
-  WindowFuncs, NetUtil, Forms, DmlScriptPublic, dmlstrs, ezdmlstrs;
+uses
+  WindowFuncs, NetUtil, Forms, dmlstrs, wHttpJdbcConfig, CtMetaFCLSqlDb;
 
 { TCtMetaHttpDb }
 
@@ -68,8 +76,32 @@ begin
     Exit;
   if Value then
   begin
-    FConnected := False;
-    S := ExecCustomDbCmdEx('connect', User, Password, DbSchema);
+    FConnected := False;   
+    if Pos('JDBC:', DataBase) = 1 then
+    begin
+      if not Assigned(FCtJdbcConn) then
+      begin
+        FCtJdbcConn:=TEzHttpJdbcConnection.Create(nil);
+        FreeAndNil(FTrans);
+        FTrans := TCtSQLTransaction.Create(nil);  
+        FCtJdbcConn.Transaction := FTrans;
+      end;
+      FCtJdbcConn.HostName:=Self.Database; 
+      S := FCtJdbcConn.HostName;
+      if Pos('JDBC:', S) = 1 then
+        S := Copy(S, 6, Length(S));
+      FCtJdbcConn.DatabaseName := S;
+      FCtJdbcConn.UserName:=Self.User;
+      FCtJdbcConn.Password:=Self.Password;
+      FCtJdbcConn.Connected:=True;
+      FAccessToken := FCtJdbcConn.FAccessToken;
+      FEngineType := FCtJdbcConn.EzDbType;
+      S := FCtJdbcConn.FConnectResponse;
+    end
+    else
+    begin
+      S := ExecCustomDbCmdEx('connect', User, Password, DbSchema);
+    end;
     if S = '' then
       RaiseError('no_data_result', 'connect');
     map := ConvertStrToJson(S);
@@ -87,15 +119,23 @@ begin
     FEngineType := map.getString('EngineType');
     DbSchema := GetDbQuotName(map.getString('DbSchema'), Self.EngineType);
     if FEngineType = '' then
-      RaiseError('no_engine_type', 'connect');   
+      RaiseError('no_engine_type', 'connect');
     FNeedGenCustomSql := map.optBoolean('NeedGenCustomSql');
+    map.Free;
 
     FConnected := Value;
   end
   else
   begin
     try
-      S := ExecCustomDbCmdEx('disconnect', FAccessToken, '', '');
+      if Assigned(FCtJdbcConn) then
+      begin
+        FCtJdbcConn.Connected:=False;
+        FreeAndNil(FCtJdbcConn);   
+        FreeAndNil(FTrans);
+      end
+      else
+        S := ExecCustomDbCmdEx('disconnect', FAccessToken, '', '');
     finally
       FConnected := False;
     end;
@@ -108,87 +148,92 @@ begin
 end;
 
 function TCtMetaHttpDb.ShowDBConfig(AHandle: THandle): boolean;
-  function GetJdbcCmdFn: string;
-  begin
-    Result := GetFolderPathOfAppExe('CustomTools');
-    Result:=FolderAddFileName(Result, 'JDBC server.pas');
-  end;
-
-  procedure ExecDmlScriptFile();
-  var
-    FileTxt, AOutput: TStrings;
-    fn, S: string;
-    bUtf8: Boolean;
-    cTb: TCtMetaTable;
-  {$ifdef EZDML_LITE}
-    ScLt : TDmlPasScriptorLite;
-  {$endif}
-  begin
-
-  {$ifdef EZDML_LITE}
-    ScLt := CreatePsLiteScriptor('JDBC server', 'Tool');
-    if ScLt <> nil then
-    begin
-      AOutput := TStringList.Create;
-      try
-        with ScLt do
-        begin
-          Init('DML_SCRIPT', nil, AOutput, nil);
-          Exec('DML_SCRIPT', '');
-        end;
-      finally
-        AOutput.Free;
-        ScLt.Free;
-      end;
-      Exit;
-    end;
-  {$endif}
-    fn := GetJdbcCmdFn;
-    if not FileExists(fn) then
-      raise Exception.Create('Script file not found: ' + fn);
-
-    cTb := nil;
-
-    FileTxt := TStringList.Create;
-    AOutput := TStringList.Create;
-    with CreateScriptForFile(fn) do
-    try
-      ActiveFile := fn;
-      FileTxt.LoadFromFile(fn);
-      S := FileTxt.Text;
-      bUtf8 := False;
-      if Length(S) > 3 then
-        if (Ord(S[1]) = $EF) and (Ord(S[2]) = $BB) and (Ord(S[3]) = $BF) then
-        begin
-          S := Copy(S, 4, Length(S));
-          bUtf8 := True;
-        end;
-      if not bUtf8 then
-        if Pos('UTF-8', UpperCase(S)) >= 0 then
-          bUtf8 := True;
-      if bUtf8 then
-      begin
-        S := Utf8Decode(S);
-      end;
-
-      Init('DML_SCRIPT', cTb, AOutput, nil);
-      Exec('DML_SCRIPT', FileTxt.Text);
-    finally
-      FileTxt.Free;
-      AOutput.Free;
-      Free;
-    end;
-  end;
-
 var
   S: string;
 begin
   //显示连接界面，用于获取服务地址端口用户名密码等信息
-  Result := False;
-  if Application.MessageBox(PChar(srHttpJdbcConfigTip), PChar(Application.Title), MB_OKCANCEL or MB_ICONQUESTION) <> IDOK then
-    Exit;
+  Result := False;                            
+  S := TfrmHttpJdbcConfig.DoDBConfig(Database);
+  if S <> '' then
+  begin
+    Database := S;
+    Result := True;
+  end;
+end;
 
-  ExecDmlScriptFile();
+function TCtMetaHttpDb.ExecCmd(ACmd, AParam1, AParam2: string): string;
+begin        
+  if ACmd='CT_BEFORE_RECONNECT' then
+  begin
+    if Connected and Assigned(FCtJdbcConn) then
+      if AParam1=Self.Database then
+        if AParam2=(Self.User+'/'+Self.Password) then    
+          if FCtJdbcConn.JdbcProcActive then
+          begin
+            Result := '_HANDLED';
+            Exit;
+          end;
+  end;
+  Result:=inherited ExecCmd(ACmd, AParam1, AParam2);
+end;
+
+function TCtMetaHttpDb.OpenTable(ASql, op: string): TDataSet;   
+  function isSql: boolean;
+  var
+    S: String;
+  begin
+    S := ' '+LowerCase(ASql);
+    S:=StringReplace(S,#13,' ',[rfReplaceAll]);
+    S:=StringReplace(S,#10,' ',[rfReplaceAll]);
+    S:=StringReplace(S,#9,' ',[rfReplaceAll]);
+    if Pos(' select ',S) > 0 then
+      Result := True
+    else
+      Result := False;
+  end;     
+var
+  S: string;
+begin              
+  if not Assigned(FCtJdbcConn) or not FCtJdbcConn.Connected then
+  begin
+    Result:=inherited OpenTable(ASql, op);
+    Exit;
+  end;
+
+  if (Pos('[EXECSQL]', op) > 0) or (Pos('[EXECSQL]', ASql) > 0) then
+  begin
+    Self.ExecSql(ASql);
+    Result := nil;
+    Exit;
+  end;
+
+  if (Pos('[ISSQL]', op) > 0) or IsSql then
+    S := ASql
+  else
+    S := 'select * from ' + ASql;
+  Result := TCtSQLQuery.Create(nil);
+  TSQLQuery(Result).DataBase := FCtJdbcConn;
+  TSQLQuery(Result).Sql.Text := S;
+  if not G_AutoCommit then
+    TSQLQuery(Result).Options := [sqoAutoApplyUpdates]
+  else if G_RetainAfterCommit then
+    TSQLQuery(Result).Options := [sqoAutoApplyUpdates]
+  else
+    TSQLQuery(Result).Options := [sqoKeepOpenOnCommit, sqoAutoApplyUpdates];
+  try
+    Result.Open;
+    //FLastCmdRowAffected := Result.RecordCount;
+    if G_AutoCommit and (Pos('[NO_CT_TRANS]', ASql) = 0) then
+      FCtJdbcConn.Transaction.CommitRetaining;
+  except
+    try
+      if G_AutoCommit and (Pos('[NO_CT_TRANS]', ASql) = 0) then
+        FCtJdbcConn.Transaction.RollbackRetaining;
+    except
+    end;
+    raise;
+  end;
+  CheckDsUpdateMode(TSQLQuery(Result));
 end;
 
 function TCtMetaHttpDb.ExecCustomDbCmd(cmd, par1, par2, buf: string): string;
@@ -204,6 +249,8 @@ var
 begin
   //执行命令，返回JSON字符串，其中resultCode=-1表示失败，errorMsg为出错信息，其它情况为成功
   url := Self.Database;
+  if Assigned(FCtJdbcConn) then
+    url := FCtJdbcConn.FJdbcSvAddr;
   url := url + '?cmd=' + cmd;
   if Self.Connected then
     if FAccessToken <> '' then
@@ -227,7 +274,7 @@ end;
 
 function TCtMetaHttpDb.GetDbNames: string;
 begin
-  Result := 'http://localhost:8083/ezdml/'#13#10'http://192.168.1.11:8083/ezdml/';
+  Result := 'http://localhost:8083/ezdml/'#13#10'http://192.168.1.11:8083/ezdml/'#10'JDBC:jdbc:mysql://192.168.1.1:3306/dbname';
 end;
 
 initialization

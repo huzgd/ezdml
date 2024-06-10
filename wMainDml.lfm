@@ -694,4 +694,11 @@ object frmMainDml: TfrmMainDml
       6A00D5D5D500FFFFFF00F7F7F700
     }
   end
+  object TimerDelayCmd: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = TimerDelayCmdTimer
+    left = 344
+    top = 272
+  end
 end

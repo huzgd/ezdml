@@ -251,7 +251,7 @@ begin
         Name := vFieldDef.Name;
         Nullable := not vFieldDef.Required;
         case vFieldDef.DataType of
-          ftString, ftFixedChar, ftWideString:
+          ftGuid, ftString, ftFixedChar, ftWideString:
           begin
             DataType := cfdtString;
             DataLength := vFieldDef.Size;
@@ -270,7 +270,7 @@ begin
           end;
           ftBoolean:
             DataType := cfdtBool;
-          ftFloat, ftCurrency, ftBCD:
+          ftFloat, ftCurrency, ftBCD, ftFMTBcd:
           begin
             DataType := cfdtFloat;
             DataLength := vFieldDef.Precision;
@@ -287,7 +287,7 @@ begin
           end;
           ftParadoxOle, ftDBaseOle, ftTypedBinary, ftCursor,
           ftLargeint, ftADT, ftReference, ftDataSet,
-          ftInterface, ftIDispatch, ftGuid, ftFMTBcd:
+          ftInterface, ftIDispatch:
           begin
             DataType := cfdtOther;
             DataTypeName := GetDbFieldTypeName(FQuery, vFieldDef);

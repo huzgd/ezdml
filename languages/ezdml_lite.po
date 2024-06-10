@@ -495,6 +495,17 @@ msgstr ""
 msgid "%d/%d Executing SQL...%s"
 msgstr ""
 
+#: dmlstrs.srezjdbcdriverlist
+msgid ""
+"ORACLE=driver=oracle.jdbc.OracleDriver;url=jdbc:oracle:thin:@127.0.0.1:1521:{database}\n"
+"MYSQL=driver=com.mysql.jdbc.Driver;url=jdbc:mysql://127.0.0.1:3306/{database}\n"
+"POSTGRESQL=driver=org.postgresql.Driver;url=jdbc:postgresql://127.0.0.1:5432/{database}\n"
+"SQLSERVER=driver=com.microsoft.sqlserver.jdbc.SQLServerDriver;url=jdbc:sqlserver://127.0.0.1:1433#59#DatabaseName={database}\n"
+"H2=driver=org.h2.Driver;url=jdbc:h2:{file}\n"
+"DAMENG=driver=dm.jdbc.driver.DmDriver;url=jdbc:dm://127.0.0.1:5236\n"
+"HIVE=driver=org.apache.hive.jdbc.HiveDriver;url=jdbc:hive2://127.0.0.1:10000/default\n"
+msgstr ""
+
 #: dmlstrs.srfieldaggregatefun
 msgid ""
 "Sum\n"
@@ -727,12 +738,6 @@ msgstr ""
 
 #: dmlstrs.srhours
 msgid "Hours"
-msgstr ""
-
-#: dmlstrs.srhttpjdbcconfigtip
-msgid ""
-"Access JDBC through HTTP: we need java vm, JDBC driver and configs (JDBC url, username, password, etc.), then run the local HTTP server for EZDML HTTP_JDBC to call.\n"
-"Click OK to continue.\n"
 msgstr ""
 
 #: dmlstrs.srhugemode
@@ -3883,6 +3888,10 @@ msgctxt "tfrmcommdbconfig.label6.caption"
 msgid "DSN:"
 msgstr ""
 
+#: tfrmcommdbconfig.memojdbcconnstr.hint
+msgid "Format: url=jdbc:xxx:@192.168.1.1:xxx/db;driver=com.xxx.Driver"
+msgstr ""
+
 #: tfrmcommdbconfig.rbdodbcdsn.caption
 msgctxt "tfrmcommdbconfig.rbdodbcdsn.caption"
 msgid "ODBC DSN:"
@@ -3891,6 +3900,11 @@ msgstr ""
 #: tfrmcommdbconfig.rdbipaddr.caption
 msgctxt "tfrmcommdbconfig.rdbipaddr.caption"
 msgid "Specify address:"
+msgstr ""
+
+#: tfrmcommdbconfig.rdbjdbcconnstr.caption
+msgctxt "tfrmcommdbconfig.rdbjdbcconnstr.caption"
+msgid "JDBC properties:"
 msgstr ""
 
 #: tfrmcommdbconfig.rdbodbcconnstr.caption
@@ -5181,9 +5195,18 @@ msgctxt "tfrmoradbconfig.label6.caption"
 msgid "DSN:"
 msgstr ""
 
+#: tfrmoradbconfig.memojdbcconnstr.hint
+msgid "Format: url=jdbc:oracle:thin:@192.168.1.5:1521:orcl;driver=oracle.jdbc.OracleDriver"
+msgstr ""
+
 #: tfrmoradbconfig.rbdodbcdsn.caption
 msgctxt "tfrmoradbconfig.rbdodbcdsn.caption"
 msgid "ODBC DSN:"
+msgstr ""
+
+#: tfrmoradbconfig.rdbjdbcconnstr.caption
+msgctxt "tfrmoradbconfig.rdbjdbcconnstr.caption"
+msgid "JDBC properties:"
 msgstr ""
 
 #: tfrmoradbconfig.rdbnetsvc.caption
@@ -5297,6 +5320,10 @@ msgstr ""
 msgid "Add field-comments to table-creation-SQL"
 msgstr ""
 
+#: tfrmsettings.ckbautocommit.caption
+msgid "Auto commit"
+msgstr ""
+
 #: tfrmsettings.ckbbackupbeforealtercolumn.caption
 msgid "Generate backup SQL before altering columns"
 msgstr ""
@@ -5373,6 +5400,10 @@ msgstr ""
 
 #: tfrmsettings.ckbsavetempfileonexit.caption
 msgid "Save temporary file on exit"
+msgstr ""
+
+#: tfrmsettings.ckbshowjdbcconsole.caption
+msgid "Show JDBC console"
 msgstr ""
 
 #: tfrmsettings.ckbtabledialogviewmodebydefault.caption
@@ -5798,6 +5829,10 @@ msgctxt "tfrmsqlsvrdbconfig.label6.caption"
 msgid "DSN:"
 msgstr ""
 
+#: tfrmsqlsvrdbconfig.memojdbcconnstr.hint
+msgid "Format: url=jdbc:sqlserver://localhost:1433#59#databaseName=DbName;driver=com.microsoft.sqlserver.jdbc.SQLServerDriver"
+msgstr ""
+
 #: tfrmsqlsvrdbconfig.rbdodbcdsn.caption
 msgctxt "tfrmsqlsvrdbconfig.rbdodbcdsn.caption"
 msgid "ODBC DSN:"
@@ -5806,6 +5841,11 @@ msgstr ""
 #: tfrmsqlsvrdbconfig.rdbipaddr.caption
 msgctxt "tfrmsqlsvrdbconfig.rdbipaddr.caption"
 msgid "Specify address:"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.rdbjdbcconnstr.caption
+msgctxt "tfrmsqlsvrdbconfig.rdbjdbcconnstr.caption"
+msgid "JDBC properties:"
 msgstr ""
 
 #: tfrmsqlsvrdbconfig.rdbodbcconnstr.caption

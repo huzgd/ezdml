@@ -42,7 +42,7 @@ type
 implementation
 
 uses
-  wSqlServerDBConfig, Dialogs, Forms, dmlstrs, WindowFuncs;
+  wSqlServerDBConfig, Dialogs, Forms, dmlstrs, WindowFuncs, EzJdbcConn;
 
 { TCtMetaSqlsvrDb }
 
@@ -50,7 +50,9 @@ uses
 function TCtMetaSqlsvrDb.CreateSqlDbConn: TSQLConnection;
 begin                
   if (Pos('DSN:', DataBase) = 1) or (Pos('ODBC:', DataBase) = 1) then
-    FUseDriverType := 'ODBC'
+    FUseDriverType := 'ODBC'   
+  else if Pos('JDBC:', DataBase) = 1 then
+    FUseDriverType := 'JDBC'
   else
     FUseDriverType := '';
   if FUseDriverType='ODBC' then
@@ -59,6 +61,11 @@ begin
     Result.CharSet := Trim(G_OdbcCharset);
     if Pos('[GSQL_FIELD_NULL]', FExtraOpt) > 0 then
       FExtraOpt := StringReplace(FExtraOpt, '[GSQL_FIELD_NULL]', '', []);
+  end  
+  else if FUseDriverType='JDBC' then
+  begin
+    Result := TEzJdbcSqlConnection.Create(nil);
+    TEzJdbcSqlConnection(Result).EzDbType := 'SQLSERVER';
   end
   else
   begin
@@ -148,6 +155,14 @@ begin
       S := StringReplace(S, ';', #10, [rfReplaceAll]);
       FDbConn.Params.Text := S;
     end;
+  end  
+  else if FUseDriverType='JDBC' then
+  begin
+    S := FDbConn.HostName;
+    if Pos('JDBC:', S) = 1 then
+      S := Copy(S, 6, Length(S));
+
+    FDbConn.DatabaseName := S;
   end
   else
   begin
@@ -195,7 +210,7 @@ end;
 function TCtMetaSqlsvrDb.GetDbNames: string;
 begin
   Result := 'localhost\MSSQLSERVER@master'#10'192.168.1.123:1433\MSSQLSERVER@master';
-  Result := Result + #10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;';
+  Result := Result + #10'JDBC:jdbc:sqlserver://localhost:1433#59#databaseName=DbName'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;';
 end;
 
 function TCtMetaSqlsvrDb.GetDbObjs(ADbUser: string): TStrings;

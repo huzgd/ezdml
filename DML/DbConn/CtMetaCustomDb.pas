@@ -9,9 +9,7 @@ interface
 
 uses
   LCLIntf, LCLType, Messages, SysUtils, Variants, Classes, Graphics, Controls, ImgList,
-  CtMetaData, CtMetaTable, DB, memds, uJson
-  //, CtCustomSqlConn
-  ;
+  CtMetaData, CtMetaTable, DB, memds, uJson;
 
 type
 

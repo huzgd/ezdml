@@ -177,8 +177,8 @@ type
   end;
    
 const
-  DEF_CURCTVER = 'CT36';
-  DEF_CURCTVER_VAL = 36;
+  DEF_CURCTVER = 'CT37';
+  DEF_CURCTVER_VAL = 37;
 var     
 {$IFnDEF FPC}    
   G_SysIsUtf8Encoding: Boolean = False; //系统是否UTF8编码？LAZARUS为TRUE，BDS为FALSE

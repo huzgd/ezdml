@@ -27,9 +27,11 @@ type
     btnCancel: TButton;
     Label6: TLabel;
     MemoOdbcConnStr: TMemo;
+    MemoJdbcConnStr: TMemo;
     rbdOdbcDsn: TRadioButton;
     rdbIPAddr: TRadioButton;
     rdbOdbcConnStr: TRadioButton;
+    rdbJdbcConnStr: TRadioButton;
     procedure btnBrowseDsnClick(Sender: TObject);
     procedure btnHelpClick(Sender: TObject);
     procedure btnSettingsClick(Sender: TObject);
@@ -66,17 +68,32 @@ begin
   try
     FDBType :=ADbType;
     if FDBType = 'MYSQL' then
-    begin
+    begin                                
+      MemoJdbcConnStr.Lines.Text := 'url=jdbc:mysql://192.168.1.1:3306/dbname;';
       MemoOdbcConnStr.Lines.Text := 'Driver=MySQL ODBC 8.0 Driver;Server=MyDbServer;Port=3306;Database={database_name};';
     end
     else if FDBType = 'POSTGRESQL' then
-    begin
+    begin                    
+      MemoJdbcConnStr.Lines.Text := 'url=jdbc:postgresql://localhost:5432/dbname;';
       MemoOdbcConnStr.Lines.Text := 'Driver=PostgreSQL Unicode;Server=MyDbServer;Port=5432;Database={database_name};';
     end;
     if Copy(AString, 1,4)='DSN:' then
     begin
       rbdOdbcDsn.Checked := True;
       edtDsnName.Text := Copy(AString, 5, Length(AString));
+    end 
+    else if Copy(AString, 1, 5)='JDBC:' then
+    begin
+      rdbJdbcConnStr.Checked := True;
+      S := Copy(AString, 6, Length(AString));
+      if S<>'' then
+        if (Pos(';', S)=0) and (Pos('url=', S)=0) then
+        begin
+          S:='url='+S;
+          if Copy(S, Length(S), 1)<>';' then
+            S:=S+';';
+        end;
+      MemoJdbcConnStr.Lines.Text := S;
     end
     else if Copy(AString, 1, 5)='ODBC:' then
     begin
@@ -191,6 +208,8 @@ begin
 end;
 
 function TfrmCommDBConfig.GenResult: string;
+var
+  S: String;
 begin                 
   Result := '';
   if rdbIPAddr.Checked then
@@ -202,6 +221,22 @@ begin
       Result :=  Result + ':' + Trim(edtPort.Text);
     if Trim(edtDbName.Text)<>'' then
       Result :=  Result + '@' + Trim(edtDbName.Text);
+  end    
+  else if rdbJdbcConnStr.Checked then
+  begin
+    if Trim(MemoJdbcConnStr.Lines.Text) = '' then
+      Exit;
+    S := Trim(MemoJdbcConnStr.Lines.Text); 
+    while Copy(S, Length(S),1)=';' do
+      Delete(S, Length(S), 1);
+    if Copy(S, 1,4)='url=' then
+    begin
+      if Pos(';', S)=0 then
+        S := Copy(S, 5, Length(S));
+    end;        
+    S:=StringReplace(S, #13#10, ';', [rfReplaceAll]);
+    S:=StringReplace(S, #10, ';', [rfReplaceAll]);
+    Result := 'JDBC:'+S;
   end
   else if rbdOdbcDsn.Checked then
   begin
@@ -240,6 +275,22 @@ begin
 
     edtDbName.Color := clWindow;
     edtDbName.Enabled := True;
+  end;
+
+  {$ifdef EZDML_LITE}
+  rdbJdbcConnStr.Enabled:=False;
+  if rdbJdbcConnStr.Checked then
+    rdbJdbcConnStr.Checked := False;
+  {$endif}
+  if not rdbJdbcConnStr.Checked then
+  begin
+    MemoJdbcConnStr.ParentColor := True;
+    MemoJdbcConnStr.Enabled := False;
+  end
+  else
+  begin
+    MemoJdbcConnStr.Color := clWindow;
+    MemoJdbcConnStr.Enabled := True;
   end;
 
   if not rbdOdbcDsn.Checked then

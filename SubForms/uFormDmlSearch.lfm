@@ -8,9 +8,6 @@ object frmDmlSearch: TfrmDmlSearch
   ClientHeight = 605
   ClientWidth = 917
   Color = clBtnFace
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
@@ -154,9 +151,6 @@ object frmDmlSearch: TfrmDmlSearch
     RangeSelectMode = rsmMulti
     RowCount = 3
     TabOrder = 2
-    TitleFont.Color = clWindowText
-    TitleFont.Height = -11
-    TitleFont.Name = 'Tahoma'
     OnDblClick = StringGridSearchResDblClick
     OnDrawCell = StringGridSearchResDrawCell
     ColWidths = (

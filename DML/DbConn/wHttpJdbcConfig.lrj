@@ -1,0 +1,14 @@
+{"version":1,"strings":[
+{"hash":192442494,"name":"tfrmhttpjdbcconfig.caption","sourcebytes":[72,84,84,80,95,74,68,66,67,32,67,111,110,110,101,99,116,105,111,110],"value":"HTTP_JDBC Connection"},
+{"hash":1339,"name":"tfrmhttpjdbcconfig.btnok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfrmhttpjdbcconfig.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":322608,"name":"tfrmhttpjdbcconfig.btnhelp.caption","sourcebytes":[72,101,108,112],"value":"Help"},
+{"hash":213582195,"name":"tfrmhttpjdbcconfig.btnsettings.caption","sourcebytes":[83,101,116,116,105,110,103,115],"value":"Settings"},
+{"hash":187033930,"name":"tfrmhttpjdbcconfig.rdbhttp.caption","sourcebytes":[72,116,116,112,32,85,82,76,58],"value":"Http URL:"},
+{"hash":5146218,"name":"tfrmhttpjdbcconfig.rdbjdbc.caption","sourcebytes":[74,68,66,67,58],"value":"JDBC:"},
+{"hash":59290114,"name":"tfrmhttpjdbcconfig.btnstarthttpsv.caption","sourcebytes":[83,116,97,114,116,32,74,68,66,67,32,83,101,114,118,101,114],"value":"Start JDBC Server"},
+{"hash":73138698,"name":"tfrmhttpjdbcconfig.label1.caption","sourcebytes":[68,66,32,84,121,112,101,58],"value":"DB Type:"},
+{"hash":194837530,"name":"tfrmhttpjdbcconfig.label2.caption","sourcebytes":[68,114,118,105,101,114,58],"value":"Drvier:"},
+{"hash":379130,"name":"tfrmhttpjdbcconfig.label3.caption","sourcebytes":[85,114,108,58],"value":"Url:"},
+{"hash":123481134,"name":"tfrmhttpjdbcconfig.label4.caption","sourcebytes":[78,111,116,101,58,32,74,68,66,67,32,114,101,113,117,105,114,101,115,32,116,104,101,32,74,97,118,97,32,114,117,110,116,105,109,101,32,101,110,118,105,114,111,110,109,101,110,116,44,32,97,110,100,32,100,97,116,97,98,97,115,101,32,100,114,105,118,101,114,32,106,97,114,32,102,105,108,101,115,32,115,104,111,117,108,100,32,98,101,32,112,108,97,99,101,100,32,105,110,32,116,104,101,32,69,90,68,77,76,47,106,100,98,99,47,108,105,98,32,100,105,114,101,99,116,111,114,121,46],"value":"Note: JDBC requires the Java runtime environment, and database driver jar files should be placed in the EZDML/jdbc/lib directory."}
+]}

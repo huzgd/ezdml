@@ -14,5 +14,7 @@
 {"hash":106218906,"name":"tfrmoradbconfig.rbdodbcdsn.caption","sourcebytes":[79,68,66,67,32,68,83,78,58],"value":"ODBC DSN:"},
 {"hash":301082,"name":"tfrmoradbconfig.label6.caption","sourcebytes":[68,83,78,58],"value":"DSN:"},
 {"hash":77164181,"name":"tfrmoradbconfig.btnbrowsedsn.caption","sourcebytes":[66,114,111,119,115,101],"value":"Browse"},
-{"hash":79787546,"name":"tfrmoradbconfig.rdbodbcconnstr.caption","sourcebytes":[79,68,66,67,32,67,111,110,110,101,99,116,105,111,110,32,83,116,114,105,110,103,58],"value":"ODBC Connection String:"}
+{"hash":79787546,"name":"tfrmoradbconfig.rdbodbcconnstr.caption","sourcebytes":[79,68,66,67,32,67,111,110,110,101,99,116,105,111,110,32,83,116,114,105,110,103,58],"value":"ODBC Connection String:"},
+{"hash":132880242,"name":"tfrmoradbconfig.memojdbcconnstr.hint","sourcebytes":[70,111,114,109,97,116,58,32,117,114,108,61,106,100,98,99,58,111,114,97,99,108,101,58,116,104,105,110,58,64,49,57,50,46,49,54,56,46,49,46,53,58,49,53,50,49,58,111,114,99,108,59,100,114,105,118,101,114,61,111,114,97,99,108,101,46,106,100,98,99,46,79,114,97,99,108,101,68,114,105,118,101,114],"value":"Format: url=jdbc:oracle:thin:@192.168.1.5:1521:orcl;driver=oracle.jdbc.OracleDriver"},
+{"hash":166298218,"name":"tfrmoradbconfig.rdbjdbcconnstr.caption","sourcebytes":[74,68,66,67,32,112,114,111,112,101,114,116,105,101,115,58],"value":"JDBC properties:"}
 ]}

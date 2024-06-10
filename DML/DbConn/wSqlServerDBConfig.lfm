@@ -1,11 +1,11 @@
 object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   Left = 397
-  Height = 463
+  Height = 564
   Top = 320
   Width = 473
   BorderStyle = bsDialog
   Caption = 'SQLServer Connection'
-  ClientHeight = 463
+  ClientHeight = 564
   ClientWidth = 473
   Color = clBtnFace
   OnCloseQuery = FormCloseQuery
@@ -54,7 +54,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   object btnOK: TButton
     Left = 268
     Height = 27
-    Top = 420
+    Top = 516
     Width = 100
     Caption = 'OK'
     Default = True
@@ -64,7 +64,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   object btnCancel: TButton
     Left = 376
     Height = 27
-    Top = 420
+    Top = 516
     Width = 64
     Cancel = True
     Caption = 'Cancel'
@@ -87,7 +87,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   object btnHelp: TButton
     Left = 20
     Height = 25
-    Top = 420
+    Top = 516
     Width = 74
     Caption = 'Help'
     OnClick = btnHelpClick
@@ -132,7 +132,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   object rbdOdbcDsn: TRadioButton
     Left = 22
     Height = 21
-    Top = 224
+    Top = 320
     Width = 90
     Caption = 'ODBC DSN:'
     OnChange = rdbIPAddrChange
@@ -141,7 +141,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   object Label6: TLabel
     Left = 48
     Height = 12
-    Top = 260
+    Top = 356
     Width = 24
     Caption = 'DSN:'
     ParentColor = False
@@ -149,14 +149,14 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   object edtDsnName: TEdit
     Left = 116
     Height = 25
-    Top = 256
+    Top = 352
     Width = 256
     TabOrder = 6
   end
   object btnBrowseDsn: TButton
     Left = 376
     Height = 25
-    Top = 256
+    Top = 352
     Width = 64
     Caption = 'Browse'
     OnClick = btnBrowseDsnClick
@@ -165,7 +165,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   object rdbOdbcConnStr: TRadioButton
     Left = 22
     Height = 21
-    Top = 300
+    Top = 396
     Width = 167
     Caption = 'ODBC Connection String:'
     OnChange = rdbIPAddrChange
@@ -174,7 +174,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   object MemoOdbcConnStr: TMemo
     Left = 48
     Height = 66
-    Top = 332
+    Top = 428
     Width = 392
     Lines.Strings = (
       'Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;'
@@ -184,10 +184,33 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
   object btnSettings: TButton
     Left = 100
     Height = 25
-    Top = 420
+    Top = 516
     Width = 70
     Caption = 'Settings'
     OnClick = btnSettingsClick
     TabOrder = 13
+  end
+  object MemoJdbcConnStr: TMemo
+    Left = 48
+    Height = 54
+    Hint = 'Format: url=jdbc:sqlserver://localhost:1433#59#databaseName=DbName;driver=com.microsoft.sqlserver.jdbc.SQLServerDriver'
+    Top = 248
+    Width = 392
+    Lines.Strings = (
+      'url=jdbc:sqlserver://localhost:1433#59#databaseName=DbName;'
+    )
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 14
+    WantReturns = False
+  end
+  object rdbJdbcConnStr: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 216
+    Width = 120
+    Caption = 'JDBC properties:'
+    OnChange = rdbIPAddrChange
+    TabOrder = 15
   end
 end

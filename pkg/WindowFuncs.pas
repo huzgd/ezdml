@@ -41,6 +41,9 @@ function CtStringToDateTime(s: string): TDateTime;
 function CtStringToBool(AVal: string): Boolean;
 function CtTrim(s: string): string;
 
+function GetEnvVar(const AName, ADef: string): string;
+procedure SetEnvVar(const AName, AValue: string);
+
 function IntToShift(i: integer): TShiftState;
 
 function WriteMsgToFile(LogFile, Msg: string): boolean; //追加信息写入日志文件
@@ -353,6 +356,52 @@ begin
     Result := StringReplace(Result, '#23', #23, [rfReplaceAll]);
 end;
 
+  
+{$ifdef WINDOWS}
+function GetEnvironmentVariable(lpName: PChar; lpBuffer: PChar; nSize: DWORD): DWORD; stdcall;
+  external 'kernel32.dll' Name 'GetEnvironmentVariableA';
+function SetEnvironmentVariable(lpName, lpValue: PChar): BOOL; stdcall;
+  external 'kernel32.dll' Name 'SetEnvironmentVariableA';
+{$endif}
+{$IFDEF UNIX}
+function getenv_lib(_para1: PChar): PChar;
+  cdecl; external 'libc' Name 'getenv';
+function setenv(_para1: PChar; _para2: PChar; _para3: longint): longint;
+  cdecl; external 'libc' Name 'setenv';
+{$ENDIF UNIX}
+
+
+function GetEnvVar(const AName, ADef: string): string;
+{$ifdef WINDOWS}
+var
+  Len: integer;
+{$endif}
+begin
+  Result := '';
+  {$ifdef WINDOWS}
+  Len := GetEnvironmentVariable(PChar(AName), nil, 0);
+  if Len > 0 then
+  begin
+    SetLength(Result, Len - 1);
+    GetEnvironmentVariable(PChar(AName), PChar(Result), Len);
+  end;
+  {$endif}
+  {$IFDEF UNIX}
+  Result := getenv_lib(PChar(AName));
+  {$endif}
+  if Result='' then
+    Result := ADef;
+end;
+
+procedure SetEnvVar(const AName, AValue: string);
+begin
+  {$ifdef WINDOWS}
+  SetEnvironmentVariable(PAnsiChar(AName), PAnsiChar(AValue));
+  {$endif}
+  {$IFDEF UNIX}
+  setenv(PChar(AName), PChar(AValue), 1);
+  {$ENDIF}
+end;
 
 
 function ScaleDPISize(ASize: Integer): Integer;

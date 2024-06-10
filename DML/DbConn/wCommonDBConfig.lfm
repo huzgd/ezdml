@@ -1,11 +1,11 @@
 object frmCommDBConfig: TfrmCommDBConfig
   Left = 408
-  Height = 409
+  Height = 490
   Top = 310
   Width = 473
   BorderStyle = bsDialog
   Caption = 'Database Connection'
-  ClientHeight = 409
+  ClientHeight = 490
   ClientWidth = 473
   Color = clBtnFace
   OnCloseQuery = FormCloseQuery
@@ -14,25 +14,25 @@ object frmCommDBConfig: TfrmCommDBConfig
   LCLVersion = '2.0.12.0'
   object Label1: TLabel
     Left = 48
-    Height = 17
+    Height = 12
     Top = 56
-    Width = 40
+    Width = 42
     Caption = 'Server:'
     ParentColor = False
   end
   object Label2: TLabel
     Left = 320
-    Height = 17
+    Height = 12
     Top = 56
-    Width = 27
+    Width = 30
     Caption = 'Port:'
     ParentColor = False
   end
   object Label3: TLabel
     Left = 48
-    Height = 17
+    Height = 12
     Top = 96
-    Width = 58
+    Width = 54
     Caption = 'Database:'
     ParentColor = False
   end
@@ -53,7 +53,7 @@ object frmCommDBConfig: TfrmCommDBConfig
   object btnOK: TButton
     Left = 272
     Height = 27
-    Top = 364
+    Top = 452
     Width = 96
     Caption = 'OK'
     Default = True
@@ -63,7 +63,7 @@ object frmCommDBConfig: TfrmCommDBConfig
   object btnCancel: TButton
     Left = 376
     Height = 27
-    Top = 364
+    Top = 452
     Width = 64
     Cancel = True
     Caption = 'Cancel'
@@ -73,7 +73,7 @@ object frmCommDBConfig: TfrmCommDBConfig
   object btnHelp: TButton
     Left = 28
     Height = 27
-    Top = 364
+    Top = 452
     Width = 71
     Caption = 'Help'
     OnClick = btnHelpClick
@@ -95,7 +95,7 @@ object frmCommDBConfig: TfrmCommDBConfig
   object btnSettings: TButton
     Left = 108
     Height = 27
-    Top = 364
+    Top = 452
     Width = 71
     Caption = 'Settings'
     OnClick = btnSettingsClick
@@ -115,53 +115,76 @@ object frmCommDBConfig: TfrmCommDBConfig
   object rbdOdbcDsn: TRadioButton
     Left = 22
     Height = 21
-    Top = 160
+    Top = 248
     Width = 90
     Caption = 'ODBC DSN:'
     OnChange = rdbIPAddrChange
-    TabOrder = 8
+    TabOrder = 10
   end
   object Label6: TLabel
     Left = 48
-    Height = 17
-    Top = 196
-    Width = 29
+    Height = 12
+    Top = 284
+    Width = 24
     Caption = 'DSN:'
     ParentColor = False
   end
   object edtDsnName: TEdit
     Left = 116
     Height = 25
-    Top = 192
+    Top = 280
     Width = 256
-    TabOrder = 9
+    TabOrder = 11
   end
   object btnBrowseDsn: TButton
     Left = 376
     Height = 25
-    Top = 192
+    Top = 280
     Width = 64
     Caption = 'Browse'
     OnClick = btnBrowseDsnClick
-    TabOrder = 10
+    TabOrder = 12
   end
   object rdbOdbcConnStr: TRadioButton
     Left = 22
     Height = 21
-    Top = 236
+    Top = 324
     Width = 167
     Caption = 'ODBC Connection String:'
     OnChange = rdbIPAddrChange
-    TabOrder = 11
+    TabOrder = 13
   end
   object MemoOdbcConnStr: TMemo
     Left = 48
     Height = 66
-    Top = 268
+    Top = 356
     Width = 392
     Lines.Strings = (
       'Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;'
     )
-    TabOrder = 12
+    TabOrder = 14
+  end
+  object rdbJdbcConnStr: TRadioButton
+    Left = 22
+    Height = 21
+    Top = 140
+    Width = 120
+    Caption = 'JDBC properties:'
+    OnChange = rdbIPAddrChange
+    TabOrder = 8
+  end
+  object MemoJdbcConnStr: TMemo
+    Left = 48
+    Height = 54
+    Hint = 'Format: url=jdbc:xxx:@192.168.1.1:xxx/db;driver=com.xxx.Driver'
+    Top = 172
+    Width = 392
+    Lines.Strings = (
+      'url=jdbc:xxx:@192.168.1.1:xxx;'
+    )
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 9
+    WantReturns = False
   end
 end
