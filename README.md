@@ -51,8 +51,6 @@ http://www.ezdml.com/download_en.html
 
 https://gitee.com/huzgd/ezdml/releases
 
-https://pan.baidu.com/s/1HI3EQ4n-Lb5Y2s1poNTujA?pwd=8wj2
-
 
 
 #### Contact
