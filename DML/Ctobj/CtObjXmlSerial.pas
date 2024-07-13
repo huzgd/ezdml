@@ -71,7 +71,7 @@ type
 
 implementation
 
-uses Dialogs, Forms;
+uses Dialogs, Forms, WindowFuncs;
 //顺序读取指定的TAG内容
 
 function ReadXmlTag(Stream: TStream; const Tag: string; var Value: string): boolean;
@@ -238,7 +238,23 @@ begin
       ReadXmlTag(FStream, FCurXmlSec, V);
     end;
     if Trim(V)='' then
-      Exit;
+      Exit;           
+    if CurCtVer=0 then
+    begin
+      if Pos('<CTVER>', V)>0 then
+      begin
+        S := ExtractCompStr(V,'<CTVER>','</CTVER>');
+        if S<>'' then
+        begin
+          S:=WideCodeNarrow(S);
+          if Copy(S,1,2)='CT' then
+          begin
+            CurCtVer := StrToIntDef(Copy(S, 3, 2), 21);
+          end;
+        end;
+      end;
+    end;
+
     //if IsUtf8 then
     V := '<?xml version="1.0" encoding="UTF8"?>' + DecodeString(V);
 
@@ -256,8 +272,8 @@ begin
     FTempMemStream.WriteBuffer(PChar(V)^, Length(V));
     FTempMemStream.Position := 0;
     try
-    ReadXmlFile(FXmlDoc, FTempMemStream);
-    FCurXMLNode := FXmlDoc.FindNode(FCurXmlSec);
+      ReadXmlFile(FXmlDoc, FTempMemStream);
+      FCurXMLNode := FXmlDoc.FindNode(FCurXmlSec);
 
     except
       ShowMEssage(FCurXmlSec+' '+V);

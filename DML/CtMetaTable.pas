@@ -2808,26 +2808,14 @@ end;
 
 procedure TCtModelFileConfig.LoadFromSerialer(ASerialer: TCtObjSerialer);
 begin
-  BeginSerial(ASerialer, True);
-  try
-    inherited LoadFromSerialer(ASerialer);
-    ASerialer.ReadString('LastModel', FLastModel);
-    ASerialer.ReadString('CustFieldTypes', FCustFieldTypes);
-  finally
-    EndSerial(ASerialer, True);
-  end;
+  ASerialer.ReadString('LastModel', FLastModel);
+  ASerialer.ReadString('CustFieldTypes', FCustFieldTypes);
 end;
 
 procedure TCtModelFileConfig.SaveToSerialer(ASerialer: TCtObjSerialer);
-begin                
-  BeginSerial(ASerialer, False);
-  try
-    inherited SaveToSerialer(ASerialer);
-    ASerialer.WriteString('LastModel', FLastModel);
-    ASerialer.WriteString('CustFieldTypes', FCustFieldTypes);
-  finally
-    EndSerial(ASerialer, False);
-  end;
+begin
+  ASerialer.WriteString('LastModel', FLastModel);
+  ASerialer.WriteString('CustFieldTypes', FCustFieldTypes);
 end;
 
 
