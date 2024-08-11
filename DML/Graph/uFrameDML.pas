@@ -39,6 +39,8 @@ type
     actExecSql: TAction;
     actBatAddFields: TAction;
     actBatRemoveFields: TAction;
+    actOpenURL: TAction;
+    actShareFile: TAction;
     actNewGroupBox: TAction;
     actShowHideList: TAction;
     actPasteAsCopy: TAction;
@@ -104,6 +106,8 @@ type
     actRectSelect: TAction;
     PopupMenu1: TPopupMenu;
     TimerDelayCmd: TTimer;
+    ToolButtonDmlOpenURL: TToolButton;
+    ToolButtonDMLShare: TToolButton;
     ToolButtonDMLSp0: TToolButton;
     ToolButtonSHideList: TToolButton;
     ToolButtonRun: TToolButton;
@@ -227,10 +231,12 @@ type
     procedure actFindObjectExecute(Sender: TObject);
     procedure actFullTableViewExecute(Sender: TObject);
     procedure actNewGroupBoxExecute(Sender: TObject);
+    procedure actOpenURLExecute(Sender: TObject);
     procedure actPasteAsCopyExecute(Sender: TObject);
     procedure actResetObjLinksExecute(Sender: TObject);
     procedure actBriefModeExecute(Sender: TObject);
     procedure actRunExecute(Sender: TObject);
+    procedure actShareFileExecute(Sender: TObject);
     procedure actUnderlineToCamelCaseExecute(Sender: TObject);
     procedure btnShowInGraphClick(Sender: TObject);
     procedure colobBgColorChange(Sender: TObject);
@@ -568,6 +574,11 @@ begin
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  3, 0);
 end;
 
+procedure TFrameDML.actShareFileExecute(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 11, 1);
+end;
+
 procedure TFrameDML.actUnderlineToCamelCaseExecute(Sender: TObject);
 begin
   DoCapitalizeProc('UnderlineToCamelCase');
@@ -808,6 +819,11 @@ begin
   DMLGraphSelectObj(nil);
   DMLGraph.MakeObjVisible(o);
   DMLGraph.Refresh;
+end;
+
+procedure TFrameDML.actOpenURLExecute(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 11, 2);
 end;
 
 procedure TFrameDML.actPasteAsCopyExecute(Sender: TObject);

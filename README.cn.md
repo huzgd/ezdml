@@ -2,9 +2,9 @@
 
 #### 介绍
 
-EZDML Lite是一款国产开源免费跨平台的轻量级数据建模工具，具有轻巧、快速、简便而功能强大的特点，可轻松地进行数据库表结构设计，建立界面数据模型，生成SQL和自定义代码。
+EZDML Lite是一款国产开源免费跨平台的轻量级数据库建模工具，具有轻巧、快速、简便而功能强大的特点，可轻松地进行数据库表结构设计，建立界面数据模型，生成SQL和自定义代码。
 
-注：本仓库为EZDML的Lite轻量版，包含完整数据建模功能以及所需要的全部源码，可以在Windows、Linux、MacOS下编译运行。Lite版未包含脚本引擎、界面预览、Excel导入、Pdm导入、ChatGPT生成、批量生成代码和测试数据等扩展功能，如需要编译全功能的版本，可使用EZDML_ord分支。
+注：本仓库为EZDML的Lite轻量版，包含完整数据库建模功能以及所需要的全部源码，可以在Windows、Linux、MacOS下编译运行。Lite版未包含脚本引擎、界面预览、Excel导入、Pdm导入、ChatGPT生成、批量生成代码和测试数据等扩展功能，如需要编译全功能的版本，可使用EZDML_ord分支。
 
 ![ezdml_lite_cn](doc/images/ezdml_lite_cn.png)
 
@@ -63,6 +63,13 @@ http://www.ezdml.com
 
 https://gitee.com/huzgd/ezdml/releases
 
+#### 在线网页版
+
+网页版EZDML Web现在可以在线访问体验：
+
+http://ezdml.com/v/
+
+网页版目前仍在初级发展阶段，暂未开源。
 
 
 #### 其它
@@ -367,4 +374,8 @@ SQL工具支持自动完成（点号下拉字段列表）和简单SQL格式化�
 
 2024年5月26日 V3.59
 打开文件时自动定位上次模型图，ORACLE/MYSQL/POSTGRE/SQLSERVER支持通过JDBC驱动连接。Bugs修复.
+
+2024年8月11日 V3.61
+复制粘贴为JSON格式，模型文件加密分享、web发布和在线打开功能。Bugs修复.
+
 

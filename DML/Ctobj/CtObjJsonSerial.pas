@@ -197,7 +197,10 @@ begin
     FStream.Read(PChar(S)^, FStream.Size);  
     if Copy(S, 1, 3) = #$EF#$BB#$BF then
       Delete(S, 1, 3);
-    //判断版本号
+    //解密
+    if Assigned(Proc_CheckDecDmlData) then
+      S := Proc_CheckDecDmlData(S);
+    //判断版本号     
     V := Copy(S, 1, 1024);
     V := Trim(ExtractCompStr(V, '"CTVER":', ','));
     if V <> '' then

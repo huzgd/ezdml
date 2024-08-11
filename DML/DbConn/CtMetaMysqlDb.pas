@@ -387,7 +387,18 @@ begin
           if iSz = 1 then
             DataType := cfdtBool
           else if iSz = 2 then
-            DataType := cfdtEnum;
+            DataType := cfdtEnum
+          else if (Pos('[DBTYPENAMES]', AOpt) > 0) then
+          begin
+            if (iSz>0) then
+              DataLength := iSz
+            else if (T = 'bigint') then
+              DataLength := 20 
+            else if (T = 'smallint') then
+              DataLength := 6
+            else if (T = 'mediumint') then
+              DataLength := 8;
+          end;
           if Pos('auto_increment', FieldByNameTg('Extra').AsString) > 0 then
             DefaultValue := DEF_VAL_auto_increment;
         end

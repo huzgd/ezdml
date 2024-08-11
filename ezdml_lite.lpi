@@ -30,9 +30,9 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="3"/>
-      <MinorVersionNr Value="5"/>
-      <RevisionNr Value="9"/>
-      <BuildNr Value="292"/>
+      <MinorVersionNr Value="6"/>
+      <RevisionNr Value="1"/>
+      <BuildNr Value="299"/>
       <StringTable Comments="EZDML_X EMail:huzzz@163.com" CompanyName="huzzz@163.com" FileDescription="EZDML" InternalName="ezdml_x.exe" LegalCopyright="(c) 2007-2024 Huz(huzzz@163.com,http://www.ezdml.com)" LegalTrademarks="ezdml" OriginalFilename="ezdml_x.exe" ProductName="EZDML_X" ProductVersion="3.5"/>
     </VersionInfo>
     <BuildModes Count="3">
@@ -171,7 +171,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="73">
+    <Units Count="75">
       <Unit0>
         <Filename Value="ezdml_lite.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -518,6 +518,18 @@
         <Filename Value="DML\Scripts\PasGen_Test.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit72>
+      <Unit73>
+        <Filename Value="SubForms\uFormOnlineFile.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit73>
+      <Unit74>
+        <Filename Value="SubForms\wShareFile.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmShareFile"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit74>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

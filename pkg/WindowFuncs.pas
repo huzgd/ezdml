@@ -103,7 +103,7 @@ function GetUnusedTmpFileName(AFileName: string): string;
 
 function Utf8URLEncode(const msg: string): string;
 function URLEncode(const msg: string): string;
-function URLDecode(const url: string): string;
+function URLDecode(const S: string): string;
 
 procedure ShellCmd(cmd: string; par: string = '');    
 function RunCmd(cmd: string; timeout: integer): string;
@@ -964,29 +964,39 @@ begin
   end;
 end;
 
-function urlDecode(const url: string): string;
+function urlDecode(const S: string): string;
 var
-  i, s, g: integer;
+  Idx: Integer; // loops thru chars in string
+  Hex: string; // string of hex characters
+  Code: Integer; // hex character code (-1 on error)
 begin
   Result := '';
-
-  for i := 1 to Length(url) do
+  Idx := 1;
+  while Idx <= Length(S) do
   begin
-
-    if url[i] = '%' then
-    begin
-      s := StrToInt('$' + url[i + 1]) * 16;
-      g := StrToInt('$' + url[i + 2]);
-
-      Result := Result + Chr(s + g);
-    end
-    else if i = Length(url) then
-      Result := Result + url[i]
-    else if not (((i > 1) and (url[i - 1] = '%') and (url[i + 1] <> '%')) or
-      ((i > 2) and (url[i - 2] = '%') and (url[i - 1] <> '%') and (url[i + 1] = '%')) or
-      ((i > 2) and (url[i - 2] = '%') and (url[i - 1] <> '%') and
-      (url[i + 1] <> '%'))) then
-      Result := Result + url[i];
+    case S[Idx] of
+      '%':
+        begin
+          if Idx <= Length(S) - 2 then
+          begin
+            Hex := S[Idx + 1] + S[Idx + 2];
+            Code := SysUtils.StrToIntDef('$' + Hex, -1);
+            Inc(Idx, 2);
+          end
+          else
+            Code := -1;
+          if Code = -1 then
+            raise SysUtils.EConvertError.Create(
+              'Invalid hex digit in URL'
+              );
+          Result := Result + Chr(Code);
+        end;
+      '+':
+        Result := Result + ' '
+    else
+      Result := Result + S[Idx];
+    end;
+    Inc(Idx);
   end;
 end;
 

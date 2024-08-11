@@ -17,8 +17,8 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.59';
-  srEzdmlVersionDate = '2024-05-26';
+  srEzdmlVersionNum = '3.61';
+  srEzdmlVersionDate = '2024-08-11';
 
 {$ifdef EZDML_LITE}
 
@@ -109,6 +109,12 @@ resourcestring
   srEzdmlPromptNeverShown = '(Shift+Action = Don''t prompt again)';
   srEzdmlGlobalScriptError = 'Error running global-script function %s: %s';
   srEzdmlLiteNotSupportFun = 'This function is not supported in Lite Version';
+  srEzdmlNoModelChecked = 'Please check at least one model';
+  srEzdmlShareWithoutPwdWarning = 'Without password protection, the model data will be transmitted and stored in plaintext over the network. Are you sure to continue?';
+  srEzdmlCommitShareError = 'Share error';
+  srEzdmlOnlineFiltTypes = 'Public Share'#13#10'History';
+  srEzdmlSharedByMe = 'Shared by me';
+  srEzdmlError = 'Error';
 
 implementation
 

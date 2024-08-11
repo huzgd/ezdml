@@ -74,6 +74,9 @@ object frmMainDml: TfrmMainDml
       object MnNewFile: TMenuItem
         Action = actNewFile
       end
+      object MnNewAppWin: TMenuItem
+        Action = actNewAppWin
+      end
       object MnOpenFile: TMenuItem
         Action = actOpenFile
       end
@@ -91,6 +94,12 @@ object frmMainDml: TfrmMainDml
       end
       object MenuItem3: TMenuItem
         Caption = '-'
+      end
+      object MNOpenURL: TMenuItem
+        Action = actOpenUrl
+      end
+      object MnShareFile: TMenuItem
+        Action = actShareFile
       end
       object MNLoadFromDb: TMenuItem
         Action = actLoadFromDb
@@ -527,6 +536,22 @@ object frmMainDml: TfrmMainDml
       Caption = 'ChatGPT'
       Hint = 'Use ChatGPT AI to assist in generating model design'
       OnExecute = actChatGPTExecute
+    end
+    object actNewAppWin: TAction
+      Category = 'File'
+      Caption = 'New EZDML window'
+      OnExecute = actNewAppWinExecute
+      ShortCut = 24654
+    end
+    object actShareFile: TAction
+      Category = 'File'
+      Caption = 'Online share...'
+      OnExecute = actShareFileExecute
+    end
+    object actOpenUrl: TAction
+      Category = 'File'
+      Caption = 'Online open...'
+      OnExecute = actOpenUrlExecute
     end
   end
   object TimerAutoSave: TTimer

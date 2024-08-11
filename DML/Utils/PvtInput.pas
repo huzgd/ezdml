@@ -85,6 +85,11 @@ begin
       Top := Prompt.Top + Prompt.Height + 5;
       Width := MulDiv(164, DialogUnits.X, 4);
       MaxLength := 255;
+      if Value='*****' then
+      begin
+        PasswordChar := '*';
+        Value := '';
+      end;
       Text := Value;
       SelectAll;
     end;

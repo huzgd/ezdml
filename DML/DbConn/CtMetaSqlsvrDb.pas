@@ -370,7 +370,20 @@ begin
         end
         else if (T = 'bigint') or (T = 'int') or (T = 'smallint') then
         begin
-          DataType := cfdtInteger;
+          DataType := cfdtInteger;    
+          if Fields[6].AsInteger = 1 then
+            DataType := cfdtBool
+          else if Fields[6].AsInteger = 2 then
+            DataType := cfdtEnum
+          else if (Pos('[DBTYPENAMES]', AOpt) > 0) then
+          begin
+            if (Fields[6].AsInteger>0) then
+              DataLength := Fields[6].AsInteger
+            else if (T = 'bigint') then
+              DataLength := 20
+            else if (T = 'smallint') then
+              DataLength := 6;
+          end;
           if Fields[8].AsInteger = 1 then
             DefaultValue := DEF_VAL_auto_increment;
         end

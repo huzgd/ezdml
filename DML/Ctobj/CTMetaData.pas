@@ -322,6 +322,8 @@ type
     function ItemByName(AName: string; bCaseSensive: Boolean = False): TCtObject; virtual;
     function NameOfID(AID: Integer): string; virtual;
 
+    function GetUnusedName(AName: string): string; virtual;
+
     function ValidItemCount: Integer;
     //删除无效节点
     procedure Pack; virtual;
@@ -1399,6 +1401,19 @@ begin
     Result := o.DisplayText
   else
     Result := 'NONE';
+end;
+
+function TCtObjectList.GetUnusedName(AName: string): string;
+var
+  I: Integer;
+begin
+  I := 1;
+  Result := AName;
+  while Self.ItemByName(Result) <> nil do
+  begin
+    Inc(I); 
+    Result := AName+'_'+IntToStr(I);
+  end;
 end;
 
 function TCtObjectList.ValidItemCount: Integer;

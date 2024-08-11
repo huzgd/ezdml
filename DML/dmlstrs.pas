@@ -278,6 +278,8 @@ resourcestring
   srDBObjectNotSynced = 'Object %s is not synchronized with the database';
   srIdFieldNames = 'Id,Pid,ParentId,Rid,RelateId';
   srChooseDbType = 'Database engine type:';
+  srEnterPwd = 'Enter password:';
+  srPwdDecryptFailed = 'Decryption failed due to invalid password';
 
   srFieldEditorTypes='TextEdit' + #13#10 +
     'Memo' + #13#10 +

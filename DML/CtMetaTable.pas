@@ -2808,12 +2808,38 @@ end;
 
 procedure TCtModelFileConfig.LoadFromSerialer(ASerialer: TCtObjSerialer);
 begin
+  if ASerialer.CurCtVer<=37 then
+  begin
+    BeginSerial(ASerialer, True);
+    try
+      inherited LoadFromSerialer(ASerialer);
+      ASerialer.ReadString('LastModel', FLastModel);
+      ASerialer.ReadString('CustFieldTypes', FCustFieldTypes);
+    finally
+      EndSerial(ASerialer, True);
+    end;
+    Exit;
+  end;
+
   ASerialer.ReadString('LastModel', FLastModel);
   ASerialer.ReadString('CustFieldTypes', FCustFieldTypes);
 end;
 
 procedure TCtModelFileConfig.SaveToSerialer(ASerialer: TCtObjSerialer);
-begin
+begin          
+  if ASerialer.CurCtVer<=37 then
+  begin
+    BeginSerial(ASerialer, True);
+    try
+      inherited LoadFromSerialer(ASerialer);
+      ASerialer.ReadString('LastModel', FLastModel);
+      ASerialer.ReadString('CustFieldTypes', FCustFieldTypes);
+    finally
+      EndSerial(ASerialer, True);
+    end;
+    Exit;
+  end;
+
   ASerialer.WriteString('LastModel', FLastModel);
   ASerialer.WriteString('CustFieldTypes', FCustFieldTypes);
 end;
@@ -6904,8 +6930,10 @@ procedure TCtMetaField.SetConstraintStrEx(Value: string; bForce: boolean);
   function DeccStr(cs: string): string;
   begin
     Result := cs;
-    if Pos('&', Result) > 0 then
-      result := StringReplace(Result, '&', ',', [rfReplaceAll]);
+    if Pos('#44#', Result) > 0 then
+      result := StringReplace(Result, '#44#', ',', [rfReplaceAll]);
+    if Pos('#62#', Result) > 0 then
+      result := StringReplace(Result, '#62#', '>', [rfReplaceAll]);
   end;
 var
   S, svIdxes, idxV: string;
@@ -8106,20 +8134,11 @@ function TCtMetaField.GetConstraintStrEx(bWithKeys, bWithRelate: boolean): strin
   begin
     Result := cs;
     if Pos(',', Result) > 0 then
-      result := StringReplace(Result, ',', '&', [rfReplaceAll]);
+      result := StringReplace(Result, ',', '#44#', [rfReplaceAll]);
+    if Pos('>>', Result) > 0 then
+      result := StringReplace(Result, '>>', '#62##62#', [rfReplaceAll]);
   end;
 
-  function CheckLRQ(s: string): string;
-  begin
-    Result := S;
-    if Pos('>', Result)=0 then
-      Exit;
-    while Pos('>>', Result)>0 do
-      Result := StringReplace(Result, '>>', '> >', [rfReplaceAll]);
-    if Result<>'' then
-      if Result[Length(Result)]='>' then
-        Result := Result+' ';
-  end;
 
 var
   S: string;
@@ -8148,7 +8167,7 @@ begin
       if bWithRelate and (IndexFields <> '') then
       begin
         S := S + ':' + EnccStr(Self.IndexFields);
-        Result := CheckLRQ(S);
+        Result := S;
         Exit;
       end;
   end
@@ -8161,7 +8180,7 @@ begin
       if bWithRelate and (IndexFields <> '') then
       begin
         S := S + ':' + EnccStr(Self.IndexFields);
-        Result := CheckLRQ(S);
+        Result := S;
         Exit;
       end;
   end;
@@ -8196,7 +8215,7 @@ begin
         S := S + '.' + EnccStr(RelateField);
     end;
 
-  Result := CheckLRQ(S);
+  Result := S;
 end;
 
 function TCtMetaField.GetFieldComments: string; 

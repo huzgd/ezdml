@@ -483,6 +483,10 @@ msgstr ""
 msgid "Warning: Duplicate field name - %s"
 msgstr ""
 
+#: dmlstrs.srenterpwd
+msgid "Enter password:"
+msgstr ""
+
 #: dmlstrs.srerrcanonlylinktwoentities
 msgid "You can only add link between two entities"
 msgstr ""
@@ -958,6 +962,10 @@ msgctxt "dmlstrs.srprocessing"
 msgid "Processing..."
 msgstr ""
 
+#: dmlstrs.srpwddecryptfailed
+msgid "Decryption failed due to invalid password"
+msgstr ""
+
 #: dmlstrs.srreadingdatafmt
 msgid "%d/%d Restoring data...%s"
 msgstr ""
@@ -1124,6 +1132,10 @@ msgstr ""
 msgid "Checking for updates..."
 msgstr ""
 
+#: ezdmlstrs.srezdmlcommitshareerror
+msgid "Share error"
+msgstr ""
+
 #: ezdmlstrs.srezdmlconfirmalreadyopenedfilefmt
 msgid "Warning: File %s can not be locked and may have been opened in another EZDML process, continue operation may lead to unexpected consequences! Do you still want to forcibly open it?"
 msgstr ""
@@ -1198,6 +1210,11 @@ msgstr ""
 msgid "Save json data with \\uXXXX unicode format?"
 msgstr ""
 
+#: ezdmlstrs.srezdmlerror
+msgctxt "ezdmlstrs.srezdmlerror"
+msgid "Error"
+msgstr ""
+
 #: ezdmlstrs.srezdmlexiting
 msgid "Exiting.."
 msgstr ""
@@ -1248,8 +1265,18 @@ msgctxt "ezdmlstrs.srezdmlnew"
 msgid "New File"
 msgstr ""
 
+#: ezdmlstrs.srezdmlnomodelchecked
+msgid "Please check at least one model"
+msgstr ""
+
 #: ezdmlstrs.srezdmlnoupdatefound
 msgid "No updatable version present."
+msgstr ""
+
+#: ezdmlstrs.srezdmlonlinefilttypes
+msgid ""
+"Public Share\n"
+"History\n"
 msgstr ""
 
 #: ezdmlstrs.srezdmlopenfile
@@ -1306,6 +1333,14 @@ msgstr ""
 
 #: ezdmlstrs.srezdmlsaving
 msgid "Saving..."
+msgstr ""
+
+#: ezdmlstrs.srezdmlsharedbyme
+msgid "Shared by me"
+msgstr ""
+
+#: ezdmlstrs.srezdmlsharewithoutpwdwarning
+msgid "Without password protection, the model data will be transmitted and stored in plaintext over the network. Are you sure to continue?"
 msgstr ""
 
 #: ezdmlstrs.srezdmltempfilefmt
@@ -3295,6 +3330,16 @@ msgctxt "tframedml.actnewtext.hint"
 msgid "Add text"
 msgstr ""
 
+#: tframedml.actopenurl.caption
+msgctxt "tframedml.actopenurl.caption"
+msgid "Online open..."
+msgstr ""
+
+#: tframedml.actopenurl.hint
+msgctxt "tframedml.actopenurl.hint"
+msgid "Online open..."
+msgstr ""
+
 #: tframedml.actpan.caption
 msgid "Pan(&H)"
 msgstr ""
@@ -3380,6 +3425,16 @@ msgstr ""
 #: tframedml.actsetentitycolor.hint
 msgctxt "tframedml.actsetentitycolor.hint"
 msgid "Set Entity Color"
+msgstr ""
+
+#: tframedml.actsharefile.caption
+msgctxt "tframedml.actsharefile.caption"
+msgid "Online share..."
+msgstr ""
+
+#: tframedml.actsharefile.hint
+msgctxt "tframedml.actsharefile.hint"
+msgid "Online share..."
 msgstr ""
 
 #: tframedml.actshowfieldtype.caption
@@ -4575,6 +4630,7 @@ msgid "Memo"
 msgstr ""
 
 #: tfrmezdmldbfile.listviewfiles.columns[5].caption
+msgctxt "tfrmezdmldbfile.listviewfiles.columns[5].caption"
 msgid "File ID"
 msgstr ""
 
@@ -4714,6 +4770,7 @@ msgid "Auto capitalize"
 msgstr ""
 
 #: tfrmimportcttable.ckbcheckall.caption
+msgctxt "tfrmimportcttable.ckbcheckall.caption"
 msgid "Check all"
 msgstr ""
 
@@ -4996,6 +5053,10 @@ msgctxt "tfrmmaindml.actmodeloptions.caption"
 msgid "Model Options"
 msgstr ""
 
+#: tfrmmaindml.actnewappwin.caption
+msgid "New EZDML window"
+msgstr ""
+
 #: tfrmmaindml.actnewfile.caption
 msgctxt "tfrmmaindml.actnewfile.caption"
 msgid "New File"
@@ -5015,6 +5076,11 @@ msgstr ""
 
 #: tfrmmaindml.actopenlastfile1.caption
 msgid "Reopen Last File"
+msgstr ""
+
+#: tfrmmaindml.actopenurl.caption
+msgctxt "tfrmmaindml.actopenurl.caption"
+msgid "Online open..."
 msgstr ""
 
 #: tfrmmaindml.actquickstart.caption
@@ -5046,6 +5112,11 @@ msgstr ""
 #: tfrmmaindml.actsettings.caption
 msgctxt "tfrmmaindml.actsettings.caption"
 msgid "Settings"
+msgstr ""
+
+#: tfrmmaindml.actsharefile.caption
+msgctxt "tfrmmaindml.actsharefile.caption"
+msgid "Online share..."
 msgstr ""
 
 #: tfrmmaindml.actshowdesctext.caption
@@ -5137,6 +5208,58 @@ msgstr ""
 #: tfrmmessageboxontop.lbmessage.caption
 msgctxt "tfrmmessageboxontop.lbmessage.caption"
 msgid "Message"
+msgstr ""
+
+#: tfrmonlinefile.btncancel.caption
+msgctxt "tfrmonlinefile.btncancel.caption"
+msgid "Cancel"
+msgstr ""
+
+#: tfrmonlinefile.btnok.caption
+msgctxt "tfrmonlinefile.btnok.caption"
+msgid "OK"
+msgstr ""
+
+#: tfrmonlinefile.caption
+msgid "Open online file"
+msgstr ""
+
+#: tfrmonlinefile.label4.caption
+msgctxt "tfrmonlinefile.label4.caption"
+msgid "File URL"
+msgstr ""
+
+#: tfrmonlinefile.listviewfiles.columns[0].caption
+msgctxt "tfrmonlinefile.listviewfiles.columns[0].caption"
+msgid "Name"
+msgstr ""
+
+#: tfrmonlinefile.listviewfiles.columns[1].caption
+msgctxt "tfrmonlinefile.listviewfiles.columns[1].caption"
+msgid "Size"
+msgstr ""
+
+#: tfrmonlinefile.listviewfiles.columns[2].caption
+msgid "Date"
+msgstr ""
+
+#: tfrmonlinefile.listviewfiles.columns[3].caption
+msgid "Hits"
+msgstr ""
+
+#: tfrmonlinefile.listviewfiles.columns[4].caption
+msgctxt "tfrmonlinefile.listviewfiles.columns[4].caption"
+msgid "Memo"
+msgstr ""
+
+#: tfrmonlinefile.listviewfiles.columns[5].caption
+msgctxt "tfrmonlinefile.listviewfiles.columns[5].caption"
+msgid "File ID"
+msgstr ""
+
+#: tfrmonlinefile.listviewfiles.columns[6].caption
+msgctxt "tfrmonlinefile.listviewfiles.columns[6].caption"
+msgid "File URL"
 msgstr ""
 
 #: tfrmoradbconfig.btnbrowsedsn.caption
@@ -5766,6 +5889,106 @@ msgstr ""
 
 #: tfrmsettings.tabshtsql.caption
 msgid "SQL"
+msgstr ""
+
+#: tfrmsharefile.btnback.caption
+msgid "Back"
+msgstr ""
+
+#: tfrmsharefile.btncancel.caption
+msgctxt "tfrmsharefile.btncancel.caption"
+msgid "Cancel"
+msgstr ""
+
+#: tfrmsharefile.btnclose.caption
+msgctxt "tfrmsharefile.btnclose.caption"
+msgid "Close"
+msgstr ""
+
+#: tfrmsharefile.btncopyprev.caption
+msgctxt "tfrmsharefile.btncopyprev.caption"
+msgid "Copy"
+msgstr ""
+
+#: tfrmsharefile.btncopyurl.caption
+msgctxt "tfrmsharefile.btncopyurl.caption"
+msgid "Copy"
+msgstr ""
+
+#: tfrmsharefile.btnenchelp.caption
+msgctxt "tfrmsharefile.btnenchelp.caption"
+msgid "?"
+msgstr ""
+
+#: tfrmsharefile.btnenchelp.hint
+msgid "Encryption instructions"
+msgstr ""
+
+#: tfrmsharefile.btngenshareurl.caption
+msgid "Generate Share URL"
+msgstr ""
+
+#: tfrmsharefile.btnpreview.caption
+msgid "Preview"
+msgstr ""
+
+#: tfrmsharefile.btnsavetofile.caption
+msgid "Save to file"
+msgstr ""
+
+#: tfrmsharefile.caption
+msgid "Share"
+msgstr ""
+
+#: tfrmsharefile.ckbcheckall.caption
+msgctxt "tfrmsharefile.ckbcheckall.caption"
+msgid "Check all"
+msgstr ""
+
+#: tfrmsharefile.dateedit_expired.texthint
+msgid "Never for empty"
+msgstr ""
+
+#: tfrmsharefile.edtpassword.texthint
+msgid "Share plain text if empty"
+msgstr ""
+
+#: tfrmsharefile.label1.caption
+msgid "Models:"
+msgstr ""
+
+#: tfrmsharefile.label2.caption
+msgid "Password:"
+msgstr ""
+
+#: tfrmsharefile.label3.caption
+msgid "Preview:"
+msgstr ""
+
+#: tfrmsharefile.label4.caption
+msgid "With password specified, the data will be encrypted before transmission and sharing. The system will not store any information related to the password, and you need to inform the recipient of the password yourself"
+msgstr ""
+
+#: tfrmsharefile.label5.caption
+msgid "Expired at:"
+msgstr ""
+
+#: tfrmsharefile.labeltitle.caption
+msgctxt "tfrmsharefile.labeltitle.caption"
+msgid "Title:"
+msgstr ""
+
+#: tfrmsharefile.labeltitle1.caption
+msgctxt "tfrmsharefile.labeltitle1.caption"
+msgid "Title:"
+msgstr ""
+
+#: tfrmsharefile.labelurl.caption
+msgid "Share URL:"
+msgstr ""
+
+#: tfrmsharefile.statictextenctip.caption
+msgid "Encryption algorithm: AES; Mode: CBC; Key: Password (32 bytes, repeated if insufficient); Initial vector: MD5 of Shared-title (UTF-8); Fill mode: ZeroFill; Result encoding: Base64"
 msgstr ""
 
 #: tfrmsqlsvrdbconfig.btnbrowsedsn.caption

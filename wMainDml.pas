@@ -48,6 +48,9 @@ type
     actGenerateTestData: TAction;
     actImportExcel: TAction;
     actChatGPT: TAction;
+    actOpenUrl: TAction;
+    actShareFile: TAction;
+    actNewAppWin: TAction;
     actSaveToDb: TAction;
     actLoadFromDb: TAction;
     actRefresh: TAction;
@@ -61,6 +64,9 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MNOpenURL: TMenuItem;
+    MnShareFile: TMenuItem;
+    MnNewAppWin: TMenuItem;
     MNChatGPT1: TMenuItem;
     MNImportExcel: TMenuItem;
     MNImportFile: TMenuItem;
@@ -168,10 +174,13 @@ type
     procedure actImportExcelExecute(Sender: TObject);
     procedure actImportFileExecute(Sender: TObject);
     procedure actLoadFromDbExecute(Sender: TObject);
+    procedure actNewAppWinExecute(Sender: TObject);
+    procedure actOpenUrlExecute(Sender: TObject);
     procedure actOpenLastFile1Execute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actSaveToDbExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
+    procedure actShareFileExecute(Sender: TObject);
     procedure actShowDescTextExecute(Sender: TObject);
     procedure actShowHideListExecute(Sender: TObject);
     procedure actToggleTableViewExecute(Sender: TObject);
@@ -334,8 +343,8 @@ uses
   DmlGlobalPasScriptLite, DmlPasScriptLite,
   {$endif}  
   {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf,{$endif}
-  CtMetaOdbcDb, NetUtil,
-  ocidyn, mysql57dyn,  sqlite3dyn, CtSysInfo,
+  CtMetaOdbcDb, NetUtil, PvtInput, AESCrypt, MD5, Base64,
+  ocidyn, mysql57dyn,  sqlite3dyn, CtSysInfo, wShareFile, uFormOnlineFile,
   postgres3dyn,
   ezdmlstrs, dmlstrs, DMLObjs, IniFiles, AutoNameCapitalize, uDMLSqlEditor,
   wAbout, wSettings, uFormCtTableProp, uFormCtFieldProp,
@@ -526,7 +535,7 @@ begin
   begin
     if (ext = '.dmx') or (ext = '.xml') then
       Result := TCtObjXmlSerialer.Create(fn, fmCreate)
-    else if (ext = '.dmj') or (ext = '.json') then
+    else if (ext = '.dmj') or (ext = '.~dmj') or (ext = '.json')  then
     begin
       Result := TCtObjJsonSerialer.Create(fn, fmCreate);
       //TCtObjJsonSerialer(Result).WriteEmptyVals:=True;
@@ -538,7 +547,7 @@ begin
   begin
     if (ext = '.dmx') or (ext = '.xml') then
       Result := TCtObjXmlSerialer.Create(fn, fmOpenRead or fmShareDenyNone)
-    else if (ext = '.dmj') or (ext = '.json') then
+    else if (ext = '.dmj') or (ext = '.~dmj') or (ext = '.json') then
       Result := TCtObjJsonSerialer.Create(fn, fmOpenRead or fmShareDenyNone)
     else
       Result := TCtObjFileStream.Create(fn, fmOpenRead or fmShareDenyNone);
@@ -567,6 +576,96 @@ begin
   finally
     js.Free;
   end;
+end;
+
+function ADecryptStr(const S, Key,IV: string): string;
+  function Min(const A, B: Integer): Integer;
+  begin
+    if A < B then
+      Result := A
+    else
+      Result := B;
+  end;
+var
+  SrcStream, TgtStream: TStringStream;
+  AESKey: TAESKey256;
+  InitVector: TAESBuffer;
+begin
+  Result := '';
+  SrcStream := TStringStream.Create(S);
+  TgtStream := TStringStream.Create('');
+  try
+    FillChar(AESKey, SizeOf(AESKey), 0);
+    Move(PChar(Key)^, AESKey, Min(SizeOf(AESKey), Length(Key)));
+    Move(PChar(IV)^, InitVector, Min(SizeOf(InitVector), Length(IV)));
+    DecryptAESStreamCBC(SrcStream, SrcStream.Size - SrcStream.Position, AESKey,InitVector, TgtStream);
+    Result := TgtStream.DataString;
+  finally
+    SrcStream.Free;
+    TgtStream.Free;
+  end;
+end;
+
+function Ezdml_CheckDecDmlData(data: string): string;
+  function MakeKey(S: string): string;
+  begin
+    while Length(S)<32 do
+      S:=S+S;
+    Result := Copy(S,1,32);
+  end;
+
+  function MakeIV(S: string): string;
+  var
+    md: TMD5Digest;
+  begin
+    md:=MD5String(S);
+    SetLength(Result, 16);
+    Move(md, PChar(Result)^, 16);
+  end;
+
+var
+  S, str, hd, V, pwd: string;
+  I, po: Integer;
+begin
+  S := data;
+  if Copy(S,1,13)='[DMJ_ENC_AES]' then
+  begin
+    po := Pos('TITLE=', S);
+    if po=0 then
+      raise Exception.Create('ENC TITLE not found');
+    S:=Copy(S, po+6, Length(S));
+    po := Pos(#10, S);
+    if po=0 then
+      raise Exception.Create('read ENC TITLE error');
+    V := Trim(Copy(S,1,po-1));
+    if Pos('%', V)>0 then
+      V := urlDecode(V);
+    S:=Copy(S,po+1,Length(S));
+    str := DecodeStringBase64(S);
+    for I:=1 to 3 do
+    begin
+      if I>1 then                             
+        pwd := PvtInputBox(V, srPwdDecryptFailed+' '+srEnterPwd, '*****')
+      else
+        pwd := PvtInputBox(V, srEnterPwd, '*****');
+      if pwd='' then
+        Abort;
+      S := ADecryptStr(str,MakeKey(pwd), MakeIV(V));
+      po := Pos(#10, S);
+      hd := Trim(Copy(S,1,po-1));
+      S:=Copy(S,po+1,Length(S));
+      po :=Pos(#10+hd+#10, S);
+      S:=Copy(S,1,po-1);
+      if Copy(S,1,1)<>'{' then
+      begin
+        if I>=3 then
+          raise Exception.Create(srPwdDecryptFailed);
+      end
+      else
+        Break;
+    end;
+  end;
+  Result := S;
 end;
 
 function SetFileAges(fn: string; vFileDate: TDateTime): boolean;
@@ -1031,6 +1130,8 @@ begin
                 srEzdmlAbortOpening);
             try
               FCtDataModelList.Clear;
+              FCurFileName := '';   
+              CheckCaption;
               FFrameCtTableDef.Init(nil, True);
             except
             end;
@@ -1338,7 +1439,6 @@ begin
     //if S<>'' then
     //  SetDefaultLang(S);
 
-    G_MyComputerId := ini.ReadString('Updates', 'UID', '');  
     if ini.ReadBool('Options', 'EnableHttpServer', False) then
     begin
       Self.actHttpServer.Visible := True;
@@ -1649,7 +1749,7 @@ begin
   Result := False;
   ext := ExtractFileExt(fn);
   ext := LowerCase(ext);
-  if (ext = '.~dmh') or (ext = '.~dmh0') then
+  if (ext = '.~dmh') or (ext = '.~dmh0') or (ext = '.~dmj') then
     Result := True;
   if IsDbFile(fn) then
   begin    
@@ -1863,9 +1963,6 @@ begin
     else
       ini.WriteBool('MainForm', 'Maximized', False);    
     ini.WriteString('Options', 'LastMetaDbSchema', G_LastMetaDbSchema);
-    if G_MyComputerId=''then
-      G_MyComputerId := CtGenGuid;
-    ini.WriteString('Updates', 'UID', G_MyComputerId);
   finally
     ini.Free;
   end;
@@ -2287,7 +2384,8 @@ var
   uid, url, pf, jstr, opt, ver: string;
   cc: integer;
   jo: TJSONObject;
-begin
+begin            
+  uid := GetMyComputerId;
   ini := TIniFile.Create(GetConfFileOfApp);
   try
     cc := ini.ReadInteger('Updates', 'tk', 0);
@@ -2307,12 +2405,6 @@ begin
     end;
     ini.WriteDateTime('Updates', 'LastCheckDate', Now);
 
-    if G_MyComputerId = '' then
-    begin
-      G_MyComputerId := CtGenGUID;
-      ini.WriteString('Updates', 'UID', G_MyComputerId);
-    end;
-    uid := G_MyComputerId;
 
   {$IFDEF Windows}
   {$ifdef WIN32}
@@ -2800,6 +2892,14 @@ begin
       LoadIni;
     end;
     Exit;
+  end;        
+  if msg.wParam = 11 then  //分享
+  begin           
+    if msg.lParam = 1 then
+       actShareFile.Execute
+    else if msg.lParam = 2 then
+      actOpenUrl.Execute;
+    Exit;
   end;
 end;
 
@@ -3022,6 +3122,11 @@ end;
 procedure TfrmMainDml.actNewFileExecute(Sender: TObject);
 begin
   EzdmlMenuActExecuteEvt('File_New');
+  if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+  begin
+    WindowFuncs.CtOpenDoc(Application.ExeName);
+    Exit;
+  end;
   CheckCanEditMeta;
   FCtDataModelList.Pack;
   if FCtDataModelList.Count = 0 then
@@ -3077,7 +3182,12 @@ procedure TfrmMainDml.actOpenFileExecute(Sender: TObject);
 var
   bDb: Boolean;
 begin
-  EzdmlMenuActExecuteEvt('File_Open');
+  EzdmlMenuActExecuteEvt('File_Open');     
+  if (GetKeyState(VK_MENU) and $80) <> 0 then
+  begin
+    actOpenUrl.Execute;
+    Exit;
+  end;
   bDb := False;
   if FCurFileName <> '' then
     if IsDbFile(FCurFileName) then   
@@ -3243,6 +3353,18 @@ begin
   if ShowEzdmlSettings(0) then
   begin
     LoadIni;
+  end;
+end;
+
+procedure TfrmMainDml.actShareFileExecute(Sender: TObject);
+begin
+  FCtDataModelList.Pack;
+  with TfrmShareFile.Create(Application) do
+  try
+    InitDml(FCtDataModelList);
+    ShowModal;
+  finally
+    Free;
   end;
 end;
 
@@ -3552,6 +3674,99 @@ begin
   PromptOpenFile(fn);
   if FCurFileName = fn then
     frmEzdmlDbFile.CheckLockAfterOpen;
+end;
+
+procedure TfrmMainDml.actNewAppWinExecute(Sender: TObject);
+begin
+  EzdmlMenuActExecuteEvt('File_NewEzdmlWin');
+  WindowFuncs.CtOpenDoc(Application.ExeName);
+end;
+
+procedure TfrmMainDml.actOpenUrlExecute(Sender: TObject);    
+  procedure SaveToTmpFile(const url, sid, data: string);
+  var
+    sfn, fn, dir: string;
+    ts: TStringList;
+  begin
+    sfn := GetUrlParamVal(Url,'cap');
+    if sfn='' then
+      sfn := sid;
+    sfn := 'web://'+sfn;
+    fn := GetNewTmpFileName(sfn);
+    fn := ChangeFileExt(fn,'.~dmj');
+    dir := ExtractFilePath(fn);
+    if not DirectoryExists(dir) then
+      ForceDirectories(dir);
+    ts:= TStringList.Create;
+    try
+      ts.Text := data;
+      ts.SaveToFile(fn);
+    finally
+      ts.Free;
+    end;
+    Self.LoadFromFile(fn);
+    AddOnlineHistoryFile(sid,url,'',Length(data));
+    //FCurFileName := sfn;
+    //FCurDmlFileName := sfn;
+    //CheckCaption;
+  end;
+var
+  sid, Url, rurl, S, sfn: String;
+  po: Integer;
+begin
+  EzdmlMenuActExecuteEvt('File_OpenURL');
+  if frmOnlineFile=nil then
+    frmOnlineFile := TfrmOnlineFile.Create(Application);
+  if frmOnlineFile.ShowModal <> mrOk then
+    Exit;          
+  Url := frmOnlineFile.edtFileURL.Text;    
+  sid := GetUrlParamVal(Url,'sid');
+  if sid='' then
+    raise Exception.Create('SID not found - '+URL);
+  sfn := GetUrlParamVal(Url,'cap');
+  if sfn='' then
+    sfn := sid;
+
+  CheckCanEditMeta;
+  FCtDataModelList.Pack;
+
+  if FCtDataModelList.TableCount > 0 then
+    case Application.MessageBox(PChar(ExtractFileName(sfn) + ' ' +
+        srEzdmlConfirmClearOnOpen),
+        PChar(srEzdmlOpenFile), MB_OKCANCEL or MB_ICONWARNING) of
+      idOk:
+        if FCurFileName <> '' then
+        begin
+          if not FSaveTempFileOnExit then
+          begin
+            PromptSaveFile;
+          end
+          else
+            SaveDMLFastTmpFile;
+        end;
+      idNo:
+      begin
+        Exit;
+        //vOldMds := TCtDataModelGraphList.Create;
+        //vOldMds.AssignFrom(FCtDataModelList);
+      end
+      else
+        Exit;
+    end;
+
+  rurl := 'http://ezdml.com/ez/mdown/?sid='+sid+'&uid='+GetMyComputerId;
+  S := GetUrlData_Net(rurl, '', '[SHOW_PROGRESS]');
+
+  if FFileWorking then
+    Exit;
+  if Pos('[Error]', Trim(S))=1 then
+  begin
+    S:=Trim(S);
+    S:=Copy(S,8,Length(S));
+    raise Exception.Create(S);
+  end;
+
+  SaveToTmpFile(url, sid, S);
 end;
 
 procedure TfrmMainDml.actQuickStartExecute(Sender: TObject);
@@ -4202,6 +4417,8 @@ initialization
   Proc_GenDemoData := CtGenTestData;   
   Proc_GetTableDemoDataJson := CtGenTableDemoDataJson;
   {$endif}
+
+  Proc_CheckDecDmlData := Ezdml_CheckDecDmlData;
 
   InitCtChnNames;
 

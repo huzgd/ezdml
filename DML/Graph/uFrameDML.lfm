@@ -1,10 +1,10 @@
 object FrameDML: TFrameDML
   Left = 0
-  Height = 387
+  Height = 437
   Top = 0
-  Width = 856
-  ClientHeight = 387
-  ClientWidth = 856
+  Width = 936
+  ClientHeight = 437
+  ClientWidth = 936
   TabOrder = 0
   TabStop = True
   DesignLeft = 414
@@ -26,8 +26,8 @@ object FrameDML: TFrameDML
     Visible = False
   end
   object splProperty: TSplitter
-    Left = 629
-    Height = 341
+    Left = 709
+    Height = 391
     Top = 24
     Width = 2
     Align = alRight
@@ -36,8 +36,8 @@ object FrameDML: TFrameDML
   object StatusBar1: TStatusBar
     Left = 0
     Height = 22
-    Top = 365
-    Width = 856
+    Top = 415
+    Width = 936
     Panels = <    
       item
         Width = 100
@@ -54,7 +54,7 @@ object FrameDML: TFrameDML
     Left = 0
     Height = 24
     Top = 0
-    Width = 856
+    Width = 936
     AutoSize = True
     Caption = 'ToolBar'
     EdgeBorders = [ebBottom]
@@ -83,104 +83,114 @@ object FrameDML: TFrameDML
       Left = 52
       Top = 0
       Action = actFileOpen
+    end         
+    object ToolButtonDmlOpenURL: TToolButton
+      Left = 75
+      Top = 0
+      Action = actOpenURL
     end
     object ToolButtonDML03: TToolButton
-      Left = 75
+      Left = 98
       Top = 0
       Action = actFileSave
     end
+    object ToolButtonDMLShare: TToolButton
+      Left = 121
+      Top = 0
+      Action = actShareFile
+    end
     object ToolButtonDMLSp1: TToolButton
-      Left = 98
+      Left = 144
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML04: TToolButton
-      Left = 103
+      Left = 149
       Top = 0
       Action = actRearrange
     end
     object ToolButtonDML05: TToolButton
-      Left = 126
+      Left = 172
       Top = 0
       Action = actCheckFKLinks
     end
     object ToolButtonDML06: TToolButton
-      Left = 149
+      Left = 195
       Top = 0
       Action = actBriefMode
     end
     object ToolButtonDML07: TToolButton
-      Left = 172
+      Left = 218
       Top = 0
       Action = actShowPhyView
     end
     object ToolButtonFindObjs: TToolButton
-      Left = 195
+      Left = 241
       Top = 0
       Action = actFindObject
     end
     object ToolButtonDML09: TToolButton
-      Left = 218
+      Left = 264
       Top = 0
       Action = actImportDB
     end
     object ToolButtonDML10: TToolButton
-      Left = 241
+      Left = 287
       Top = 0
       Action = actSetEntityColor
       Style = tbsButtonDrop
     end
     object ToolButtonDMLsp2: TToolButton
-      Left = 274
+      Left = 320
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML11: TToolButton
-      Left = 279
+      Left = 325
       Top = 0
       Action = actShowHideProps
     end
     object ToolButtonDML12: TToolButton
-      Left = 302
+      Left = 348
       Top = 0
       Action = actDeleteObj
     end
     object ToolButtonDMLsp3: TToolButton
-      Left = 325
+      Left = 371
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML14: TToolButton
-      Left = 330
+      Left = 376
       Top = 0
       Action = actNewObj
     end
     object ToolButtonDML15: TToolButton
-      Left = 353
+      Left = 399
       Top = 0
       Action = actNewText
     end
     object ToolButtonDML16: TToolButton
-      Left = 376
+      Left = 422
       Top = 0
       Action = actAddLink
     end
     object ToolButtonDML13: TToolButton
-      Left = 399
+      Left = 445
       Top = 0
       Action = actNewGroupBox
     end
     object ToolButtonDMLsp4: TToolButton
-      Left = 422
+      Left = 468
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonRun: TToolButton
-      Left = 427
+      Left = 473
       Hint = 'Run generation'
       Top = 0
       Caption = 'Run generation'
@@ -189,74 +199,74 @@ object FrameDML: TFrameDML
       Style = tbsButtonDrop
     end
     object ToolButtonDML17: TToolButton
-      Left = 460
+      Left = 506
       Top = 0
       Action = actRectSelect
     end
     object ToolButtonDML18: TToolButton
-      Left = 483
+      Left = 529
       Top = 0
       Action = actPan
     end
     object ToolButtonDML19: TToolButton
-      Left = 506
+      Left = 552
       Top = 0
       Action = actZoomIn
     end
     object ToolButtonDML20: TToolButton
-      Left = 529
+      Left = 575
       Top = 0
       Action = actZoomOut
     end
     object ToolButtonDML21: TToolButton
-      Left = 552
+      Left = 598
       Top = 0
       Action = actAutoA
     end
     object ToolButtonDMLsp5: TToolButton
-      Left = 575
+      Left = 621
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML22: TToolButton
-      Left = 580
+      Left = 626
       Top = 0
       Action = actBestFit
     end
     object ToolButtonDML23: TToolButton
-      Left = 603
+      Left = 649
       Top = 0
       Action = actRestore
     end
     object ToolButtonDML24: TToolButton
-      Left = 626
+      Left = 672
       Top = 0
       Action = actRefresh
     end
     object ToolButtonDMLsp6: TToolButton
-      Left = 649
+      Left = 695
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML25: TToolButton
-      Left = 654
+      Left = 700
       Top = 0
       Action = actColorStyles
     end
     object ToolButtonDML26: TToolButton
-      Left = 677
+      Left = 723
       Top = 0
       Action = actDMLObjProp
     end
     object ToolButtonFullScrn: TToolButton
-      Left = 700
+      Left = 746
       Top = 0
       Action = actFullScreen
     end
     object SpeedButtonChatGPT: TSpeedButton
-      Left = 723
+      Left = 769
       Height = 22
       Top = 0
       Width = 83
@@ -268,13 +278,13 @@ object FrameDML: TFrameDML
     end
   end
   object pnlProperty: TPanel
-    Left = 631
-    Height = 341
+    Left = 711
+    Height = 391
     Top = 24
     Width = 225
     Align = alRight
     BevelOuter = bvNone
-    ClientHeight = 341
+    ClientHeight = 391
     ClientWidth = 225
     TabOrder = 2
     object sptHide: TSpeedButton
@@ -299,7 +309,7 @@ object FrameDML: TFrameDML
     end
     object vleProperty: TValueListEditor
       Left = 0
-      Height = 341
+      Height = 391
       Top = 0
       Width = 225
       Align = alClient
@@ -325,7 +335,7 @@ object FrameDML: TFrameDML
     end
   end
   object btnShowInGraph: TBitBtn
-    Left = 829
+    Left = 909
     Height = 21
     Hint = 'Table prop view (F9)'
     Top = 0
@@ -2086,6 +2096,20 @@ object FrameDML: TFrameDML
       Category = 'DML'
       Caption = 'Batch remove fields'
     end
+    object actShareFile: TAction
+      Category = 'DML'
+      Caption = 'Online share...'
+      Hint = 'Online share...'
+      ImageIndex = 87
+      OnExecute = actShareFileExecute
+    end
+    object actOpenURL: TAction
+      Category = 'DML'
+      Caption = 'Online open...'
+      Hint = 'Online open...'
+      ImageIndex = 88
+      OnExecute = actOpenURLExecute
+    end
   end
   object PopupMenu1: TPopupMenu
     Images = ImageList1
@@ -2274,7 +2298,7 @@ object FrameDML: TFrameDML
     left = 109
     top = 117
     Bitmap = {
-      4C69570000001000000010000000000000000000000000000000000000000000
+      4C69590000001000000010000000000000000000000000000000000000000000
       00000000000000000000848400FF000084FF0000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000848400FF848400FF000000FF000000FF000000000000
@@ -5058,7 +5082,71 @@ object FrameDML: TFrameDML
       FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
       FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
       FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
-      FF00FF80FF00FF80FF00FF80FF00
+      FF00FF80FF00FF80FF00FF80FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00848484FF8484
+      84FF848484FF848484FF848484FF848484FF848484FF848484FF848484FF8484
+      84FF000000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00848484FFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC6C6
+      C6FF000000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00848484FFFFFF
+      FFFFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC6C6
+      C6FF000000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00848484FFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFF00FFFFFFFFFFFFFF00FFFFFFFFFFFFFFC6C6
+      C6FF000000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00848484FFFFFF
+      FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FF00FFFFFFC6C6
+      C6FF000000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00848484FFFFFF
+      FFFFFFFFFFFF00FFFFFFFFFFFFFF00FFFFFFFFFFFFFF00FFFFFFFFFFFFFFC6C6
+      C6FF000000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00848484FFFFFF
+      FFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFC6C6
+      C6FF000000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00848484FFFFFF
+      FFFFFFFFFFFF00FFFFFFFFFFFFFF00FFFFFFFFFFFFFF00FFFFFFFFFFFFFFC6C6
+      C6FF000000FFFF00FF00FF00FF00FF00FF00840000FF840000FF840000FF8400
+      00FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFC6C6
+      C6FF000000FFFF00FF00FF00FF00FF00FF00CE9C63FFCE9C63FFCE9C63FF8400
+      00FF848484FF848484FF848484FF848484FF848484FF848484FF848484FFC6C6
+      C6FF000000FFFF00FF00FF00FF00FF00FF00CE6331FFCE6331FFCE6331FF8400
+      00FFB5B5B5FFC6D6EFFFF7FFFFFF9C9CCEFFEFEFEFFFC6C6C6FFC6C6C6FF8484
+      84FF000000FFFF00FF00FF00FF00FF00FF00CE3131FFCE3131FFCE3131FF8400
+      00FF9C9CCEFFC6D6EFFFC6D6EFFFC6C6C6FF848484FF848484FF000000FF0000
+      00FF000000FF000000FF000000FFFF00FF00840000FF840000FF840000FF8400
+      00FF000000FF9C9CCEFF9C9CCEFFC6D6EFFFC6C6C6FFC6C6C6FFC6C6C6FF9C9C
+      CEFF9C9CCEFF000000FF000000FFFF00FF00000000FF000000FF000000FF0000
+      00FFFF00FF00000000FF9C9CCEFF9C9CCEFF9C9CCEFF9C9CCEFF9C9CCEFF0000
+      00FF000000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00000000FF000000FF000000FF000000FF000000FFFF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF009C6363FF9C6363FF000000FFFF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00009C9CFF009C9CFF009C
+      9CFF009C9CFF9C6363FFFFFFFFFFFFFFFFFFFFCECEFF000000FFFF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00009C9CFF00FFFFFF00FFFFFF9CCE
+      FFFF9C6363FFFFFFFFFFFFFFFFFF31639CFFFFFFFFFFFFCECEFF000000FF009C
+      9CFF009C9CFFFF00FF00FF00FF00FF00FF00009C9CFF9CCEFFFF9CCEFFFF0000
+      00FFFFCECEFFFFEFCEFF313163FFFFCECEFFFFEFCEFFFFEFCEFFFFCECEFF0000
+      00FF00FFFFFF000000FFFF00FF00009C9CFF009C9CFF009C9CFF009C9CFF009C
+      9CFF009C9CFF009C9CFF009C9CFF009C9CFF009C9CFF009C9CFF009C9CFFFFCE
+      CEFF000000FF000000FFFF00FF00009C9CFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF009C9CFF63CE
+      CEFFFFCECEFF000000FFFF00FF00009C9CFFFFFFFFFF9CFFFFFF9CFFFFFF9CFF
+      FFFF00FFFFFF9CFFFFFF9CFFFFFF9CFFFFFF00FFFFFF9CCEFFFF63CECEFF0000
+      00FFFFFFFFFFC6C6C6FF000000FF009C9CFF63CECEFF9CFFFFFF00FFFFFF9CFF
+      FFFF9CFFFFFF9CFFFFFF9CFFFFFF9CFFFFFF9CFFFFFF00FFFFFF63CECEFF0000
+      00FFC6C6C6FF000000FF000000FFFF00FF00009C9CFFFFFFFFFF9CFFFFFF9CFF
+      FFFF9CFFFFFF9CCEFFFF00FFFFFF9CCEFFFF9CFFFFFF9CCEFFFF9CCEFFFF009C
+      9CFF000000FF000000FFFF00FF00FF00FF00009C9CFF9CFFFFFF9CFFFFFF9CFF
+      FFFF9CFFFFFF9CFFFFFF00FFFFFF9CFFFFFF9CCEFFFF00FFFFFF9CCEFFFF63CE
+      CEFF000000FF000000FFFF00FF00FF00FF00FF00FF00009C9CFF00FFFFFF9CCE
+      FFFF9CFFFFFF9CCEFFFF9CFFFFFF9CCEFFFF9CFFFFFF9CCEFFFF9CCEFFFF63CE
+      CEFF009C9CFF000000FFFF00FF00FF00FF00FF00FF00009C9CFF63CECEFF63CE
+      CEFF63CECEFF63CECEFF63CECEFF63CECEFF63CECEFF63CECEFF63CECEFF63CE
+      CEFF009C9CFF000000FFFF00FF00FF00FF00FF00FF00FF00FF00000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00000000FF000000FFFF00FF00FF00FF00FF00
+      FF00FF00FF00FF00FF00FF00FF00FF00FF00FFFFFFFFEFEFEFFFFFFFFFFFEFEF
+      EFFFEFEFEFFFEFEFEFFF008484FF9CFFFFFF63CECEFF000000FFEFEFEFFFEFEF
+      EFFFEFEFEFFFFFFFFFFFEFEFEFFFFF00FF00FFFFFFFF9C6363FFFFFFFFFF9C63
+      63FF9C6363FF9C6363FF000000FF000000FF000000FF000000FF9C6363FF9C63
+      63FF9C6363FFFFFFFFFF9C6363FF
     }
   end
   object OpenDialog1: TOpenDialog

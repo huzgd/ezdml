@@ -51,7 +51,13 @@ http://www.ezdml.com/download_en.html
 
 https://gitee.com/huzgd/ezdml/releases
 
+#### Online Web Version
 
+EZDML Web, the online version, is now available at:
+
+http://ezdml.com/v/
+
+The web version is still in its early stages of development and has not yet been open sourced.
 
 #### Contact
 
@@ -354,3 +360,6 @@ Lock/unlock database files, handling charset issue of ODBC. Bugs fixed.
 
 2024-05-26 V3.59
 Locate last model when opening file. JDBC connection for ORACLE/MYSQL/POSTGRE/SQLSERVER. Bugs fixed.
+
+2024-08-11 V3.61
+Copy/paste as JSON format, share models with encryption and publish to web, open online files. Bugs fixed.

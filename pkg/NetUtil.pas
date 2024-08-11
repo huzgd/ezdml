@@ -28,6 +28,7 @@ function URLDecodeEx(const S: string): string;
 function GetJSessionId_Net: string;
 procedure SetJSessionId_Net(svr, ssid: string); 
 function IsPortAvailable(Aport: Word): Boolean;
+function GetUrlParamVal(URL, par: string): string;
 
 var
   G_NetLogEnabled: Boolean;
@@ -43,6 +44,18 @@ uses
 {$ENDIF}
   ThreadWait, WindowFuncs, Forms, ezdmlstrs;
 
+
+function GetUrlParamVal(URL, par: string): string;
+var
+  S: String;
+begin
+  URL := URL+'&';
+  S:=ExtractCompStr(URL,'?'+par+'=','&');
+  if S='' then
+    S:=ExtractCompStr(URL,'&'+par+'=','&');
+  S:=URLDecode(S);
+  Result := S;
+end;
 
 function IsPortAvailable(Aport: Word): Boolean; 
 {$IFDEF USE_IDHTTP}
@@ -69,7 +82,7 @@ var
 begin
   // 创建一个 socket 连接
   sock := fpSocket(AF_INET, SOCK_STREAM, 0);
-  if sock = INVALID_SOCKET then
+  if sock = {INVALID_SOCKET}TSocket(NOT(0)) then
   begin
     Result := False; // 创建失败，端口可能被占用
     Exit;
@@ -115,11 +128,37 @@ end;
                
 {$IFNDEF USE_IDHTTP}
 function GetUrlData_Net_ExX(URL: string; PostData: string; headers: string; Opts: string; conn: TObject): string;
+var
+  fn: string;             
+  fp: TFPCustomHTTPClient;
+  res:TMemoryStream;
+  L:Integer;
 begin
   if PostData='' then
     Result := TFPCustomHTTPClient.SimpleGet(url)
   else
-    Result := TFPCustomHTTPClient.SimpleFormPost(url, PostData);
+  begin       
+    if Pos('[POST_LOCAL_FILE]', PostData) > 0 then
+    begin
+      fn := ExtractCompStr(PostData, '[POST_LOCAL_FILE]', '[/POST_LOCAL_FILE]');
+      if not FileExists(fn) then
+        raise Exception.Create('Uploading file not exists: ' + fn);
+      res := TMemoryStream.Create;
+      fp:=TFPCustomHTTPClient.Create(nil);
+      try
+        fp.FileFormPost(url, 'file', fn, res);
+        L := res.Size;
+        res.Position:=0;
+        SetLength(Result, L);
+        res.Read(PChar(Result)^, L);
+      finally
+        res.Free;
+        fp.Free;
+      end;
+    end
+    else
+      Result := TFPCustomHTTPClient.SimpleFormPost(url, PostData);
+  end;
 end;
 function GetJSessionId_Net: string;
 begin
@@ -564,7 +603,7 @@ begin
     end;
     Inc(Idx);
   end;
-  Result := Utf8Decode(Result);
+  //Result := Utf8Decode(Result);
 end;
 
 

@@ -472,7 +472,7 @@ uses
   {$ifndef EZDML_LITE}DmlPasScript, ide_editor,uFrameUIPreview,DmlScriptControl,
   {$else}DmlPasScriptLite,
   {$endif}
-  uFormSelectFields,  ezdmlstrs, uFormGenTabCust, CtObjXmlSerial, uFormCtDML;
+  uFormSelectFields,  ezdmlstrs, uFormGenTabCust, CtObjJsonSerial, uFormCtDML;
 
 {$R *.lfm}
 
@@ -3028,7 +3028,7 @@ var
   I: integer;
   vFld: TCtMetaField;
   vTempFlds: TCtMetaFieldList;
-  fs: TCtObjMemXmlStream;
+  fs: TCtObjMemJsonSerialer;
   ss: TStringList;
 begin           
   if bCut and FReadOnlyMode then
@@ -3040,7 +3040,7 @@ begin
     Exit;
 
   vTempFlds := TCtMetaFieldList.Create;
-  fs := TCtObjMemXmlStream.Create(False);
+  fs := TCtObjMemJsonSerialer.Create(False);
   ss := TStringList.Create;
   try
     for I := 0 to FSelFields.Count - 1 do
@@ -3051,7 +3051,7 @@ begin
     end;
     fs.RootName := 'Fields';
     vTempFlds.SaveToSerialer(fs);
-    fs.EndXmlWrite;
+    fs.EndJsonWrite;
     fs.Stream.Seek(0, soFromBeginning);
     ss.LoadFromStream(fs.Stream);
     Clipboard.AsText := ss.Text;
@@ -4498,7 +4498,7 @@ procedure TFrameCtTableProp.actFieldsPasteExecute(Sender: TObject);
 var
   sRow, I, J, idx: integer;
   vTempFlds: TCtMetaFieldList;
-  fs: TCtObjMemXmlStream;
+  fs: TCtObjMemJsonSerialer;
   ss: TStringList;
   S: string;
   tb: TCtMetaTable;
@@ -4510,10 +4510,10 @@ begin
   S := Clipboard.AsText;
   if S = '' then
     Exit;
-  if Copy(S, 1, 5) <> '<?xml' then
+  if Copy(S, 1, 1) <> '{' then
     Exit;
 
-  I := Pos('<Fields>', S);
+  I := Pos('"RootName": "Fields"', S);
   if (I <= 0) or (I > 100) then
     Exit;
 
@@ -4522,7 +4522,7 @@ begin
   tb := Self.FCtMetaTable;
 
   vTempFlds := TCtMetaFieldList.Create;
-  fs := TCtObjMemXmlStream.Create(True);
+  fs := TCtObjMemJsonSerialer.Create(True);
   ss := TStringList.Create;
   try
     ss.Text := S;
@@ -4598,7 +4598,7 @@ begin
   actFieldsCut.Enabled := True;
 
   S := Clipboard.AsText;
-  I := Pos('<Fields>', S);
+  I := Pos('"RootName": "Fields"', S);
   if (I <= 0) or (I > 100) then
     actFieldsPaste.Enabled := False
   else    

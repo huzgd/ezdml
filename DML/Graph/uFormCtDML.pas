@@ -111,7 +111,7 @@ type
 implementation
 
 uses
-  CTMetaData, uFormAddTbLink, dmlstrs, ezdmlstrs, CtObjXmlSerial, ClipBrd,
+  CTMetaData, uFormAddTbLink, dmlstrs, ezdmlstrs, CtObjJsonSerial, ClipBrd,
   DmlScriptPublic, ImgView, uDMLSqlEditor, uFormDmlSearch,
   {$ifndef EZDML_LITE} ide_editor, {$else} DmlPasScriptLite, {$endif}
   AutoNameCapitalize, uFormGenSql, Toolwin;
@@ -669,7 +669,7 @@ var
   o: TDMLEntityObj;
   vTb, tb: TCtMetaTable;
   vTempTbs: TCtMetaTableList;
-  fs: TCtObjMemXmlStream;
+  fs: TCtObjMemJsonSerialer;
   ss: TStringList;
 begin
   C := 0;
@@ -684,7 +684,7 @@ begin
     Exit;
 
   vTempTbs := TCtMetaTableList.Create;
-  fs := TCtObjMemXmlStream.Create(False);
+  fs := TCtObjMemJsonSerialer.Create(False);
   ss := TStringList.Create;
   Screen.Cursor := crAppStart;
   try
@@ -704,6 +704,7 @@ begin
           end;
     fs.RootName := 'Tables';
     vTempTbs.SaveToSerialer(fs);
+    fs.EndJsonWrite;
     fs.Stream.Seek(0, soFromBeginning);
     ss.LoadFromStream(fs.Stream);
     Clipboard.AsText := ss.Text;
@@ -1192,7 +1193,7 @@ var
 
 var
   I, J, K, idx: integer;
-  fs: TCtObjMemXmlStream;
+  fs: TCtObjMemJsonSerialer;
   ss: TStringList;
   S: string;
   tb: TCtMetaTable;   
@@ -1210,17 +1211,17 @@ begin
   S := Clipboard.AsText;
   if S = '' then
     Exit;
-  if Copy(S, 1, 5) <> '<?xml' then
+  if Copy(S, 1, 1) <> '{' then
     Exit;
   CheckCanEditMeta;
   lastPos := Self.FFrameCtDML.DMLGraph.LastMouseDownPos;
 
-  I := Pos('<Tables>', S);
+  I := Pos('"RootName": "Tables"', S);
   if (I > 0) and (I < 100) then
   begin
     ///LockWindowUpdate(Self.Handle);
     vTempTbs := TCtMetaTableList.Create;
-    fs := TCtObjMemXmlStream.Create(True);
+    fs := TCtObjMemJsonSerialer.Create(True);
     ss := TStringList.Create;
     Screen.Cursor := crAppStart;
     if Assigned(Proc_OnPropChange) then
@@ -1293,7 +1294,7 @@ begin
   end;
 
 
-  I := Pos('<Fields>', S);
+  I := Pos('"RootName": "Fields"', S);
   if (I > 0) and (I < 100) then
   begin
     tb := GetSelectedTable;
@@ -1310,7 +1311,7 @@ begin
       end;
 
     vTempFlds := TCtMetaFieldList.Create;
-    fs := TCtObjMemXmlStream.Create(True);
+    fs := TCtObjMemJsonSerialer.Create(True);
     ss := TStringList.Create;
     try
       ss.Text := S;
@@ -1396,14 +1397,14 @@ begin
   else
   begin
     S := Clipboard.AsText;
-    if Copy(S, 1, 5) <> '<?xml' then
+    if Copy(S, 1, 1) <> '{' then
     begin
       FFrameCtDML.actPaste.Enabled := False;
       FFrameCtDML.actPasteAsCopy.Enabled := False;
     end
     else
     begin
-      I := Pos('<Tables>', S);
+      I := Pos('"RootName": "Tables"', S);
       if (I > 0) and (I < 100) then
       begin
         FFrameCtDML.actPasteAsCopy.Enabled := True;
@@ -1412,8 +1413,8 @@ begin
       else
       begin          
         FFrameCtDML.actPasteAsCopy.Enabled := False;
-
-        I := Pos('<Fields>', S);
+                        
+        I := Pos('"RootName": "Fields"', S);
         if (I > 0) and (I < 100) then
         begin
           FFrameCtDML.actPaste.Enabled := (GetSelectedTable <> nil);
@@ -1543,7 +1544,9 @@ begin
     actRearrange.Visible := not FBrowseMode;
 
     actBatAddFields.Visible := not FBrowseMode;
-    actBatRemoveFields.Visible := not FBrowseMode;
+    actBatRemoveFields.Visible := not FBrowseMode;  
+    actOpenURL.Visible := not FBrowseMode;
+    actShareFile.Visible := not FBrowseMode;
 
     if FBrowseMode then
     begin

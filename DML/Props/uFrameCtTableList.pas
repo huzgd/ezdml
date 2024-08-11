@@ -214,7 +214,7 @@ implementation
 {$R *.lfm}
 
 uses
-  CtObjXmlSerial, ClipBrd, dmlstrs, AutoNameCapitalize, WindowFuncs;
+  CtObjJsonSerial, ClipBrd, dmlstrs, AutoNameCapitalize, WindowFuncs;
 
 { TFrameCtTree }
 
@@ -257,7 +257,7 @@ var
   vTempTbs: TCtMetaTableList;
   vFld: TCtMetaField;
   vTempFlds: TCtMetaFieldList;
-  fs: TCtObjMemXmlStream;
+  fs: TCtObjMemJsonSerialer;
   ss: TStringList;
 begin
   mdc := 0;
@@ -284,7 +284,7 @@ begin
   if mdc > 0 then
   begin
     vTempMds := TCtDataModelGraphList.Create;
-    fs := TCtObjMemXmlStream.Create(False);
+    fs := TCtObjMemJsonSerialer.Create(False);
     ss := TStringList.Create;
     Screen.Cursor := crAppStart;
     try
@@ -298,6 +298,7 @@ begin
             end;
       fs.RootName := 'DataModels';
       vTempMds.SaveToSerialer(fs);
+      fs.EndJsonWrite;
       fs.Stream.Seek(0, soFromBeginning);
       ss.LoadFromStream(fs.Stream);
       Clipboard.AsText := ss.Text;
@@ -315,7 +316,7 @@ begin
   if tbc > 0 then
   begin
     vTempTbs := TCtMetaTableList.Create;
-    fs := TCtObjMemXmlStream.Create(False);
+    fs := TCtObjMemJsonSerialer.Create(False);
     ss := TStringList.Create;
     Screen.Cursor := crAppStart;
     try
@@ -330,6 +331,7 @@ begin
             end;
       fs.RootName := 'Tables';
       vTempTbs.SaveToSerialer(fs);
+      fs.EndJsonWrite;
       fs.Stream.Seek(0, soFromBeginning);
       ss.LoadFromStream(fs.Stream);
       Clipboard.AsText := ss.Text;
@@ -347,7 +349,7 @@ begin
   if fldc > 0 then
   begin
     vTempFlds := TCtMetaFieldList.Create;
-    fs := TCtObjMemXmlStream.Create(False);
+    fs := TCtObjMemJsonSerialer.Create(False);
     ss := TStringList.Create;
     try
       for I := 0 to TreeViewCttbs.Items.Count - 1 do
@@ -361,7 +363,7 @@ begin
             end;
       fs.RootName := 'Fields';
       vTempFlds.SaveToSerialer(fs);
-      fs.EndXmlWrite;
+      fs.EndJsonWrite;
       fs.Stream.Seek(0, soFromBeginning);
       ss.LoadFromStream(fs.Stream);
       Clipboard.AsText := ss.Text;
@@ -2112,7 +2114,7 @@ var
   vTempMds: TCtDataModelGraphList;
   vTempTbs: TCtMetaTableList;
   vTempFlds: TCtMetaFieldList;
-  fs: TCtObjMemXmlStream;
+  fs: TCtObjMemJsonSerialer;
   ss: TStringList;
   S: string;
   md: TCtDataModelGraph;
@@ -2124,15 +2126,15 @@ begin
   S := Clipboard.AsText;
   if S = '' then
     Exit;
-  if Copy(S, 1, 5) <> '<?xml' then
+  if Copy(S, 1, 1) <> '{' then
     Exit;
   CheckCanEditMeta;
 
-  I := Pos('<DataModels>', S);
+  I := Pos('"RootName": "DataModels"', S);
   if (I > 0) and (I < 100) then
   begin
     vTempMds := TCtDataModelGraphList.Create;
-    fs := TCtObjMemXmlStream.Create(True);
+    fs := TCtObjMemJsonSerialer.Create(True);
     ss := TStringList.Create;
     Screen.Cursor := crAppStart;
     try
@@ -2140,7 +2142,11 @@ begin
       ss.SaveToStream(fs.Stream);
       fs.Stream.Seek(0, soFromBeginning);
       fs.RootName := 'DataModels';
-      vTempMds.LoadFromSerialer(fs);
+      vTempMds.LoadFromSerialer(fs);  
+      for I := 0 to vTempMds.Count - 1 do
+      begin
+        vTempMds[I].Name := FCtDataModelList.GetUnusedName(vTempMds[I].Name);
+      end;
 
       idx := -1;
       rNode := TreeViewCttbs.Selected;
@@ -2176,11 +2182,11 @@ begin
     Exit;
   end;
 
-  I := Pos('<Tables>', S);
+  I := Pos('"RootName": "Tables"', S);
   if (I > 0) and (I < 100) then
   begin
     vTempTbs := TCtMetaTableList.Create;
-    fs := TCtObjMemXmlStream.Create(True);
+    fs := TCtObjMemJsonSerialer.Create(True);
     ss := TStringList.Create;
     Screen.Cursor := crAppStart;
     try
@@ -2233,7 +2239,7 @@ begin
   end;
 
 
-  I := Pos('<Fields>', S);
+  I := Pos('"RootName": "Fields"', S);
   if (I > 0) and (I < 100) then
   begin
     if SelectedCtNode is TCtMetaTable then
@@ -2244,7 +2250,7 @@ begin
       Exit;
 
     vTempFlds := TCtMetaFieldList.Create;
-    fs := TCtObjMemXmlStream.Create(True);
+    fs := TCtObjMemJsonSerialer.Create(True);
     ss := TStringList.Create;
     try
       ss.Text := S;
@@ -2372,14 +2378,14 @@ begin
   else
   begin
     S := Clipboard.AsText;
-    if Copy(S, 1, 5) <> '<?xml' then
+    if Copy(S, 1, 1) <> '{' then
     begin
       actPasteTb.Enabled := False;
       actPasteAsCopy.Enabled := False;
     end
     else
-    begin                         
-      I := Pos('<Fields>', S);
+    begin
+      I := Pos('"RootName": "Fields"', S);
       if (I > 0) and (I < 100) then
       begin                
         actPasteTb.Enabled := (obj<>nil) and ((obj is TCtMetaTable) or (obj is TCtMetaField));
@@ -2388,7 +2394,7 @@ begin
       else
       begin
         actPasteTb.Enabled := True;
-        I := Pos('<Tables>', S);
+        I := Pos('"RootName": "Tables"', S);
         if (I > 0) and (I < 100) then
           actPasteAsCopy.Enabled := True
         else

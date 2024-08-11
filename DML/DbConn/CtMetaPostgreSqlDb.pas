@@ -620,7 +620,19 @@ begin
       SetLength(idxCols, L);
       idxNames[L - 1] := FieldByName('index_name').AsString;
       idxCols[L - 1] := FieldByName('column_name').AsString;
-      idxUniqs[L - 1] := FieldByName('indisunique').AsString = 't';
+
+      idxUniqs[L - 1] := False;
+      try
+        if LowerCase(FieldByName('indisunique').AsString) = 't' then
+          idxUniqs[L - 1] := True
+        else if LowerCase(FieldByName('indisunique').AsString) = 'true' then
+          idxUniqs[L - 1] := True
+        else if FieldByName('indisunique').AsString = '1'  then
+          idxUniqs[L - 1] := True
+        else if FieldByName('indisunique').AsBoolean then
+          idxUniqs[L - 1] := True
+      except
+      end;
       Next;
     end;
 

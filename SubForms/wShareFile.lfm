@@ -1,0 +1,288 @@
+object frmShareFile: TfrmShareFile
+  Left = 612
+  Height = 480
+  Top = 320
+  Width = 601
+  BorderStyle = bsDialog
+  Caption = 'Share'
+  ClientHeight = 480
+  ClientWidth = 601
+  LCLVersion = '2.0.12.0'
+  object Panel1: TPanel
+    Left = 16
+    Height = 464
+    Top = 4
+    Width = 565
+    BevelOuter = bvNone
+    ClientHeight = 464
+    ClientWidth = 565
+    TabOrder = 0
+    object Label1: TLabel
+      Left = 8
+      Height = 17
+      Top = 12
+      Width = 47
+      Caption = 'Models:'
+      ParentColor = False
+    end
+    object CheckListBox1: TCheckListBox
+      Left = 76
+      Height = 132
+      Top = 16
+      Width = 480
+      Columns = 3
+      ItemHeight = 0
+      TabOrder = 0
+    end
+    object ckbCheckAll: TCheckBox
+      Left = 76
+      Height = 21
+      Top = 160
+      Width = 74
+      Caption = 'Check all'
+      OnChange = ckbCheckAllChange
+      TabOrder = 1
+    end
+    object LabelTitle: TLabel
+      Left = 8
+      Height = 17
+      Top = 192
+      Width = 27
+      Caption = 'Title:'
+      ParentColor = False
+    end
+    object edtTitle: TEdit
+      Left = 76
+      Height = 25
+      Top = 192
+      Width = 480
+      TabOrder = 2
+    end
+    object Label2: TLabel
+      Left = 8
+      Height = 17
+      Top = 236
+      Width = 59
+      Caption = 'Password:'
+      ParentColor = False
+    end
+    object edtPassword: TEdit
+      Left = 76
+      Height = 25
+      Top = 236
+      Width = 480
+      TabOrder = 3
+      TextHint = 'Share plain text if empty'
+    end
+    object Label4: TLabel
+      Left = 76
+      Height = 72
+      Top = 272
+      Width = 480
+      AutoSize = False
+      Caption = 'With password specified, the data will be encrypted before transmission and sharing. The system will not store any information related to the password, and you need to inform the recipient of the password yourself'
+      ParentColor = False
+      WordWrap = True
+    end
+    object btnCancel: TButton
+      Left = 368
+      Height = 25
+      Top = 424
+      Width = 75
+      Cancel = True
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 4
+    end
+    object btnPreview: TButton
+      Left = 450
+      Height = 25
+      Top = 424
+      Width = 99
+      Caption = 'Preview'
+      OnClick = btnPreviewClick
+      TabOrder = 5
+    end
+  end
+  object Panel2: TPanel
+    Left = 12
+    Height = 468
+    Top = 4
+    Width = 569
+    BevelOuter = bvNone
+    ClientHeight = 468
+    ClientWidth = 569
+    TabOrder = 1
+    Visible = False
+    object LabelTitle1: TLabel
+      Left = 8
+      Height = 17
+      Top = 20
+      Width = 27
+      Caption = 'Title:'
+      ParentColor = False
+    end
+    object edtTitle2: TEdit
+      Left = 76
+      Height = 25
+      Top = 20
+      Width = 480
+      ParentColor = True
+      ReadOnly = True
+      TabOrder = 0
+    end
+    object Label5: TLabel
+      Left = 8
+      Height = 17
+      Top = 60
+      Width = 62
+      Caption = 'Expired at:'
+      ParentColor = False
+    end
+    object DateEdit_Expired: TDateEdit
+      Left = 76
+      Height = 25
+      Top = 60
+      Width = 147
+      CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
+      OnAcceptDate = DateEdit_ExpiredAcceptDate
+      DateOrder = doNone
+      ButtonWidth = 23
+      NumGlyphs = 1
+      MaxLength = 0
+      OnChange = DateEdit_ExpiredChange
+      TabOrder = 1
+      TextHint = 'Never for empty'
+    end
+    object TimeEdit_Expired: TTimeEdit
+      Left = 236
+      Height = 25
+      Top = 60
+      Width = 108
+      ButtonWidth = 23
+      NumGlyphs = 1
+      MaxLength = 0
+      TabOrder = 2
+      Visible = False
+    end
+    object Label3: TLabel
+      Left = 8
+      Height = 17
+      Top = 100
+      Width = 47
+      Caption = 'Preview:'
+      ParentColor = False
+    end
+    object MemoPrev: TMemo
+      Left = 76
+      Height = 221
+      Top = 100
+      Width = 480
+      ScrollBars = ssBoth
+      TabOrder = 3
+      WordWrap = False
+    end
+    object edtUrl: TEdit
+      Left = 76
+      Height = 25
+      Top = 364
+      Width = 480
+      ParentColor = True
+      ReadOnly = True
+      TabOrder = 4
+      Visible = False
+    end
+    object LabelUrl: TLabel
+      Left = 8
+      Height = 17
+      Top = 364
+      Width = 63
+      Caption = 'Share URL:'
+      ParentColor = False
+      Visible = False
+    end
+    object btnBack: TButton
+      Left = 236
+      Height = 25
+      Top = 436
+      Width = 75
+      Caption = 'Back'
+      OnClick = btnBackClick
+      TabOrder = 5
+    end
+    object btnGenShareUrl: TButton
+      Left = 410
+      Height = 25
+      Top = 436
+      Width = 143
+      Caption = 'Generate Share URL'
+      OnClick = btnGenShareUrlClick
+      TabOrder = 6
+    end
+    object btnCopyPrev: TButton
+      Left = 76
+      Height = 25
+      Top = 323
+      Width = 75
+      Caption = 'Copy'
+      OnClick = btnCopyPrevClick
+      TabOrder = 7
+    end
+    object btnEncHelp: TButton
+      Left = 520
+      Height = 25
+      Hint = 'Encryption instructions'
+      Top = 323
+      Width = 36
+      Caption = '?'
+      OnClick = btnEncHelpClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 8
+    end
+    object btnCopyUrl: TButton
+      Left = 76
+      Height = 25
+      Top = 392
+      Width = 75
+      Caption = 'Copy'
+      OnClick = btnCopyUrlClick
+      TabOrder = 9
+      Visible = False
+    end
+    object btnSaveToFile: TButton
+      Left = 316
+      Height = 25
+      Top = 436
+      Width = 91
+      Caption = 'Save to file'
+      OnClick = btnSaveToFileClick
+      TabOrder = 10
+    end
+    object StaticTextEncTip: TStaticText
+      Left = 144
+      Height = 83
+      Top = 232
+      Width = 404
+      Caption = 'Encryption algorithm: AES; Mode: CBC; Key: Password (32 bytes, repeated if insufficient); Initial vector: MD5 of Shared-title (UTF-8); Fill mode: ZeroFill; Result encoding: Base64'
+      TabOrder = 11
+      Visible = False
+    end
+    object btnClose: TButton
+      Left = 232
+      Height = 25
+      Top = 436
+      Width = 75
+      Caption = 'Close'
+      ModalResult = 11
+      OnClick = btnBackClick
+      TabOrder = 12
+      Visible = False
+    end
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = '.dmj'
+    left = 237
+    top = 324
+  end
+end

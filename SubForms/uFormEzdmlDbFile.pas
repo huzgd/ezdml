@@ -202,24 +202,8 @@ begin
 end;
 
 function GetMyLockId: string;
-  procedure SaveMyComputerId;
-  var
-    ini: TIniFile;
-  begin
-    ini := TIniFile.Create(GetConfFileOfApp);
-    try
-      ini.WriteString('Updates', 'UID', G_MyComputerId);
-    finally
-      ini.Free;
-    end;
-  end;
 begin
-  if G_MyComputerId=''then
-  begin
-    G_MyComputerId := CtGenGuid;
-    SaveMyComputerId;
-  end;
-  Result := LowerCase(Copy(G_MyComputerId,1,6));
+  Result := LowerCase(Copy(GetMyComputerId,1,6));
 end;
 
 function GetLockState(mstr: string): Integer;
@@ -1339,7 +1323,7 @@ begin
   if edtFileName.Text='' then
     Exit;
   if IsSymbolName(edtFileName.Text) then
-    Exit;
+    raise Exception.Create(Format(srInvalidTbNameError,[edtFileName.Text]));
   if IsSaveMode then
   begin
     if not Assigned(FCtMetaDatabase) then
