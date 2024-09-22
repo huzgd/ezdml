@@ -1032,6 +1032,7 @@ var
   fr: TfrmDmlSqlEditorN;
   sql, dbType: string;
   idx: integer;
+  bExists: boolean;
 begin
   if FIniting then
     Exit;
@@ -1085,7 +1086,15 @@ begin
     fr.Show;
   if fr.FCtMetaDatabase <> nil then
     if fr.FCtMetaDatabase.Connected then
-      fr.actExec.Execute;
+    begin     
+      bExists := False;
+      try
+        bExists := fr.FCtMetaDatabase.ObjectExists('',FCtMetaTable.RealTableName);
+      except
+      end;
+      if bExists then
+        fr.actExec.Execute;
+    end;
 end;
 
 procedure TFrameCtTableProp.RefreshFieldProps(AFld: TCtMetaField);

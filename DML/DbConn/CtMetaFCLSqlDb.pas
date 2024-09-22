@@ -63,6 +63,8 @@ type
   TCtSQLQuery = class(TSQLQuery)
   protected
     FIsCursorType: Boolean;
+    FCtMaxFetchCount: Integer;
+    function Fetch : boolean; override;
     procedure InternalOpen; override;
   public             
     procedure Prepare; override;
@@ -175,6 +177,14 @@ begin
   inherited Prepare;
   if Self.Cursor is TCtCustDbCursor then
     TCtCustDbCursor(Self.Cursor).FSelectCursorType:=FIsCursorType;
+end;
+
+function TCtSQLQuery.Fetch: boolean;
+begin
+  if (FCtMaxFetchCount>0) and (Self.RecordCount >= FCtMaxFetchCount) then
+    Result := False
+  else
+    Result:=inherited Fetch;
 end;
 
 procedure TCtSQLQuery.InternalOpen;
@@ -471,7 +481,7 @@ end;
 
 procedure TCtMetaFCLSqlDb.ExecSql(ASql: string);
 var
-  S: String;
+  S, T: String;
 begin
   CheckConnected;
   S := RemoveSqlComents(ASql);   
@@ -483,6 +493,17 @@ begin
   S := LowerCase(Trim(S));
   if S='' then
     Exit;
+  T := LowerCase(Trim(RemoveCtSQLComment(S)));
+  if T='commit' then
+  begin
+    ExecCmd('commit', '', '');
+    Exit;
+  end;
+  if T='rollback' then
+  begin
+    ExecCmd('rollback', '', '');
+    Exit;
+  end;
   if G_AutoCommit then
   begin
     if S='commit' then
@@ -549,7 +570,9 @@ begin
   else
     S := 'select * from ' + ASql;
   Result := TCtSQLQuery.Create(nil);
-  TSQLQuery(Result).DataBase := FDbConn;
+  TSQLQuery(Result).DataBase := FDbConn;  
+  if Pos('[NO_FETCH_LIMIT]', op) = 0 then
+    TCtSQLQuery(Result).FCtMaxFetchCount := G_CtSqlMaxFetchCount;
   TSQLQuery(Result).Sql.Text := S;
   if not G_AutoCommit then       
     TSQLQuery(Result).Options := [sqoAutoApplyUpdates]

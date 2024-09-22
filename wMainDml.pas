@@ -64,6 +64,11 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MNAI_GenFKLinks: TMenuItem;
+    MNAI_GenComments: TMenuItem;
+    MNAI_GenFields: TMenuItem;
+    MNAI_GenTables: TMenuItem;
+    MNAI_GenNewModel: TMenuItem;
     MNOpenURL: TMenuItem;
     MnShareFile: TMenuItem;
     MnNewAppWin: TMenuItem;
@@ -187,6 +192,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure lbNewVerInfoClick(Sender: TObject);
+    procedure MNAI_GenNewModelClick(Sender: TObject);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure TimerDelayCmdTimer(Sender: TObject);
@@ -288,6 +294,8 @@ type
 
     procedure ReCreateCustomToolsMenu;
     procedure _OnCustomToolsClick(Sender: TObject);
+
+    procedure CallAI(Act: Integer);
 
     function CheckCurFileDateSizeChanged: boolean;
     function IsTmpFile(fn: string): boolean;     
@@ -928,6 +936,11 @@ begin
   end;
 end;
 
+procedure TfrmMainDml.MNAI_GenNewModelClick(Sender: TObject);
+begin
+  CallAI(TMenuItem(Sender).Tag);
+end;
+
 procedure TfrmMainDml.Shape1MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -942,6 +955,31 @@ begin
     if FCtDataModelList.ModelFileConfig.LastModel <> '' then
     begin
       FFrameCtTableDef.FFrameCtTableList.FocusToModel(FCtDataModelList.ModelFileConfig.LastModel);
+      FCtDataModelList.ModelFileConfig.LastModel := '';
+    end;
+  end;
+
+  if TimerDelayCmd.Tag = 11 then
+  begin
+    if FCtDataModelList.ModelFileConfig.LastModel <> '' then
+    begin
+      FFrameCtTableDef.FFrameCtTableList.FocusToModel(FCtDataModelList.ModelFileConfig.LastModel);
+      if FFrameCtTableDef.PanelDMLGraph.Visible and
+        (FFrameCtTableDef.FFrameDMLGraph.MetaTableModel.Name=FCtDataModelList.ModelFileConfig.LastModel) then
+        TimerDelayCmd.Tag := 12
+      else
+        TimerDelayCmd.Tag := 11;
+      TimerDelayCmd.Enabled := True;
+    end;
+  end;
+  if TimerDelayCmd.Tag = 12 then
+  begin
+    if FCtDataModelList.ModelFileConfig.LastModel <> '' then
+    begin
+      if FFrameCtTableDef.PanelDMLGraph.Visible then
+        if FFrameCtTableDef.FFrameDMLGraph.MetaTableModel.Name=FCtDataModelList.ModelFileConfig.LastModel then
+          FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actRearrange.OnExecute(nil);
+
       FCtDataModelList.ModelFileConfig.LastModel := '';
     end;
   end;
@@ -1055,7 +1093,8 @@ begin
   actGenerateTestData.Visible:=False;
   {$endif}
   {$ifndef EZDML_CHATGPT}
-  actChatGPT.Visible := False;
+  actChatGPT.Visible := False;   
+  MNChatGPT1.Visible := False;
   FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Tag := 1;
   {$endif}
   LoadIni;
@@ -1302,7 +1341,9 @@ begin
     TableFieldMaxDrawCount := ini.ReadInteger('Options', 'TableFieldMaxDrawCount',
       TableFieldMaxDrawCount);
     G_MaxRowCountForTableData :=
-      ini.ReadInteger('Options', 'MaxRowCountForTableData', G_MaxRowCountForTableData);
+      ini.ReadInteger('Options', 'MaxRowCountForTableData', G_MaxRowCountForTableData);    
+    G_CtSqlMaxFetchCount :=
+      ini.ReadInteger('Options', 'CtSqlMaxFetchCount', G_CtSqlMaxFetchCount);
     G_HugeModeTableCount := ini.ReadInteger('Options', 'HugeModeTableCount',
       G_HugeModeTableCount);
     G_CreateSeqForOracle := ini.ReadBool('Options', 'CreateSeqForOracle',
@@ -1456,7 +1497,7 @@ begin
     else 
     begin
       FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Tag := 0;
-      FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Visible := False;
+      FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actChatGPT.Visible := True;//False;
     end;
   {$endif}
   finally
@@ -2765,6 +2806,46 @@ begin
   end;
 end;
 
+procedure TfrmMainDml.CallAI(Act: Integer);
+begin
+  EzdmlMenuActExecuteEvt('Model_ChatGPT');
+  {$ifdef EZDML_CHATGPT}
+  if Act>1 then
+    if not FFrameCtTableDef.PanelDMLGraph.Visible then
+      raise Exception.Create(srDmlGptGenShowGraphTip);
+  FFrameCtTableDef.FFrameDMLGraph.CheckSelectedTb;
+  if Act>=3 then
+    if FFrameCtTableDef.FFrameDMLGraph.GetSelectedTable=nil then
+      raise Exception.Create(srDmlGptGenSelectTip);
+  CheckCanEditMeta;
+  FCtDataModelList.Pack;
+  if not FCtDataModelList.IsHuge then
+    SaveDmlToTmpFile;    
+  FCtDataModelList.ModelFileConfig.LastModel := '';
+  if ShowChatGPTForm(Act) then
+  begin
+    if Act=1 then
+    begin         
+      FFrameCtTableDef.FFrameCtTableList.actRefresh.Execute;
+      if FCtDataModelList.ModelFileConfig.LastModel <> '' then
+      begin
+        TimerDelayCmd.Tag := 11;
+        TimerDelayCmd.Enabled := True;
+      end;
+    end
+    else if Act=2 then
+    begin
+      FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actRefresh.Execute;
+      FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actBestFit.Execute;
+    end
+    else
+    begin
+      FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actRefresh.Execute;
+    end;
+  end;
+  {$endif}
+end;
+
 procedure TfrmMainDml._OnDMLObjProgress(Sender: TObject;
   const Prompt: string; Cur, All: integer; var bContinue: boolean);
 begin
@@ -2877,7 +2958,7 @@ begin
   end;    
   if msg.wParam = 8 then  //ChatGPT
   begin
-    actChatGPT.Execute;
+    CallAI(msg.LParam);
     Exit;
   end;      
   if msg.wParam = 9 then  //检查文件变更
@@ -3626,11 +3707,8 @@ begin
 end;
 
 procedure TfrmMainDml.actChatGPTExecute(Sender: TObject);
-begin       
-  {$ifdef EZDML_CHATGPT}
-  if ShowChatGPTForm then
-    FFrameCtTableDef.FFrameCtTableList.actRefresh.Execute;  
-  {$endif}
+begin
+  CallAI(1);
 end;
 
 procedure TfrmMainDml.actCheckUpdatesExecute(Sender: TObject);
@@ -4385,7 +4463,8 @@ initialization
   G_QuotReservedNames := False;
   G_QuotAllNames := False;
   G_LogicNamesForTableData := False;
-  G_MaxRowCountForTableData := 25;
+  G_MaxRowCountForTableData := 25;         
+  G_CtSqlMaxFetchCount := 1000;
   G_WriteConstraintToDescribeStr := True;
   G_FieldGridShowLines := True;
   G_AddColCommentToCreateTbSql := True;

@@ -17,8 +17,8 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.61';
-  srEzdmlVersionDate = '2024-08-11';
+  srEzdmlVersionNum = '3.62';
+  srEzdmlVersionDate = '2024-09-22';
 
 {$ifdef EZDML_LITE}
 
@@ -103,7 +103,12 @@ resourcestring
   srEzdmlTempFileFmt = 'Temporary file - %s';
   srEzdmlFunOnlyInWin32Ver = 'Sorry, this function is not available in EZDML of x64 version yet. Please take EZDML for win32 instead.'; 
   srEzdmlCheckingForUpdates = 'Checking for updates...';
-  srEzdmlChatGPTProcessing = 'ChatGPT is processing, please wait...';
+  srEzdmlChatGPTProcessing = 'AI request is being processed, please be patient and wait...';
+  srEzdmlChatAITip_GenModel = 'Generate New Model: please specify the system name and requirement description, AI will generate the new model and add it to the list';
+  srEzdmlChatAITip_GenTables = 'Add More Tables: AI will supplement and add new tables to the model based on the system description and existing table information.'#13#10'Exists tables:';
+  srEzdmlChatAITip_GenFields = 'Add More Fields: AI will supplement and add new fields to the selected tables based on the system description and existing tables/fields information.'#13#10'Existing tables/fields:';
+  srEzdmlChatAITip_GenComments = 'Generate Comments: AI will add logical names and comments to the selected tables/fields based on the system description and existing tables/fields information.'#13#10'Existing tables/fields:';
+  srEzdmlChatAITip_GenFKLinks = 'Generate Foreign Keys: AI will add foreign key links to the selected table based on the system description and existing table information.'#13#10'Existing tables:';
   srEzdmlNoUpdateFound = 'No updatable version present.'; 
   srEzdmlDmjUnicodePropmt = 'Save json data with \uXXXX unicode format?';
   srEzdmlPromptNeverShown = '(Shift+Action = Don''t prompt again)';

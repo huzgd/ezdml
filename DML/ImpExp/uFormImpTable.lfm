@@ -98,12 +98,15 @@ object frmImportCtTable: TfrmImportCtTable
   object btnDBLogon: TButton
     Left = 798
     Height = 27
+    Hint = 'Connect'
     Top = 17
     Width = 32
     Anchors = [akTop, akRight]
     AutoSize = True
     Caption = '..'
     OnClick = btnDBLogonClick
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 3
   end
   object combDBUser: TComboBox
@@ -244,8 +247,8 @@ object frmImportCtTable: TfrmImportCtTable
   object TimerInit: TTimer
     Interval = 500
     OnTimer = TimerInitTimer
-    left = 204
-    top = 165
+    left = 208
+    top = 232
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = '.dbk'
@@ -253,5 +256,18 @@ object frmImportCtTable: TfrmImportCtTable
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     left = 232
     top = 165
+  end
+  object PopupMenuDbConn: TPopupMenu
+    left = 760
+    top = 68
+    object MenuItemDbConn: TMenuItem
+      Caption = 'Connect'
+      Default = True
+      OnClick = MenuItemDbConnClick
+    end
+    object MenuItemDedicatedConn: TMenuItem
+      Caption = 'Dedicated connect'
+      OnClick = MenuItemDedicatedConnClick
+    end
   end
 end

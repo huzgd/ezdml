@@ -21,5 +21,7 @@
 {"hash":79384371,"name":"tfrmdmlsqleditoro.mn_showtableprops.caption","sourcebytes":[84,97,98,108,101,32,112,114,111,112,101,114,116,105,101,115],"value":"Table properties"},
 {"hash":197428465,"name":"tfrmdmlsqleditoro.mn_querytabledata.caption","sourcebytes":[81,117,101,114,121,32,116,97,98,108,101,32,100,97,116,97],"value":"Query table data"},
 {"hash":129437269,"name":"tfrmdmlsqleditoro.mn_copytbname.caption","sourcebytes":[67,111,112,121,32,110,97,109,101],"value":"Copy name"},
-{"hash":146640072,"name":"tfrmdmlsqleditoro.mn_tbsrefresh.caption","sourcebytes":[82,101,102,114,101,115,104],"value":"Refresh"}
+{"hash":146640072,"name":"tfrmdmlsqleditoro.mn_tbsrefresh.caption","sourcebytes":[82,101,102,114,101,115,104],"value":"Refresh"},
+{"hash":174410724,"name":"tfrmdmlsqleditoro.menuitemdbconn.caption","sourcebytes":[67,111,110,110,101,99,116],"value":"Connect"},
+{"hash":27608884,"name":"tfrmdmlsqleditoro.menuitemdedicatedconn.caption","sourcebytes":[68,101,100,105,99,97,116,101,100,32,99,111,110,110,101,99,116],"value":"Dedicated connect"}
 ]}

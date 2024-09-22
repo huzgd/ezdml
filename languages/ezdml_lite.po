@@ -101,15 +101,44 @@ msgstr ""
 
 #: dmlstrs.srchatgpt
 msgctxt "dmlstrs.srchatgpt"
-msgid "ChatGPT"
+msgid "AI Assist"
+msgstr ""
+
+#: dmlstrs.srchatgptgencomments
+msgctxt "dmlstrs.srchatgptgencomments"
+msgid "Generate Comments"
+msgstr ""
+
+#: dmlstrs.srchatgptgenfields
+msgctxt "dmlstrs.srchatgptgenfields"
+msgid "Add More Fields"
+msgstr ""
+
+#: dmlstrs.srchatgptgenmodel
+msgctxt "dmlstrs.srchatgptgenmodel"
+msgid "Generate New Model"
+msgstr ""
+
+#: dmlstrs.srchatgptgennothing
+msgid "AI did not return new content, please try modifying or adding prompts and descriptive information"
+msgstr ""
+
+#: dmlstrs.srchatgptgenrelations
+msgctxt "dmlstrs.srchatgptgenrelations"
+msgid "Generate Foreign Keys"
+msgstr ""
+
+#: dmlstrs.srchatgptgentables
+msgctxt "dmlstrs.srchatgptgentables"
+msgid "Add More Tables"
 msgstr ""
 
 #: dmlstrs.srchatgptrecofailed
-msgid "The content returned by ChatGPT service is not recognized. Please modify the text or try again later"
+msgid "The content returned by AI service is not recognized. Please modify the text or try again later"
 msgstr ""
 
 #: dmlstrs.srchatgptreqfailed
-msgid "Request for ChatGPT service failed"
+msgid "Request for AI service failed"
 msgstr ""
 
 #: dmlstrs.srcheckeditingmetafailedfmt
@@ -256,6 +285,14 @@ msgstr ""
 msgid "Object %s is not synchronized with the database"
 msgstr ""
 
+#: dmlstrs.srdedicatedconn
+msgid "Dedicated"
+msgstr ""
+
+#: dmlstrs.srdedicatedmode
+msgid "Dedicated Connection"
+msgstr ""
+
 #: dmlstrs.srdesignnotes
 msgctxt "dmlstrs.srdesignnotes"
 msgid "Design notes"
@@ -329,6 +366,14 @@ msgstr ""
 
 #: dmlstrs.srdmlforeignkey
 msgid "FK"
+msgstr ""
+
+#: dmlstrs.srdmlgptgenselecttip
+msgid "Please select at lease one table"
+msgstr ""
+
+#: dmlstrs.srdmlgptgenshowgraphtip
+msgid "Please select a model"
 msgstr ""
 
 #: dmlstrs.srdmlgraphfontname
@@ -1124,8 +1169,36 @@ msgstr ""
 msgid "Are you sure to abort saving?"
 msgstr ""
 
+#: ezdmlstrs.srezdmlchataitip_gencomments
+msgid ""
+"Generate Comments: AI will add logical names and comments to the selected tables/fields based on the system description and existing tables/fields information.\n"
+"Existing tables/fields:\n"
+msgstr ""
+
+#: ezdmlstrs.srezdmlchataitip_genfields
+msgid ""
+"Add More Fields: AI will supplement and add new fields to the selected tables based on the system description and existing tables/fields information.\n"
+"Existing tables/fields:\n"
+msgstr ""
+
+#: ezdmlstrs.srezdmlchataitip_genfklinks
+msgid ""
+"Generate Foreign Keys: AI will add foreign key links to the selected table based on the system description and existing table information.\n"
+"Existing tables:\n"
+msgstr ""
+
+#: ezdmlstrs.srezdmlchataitip_genmodel
+msgid "Generate New Model: please specify the system name and requirement description, AI will generate the new model and add it to the list"
+msgstr ""
+
+#: ezdmlstrs.srezdmlchataitip_gentables
+msgid ""
+"Add More Tables: AI will supplement and add new tables to the model based on the system description and existing table information.\n"
+"Exists tables:\n"
+msgstr ""
+
 #: ezdmlstrs.srezdmlchatgptprocessing
-msgid "ChatGPT is processing, please wait..."
+msgid "AI request is being processed, please be patient and wait..."
 msgstr ""
 
 #: ezdmlstrs.srezdmlcheckingforupdates
@@ -3114,12 +3187,12 @@ msgstr ""
 
 #: tframedml.actchatgpt.caption
 msgctxt "tframedml.actchatgpt.caption"
-msgid "ChatGPT"
+msgid "AI"
 msgstr ""
 
 #: tframedml.actchatgpt.hint
 msgctxt "tframedml.actchatgpt.hint"
-msgid "Use ChatGPT AI to assist in generating model design"
+msgid "Use AI to assist in generating model design"
 msgstr ""
 
 #: tframedml.actcheckfklinks.caption
@@ -3500,6 +3573,36 @@ msgstr ""
 msgid "Table prop view (F9)"
 msgstr ""
 
+#: tframedml.menuitem_ai.caption
+msgctxt "tframedml.menuitem_ai.caption"
+msgid "AI Assistant"
+msgstr ""
+
+#: tframedml.mnai_gencomments.caption
+msgctxt "tframedml.mnai_gencomments.caption"
+msgid "Generate Comments"
+msgstr ""
+
+#: tframedml.mnai_genfields.caption
+msgctxt "tframedml.mnai_genfields.caption"
+msgid "Add More Fields"
+msgstr ""
+
+#: tframedml.mnai_genfklinks.caption
+msgctxt "tframedml.mnai_genfklinks.caption"
+msgid "Generate Foreign Keys"
+msgstr ""
+
+#: tframedml.mnai_gennewmodel.caption
+msgctxt "tframedml.mnai_gennewmodel.caption"
+msgid "Generate New Model"
+msgstr ""
+
+#: tframedml.mnai_gentables.caption
+msgctxt "tframedml.mnai_gentables.caption"
+msgid "Add More Tables"
+msgstr ""
+
 #: tframedml.mnrun_gencode.caption
 msgctxt "tframedml.mnrun_gencode.caption"
 msgid "Generate Code"
@@ -3529,6 +3632,26 @@ msgctxt "tframedml.mn_capitalize.caption"
 msgid "Capitalize"
 msgstr ""
 
+#: tframedml.pmnai_gencomments.caption
+msgctxt "tframedml.pmnai_gencomments.caption"
+msgid "Generate Comments"
+msgstr ""
+
+#: tframedml.pmnai_genfields.caption
+msgctxt "tframedml.pmnai_genfields.caption"
+msgid "Add More Fields"
+msgstr ""
+
+#: tframedml.pmnai_genfklinks.caption
+msgctxt "tframedml.pmnai_genfklinks.caption"
+msgid "Generate Foreign Keys"
+msgstr ""
+
+#: tframedml.pmnai_gentables.caption
+msgctxt "tframedml.pmnai_gentables.caption"
+msgid "Add More Tables"
+msgstr ""
+
 #: tframedml.spthide.hint
 msgid "Close property page"
 msgstr ""
@@ -3536,6 +3659,16 @@ msgstr ""
 #: tframedml.toolbar1.caption
 msgctxt "tframedml.toolbar1.caption"
 msgid "ToolBar"
+msgstr ""
+
+#: tframedml.toolbuttonai.caption
+msgctxt "tframedml.toolbuttonai.caption"
+msgid "AI"
+msgstr ""
+
+#: tframedml.toolbuttonai.hint
+msgctxt "tframedml.toolbuttonai.hint"
+msgid "AI Assistant"
 msgstr ""
 
 #: tframedml.toolbuttonrun.caption
@@ -3986,6 +4119,11 @@ msgctxt "tfrmctgensql.btndblogon.caption"
 msgid "..."
 msgstr ""
 
+#: tfrmctgensql.btndblogon.hint
+msgctxt "tfrmctgensql.btndblogon.hint"
+msgid "Connect"
+msgstr ""
+
 #: tfrmctgensql.btnexecsql.caption
 msgctxt "tfrmctgensql.btnexecsql.caption"
 msgid "&Execute"
@@ -4001,11 +4139,6 @@ msgctxt "tfrmctgensql.btnresum.caption"
 msgid "&Ignore"
 msgstr ""
 
-#: tfrmctgensql.btnseldbtype.caption
-msgctxt "tfrmctgensql.btnseldbtype.caption"
-msgid "v"
-msgstr ""
-
 #: tfrmctgensql.caption
 msgctxt "tfrmctgensql.caption"
 msgid "Generate Database"
@@ -4014,6 +4147,11 @@ msgstr ""
 #: tfrmctgensql.chkpause.caption
 msgctxt "tfrmctgensql.chkpause.caption"
 msgid "Stop on error"
+msgstr ""
+
+#: tfrmctgensql.ckbcreateforeignkeys.caption
+msgctxt "tfrmctgensql.ckbcreateforeignkeys.caption"
+msgid "Create foreign keys"
 msgstr ""
 
 #: tfrmctgensql.ckbprocoracleseqs.caption
@@ -4071,6 +4209,20 @@ msgctxt "tfrmctgensql.labelprog.caption"
 msgid "0/0"
 msgstr ""
 
+#: tfrmctgensql.menuitemdbconn.caption
+msgctxt "tfrmctgensql.menuitemdbconn.caption"
+msgid "Connect"
+msgstr ""
+
+#: tfrmctgensql.menuitemdedicatedconn.caption
+msgctxt "tfrmctgensql.menuitemdedicatedconn.caption"
+msgid "Dedicated connect"
+msgstr ""
+
+#: tfrmctgensql.menuitem_virtualdbs.caption
+msgid "Virtual Database"
+msgstr ""
+
 #: tfrmctgensql.mnshowphyname.caption
 msgctxt "tfrmctgensql.mnshowphyname.caption"
 msgid "Show physical name"
@@ -4089,21 +4241,6 @@ msgstr ""
 #: tfrmctgensql.mn_dbtableinfo.caption
 msgctxt "tfrmctgensql.mn_dbtableinfo.caption"
 msgid "Table properties (DB)"
-msgstr ""
-
-#: tfrmctgensql.mn_defdbtype_mysql.caption
-msgctxt "tfrmctgensql.mn_defdbtype_mysql.caption"
-msgid "MYSQL"
-msgstr ""
-
-#: tfrmctgensql.mn_defdbtype_oracle.caption
-msgctxt "tfrmctgensql.mn_defdbtype_oracle.caption"
-msgid "ORACLE"
-msgstr ""
-
-#: tfrmctgensql.mn_defdbtype_sqlserver.caption
-msgctxt "tfrmctgensql.mn_defdbtype_sqlserver.caption"
-msgid "SQLSERVER"
 msgstr ""
 
 #: tfrmctgensql.mn_defdbtype_standard.caption
@@ -4496,6 +4633,16 @@ msgctxt "tfrmdmlsqleditoro.lbstatus.caption"
 msgid "Status message"
 msgstr ""
 
+#: tfrmdmlsqleditoro.menuitemdbconn.caption
+msgctxt "tfrmdmlsqleditoro.menuitemdbconn.caption"
+msgid "Connect"
+msgstr ""
+
+#: tfrmdmlsqleditoro.menuitemdedicatedconn.caption
+msgctxt "tfrmdmlsqleditoro.menuitemdedicatedconn.caption"
+msgid "Dedicated connect"
+msgstr ""
+
 #: tfrmdmlsqleditoro.mn_copytbname.caption
 msgctxt "tfrmdmlsqleditoro.mn_copytbname.caption"
 msgid "Copy name"
@@ -4564,6 +4711,11 @@ msgstr ""
 #: tfrmezdmldbfile.btndblogon.caption
 msgctxt "tfrmezdmldbfile.btndblogon.caption"
 msgid ".."
+msgstr ""
+
+#: tfrmezdmldbfile.btndblogon.hint
+msgctxt "tfrmezdmldbfile.btndblogon.hint"
+msgid "Connect"
 msgstr ""
 
 #: tfrmezdmldbfile.btnok.caption
@@ -4755,6 +4907,11 @@ msgctxt "tfrmimportcttable.btndblogon.caption"
 msgid ".."
 msgstr ""
 
+#: tfrmimportcttable.btndblogon.hint
+msgctxt "tfrmimportcttable.btndblogon.hint"
+msgid "Connect"
+msgstr ""
+
 #: tfrmimportcttable.btnok.caption
 msgctxt "tfrmimportcttable.btnok.caption"
 msgid "Start"
@@ -4817,6 +4974,16 @@ msgstr ""
 #: tfrmimportcttable.lbtbcount.caption
 msgctxt "tfrmimportcttable.lbtbcount.caption"
 msgid "(0 total)"
+msgstr ""
+
+#: tfrmimportcttable.menuitemdbconn.caption
+msgctxt "tfrmimportcttable.menuitemdbconn.caption"
+msgid "Connect"
+msgstr ""
+
+#: tfrmimportcttable.menuitemdedicatedconn.caption
+msgctxt "tfrmimportcttable.menuitemdedicatedconn.caption"
+msgid "Dedicated connect"
 msgstr ""
 
 #: tfrmimportcttable.mn_checkall.caption
@@ -4949,12 +5116,12 @@ msgstr ""
 
 #: tfrmmaindml.actchatgpt.caption
 msgctxt "tfrmmaindml.actchatgpt.caption"
-msgid "ChatGPT"
+msgid "AI"
 msgstr ""
 
 #: tfrmmaindml.actchatgpt.hint
 msgctxt "tfrmmaindml.actchatgpt.hint"
-msgid "Use ChatGPT AI to assist in generating model design"
+msgid "Use AI to assist in generating model design"
 msgstr ""
 
 #: tfrmmaindml.actcheckupdates.caption
@@ -5166,6 +5333,41 @@ msgstr ""
 
 #: tfrmmaindml.lbnewverinfo.caption
 msgid "New version"
+msgstr ""
+
+#: tfrmmaindml.mnai_gencomments.caption
+msgctxt "tfrmmaindml.mnai_gencomments.caption"
+msgid "Generate Comments"
+msgstr ""
+
+#: tfrmmaindml.mnai_genfields.caption
+msgctxt "tfrmmaindml.mnai_genfields.caption"
+msgid "Add More Fields"
+msgstr ""
+
+#: tfrmmaindml.mnai_genfklinks.caption
+msgctxt "tfrmmaindml.mnai_genfklinks.caption"
+msgid "Generate Foreign Keys"
+msgstr ""
+
+#: tfrmmaindml.mnai_gennewmodel.caption
+msgctxt "tfrmmaindml.mnai_gennewmodel.caption"
+msgid "Generate New Model"
+msgstr ""
+
+#: tfrmmaindml.mnai_gentables.caption
+msgctxt "tfrmmaindml.mnai_gentables.caption"
+msgid "Add More Tables"
+msgstr ""
+
+#: tfrmmaindml.mnchatgpt1.caption
+msgctxt "tfrmmaindml.mnchatgpt1.caption"
+msgid "AI Assistant"
+msgstr ""
+
+#: tfrmmaindml.mnchatgpt1.hint
+msgctxt "tfrmmaindml.mnchatgpt1.hint"
+msgid "Use AI to assist in generating model design"
 msgstr ""
 
 #: tfrmmaindml.mntools1.caption
@@ -5460,6 +5662,7 @@ msgid "Auto check for updates on exit (once per week)"
 msgstr ""
 
 #: tfrmsettings.ckbcreateforeignkeys.caption
+msgctxt "tfrmsettings.ckbcreateforeignkeys.caption"
 msgid "Create foreign keys"
 msgstr ""
 
@@ -5679,6 +5882,10 @@ msgctxt "tfrmsettings.labellayoutspacer1.caption"
 msgid " "
 msgstr ""
 
+#: tfrmsettings.lbaikey.caption
+msgid "AI key:"
+msgstr ""
+
 #: tfrmsettings.lbautosaveminutes.caption
 msgid "Time interval:"
 msgstr ""
@@ -5839,11 +6046,11 @@ msgid "lib:"
 msgstr ""
 
 #: tfrmsettings.lbtabledatapreviewrows.caption
-msgid "Rows limit:"
+msgid "Rows limit in WHERE clause:"
 msgstr ""
 
-#: tfrmsettings.lbtabledatapreviewrows1.caption
-msgid "ChatGPT key:"
+#: tfrmsettings.lbtabledatapreviewrows2.caption
+msgid "Max fetch rows:"
 msgstr ""
 
 #: tfrmsettings.lbtpnreplacement.caption

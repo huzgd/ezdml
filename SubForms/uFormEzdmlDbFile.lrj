@@ -6,6 +6,7 @@
 {"hash":80755394,"name":"tfrmezdmldbfile.label5.caption","sourcebytes":[70,105,108,116,101,114],"value":"Filter"},
 {"hash":1339,"name":"tfrmezdmldbfile.btnok.caption","sourcebytes":[79,75],"value":"OK"},
 {"hash":77089212,"name":"tfrmezdmldbfile.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":174410724,"name":"tfrmezdmldbfile.btndblogon.hint","sourcebytes":[67,111,110,110,101,99,116],"value":"Connect"},
 {"hash":782,"name":"tfrmezdmldbfile.btndblogon.caption","sourcebytes":[46,46],"value":".."},
 {"hash":41356085,"name":"tfrmezdmldbfile.label4.caption","sourcebytes":[70,105,108,101,32,110,97,109,101],"value":"File name"},
 {"hash":346165,"name":"tfrmezdmldbfile.listviewfiles.columns[0].caption","sourcebytes":[78,97,109,101],"value":"Name"},

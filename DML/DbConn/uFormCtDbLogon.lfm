@@ -110,6 +110,7 @@ object frmLogonCtDB: TfrmLogonCtDB
     Height = 27
     Top = 235
     Width = 64
+    Cancel = True
     Caption = 'Cancel'
     OnClick = btnCancelClick
     TabOrder = 6

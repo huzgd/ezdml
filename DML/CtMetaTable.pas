@@ -617,6 +617,7 @@ type
 
     function HasValidComplexIndex: boolean;      
     function IsLobField(dbType: string): boolean;
+    function IsPK: boolean;
     function IsFK: boolean;
     function IsPhysicalField: boolean;
 
@@ -989,7 +990,8 @@ type
     FUser: string;
     FEngineType: string;
     FDbSchema: string;         
-    FExtraOpt: string;
+    FExtraOpt: string;  
+    FUseCounter: Integer;
     function GetDbSchema: string; virtual;
     procedure SetDbSchema(const Value: string); virtual;
     function GetConnected: boolean; virtual;
@@ -1031,6 +1033,7 @@ type
     property DbSchema: string read GetDbSchema write SetDbSchema;
     property Connected: boolean read GetConnected write SetConnected;
     property ExtraOpt: string read FExtraOpt write FExtraOpt;
+    property UseCounter: Integer read FUseCounter write FUseCounter;
   end;
 
   TCtMetaDatabaseClass = class of TCtMetaDatabase;
@@ -1138,7 +1141,8 @@ var
   G_QuotReservedNames: boolean;
   G_QuotAllNames: boolean;
   G_LogicNamesForTableData: boolean;
-  G_MaxRowCountForTableData: integer;
+  G_MaxRowCountForTableData: integer;  
+  G_CtSqlMaxFetchCount: Integer = 1000;
   G_HugeModeTableCount: integer = 500;
   G_WriteConstraintToDescribeStr: boolean;
   G_FieldGridShowLines: boolean;
@@ -3772,7 +3776,7 @@ begin
             ' primary key (' + GetPrimaryKeyNames(dbType) + ');';
         end;
         if (F.RelateTable <> '')
-          and (F.RelateField <> '') and (Pos('{Link:', F.RelateField)=0) then
+          and (F.RelateField <> '') and (Pos('{Link:', F.RelateField)=0) and G_CreateForeignkeys then
         begin
           {if dbType = 'SQLITE' then
           begin
@@ -7154,6 +7158,16 @@ begin
     Result := True;
 end;
 
+function TCtMetaField.IsPK: boolean;
+begin
+  Result := False;
+  if not IsPhysicalField then
+    Exit;
+  if (Self.KeyFieldType <> cfktId) then
+    Exit;
+  Result := True;
+end;
+
 function TCtMetaField.IsFK: boolean;
 begin
   Result := False;
@@ -7164,6 +7178,8 @@ begin
   if Trim(Self.RelateTable)='' then
     Exit;
   if Trim(Self.RelateField)='' then
+    Exit;
+  if Pos('{Link:', Self.RelateField)>0 then
     Exit;
   Result := True;
 end;

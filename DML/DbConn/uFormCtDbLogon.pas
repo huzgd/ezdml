@@ -6,7 +6,8 @@ interface
 
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, DB, Menus;
+  Dialogs, StdCtrls, ExtCtrls, DB, Menus,
+  CtMetaTable;
 
 type
 
@@ -52,8 +53,12 @@ type
   private
     { Private declarations }
     FLogonHistories: TStringList;
-    FCurConnDbNames: string;
-    procedure _OnLogonHistMenuItemClicked(Sender: TObject);  
+    FCurConnDbNames: string;   
+    FCloneMode: Boolean;
+    FCloneMetaDb: TCtMetaDatabase;
+    function GetCurMetaDb: TCtMetaDatabase;
+    procedure SetCloneMode(AValue: Boolean);
+    procedure _OnLogonHistMenuItemClicked(Sender: TObject);
     procedure DoConnectDb(bForceReConnect: Boolean);
     procedure DisableAutoLogin;
     procedure RegenCombDbDropdownList;
@@ -62,6 +67,8 @@ type
     procedure GetLastDbLogonInfo(dbTypeNeeded: Boolean);
     procedure AddLogonHistory(his: string);
     procedure SetLogonHistoryToDb(his: string; adb: TObject);
+    property CurMetaDb: TCtMetaDatabase read GetCurMetaDb;
+    property CloneMode: Boolean read FCloneMode write SetCloneMode;
   end;
 
 function ExecCtDbLogon: Integer;
@@ -75,13 +82,18 @@ function CanAutoShowLogin: Boolean;
 function IsCtDbConnected: Boolean;
 function DoExecSql(sql, opts: string): TDataSet;
 
+
+function ExecDedicatedDbLogon(AOwner: TCustomForm; AInitDb: TCtMetaDatabase): TCtMetaDatabase;       
+function CloneDedicatedMetaDb(ADb: TCtMetaDatabase; bCanReuse: Boolean): TCtMetaDatabase;
+
 var
   frmLogonCtDB: TfrmLogonCtDB;
   F_DbAutoLogonDone: Boolean = False;
 
 implementation
 
-uses CtMetaTable, IniFiles, WindowFuncs, dmlstrs, ezdmlstrs;
+uses
+  IniFiles, WindowFuncs, dmlstrs, ezdmlstrs;
 
 {$R *.lfm}
 
@@ -259,6 +271,80 @@ begin
     Result := True;
 end;
 
+function ExecDedicatedDbLogon(AOwner: TCustomForm; AInitDb: TCtMetaDatabase): TCtMetaDatabase;
+var
+  frm: TfrmLogonCtDB;
+  I: Integer;
+begin
+  Result := nil;
+  if AOwner=nil then
+    Exit;       
+  frm := TfrmLogonCtDB.Create(AOwner);
+  try  
+    frm.CloneMode:=True;
+    frm.GetLastDbLogonInfo(False);
+    if AInitDb <> nil then
+    begin
+      for I := 0 to High(CtMetaDBRegs) do
+        if (CtMetaDBRegs[I].DbImpl <> nil) and (CtMetaDBRegs[I].DbImpl.OrigEngineType = AInitDb.OrigEngineType) then
+        begin
+          frm.combDbType.ItemIndex := I;
+          frm.combDBName.Text := AInitDb.Database;
+          frm.edtUserName.Text := AInitDb.User;
+          frm.edtPassword.Text := AInitDb.Password;
+          Break;
+        end;
+    end;
+    frm.Caption := frm.Caption + ' - '+srDedicatedMode;
+    if frm.ShowModal = mrOk then
+    begin
+      Result := frm.CurMetaDb;
+      frm.FCloneMetaDb := nil;
+    end;
+  finally
+    frm.Free;
+  end;
+end;
+
+function CloneDedicatedMetaDb(ADb: TCtMetaDatabase; bCanReuse: Boolean): TCtMetaDatabase;
+var
+  I: Integer;
+  db: TCtMetaDatabase;
+begin
+  Result := nil;
+  if ADb=nil then
+    Exit;
+  if bCanReuse then
+    if ADb.UseCounter > 0 then
+    begin
+      ADb.UseCounter := ADb.UseCounter+1;
+      Result := ADb;
+      Exit;
+    end;
+
+  for I := 0 to High(CtMetaDBRegs) do
+  begin
+    db := CtMetaDBRegs[I].DbImpl;
+    if db = nil then
+      Continue;
+    if (db.OrigEngineType <> ADb.OrigEngineType) then
+      Continue;
+    Result := CtMetaDBRegs[I].DbClass.Create;
+    Result.Database:=ADb.Database;
+    Result.User:=ADb.User;
+    Result.Password:=ADb.Password;
+    Result.ExtraOpt:=ADb.ExtraOpt;
+    if ADb.Connected then
+    try
+      Result.Connected := True;  
+      Result.DbSchema:=ADb.DbSchema;
+    except
+      Application.HandleException(nil);
+    end;
+    Exit;
+  end;
+end;
+
 function DoExecSql(sql, opts: string): TDataSet;
 var
   I: Integer;
@@ -300,11 +386,11 @@ begin
   FreeAndNil(FLogonHistories);
   if frmLogonCtDB = Self then
     frmLogonCtDB := nil;
+  if Assigned(FCloneMetaDb) then
+    FreeAndNil(FCloneMetaDb);
 end;
 
 procedure TfrmLogonCtDB.FormShow(Sender: TObject);
-var
-  I: Integer;
 begin
   if not ckbAutoLogin.Checked then
     Exit;
@@ -312,17 +398,15 @@ begin
     Exit;
 
   if (GetKeyState(VK_SHIFT) and $80) <> 0 then
-    Exit;
-
-  I := combDbType.ItemIndex;
-  if I < 0 then
-    Exit;
-  if CtMetaDBRegs[I].DbImpl = nil then
-    Exit;  
+    Exit;      
   if F_DbAutoLogonDone then
+    Exit;          
+  if CloneMode then
     Exit;
 
-  with CtMetaDBRegs[I].DbImpl do
+  if CurMetaDb = nil then
+    Exit;
+  with CurMetaDb do
   begin
     if Connected then
       Exit;
@@ -380,17 +464,18 @@ begin
         end;
       end;
 
-      for J := 0 to High(CtMetaDBRegs) do
-      begin
-        db := CtMetaDBRegs[J].DbImpl;
-        if db = nil then
-          Continue;
-        if db.Database <> '' then
-          Continue;
+      if not FCloneMode then
+        for J := 0 to High(CtMetaDBRegs) do
+        begin
+          db := CtMetaDBRegs[J].DbImpl;
+          if db = nil then
+            Continue;
+          if db.Database <> '' then
+            Continue;
 
-        S := Ini.ReadString('DbConn', db.ClassName, '');
-        SetLogonHistoryToDb(S, db);
-      end;
+          S := Ini.ReadString('DbConn', db.ClassName, '');
+          SetLogonHistoryToDb(S, db);
+        end;
 
       FLogonHistories.Clear;
       C := ini.ReadInteger('DbLogonHistory', 'Count', 0);
@@ -480,8 +565,6 @@ begin
 end;
 
 procedure TfrmLogonCtDB.TimerAutoLoginTimer(Sender: TObject);
-var
-  I: Integer;
 begin
   TimerAutoLogin.Enabled := False;
   try
@@ -494,13 +577,10 @@ begin
     if (GetKeyState(VK_SHIFT) and $80) <> 0 then
       Exit;
 
-    I := combDbType.ItemIndex;
-    if I < 0 then
-      Exit;
-    if CtMetaDBRegs[I].DbImpl = nil then
+    if CurMetaDb = nil then
       Exit;
 
-    with CtMetaDBRegs[I].DbImpl do
+    with CurMetaDb do
     begin
       if Connected then
         Exit;
@@ -544,52 +624,93 @@ begin
     for I := 0 to High(CtMetaDBRegs) do
       if (CtMetaDBRegs[I].DbImpl <> nil) and (CtMetaDBRegs[I].DbImpl.OrigEngineType = sDb) then
       begin
-        SetLogonHistoryToDb(S, CtMetaDBRegs[I].DbImpl);
         combDbType.ItemIndex := I;
         combDbTypeChange(nil);
+        SetLogonHistoryToDb(S, nil);
         Break;
       end;
 
   end;
 end;
 
-procedure TfrmLogonCtDB.DoConnectDb(bForceReConnect: Boolean);
+function TfrmLogonCtDB.GetCurMetaDb: TCtMetaDatabase;   
 var
   I: Integer;
-  ini: TIniFile;
-  S, P, his: string;
 begin
+  Result := nil;  
   I := combDbType.ItemIndex;
   if I < 0 then
     Exit;
   if CtMetaDBRegs[I].DbImpl = nil then
+    Exit;
+  Result := CtMetaDBRegs[I].DbImpl;
+  if not FCloneMode then
+    Exit;
+  if Assigned(FCloneMetaDb) then
+  begin
+    if (FCloneMetaDb.OrigEngineType <> Result.OrigEngineType) then
+      FreeAndNil(FCloneMetaDb);
+  end;        
+  if not Assigned(FCloneMetaDb) then
+  begin
+    FCloneMetaDb := CtMetaDBRegs[I].DbClass.Create;
+    FCloneMetaDb.Database:=Result.Database;
+    FCloneMetaDb.User:=Result.User;          
+    FCloneMetaDb.Password:=Result.Password;
+    FCloneMetaDb.DbSchema:=Result.DbSchema;        
+    FCloneMetaDb.ExtraOpt:=Result.ExtraOpt;
+  end;
+  Result := FCloneMetaDb;
+end;
+
+procedure TfrmLogonCtDB.SetCloneMode(AValue: Boolean);
+begin
+  if FCloneMode=AValue then Exit;
+  FCloneMode:=AValue;
+  ckbAutoLogin.Visible:=not FCloneMode;
+  if FCloneMode then
+  begin
+    combDBName.Text := '';
+    edtUserName.Text := '';
+    edtPassword.Text := '';
+  end;
+end;
+
+procedure TfrmLogonCtDB.DoConnectDb(bForceReConnect: Boolean);
+var
+  ini: TIniFile;
+  S, P, his: string;
+begin
+  if CurMetaDb = nil then
     raise Exception.Create('Not supported connection type');
   if not bForceReConnect then
-    if CtMetaDBRegs[I].DbImpl.Connected then
+    if CurMetaDb.Connected then
       Exit;
                                    
   CtCurMetaDbConn := nil;
   try
-    CtMetaDBRegs[I].DbImpl.Connected := False;
+    CurMetaDb.Connected := False;
   except
     //Application.HandleException(Self);
   end;
-  CtMetaDBRegs[I].DbImpl.Database := combDBName.Text;
-  CtMetaDBRegs[I].DbImpl.User := edtUserName.Text;
-  CtMetaDBRegs[I].DbImpl.Password := edtPassword.Text;
-  if Assigned(FGlobeDataModelList) then
-  begin
-    FGlobeDataModelList.CurDataModel.DefDbEngine := CtMetaDBRegs[I].DbImpl.EngineType;
-    CtCurMetaDbName := CtMetaDBRegs[I].DbImpl.ClassName;
-    FGlobeDataModelList.CurDataModel.DbConnectStr := CtCurMetaDbName;
-  end;
+  CurMetaDb.Database := combDBName.Text;
+  CurMetaDb.User := edtUserName.Text;
+  CurMetaDb.Password := edtPassword.Text;
+  if not FCloneMode then
+    if Assigned(FGlobeDataModelList) then
+    begin
+      FGlobeDataModelList.CurDataModel.DefDbEngine := CurMetaDb.EngineType;
+      CtCurMetaDbName := CurMetaDb.ClassName;
+      FGlobeDataModelList.CurDataModel.DbConnectStr := CtCurMetaDbName;
+    end;
   try   
-    CtMetaDBRegs[I].DbImpl.Connected := True;
+    CurMetaDb.Connected := True;
   finally
-    if not CtMetaDBRegs[I].DbImpl.Connected then
+    if not CurMetaDb.Connected then
       DisableAutoLogin;
-  end;
-  CtCurMetaDbConn := CtMetaDBRegs[I].DbImpl;
+  end;           
+  if not FCloneMode then
+    CtCurMetaDbConn := CurMetaDb;
 
   his := '';
   ini := TIniFile.Create(GetConfFileOfApp);
@@ -604,13 +725,16 @@ begin
     end
     else
       P := '';
-    S := CtMetaDBRegs[I].DbImpl.User + '@' + CtMetaDBRegs[I].DbImpl.Database + P;
-    his := CtMetaDBRegs[I].DbImpl.OrigEngineType + ':' + S;
-
-    Ini.WriteString('DbConn', CtMetaDBRegs[I].DbImpl.ClassName, S);
-    ini.WriteString('DbConn', 'CtCurMetaDbName', CtCurMetaDbName);
-    ini.WriteBool('DbConn', 'SavePwd', ckbSavePwd.Checked);
-    ini.WriteBool('DbConn', 'AutoLogin', ckbAutoLogin.Checked);
+    S := CurMetaDb.User + '@' + CurMetaDb.Database + P;
+    his := CurMetaDb.OrigEngineType + ':' + S;
+                   
+    if not FCloneMode then
+    begin
+      Ini.WriteString('DbConn', CurMetaDb.ClassName, S);
+      ini.WriteString('DbConn', 'CtCurMetaDbName', CtCurMetaDbName);
+      ini.WriteBool('DbConn', 'SavePwd', ckbSavePwd.Checked);
+      ini.WriteBool('DbConn', 'AutoLogin', ckbAutoLogin.Checked);
+    end;
   finally
     ini.Free;
   end;

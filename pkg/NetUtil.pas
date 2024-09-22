@@ -39,6 +39,7 @@ implementation
 uses 
 {$IFDEF USE_IDHTTP}
   IdHttp, IdCookieManager, IdMultipartFormData, IdSSLOpenSSL, IdGlobalProtocols, IdTCPClient,
+  IdHTTPHeaderInfo,
 {$else}
   fphttpclient, Sockets,
 {$ENDIF}
@@ -675,6 +676,21 @@ end;
 initialization  
   G_NetLogEnabled := True;
   G_NetLogs := TStringList.Create;
+{$IFDEF USE_IDHTTP}                 
+{$ifdef WINDOWS}
+{$ifdef WIN32}
+  GIdDefaultUserAgent := 'Mozilla/3.0 (compatible; Indy Library) EZDML Win32 '+srEzdmlVersionNum;
+{$else}
+  GIdDefaultUserAgent := 'Mozilla/3.0 (compatible; Indy Library) EZDML Win64 '+srEzdmlVersionNum;
+{$endif}
+{$else}
+{$IFDEF DARWIN}
+  GIdDefaultUserAgent := 'Mozilla/3.0 (compatible; Indy Library) EZDML MacOS '+srEzdmlVersionNum;
+{$else}
+  GIdDefaultUserAgent := 'Mozilla/3.0 (compatible; Indy Library) EZDML Linux '+srEzdmlVersionNum;
+{$ENDIF}
+{$endif}
+{$ENDIF}
 
 
 

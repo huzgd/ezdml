@@ -83,12 +83,15 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   object btnDBLogon: TButton
     Left = 543
     Height = 27
+    Hint = 'Connect'
     Top = 100
     Width = 32
     Anchors = [akTop, akRight]
     AutoSize = True
     Caption = '..'
     OnClick = btnDBLogonClick
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 3
   end
   object combDBUser: TComboBox

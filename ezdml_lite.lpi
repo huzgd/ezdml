@@ -31,8 +31,8 @@
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="3"/>
       <MinorVersionNr Value="6"/>
-      <RevisionNr Value="1"/>
-      <BuildNr Value="299"/>
+      <RevisionNr Value="2"/>
+      <BuildNr Value="303"/>
       <StringTable Comments="EZDML_X EMail:huzzz@163.com" CompanyName="huzzz@163.com" FileDescription="EZDML" InternalName="ezdml_x.exe" LegalCopyright="(c) 2007-2024 Huz(huzzz@163.com,http://www.ezdml.com)" LegalTrademarks="ezdml" OriginalFilename="ezdml_x.exe" ProductName="EZDML_X" ProductVersion="3.5"/>
     </VersionInfo>
     <BuildModes Count="3">
@@ -361,7 +361,9 @@
       <Unit37>
         <Filename Value="DML\ImpExp\uFormImpTable.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmImportCtTable"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit37>
       <Unit38>
         <Filename Value="DML\DbConn\CtMetaHttpDb.pas"/>
@@ -400,7 +402,9 @@
       <Unit46>
         <Filename Value="DML\DbConn\uFormCtDbLogon.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmLogonCtDB"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit46>
       <Unit47>
         <Filename Value="DML\Graph\uFormAddTbLink.pas"/>

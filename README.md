@@ -57,7 +57,11 @@ EZDML Web, the online version, is now available at:
 
 http://ezdml.com/v/
 
-The web version is still in its early stages of development and has not yet been open sourced.
+Repositories:
+
+https://gitee.com/huzgd/ezdml_web
+
+https://github.com/huzgd/ezdml_web
 
 #### Contact
 
@@ -363,3 +367,6 @@ Locate last model when opening file. JDBC connection for ORACLE/MYSQL/POSTGRE/SQ
 
 2024-08-11 V3.61
 Copy/paste as JSON format, share models with encryption and publish to web, open online files. Bugs fixed.
+
+2024-09-22 V3.62
+Temporary dedicated DB connection, max count of fecth rows，optimize SQL Tool and AI menus. Bugs fixed.

@@ -230,12 +230,14 @@ resourcestring
   srBatchAddFields = 'Batch add fields';
   srBatchRemoveFields = 'Batch remove fields';
   srBatchTablesNotSelected = 'Please select at least two tables';
+  srDmlGptGenSelectTip = 'Please select at lease one table';
+  srDmlGptGenShowGraphTip = 'Please select a model';
   srBatchRemoveFieldNamePrompt = 'Please enter a field-name to remove:';
   srBatchOpResultFmt = '%d fields processed';
   srImportDatabase = 'Import Database';
   srGenerateSql = 'Generate Database';
   srGenerateCode = 'Generate Code'; 
-  srChatGPT = 'ChatGPT';
+  srChatGPT = 'AI Assist';
   srNeedEngineType = 'Please select an DB-Engine-Type first';
   srClearCompareDmlPrompt = 'Clear current EZDMLFILE?';
   srBackupDatabase = 'Backup database';
@@ -259,6 +261,8 @@ resourcestring
   srSqlEditorExecTip = 'Hold Ctrl key to execute SQL command only (no Result-Set)';
   srSqlEditorRunFinishedFmt = 'Execute finished in %f seconds';
   srSqlEditorRunFinishedRowFmt = 'Execute finished in %f seconds, %d rows affected';
+  srDedicatedConn = 'Dedicated';
+  srDedicatedMode = 'Dedicated Connection';
   srNewFieldTypeItemTitle = 'New item';     
   srNewFieldTypeItemPrompt = 'Please enter new item:';
   srHugeMode = '(Huge mode)';    
@@ -499,8 +503,14 @@ resourcestring
     'Default, Default value,';
 
   srImportingTbConfirm = '%d tables will be imported: ' +#13#10 +'%s'#13#10'Are you sure to continue?';
-  srChatGPTReqFailed = 'Request for ChatGPT service failed';
-  srChatGPTRecoFailed = 'The content returned by ChatGPT service is not recognized. Please modify the text or try again later';
+  srChatGPTGenModel = 'Generate New Model';
+  srChatGPTGenTables = 'Add More Tables';         
+  srChatGPTGenFields = 'Add More Fields';
+  srChatGPTGenComments = 'Generate Comments';
+  srChatGPTGenRelations = 'Generate Foreign Keys';
+  srChatGPTReqFailed = 'Request for AI service failed';
+  srChatGPTRecoFailed = 'The content returned by AI service is not recognized. Please modify the text or try again later';
+  srChatGPTGenNothing = 'AI did not return new content, please try modifying or adding prompts and descriptive information';
   srSqlLogEnabled = 'SQL log enabled';
 
   srEzJdbcDriverList = 'ORACLE=driver=oracle.jdbc.OracleDriver;url=jdbc:oracle:thin:@127.0.0.1:1521:{database}' + #13#10 +

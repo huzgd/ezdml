@@ -434,10 +434,10 @@ begin
         if pkd<>nil then
         begin
           pk := pkd.Name;
-          Sql := 'select t.*'#13#10'  from '+tb.RealTableName+' t'#13#10' where 1=1'#13#10'--and t.'+pk+'='#13#10'--order by t.'+pk+' desc';
+          Sql := 'select t.*'#13#10'  from '+tb.RealTableName+' t'#13#10' where 1=1'#13#10'-- and t.'+pk+'='#13#10'-- order by t.'+pk+' desc';
         end
         else
-          Sql := 'select t.*'#13#10'  from '+tb.RealTableName+' t'#13#10' where 1=1'#13#10'--and t'#13#10'--order by t desc';
+          Sql := 'select t.*'#13#10'  from '+tb.RealTableName+' t'#13#10' where 1=1'#13#10'-- and t'#13#10'-- order by t desc';
       end;
     end
     else if (ob is TDMLLinkObj) and (ob.UserObject is TCtMetaField) then
@@ -452,11 +452,11 @@ begin
         begin
           pk := pkd.Name;
           Sql := 'select a.*, b.*'#13#10'  from '+tb.RealTableName+' a, '+tb2.RealTableName+' b'#13#10' where a.'
-           +fd.Name+' = b.'+fd.RelateField+#13#10'--and a.'+pk+'='#13#10'--order by a.'+pk+' desc';
+           +fd.Name+' = b.'+fd.RelateField+#13#10'-- and a.'+pk+'='#13#10'-- order by a.'+pk+' desc';
         end
         else
           Sql := 'select a.*, b.*'#13#10'  from '+tb.RealTableName+' a, '+tb2.RealTableName+' b'#13#10' where a.'
-           +fd.Name+' = b.'+fd.RelateField+#13#10'--and a'#13#10'--order by a desc';
+           +fd.Name+' = b.'+fd.RelateField+#13#10'-- and a'#13#10'-- order by a desc';
       end;
     end;
   end;
@@ -1534,9 +1534,10 @@ begin
     actBatchOps.Visible:=False;
     actCnWordSegment.Visible:=False;
     {$else} 
-    actChatGPT.Visible := not FBrowseMode and (actChatGPT.Tag=2);
+    actChatGPT.Visible := not FBrowseMode;// and (actChatGPT.Tag=2);
     {$endif}           
-    SpeedButtonChatGPT.Visible := actChatGPT.Visible;
+    ToolButtonAI.Visible := actChatGPT.Visible;        
+    MenuItem_AI.Visible := actChatGPT.Visible;
     actRun.Visible := not FBrowseMode;
     actColorStyles.Visible := not FBrowseMode;
     btnShowInGraph.Visible := not FBrowseMode;
@@ -1545,8 +1546,8 @@ begin
 
     actBatAddFields.Visible := not FBrowseMode;
     actBatRemoveFields.Visible := not FBrowseMode;  
-    actOpenURL.Visible := not FBrowseMode;
-    actShareFile.Visible := not FBrowseMode;
+    actOpenURL.Visible := False;//not FBrowseMode;
+    actShareFile.Visible := False;//not FBrowseMode;
 
     if FBrowseMode then
     begin

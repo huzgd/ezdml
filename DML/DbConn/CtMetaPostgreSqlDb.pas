@@ -77,8 +77,9 @@ procedure TCtMetaPostgreSqlDb.SetDbSchema(const Value: string);
 begin
   if FDbSchema = Value then
     Exit;
-  if Value <> '' then
-    ExecSql('SET search_path TO ' + GetDbQuotName(Value, Self.EngineType));
+  if Value <> '' then    
+    if Connected then
+      ExecSql('SET search_path TO ' + GetDbQuotName(Value, Self.EngineType));
   FDbSchema := Value;
   inherited SetDbSchema(Value);
 end;

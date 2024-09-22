@@ -18,8 +18,8 @@ type
   TfrmCtGenSQL = class(TForm)
     Bevel1: TBevel;
     btnDBLogon: TButton;
-    btnSelDbType: TButton;
     btnListMenu: TBitBtn;
+    ckbCreateForeignkeys: TCheckBox;
     ckbProcOracleSeqs: TCheckBox;
     ckbSketchMode: TCheckBox;
     cklbDbObjs: TCheckListBox;
@@ -27,6 +27,10 @@ type
     edtDBLinkInfo: TEdit;
     Label1: TLabel;
     Label2: TLabel;
+    MN_DefDbType_Standard: TMenuItem;
+    MenuItem_VirtualDbs: TMenuItem;
+    MenuItemDbConn: TMenuItem;
+    MenuItemDedicatedConn: TMenuItem;
     MN_ModelTableInfo: TMenuItem;
     MN_DBTableInfo: TMenuItem;
     Panel3: TPanel;
@@ -39,6 +43,7 @@ type
     MnShowPhyName: TMenuItem;
     Panel1: TPanel;
     LabelProg: TLabel;
+    PopupMenuDbConn: TPopupMenu;
     ProgressBar1: TProgressBar;
     Label4: TLabel;
     ActionList1: TActionList;
@@ -59,19 +64,17 @@ type
     btnResum: TButton;
     TimerInit: TTimer;
     OpenDialog1: TOpenDialog;
-    PopupMenuSelDefDbType: TPopupMenu;
-    MN_DefDbType_Standard: TMenuItem;
-    MN_DefDbType_ORACLE: TMenuItem;
-    MN_DefDbType_MYSQL: TMenuItem;
-    MN_DefDbType_SQLSERVER: TMenuItem;
     ckbRecreateTable: TCheckBox;
     OpenDialogDml: TOpenDialog;
     combModels: TComboBox;
     procedure btnListMenuClick(Sender: TObject);
+    procedure ckbCreateForeignkeysChange(Sender: TObject);
     procedure cklbDbObjsDblClick(Sender: TObject);
     procedure cklbDbObjsResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormDestroy(Sender: TObject);
+    procedure MenuItemDbConnClick(Sender: TObject);
+    procedure MenuItemDedicatedConnClick(Sender: TObject);
     procedure MN_ModelTableInfoClick(Sender: TObject);
     procedure MN_DBTableInfoClick(Sender: TObject);
     procedure TimerInitTimer(Sender: TObject);
@@ -88,7 +91,6 @@ type
     procedure btnExecSQLClick(Sender: TObject);
     procedure btnResumClick(Sender: TObject);
     procedure MN_DefDbType_StandardClick(Sender: TObject);
-    procedure btnSelDbTypeClick(Sender: TObject);
     procedure combModelsChange(Sender: TObject);
     procedure combDBUserChange(Sender: TObject);
     procedure ckbProcOracleSeqsClick(Sender: TObject);
@@ -122,7 +124,8 @@ type
     FWorkMode: integer; //0导入模型 1恢复数据
     FRestoringTbList: TCtMetaTableList;
     FDefaultDbType: string;
-    FCmpEzdmlFakeDb: TCtMetaEzdmlFakeDb;
+    FCmpEzdmlFakeDb: TCtMetaEzdmlFakeDb;   
+    FCloneMetaDb: TCtMetaDatabase;
 
     function GenSQL: TStringList;
     function DBgenSQL: TStringList;
@@ -156,14 +159,14 @@ uses
 
 {$R *.lfm}
 
-procedure TfrmCtGenSQL.btnDBLogonClick(Sender: TObject);
+procedure TfrmCtGenSQL.btnDBLogonClick(Sender: TObject); 
 var
-  I: integer;
+  p: TPoint;
 begin
-  I := ExecCtDbLogon;
-  if I >= 0 then
-    FLinkDbNo := I;
-  RefreshDbInfo;
+  p.X := 0;
+  p.Y := btnDBLogon.Height;
+  p := btnDBLogon.ClientToScreen(p);
+  PopupMenuDbConn.Popup(p.X, p.Y);
 end;
 
 procedure TfrmCtGenSQL.FormCreate(Sender: TObject);
@@ -175,7 +178,7 @@ procedure TfrmCtGenSQL.FormCreate(Sender: TObject);
     mn := TMenuItem.Create(Self);
     mn.Caption := db;
     mn.OnClick := MN_DefDbType_StandardClick;
-    PopupMenuSelDefDbType.Items.Add(mn);
+    MenuItem_VirtualDbs.Add(mn);
   end;
 
 var
@@ -189,7 +192,7 @@ begin
   FAllTbGraph.Name:='('+srdmlall+')';
   FAllTbGraph.Tables.AutoFree:=False;
 
-  PopupMenuSelDefDbType.Items.Clear;
+  MenuItem_VirtualDbs.Clear;
   for I := 0 to High(CtMetaDBRegs) do
   begin
     if CtMetaDBRegs[I].DbEngineType = 'ODBC' then
@@ -209,7 +212,37 @@ procedure TfrmCtGenSQL.FormDestroy(Sender: TObject);
 begin
   FRestoringTbList.Free;
   FAllTbGraph.Free;
-  FreeAndNil(FCmpEzdmlFakeDb);
+  FreeAndNil(FCmpEzdmlFakeDb);    
+  if Assigned(FCloneMetaDb) then
+    FreeAndNil(FCloneMetaDb);
+end;
+
+procedure TfrmCtGenSQL.MenuItemDbConnClick(Sender: TObject);
+var
+  I: integer;
+begin
+  I := ExecCtDbLogon;
+  if I >= 0 then
+  begin
+    FLinkDbNo := I;
+    if Assigned(FCloneMetaDb) then
+      FreeAndNil(FCloneMetaDb);
+  end;
+  RefreshDbInfo;
+end;
+
+procedure TfrmCtGenSQL.MenuItemDedicatedConnClick(Sender: TObject);
+var
+  db: TCtMetaDatabase;
+begin
+  db := ExecDedicatedDbLogon(Self, FCloneMetaDb);
+  if db = nil then
+    Exit;
+
+  if Assigned(FCloneMetaDb) then
+    FreeAndNil(FCloneMetaDb);
+  FCloneMetaDb := db;
+  RefreshDbInfo;
 end;
 
 procedure TfrmCtGenSQL.cklbDbObjsDblClick(Sender: TObject);
@@ -225,6 +258,11 @@ end;
 procedure TfrmCtGenSQL.btnListMenuClick(Sender: TObject);
 begin
   PopupMenu1.PopUp;
+end;
+
+procedure TfrmCtGenSQL.ckbCreateForeignkeysChange(Sender: TObject);
+begin
+  G_CreateForeignkeys := ckbCreateForeignkeys.Checked;
 end;
 
 procedure TfrmCtGenSQL.FormClose(Sender: TObject; var CloseAction: TCloseAction
@@ -269,7 +307,7 @@ begin
     Exit;
 
   if (FCtMetaDatabase = nil) or not FCtMetaDatabase.Connected then
-    btnDBLogonClick(nil);
+    MenuItemDbConnClick(nil);
   if (FCtMetaDatabase = nil) or not FCtMetaDatabase.Connected then
     Exit;
 
@@ -555,6 +593,7 @@ end;
 procedure TfrmCtGenSQL.RefreshDbInfo;
 var
   I: integer;
+  dbs: string;
 begin
 
   if FLastAutoSelDBUser = combDBUser.Text then
@@ -563,7 +602,9 @@ begin
     FLastAutoSelDBUser := '';
   end;
 
-  if FLinkDbNo < 0 then
+  if FCloneMetaDb <> nil then    
+    FCtMetaDatabase := FCloneMetaDb
+  else if FLinkDbNo < 0 then
     FCtMetaDatabase := nil
   else
     FCtMetaDatabase := CtMetaDBRegs[FLinkDbNo].DbImpl;
@@ -573,22 +614,29 @@ begin
     combDBUser.Enabled := False;
     combDBUser.ParentColor := True;
     if FDefaultDbType = '' then
-      edtDBLinkInfo.Text := ''
+      dbs := ''
     else
-      edtDBLinkInfo.Text := '[' + FDefaultDbType + ']';
+      dbs := '[' + FDefaultDbType + ']';
     if FCmpEzdmlFakeDb <> nil then
       //if FDefaultDbType <> 'STANDARD' then
-      edtDBLinkInfo.Text := edtDBLinkInfo.Text + '[EZDMLFILE]';
+      dbs := dbs + '[EZDMLFILE]';
+    edtDBLinkInfo.Text := dbs;
   end
   else
   begin
-    edtDBLinkInfo.Text := FCtMetaDatabase.Database;
-    Self.Refresh;
-    combDBUser.Items.Text := FCtMetaDatabase.GetDbUsers;
-    combDBUser.Enabled := True;
-    combDBUser.Color := clWindow;
-    edtDBLinkInfo.Text := '[' + FCtMetaDatabase.EngineType + ']' +
-      FCtMetaDatabase.Database;
+    dbs := FCtMetaDatabase.Database;
+    try
+      Self.Refresh;
+      combDBUser.Items.Text := FCtMetaDatabase.GetDbUsers;
+      combDBUser.Enabled := True;
+      combDBUser.Color := clWindow;
+      dbs := '[' + FCtMetaDatabase.EngineType + ']' +
+        FCtMetaDatabase.Database;      
+      if FCloneMetaDb <> nil then
+        dbs := '('+srDedicatedConn+')' + dbs;
+    finally
+      edtDBLinkInfo.Text := dbs;
+    end;
   end;
   if Assigned(FCtMetaDatabase) and (combDBUser.Text = '') and (G_LastMetaDbSchema<>'') then
   begin
@@ -649,19 +697,26 @@ var
 begin
   TimerInit.Enabled := False;
   if not Assigned(FCtMetaDatabase) then
-  begin
-    I := GetLastCtDbConn(True);
-    if I >= 0 then
-    begin
-      FLinkDbNo := I;   
-      RefreshDbInfo;
-    end
+  begin        
+    if Assigned(FCloneMetaDb) then
+      RefreshDbInfo
     else
     begin
-      //if CanAutoShowLogin then
-      btnDBLogonClick(nil);
+      I := GetLastCtDbConn(True);
+      if I >= 0 then
+      begin
+        FLinkDbNo := I;
+        RefreshDbInfo;
+      end
+      else
+      begin
+        //if CanAutoShowLogin then
+        MenuItemDbConnClick(nil);
+      end;
     end;
-  end;
+  end
+  else if FDefaultDbType='' then
+    RefreshDbInfo;
 end;
 
 procedure TfrmCtGenSQL._OnReadingDsProgress(Sender: TObject);
@@ -706,14 +761,15 @@ begin
 
   MnShowPhyName.Checked := FShowPhyFieldName;
   ckbProcOracleSeqs.Checked := G_CreateSeqForOracle;
+  ckbCreateForeignkeys.Checked := G_CreateForeignkeys;
   if Assigned(FCtMetaDatabase) and (FCtMetaDatabase.EngineType = 'ORACLE') then
     ckbProcOracleSeqs.Show
   else if FDefaultDbType = 'ORACLE' then
     ckbProcOracleSeqs.Show
   else
     ckbProcOracleSeqs.Hide;
-  if (FCtMetaDatabase = nil) and (FDefaultDbType = '') then
-    TimerInit.Enabled := True;
+  //if (FCtMetaDatabase = nil) and (FDefaultDbType = '') then
+  TimerInit.Enabled := True;
 end;
 
 procedure TfrmCtGenSQL.btnCancelClick(Sender: TObject);
@@ -1609,16 +1665,6 @@ end;
 procedure TfrmCtGenSQL.btnResumClick(Sender: TObject);
 begin
   btnResum.Enabled := False;
-end;
-
-procedure TfrmCtGenSQL.btnSelDbTypeClick(Sender: TObject);
-var
-  p: TPoint;
-begin
-  p.X := 0;
-  p.Y := btnSelDbType.Height;
-  p := btnSelDbType.ClientToScreen(p);
-  PopupMenuSelDefDbType.Popup(p.X, p.Y);
 end;
 
 procedure TfrmCtGenSQL.ckbSketchModeClick(Sender: TObject);

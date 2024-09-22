@@ -61,9 +61,9 @@ object frmSettings: TfrmSettings
     Height = 651
     Top = 0
     Width = 544
-    ActivePage = tabshtConnection
+    ActivePage = tabshtSQL
     Align = alClient
-    TabIndex = 4
+    TabIndex = 2
     TabOrder = 1
     object tabshtGeneral: TTabSheet
       Caption = 'General'
@@ -613,36 +613,51 @@ object frmSettings: TfrmSettings
         end
         object GroupBoxTableDataSQL: TGroupBox
           Left = 8
-          Height = 105
+          Height = 142
           Top = 218
           Width = 520
           Align = alTop
           Caption = 'Preview table data'
-          ClientHeight = 83
+          ClientHeight = 120
           ClientWidth = 516
           TabOrder = 1
           object edtMaxRowCountForTableData: TEdit
-            Left = 140
+            Left = 208
             Height = 25
-            Top = 8
+            Top = 44
             Width = 128
-            TabOrder = 0
+            TabOrder = 1
           end
           object lbTableDataPreviewRows: TLabel
             Left = 24
             Height = 17
-            Top = 8
-            Width = 62
-            Caption = 'Rows limit:'
+            Top = 44
+            Width = 163
+            Caption = 'Rows limit in WHERE clause:'
             ParentColor = False
           end
           object ckbLogicNamesForTableData: TCheckBox
             Left = 24
             Height = 21
-            Top = 48
+            Top = 8
             Width = 198
             Caption = 'Use logic-names in select-SQL'
-            TabOrder = 1
+            TabOrder = 0
+          end
+          object edtCtSqlMaxFetchCount: TEdit
+            Left = 208
+            Height = 25
+            Top = 80
+            Width = 128
+            TabOrder = 2
+          end
+          object lbTableDataPreviewRows2: TLabel
+            Left = 24
+            Height = 17
+            Top = 80
+            Width = 92
+            Caption = 'Max fetch rows:'
+            ParentColor = False
           end
         end
         object GroupBoxSQLGen: TGroupBox
@@ -706,12 +721,12 @@ object frmSettings: TfrmSettings
         end
         object GroupBoxSQLDbSpec: TGroupBox
           Left = 8
-          Height = 149
-          Top = 333
+          Height = 141
+          Top = 370
           Width = 520
           Align = alTop
           Caption = 'Spetial'
-          ClientHeight = 127
+          ClientHeight = 119
           ClientWidth = 516
           TabOrder = 2
           object lbHiveVersion: TLabel
@@ -766,7 +781,7 @@ object frmSettings: TfrmSettings
         object Bevel19: TBevel
           Left = 8
           Height = 10
-          Top = 323
+          Top = 360
           Width = 520
           Align = alTop
           Shape = bsSpacer
@@ -1651,12 +1666,12 @@ object frmSettings: TfrmSettings
           ClientHeight = 50
           ClientWidth = 516
           TabOrder = 3
-          object lbTableDataPreviewRows1: TLabel
+          object lbAIKey: TLabel
             Left = 24
             Height = 17
             Top = 8
-            Width = 76
-            Caption = 'ChatGPT key:'
+            Width = 39
+            Caption = 'AI key:'
             ParentColor = False
           end
           object edtChatGPTKey: TEdit

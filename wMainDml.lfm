@@ -95,17 +95,17 @@ object frmMainDml: TfrmMainDml
       object MenuItem3: TMenuItem
         Caption = '-'
       end
-      object MNOpenURL: TMenuItem
-        Action = actOpenUrl
-      end
-      object MnShareFile: TMenuItem
-        Action = actShareFile
-      end
       object MNLoadFromDb: TMenuItem
         Action = actLoadFromDb
       end
       object MNSaveToDb: TMenuItem
         Action = actSaveToDb
+      end
+      object MNOpenURL: TMenuItem
+        Action = actOpenUrl
+      end
+      object MnShareFile: TMenuItem
+        Action = actShareFile
       end
       object MnOpenLastFile1A: TMenuItem
         Action = actOpenLastFile1
@@ -132,7 +132,33 @@ object frmMainDml: TfrmMainDml
         Action = actNewModel
       end
       object MNChatGPT1: TMenuItem
-        Action = actChatGPT
+        Caption = 'AI Assistant'
+        Hint = 'Use AI to assist in generating model design'
+        object MNAI_GenNewModel: TMenuItem
+          Tag = 1
+          Caption = 'Generate New Model'
+          OnClick = MNAI_GenNewModelClick
+        end
+        object MNAI_GenTables: TMenuItem
+          Tag = 2
+          Caption = 'Add More Tables'
+          OnClick = MNAI_GenNewModelClick
+        end
+        object MNAI_GenFields: TMenuItem
+          Tag = 3
+          Caption = 'Add More Fields'
+          OnClick = MNAI_GenNewModelClick
+        end
+        object MNAI_GenComments: TMenuItem
+          Tag = 4
+          Caption = 'Generate Comments'
+          OnClick = MNAI_GenNewModelClick
+        end
+        object MNAI_GenFKLinks: TMenuItem
+          Tag = 5
+          Caption = 'Generate Foreign Keys'
+          OnClick = MNAI_GenNewModelClick
+        end
       end
       object MenuItem2: TMenuItem
         Caption = '-'
@@ -533,8 +559,8 @@ object frmMainDml: TfrmMainDml
     end
     object actChatGPT: TAction
       Category = 'Model'
-      Caption = 'ChatGPT'
-      Hint = 'Use ChatGPT AI to assist in generating model design'
+      Caption = 'AI'
+      Hint = 'Use AI to assist in generating model design'
       OnExecute = actChatGPTExecute
     end
     object actNewAppWin: TAction

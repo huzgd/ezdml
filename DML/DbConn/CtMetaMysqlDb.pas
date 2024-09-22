@@ -98,13 +98,14 @@ begin
   if FDbSchema = Value then
     Exit;
   if Value <> '' then
-  begin
-    try
-      ExecSql('use ' + GetDbQuotName(Value, Self.EngineType));
-    except
-      Application.HandleException(Self);
+    if Connected then
+    begin
+      try
+        ExecSql('use ' + GetDbQuotName(Value, Self.EngineType));
+      except
+        Application.HandleException(Self);
+      end;
     end;
-  end;
   FDbSchema := Value;
   inherited SetDbSchema(Value);
 end;

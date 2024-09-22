@@ -177,7 +177,7 @@ object frmDmlSqlEditorO: TfrmDmlSqlEditorO
           Flat = True
         end
         object sbtnClearAll: TSpeedButton
-          Left = 180
+          Left = 184
           Height = 21
           Hint = 'Clear editor'
           Top = 7
@@ -185,6 +185,7 @@ object frmDmlSqlEditorO: TfrmDmlSqlEditorO
           AutoSize = True
           Caption = 'Clear'
           Flat = True
+          Visible = False
           OnClick = sbtnClearAllClick
           ShowHint = True
           ParentShowHint = False
@@ -271,8 +272,8 @@ object frmDmlSqlEditorO: TfrmDmlSqlEditorO
     end
   end
   object ActionList1: TActionList
-    Left = 16
-    Top = 68
+    left = 16
+    top = 68
     object actEditSelall: TAction
       Category = 'Edit'
       Caption = 'actEditSelall'
@@ -310,18 +311,18 @@ object frmDmlSqlEditorO: TfrmDmlSqlEditorO
     end
   end
   object DataSourceRes: TDataSource
-    Left = 48
-    Top = 248
+    left = 48
+    top = 248
   end
   object PopupMenuOldSql: TPopupMenu
     OnPopup = PopupMenuOldSqlPopup
-    Left = 48
-    Top = 68
+    left = 48
+    top = 68
   end
   object PopupMenuGrid: TPopupMenu
     OnPopup = PopupMenuGridPopup
-    Left = 80
-    Top = 248
+    left = 80
+    top = 248
     object N5: TMenuItem
       Action = actCopyRec
     end
@@ -335,12 +336,12 @@ object frmDmlSqlEditorO: TfrmDmlSqlEditorO
   object TimerInit: TTimer
     Interval = 500
     OnTimer = TimerInitTimer
-    Left = 108
-    Top = 76
+    left = 108
+    top = 76
   end
   object PopupMenuTbs: TPopupMenu
-    Left = 724
-    Top = 140
+    left = 724
+    top = 140
     object MN_ShowTableProps: TMenuItem
       Caption = 'Table properties'
       Default = True
@@ -357,6 +358,19 @@ object frmDmlSqlEditorO: TfrmDmlSqlEditorO
     object MN_TbsRefresh: TMenuItem
       Caption = 'Refresh'
       OnClick = MN_TbsRefreshClick
+    end
+  end
+  object PopupMenuDbConn: TPopupMenu
+    left = 216
+    top = 108
+    object MenuItemDbConn: TMenuItem
+      Caption = 'Connect'
+      Default = True
+      OnClick = MenuItemDbConnClick
+    end
+    object MenuItemDedicatedConn: TMenuItem
+      Caption = 'Dedicated connect'
+      OnClick = MenuItemDedicatedConnClick
     end
   end
 end

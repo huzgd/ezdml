@@ -17,6 +17,8 @@ type
     btnCancel: TButton;
     ckbCheckAll: TCheckBox;
     lbTbCount: TLabel;
+    MenuItemDbConn: TMenuItem;
+    MenuItemDedicatedConn: TMenuItem;
     MN_TableProps: TMenuItem;
     MenuItem2: TMenuItem;
     PopupMenu1: TPopupMenu;
@@ -32,6 +34,7 @@ type
     btnDBLogon: TButton;
     combDBUser: TComboBox;
     cklbDbObjs: TCheckListBox;
+    PopupMenuDbConn: TPopupMenu;
     ProgressBar1: TProgressBar;
     combObjFilter: TComboBox;
     LabelProg: TLabel;
@@ -43,6 +46,8 @@ type
     ckbOverwriteExists: TCheckBox;
     procedure ckbCheckAllChange(Sender: TObject);
     procedure cklbDbObjsDblClick(Sender: TObject);
+    procedure MenuItemDbConnClick(Sender: TObject);
+    procedure MenuItemDedicatedConnClick(Sender: TObject);
     procedure MN_TablePropsClick(Sender: TObject);
     procedure TimerInitTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -60,7 +65,8 @@ type
   private
     { Private declarations }
     FLinkDbNo: Integer;
-    FCtMetaDatabase: TCtMetaDatabase;
+    FCtMetaDatabase: TCtMetaDatabase;    
+    FCloneMetaDb: TCtMetaDatabase;
     FAborted: Boolean;
     FOrigObjs: TStrings;
     FOptStr: string;
@@ -103,16 +109,14 @@ begin
   RefreshDbInfo;
 end;
 
-procedure TfrmImportCtTable.btnDBLogonClick(Sender: TObject);
+procedure TfrmImportCtTable.btnDBLogonClick(Sender: TObject);   
 var
-  I: Integer;
+  p: TPoint;
 begin
-  I := ExecCtDbLogon;
-  if I >= 0 then
-  begin
-    FLinkDbNo := I;
-    RefreshDbInfo;
-  end;
+  p.X := 0;
+  p.Y := btnDBLogon.Height;
+  p := btnDBLogon.ClientToScreen(p);
+  PopupMenuDbConn.Popup(p.X, p.Y);
 end;
 
 procedure TfrmImportCtTable.MN_CheckAllClick(Sender: TObject);
@@ -173,7 +177,7 @@ end;
 procedure TfrmImportCtTable.RefreshDbInfoEx;
 var
   I: Integer;
-  dbus: String;
+  dbs, dbus: String;
 begin
   cklbDbObjs.Enabled := True;
   cklbDbObjs.Color := clWindow;
@@ -186,7 +190,9 @@ begin
     FLastAutoSelDBUser := '';
   end;
 
-  if FLinkDbNo < 0 then
+  if FCloneMetaDb <> nil then
+    FCtMetaDatabase := FCloneMetaDb
+  else if FLinkDbNo < 0 then
     FCtMetaDatabase := nil
   else
     FCtMetaDatabase := CtMetaDBRegs[FLinkDbNo].DbImpl;
@@ -203,7 +209,10 @@ begin
   end
   else
   begin                  
-    edtDBLinkInfo.Text := '[' + FCtMetaDatabase.EngineType + ']' + FCtMetaDatabase.Database;
+    dbs := '[' + FCtMetaDatabase.EngineType + ']' + FCtMetaDatabase.Database; 
+    if FCloneMetaDb <> nil then
+      dbs := '('+srDedicatedConn+')' + dbs;
+    edtDBLinkInfo.Text := dbs;
 
     combDBUser.Items.Text := FCtMetaDatabase.GetDbUsers;
     combDBUser.Enabled := True;
@@ -303,10 +312,23 @@ begin
 end;
 
 procedure TfrmImportCtTable.TimerInitTimer(Sender: TObject);
+var
+  I: Integer;
 begin
   TimerInit.Enabled := False;
   if not Assigned(FCtMetaDatabase) then
-    btnDBLogonClick(nil);
+  begin                  
+    I := GetLastCtDbConn(True);
+    if I >= 0 then
+    begin
+      FLinkDbNo := I;
+      RefreshDbInfo;
+    end
+    else
+      MenuItemDbConnClick(nil);
+  end
+  else
+    RefreshDbInfo;
 end;
 
 procedure TfrmImportCtTable.MN_TablePropsClick(Sender: TObject);
@@ -349,6 +371,34 @@ end;
 procedure TfrmImportCtTable.cklbDbObjsDblClick(Sender: TObject);
 begin
   MN_TablePropsClick(nil);
+end;
+
+procedure TfrmImportCtTable.MenuItemDbConnClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  I := ExecCtDbLogon;
+  if I >= 0 then
+  begin
+    FLinkDbNo := I;
+    if Assigned(FCloneMetaDb) then
+      FreeAndNil(FCloneMetaDb);
+    RefreshDbInfo;
+  end;
+end;
+
+procedure TfrmImportCtTable.MenuItemDedicatedConnClick(Sender: TObject);
+var
+  db: TCtMetaDatabase;
+begin
+  db := ExecDedicatedDbLogon(Self, FCloneMetaDb);
+  if db = nil then
+    Exit;
+
+  if Assigned(FCloneMetaDb) then
+    FreeAndNil(FCloneMetaDb);
+  FCloneMetaDb := db;
+  RefreshDbInfo;
 end;
 
 procedure TfrmImportCtTable.ckbCheckAllChange(Sender: TObject);
@@ -666,7 +716,7 @@ end;
 procedure TfrmImportCtTable.FormShow(Sender: TObject);
 begin
   ProgressBar1.Position := 0;
-  if FCtMetaDatabase = nil then
+  //if FCtMetaDatabase = nil then
     TimerInit.Enabled := True;
 end;
 
@@ -690,6 +740,8 @@ end;
 procedure TfrmImportCtTable.FormDestroy(Sender: TObject);
 begin
   FOrigObjs.Free;
+  if Assigned(FCloneMetaDb) then
+    FreeAndNil(FCloneMetaDb);
 end;
 
 procedure TfrmImportCtTable.combObjFilterChange(Sender: TObject);

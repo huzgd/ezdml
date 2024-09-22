@@ -9,6 +9,7 @@ AutoSaveMinutes               Integer
 SaveTempFileOnExit            Bool
 HugeModeTableCount            Integer
 MaxRowCountForTableData       Integer
+CtSqlMaxFetchCount            Integer
 LogicNamesForTableData        Bool
 CreateSeqForOracle            Bool
 OCILIB                        String
@@ -122,6 +123,7 @@ type
     combNLSLang: TComboBox;
     combHiveVersion: TComboBox;
     combOdbcCharset: TComboBox;
+    edtCtSqlMaxFetchCount: TEdit;
     edtDmlGraphDefScale: TComboBox;
     edtCustFldtpName: TEdit;
     edtCustFldtpPhyType: TEdit;
@@ -188,7 +190,8 @@ type
     lbCustDictTip: TLabel;
     lbPostgreLib: TLabel;
     lbHiveVersion: TLabel;
-    lbTableDataPreviewRows1: TLabel;
+    lbAIKey: TLabel;
+    lbTableDataPreviewRows2: TLabel;
     lbTpnReplacement1: TLabel;
     lbTpnReplaceTip: TLabel;
     lbDBConnNote1: TLabel;
@@ -268,6 +271,7 @@ type
     FSaveTempFileOnExit: boolean;
     FHugeModeTableCount: integer;
     FMaxRowCountForTableData: integer;
+    FCtSqlMaxFetchCount: Integer;
     FLogicNamesForTableData: boolean;
     FCreateSeqForOracle: boolean;
     FOCILIB: string;
@@ -738,7 +742,9 @@ begin
     FHugeModeTableCount := ini.ReadInteger('Options', 'HugeModeTableCount',
       500);
     FMaxRowCountForTableData := ini.ReadInteger('Options', 'MaxRowCountForTableData',
-      25);
+      25);               
+    FCtSqlMaxFetchCount := ini.ReadInteger('Options', 'CtSqlMaxFetchCount',
+      1000);
     FLogicNamesForTableData := ini.ReadBool('Options', 'LogicNamesForTableData',
       False);
     FCreateSeqForOracle := ini.ReadBool('Options', 'CreateSeqForOracle',
@@ -810,7 +816,9 @@ begin
     FFieldTypeMaxDrawSize := ini.ReadInteger('Options', 'FieldTypeMaxDrawSize',
       48);
     FTableFieldMaxDrawCount := ini.ReadInteger('Options', 'TableFieldMaxDrawCount',
-      50);      
+      50);
+    if FTableFieldMaxDrawCount<10 then
+      FTableFieldMaxDrawCount := 50;
     FTableDialogViewModeByDefault :=
       ini.ReadBool('Options', 'TableDialogViewModeByDefault',
       False);
@@ -874,7 +882,8 @@ begin
   ckbCreateSeqForOracle.Checked := FCreateSeqForOracle;
 
   edtMaxRowCountForTableData.Text := IntToStr(FMaxRowCountForTableData);
-  ckbLogicNamesForTableData.Checked := FLogicNamesForTableData;
+  ckbLogicNamesForTableData.Checked := FLogicNamesForTableData;           
+  edtCtSqlMaxFetchCount.Text := IntToStr(FCtSqlMaxFetchCount);
 
   edtOCILIB.Text := FOCILIB;
   combNLSLang.Text := FNLSLang;
@@ -988,7 +997,9 @@ begin
 
   FMaxRowCountForTableData := StrToIntDef(edtMaxRowCountForTableData.Text,
     FMaxRowCountForTableData);
-  FLogicNamesForTableData := ckbLogicNamesForTableData.Checked;
+  FLogicNamesForTableData := ckbLogicNamesForTableData.Checked;   
+  FCtSqlMaxFetchCount := StrToIntDef(edtCtSqlMaxFetchCount.Text,
+    FCtSqlMaxFetchCount);
 
   FOCILIB := edtOCILIB.Text;
   FMYSQLLIB := edtMYSQLLIB.Text;
@@ -1034,7 +1045,8 @@ begin
     ini.WriteInteger('Options', 'AutoSaveMinutes', FAutoSaveMinutes);
     ini.WriteBool('Options', 'SaveTempFileOnExit', FSaveTempFileOnExit);
     ini.WriteInteger('Options', 'HugeModeTableCount', FHugeModeTableCount);
-    ini.WriteInteger('Options', 'MaxRowCountForTableData', FMaxRowCountForTableData);
+    ini.WriteInteger('Options', 'MaxRowCountForTableData', FMaxRowCountForTableData);   
+    ini.WriteInteger('Options', 'CtSqlMaxFetchCount', FCtSqlMaxFetchCount);
     ini.WriteBool('Options', 'LogicNamesForTableData', FLogicNamesForTableData);
     ini.WriteBool('Options', 'CreateSeqForOracle', FCreateSeqForOracle);
     ini.WriteString('Options', 'OCILIB', FOCILIB);                        

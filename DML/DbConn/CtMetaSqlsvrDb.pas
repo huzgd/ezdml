@@ -126,8 +126,9 @@ begin
 
   inherited SetDbSchema(Value);  
   S := FDbConn.Params.Values['Database'];
-  if S <> '' then
-    ExecSql('use ' + GetDbQuotName(S, Self.EngineType));
+  if S <> '' then            
+    if Connected then
+      ExecSql('use ' + GetDbQuotName(S, Self.EngineType));
 end;
 
 procedure TCtMetaSqlsvrDb.SetFCLConnDatabase;

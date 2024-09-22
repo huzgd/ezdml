@@ -44,8 +44,9 @@
 {"hash":20373342,"name":"tfrmsettings.lbdispfontnote.caption","sourcebytes":[78,111,116,101,115,58,32,89,111,117,32,109,97,121,32,110,101,101,100,32,116,111,32,114,101,115,116,97,114,116,32,116,104,101,32,112,114,111,103,114,97,109,32,97,102,116,101,114,32,109,111,100,105,102,121,105,110,103,32,102,111,110,116,115,46],"value":"Notes: You may need to restart the program after modifying fonts."},
 {"hash":22620,"name":"tfrmsettings.tabshtsql.caption","sourcebytes":[83,81,76],"value":"SQL"},
 {"hash":194626337,"name":"tfrmsettings.groupboxtabledatasql.caption","sourcebytes":[80,114,101,118,105,101,119,32,116,97,98,108,101,32,100,97,116,97],"value":"Preview table data"},
-{"hash":125267498,"name":"tfrmsettings.lbtabledatapreviewrows.caption","sourcebytes":[82,111,119,115,32,108,105,109,105,116,58],"value":"Rows limit:"},
+{"hash":231946714,"name":"tfrmsettings.lbtabledatapreviewrows.caption","sourcebytes":[82,111,119,115,32,108,105,109,105,116,32,105,110,32,87,72,69,82,69,32,99,108,97,117,115,101,58],"value":"Rows limit in WHERE clause:"},
 {"hash":35919436,"name":"tfrmsettings.ckblogicnamesfortabledata.caption","sourcebytes":[85,115,101,32,108,111,103,105,99,45,110,97,109,101,115,32,105,110,32,115,101,108,101,99,116,45,83,81,76],"value":"Use logic-names in select-SQL"},
+{"hash":1439610,"name":"tfrmsettings.lbtabledatapreviewrows2.caption","sourcebytes":[77,97,120,32,102,101,116,99,104,32,114,111,119,115,58],"value":"Max fetch rows:"},
 {"hash":264858741,"name":"tfrmsettings.groupboxsqlgen.caption","sourcebytes":[83,81,76,32,71,101,110,101,114,97,116,101],"value":"SQL Generate"},
 {"hash":38705315,"name":"tfrmsettings.ckbquotreservednames.caption","sourcebytes":[81,117,111,116,32,114,101,115,101,114,118,101,100,32,110,97,109,101,115],"value":"Quot reserved names"},
 {"hash":130098883,"name":"tfrmsettings.ckbbackupbeforealtercolumn.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,98,97,99,107,117,112,32,83,81,76,32,98,101,102,111,114,101,32,97,108,116,101,114,105,110,103,32,99,111,108,117,109,110,115],"value":"Generate backup SQL before altering columns"},
@@ -119,5 +120,5 @@
 {"hash":257568137,"name":"tfrmsettings.groupboxcustdict.caption","sourcebytes":[67,117,115,116,111,109,32,100,105,99,116,105,111,110,97,114,121],"value":"Custom dictionary"},
 {"hash":125542249,"name":"tfrmsettings.lbcustdicttip.caption","sourcebytes":[67,117,115,116,111,109,32,100,105,99,116,105,111,110,97,114,121,32,105,115,32,117,115,101,100,32,116,111,32,105,100,101,110,116,105,102,121,32,117,110,99,111,109,109,111,110,32,119,111,114,100,115,32,105,110,32,116,97,98,108,101,32,102,105,101,108,100,32,110,97,109,101,115,46,32,40,111,110,101,32,112,101,114,32,108,105,110,101,41],"value":"Custom dictionary is used to identify uncommon words in table field names. (one per line)"},
 {"hash":90893459,"name":"tfrmsettings.groupboxothers.caption","sourcebytes":[79,116,104,101,114,115],"value":"Others"},
-{"hash":33133578,"name":"tfrmsettings.lbtabledatapreviewrows1.caption","sourcebytes":[67,104,97,116,71,80,84,32,107,101,121,58],"value":"ChatGPT key:"}
+{"hash":95886474,"name":"tfrmsettings.lbaikey.caption","sourcebytes":[65,73,32,107,101,121,58],"value":"AI key:"}
 ]}

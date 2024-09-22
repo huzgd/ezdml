@@ -30,6 +30,8 @@ type
     ListBoxTbs: TListBox;
     MemoFieldContent: TDBMemo;
     MenuItem1: TMenuItem;
+    MenuItemDbConn: TMenuItem;
+    MenuItemDedicatedConn: TMenuItem;
     MN_CopyTbName: TMenuItem;
     MN_QueryTableData: TMenuItem;
     MN_ShowTableProps: TMenuItem;
@@ -38,6 +40,7 @@ type
     PanelRes: TPanel;
     Bevel3: TBevel;
     PanelTbs: TPanel;
+    PopupMenuDbConn: TPopupMenu;
     PopupMenuTbs: TPopupMenu;
     sbtnToggleTbList: TSpeedButton;
     Splitter1: TSplitter;
@@ -76,6 +79,8 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ListBoxTbsDblClick(Sender: TObject);
+    procedure MenuItemDbConnClick(Sender: TObject);
+    procedure MenuItemDedicatedConnClick(Sender: TObject);
     procedure MN_CopyTbNameClick(Sender: TObject);
     procedure MN_QueryTableDataClick(Sender: TObject);
     procedure MN_ShowTablePropsClick(Sender: TObject);
@@ -129,7 +134,8 @@ type
     procedure DoDbTableAction(act: string);
   public
     { Public declarations }
-    FCtMetaDatabase: TCtMetaDatabase;
+    FCtMetaDatabase: TCtMetaDatabase; 
+    FCloneMetaDb: TCtMetaDatabase;
     ResultDataSet: TDataSet;
     MemoSql: TMemo;
     AutoExecSql: string;
@@ -249,6 +255,55 @@ end;
 procedure TfrmDmlSqlEditorO.ListBoxTbsDblClick(Sender: TObject);
 begin
   DoDbTableAction('show_props');
+end;
+
+procedure TfrmDmlSqlEditorO.MenuItemDbConnClick(Sender: TObject);
+var
+  I: integer;
+begin
+  I := GetLastCtDbConn;
+  if (Sender <> nil) or (I < 0) then
+    I := ExecCtDbLogon;
+  if I >= 0 then
+  begin                                      
+    if Assigned(FCloneMetaDb) then
+      FreeAndNil(FCloneMetaDb);
+    FCtMetaDatabase := CtMetaDBRegs[I].DbImpl;
+    lbStatus.Caption := 'Connected to [' + FCtMetaDatabase.EngineType +
+      ']' + FCtMetaDatabase.Database;
+    if PanelTbs.Visible then
+      RefreshTbList(False, True)
+    else if PanelTbs.Tag = 1 then
+    begin
+      PanelTbs.Tag := 0;
+      sbtnToggleTbListClick(nil);
+    end;
+  end;     
+  sbtnConnectDb.Caption := MenuItemDbConn.Caption;
+end;
+
+procedure TfrmDmlSqlEditorO.MenuItemDedicatedConnClick(Sender: TObject);
+var
+  db: TCtMetaDatabase;
+begin
+  db := ExecDedicatedDbLogon(Self, FCloneMetaDb);
+  if db = nil then
+    Exit;
+
+  if Assigned(FCloneMetaDb) then
+    FreeAndNil(FCloneMetaDb);
+  FCloneMetaDb := db;
+  FCtMetaDatabase := db;
+  lbStatus.Caption := 'Connected to [' + FCtMetaDatabase.EngineType +
+    ']' + FCtMetaDatabase.Database;
+  if PanelTbs.Visible then
+    RefreshTbList(False, True)
+  else if PanelTbs.Tag = 1 then
+  begin
+    PanelTbs.Tag := 0;
+    sbtnToggleTbListClick(nil);
+  end;        
+  sbtnConnectDb.Caption := MenuItemDedicatedConn.Caption;
 end;
 
 
@@ -422,7 +477,9 @@ begin
     FDmlSqlEditorForm := nil;
 
   if Assigned(FOldSqlList) then
-    FreeAndNil(FOldSqlList);
+    FreeAndNil(FOldSqlList);   
+  if Assigned(FCloneMetaDb) then
+    FreeAndNil(FCloneMetaDb);
 end;
 
 procedure TfrmDmlSqlEditorO.ClearSql;
@@ -725,24 +782,12 @@ end;
 
 procedure TfrmDmlSqlEditorO.sbtnConnectDbClick(Sender: TObject);
 var
-  I: integer;
+  p: TPoint;
 begin
-  I := GetLastCtDbConn;
-  if (Sender <> nil) or (I < 0) then
-    I := ExecCtDbLogon;
-  if I >= 0 then
-  begin
-    FCtMetaDatabase := CtMetaDBRegs[I].DbImpl;
-    lbStatus.Caption := 'Connected to [' + FCtMetaDatabase.EngineType +
-      ']' + FCtMetaDatabase.Database;
-    if PanelTbs.Visible then
-      RefreshTbList(False, True)
-    else if PanelTbs.Tag = 1 then
-    begin
-      PanelTbs.Tag := 0;
-      sbtnToggleTbListClick(nil);
-    end;
-  end;
+  p.X := 0;
+  p.Y := sbtnConnectDb.Height;
+  p := sbtnConnectDb.ClientToScreen(p);
+  PopupMenuDbConn.Popup(p.X, p.Y);
 end;
 
 procedure TfrmDmlSqlEditorO.SetReadOnlyMode(const Value: boolean);

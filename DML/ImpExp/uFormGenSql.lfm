@@ -242,7 +242,7 @@ object frmCtGenSQL: TfrmCtGenSQL
       Left = 8
       Height = 92
       Top = 12
-      Width = 600
+      Width = 676
       Shape = bsFrame
     end
     object Label1: TLabel
@@ -265,64 +265,66 @@ object frmCtGenSQL: TfrmCtGenSQL
       Left = 128
       Height = 25
       Top = 24
-      Width = 376
+      Width = 504
       ParentColor = True
       ReadOnly = True
       TabOrder = 0
     end
     object btnDBLogon: TButton
-      Left = 520
+      Left = 636
       Height = 27
-      Top = 24
+      Hint = 'Connect'
+      Top = 23
       Width = 35
       AutoSize = True
       Caption = '...'
       OnClick = btnDBLogonClick
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 1
     end
     object combDBUser: TComboBox
       Left = 128
       Height = 25
       Top = 64
-      Width = 376
+      Width = 268
       DropDownCount = 48
       ItemHeight = 17
       OnChange = combDBUserChange
       TabOrder = 2
     end
-    object btnSelDbType: TButton
-      Left = 560
-      Height = 27
-      Top = 24
-      Width = 32
-      AutoSize = True
-      Caption = 'v'
-      OnClick = btnSelDbTypeClick
-      TabOrder = 3
-    end
     object ckbProcOracleSeqs: TCheckBox
-      Left = 624
+      Left = 692
       Height = 21
       Hint = 'Create sequence for each table, or check current-value with primary-key field  for exists sequences'
-      Top = 64
+      Top = 48
       Width = 133
       Caption = 'Process Sequences'
       OnClick = ckbProcOracleSeqsClick
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 4
+      TabOrder = 3
       Visible = False
     end
     object ckbSketchMode: TCheckBox
-      Left = 624
+      Left = 692
       Height = 21
       Hint = 'Only check logical type of fields, ignoring differences of data-lengths, physical types, keys, indexes, comments, nullables and default values'
-      Top = 24
+      Top = 20
       Width = 98
       Caption = 'Sketch mode'
       OnClick = ckbSketchModeClick
       ParentShowHint = False
       ShowHint = True
+      TabOrder = 4
+    end
+    object ckbCreateForeignkeys: TCheckBox
+      Left = 692
+      Height = 21
+      Top = 76
+      Width = 136
+      Caption = 'Create foreign keys'
+      OnChange = ckbCreateForeignkeysChange
       TabOrder = 5
     end
   end
@@ -440,30 +442,29 @@ object frmCtGenSQL: TfrmCtGenSQL
     left = 172
     top = 144
   end
-  object PopupMenuSelDefDbType: TPopupMenu
-    left = 480
-    top = 304
-    object MN_DefDbType_ORACLE: TMenuItem
-      Caption = 'ORACLE'
-      OnClick = MN_DefDbType_StandardClick
-    end
-    object MN_DefDbType_MYSQL: TMenuItem
-      Caption = 'MYSQL'
-      OnClick = MN_DefDbType_StandardClick
-    end
-    object MN_DefDbType_SQLSERVER: TMenuItem
-      Caption = 'SQLSERVER'
-      OnClick = MN_DefDbType_StandardClick
-    end
-    object MN_DefDbType_Standard: TMenuItem
-      Caption = 'STANDARD'
-      OnClick = MN_DefDbType_StandardClick
-    end
-  end
   object OpenDialogDml: TOpenDialog
     DefaultExt = '.dmj'
     Filter = 'All supported files(*.dmj;*.dmx;*.dmh)|*.dmj;*.dmx;*.dmh|Json files(*.dmj)|*.dmj|XML files(*.dmx)|*.dmx|Binary files(*.dmh)|*.dmh'
     left = 168
     top = 184
+  end
+  object PopupMenuDbConn: TPopupMenu
+    left = 616
+    top = 64
+    object MenuItemDbConn: TMenuItem
+      Caption = 'Connect'
+      Default = True
+      OnClick = MenuItemDbConnClick
+    end
+    object MenuItemDedicatedConn: TMenuItem
+      Caption = 'Dedicated connect'
+      OnClick = MenuItemDedicatedConnClick
+    end
+    object MenuItem_VirtualDbs: TMenuItem
+      Caption = 'Virtual Database'
+      object MN_DefDbType_Standard: TMenuItem
+        Caption = 'STANDARD'
+      end
+    end
   end
 end

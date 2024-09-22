@@ -69,7 +69,9 @@ https://gitee.com/huzgd/ezdml/releases
 
 http://ezdml.com/v/
 
-网页版目前仍在初级发展阶段，暂未开源。
+代码仓库：https://gitee.com/huzgd/ezdml_web
+
+https://github.com/huzgd/ezdml_web
 
 
 #### 其它
@@ -378,4 +380,5 @@ SQL工具支持自动完成（点号下拉字段列表）和简单SQL格式化�
 2024年8月11日 V3.61
 复制粘贴为JSON格式，模型文件加密分享、web发布和在线打开功能。Bugs修复.
 
-
+2024年9月22日 V3.62
+临时专用数据库连接，SQL工具改进，限制最大抓取记录数，AI优化。Bugs修复.

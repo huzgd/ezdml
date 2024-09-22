@@ -55,6 +55,16 @@ type
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
     MenuItem16: TMenuItem;
+    PMNAI_GenFKLinks: TMenuItem;
+    MNAI_GenFKLinks: TMenuItem;
+    PMNAI_GenComments: TMenuItem;
+    PMNAI_GenFields: TMenuItem;
+    PMNAI_GenTables: TMenuItem;
+    MenuItem_AI: TMenuItem;
+    MNAI_GenFields: TMenuItem;
+    MNAI_GenTables: TMenuItem;
+    MNAI_GenNewModel: TMenuItem;
+    MNAI_GenComments: TMenuItem;
     MN_AddGroupBox: TMenuItem;
     MNRun_SqlTool: TMenuItem;
     MNCnWordSegment: TMenuItem;
@@ -90,7 +100,7 @@ type
     MN_UnderlinetoCamelCase: TMenuItem;
     MN_ConvertChinesetoPinYin: TMenuItem;
     PopupMenuRunGens: TPopupMenu;
-    SpeedButtonChatGPT: TSpeedButton;
+    PopupMenuAIActs: TPopupMenu;
     StatusBar1: TStatusBar;
     ActionList2: TActionList;
     actPan: TAction;
@@ -106,6 +116,7 @@ type
     actRectSelect: TAction;
     PopupMenu1: TPopupMenu;
     TimerDelayCmd: TTimer;
+    ToolButtonAI: TToolButton;
     ToolButtonDmlOpenURL: TToolButton;
     ToolButtonDMLShare: TToolButton;
     ToolButtonDMLSp0: TToolButton;
@@ -242,6 +253,11 @@ type
     procedure colobBgColorChange(Sender: TObject);
     procedure colobBgColorCloseUp(Sender: TObject);
     procedure colobBgColorGetColors(Sender: TCustomColorBox; Items: TStrings);
+    procedure MNAI_GenCommentsClick(Sender: TObject);
+    procedure MNAI_GenFieldsClick(Sender: TObject);
+    procedure MNAI_GenFKLinksClick(Sender: TObject);
+    procedure MNAI_GenNewModelClick(Sender: TObject);
+    procedure MNAI_GenTablesClick(Sender: TObject);
     procedure MNRun_GenCodeClick(Sender: TObject);
     procedure MNRun_GenDataClick(Sender: TObject);
     procedure MNRun_GenSQLClick(Sender: TObject);
@@ -677,6 +693,31 @@ begin
   AddCL('f6f6f6');
 
   Items.AddObject(srDmlCustomColor, TObject(PtrInt($DDDDDD)));
+end;
+
+procedure TFrameDML.MNAI_GenCommentsClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 4);
+end;
+
+procedure TFrameDML.MNAI_GenFieldsClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 3);
+end;
+
+procedure TFrameDML.MNAI_GenFKLinksClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 5);
+end;
+
+procedure TFrameDML.MNAI_GenNewModelClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 1);
+end;
+
+procedure TFrameDML.MNAI_GenTablesClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 2);
 end;
 
 
@@ -1464,6 +1505,13 @@ begin
   actCheckWithMyDict.Enabled := (C > 0) and bSelTb;
   actConvertChnToPy.Enabled := (C > 0) and bSelTb;
   MN_Capitalize.Enabled := (C > 0) and bSelTb;
+
+  MNAI_GenFields.Enabled := (C = 1) and bSelTb;
+  MNAI_GenComments.Enabled := (C = 1) and bSelTb;
+  MNAI_GenFKLinks.Enabled := (C > 0) and bSelTb;
+  PMNAI_GenFields.Enabled := (C = 1) and bSelTb;
+  PMNAI_GenComments.Enabled := (C = 1) and bSelTb;
+  PMNAI_GenFKLinks.Enabled := (C > 0) and bSelTb;
                                       
   actBatAddFields.Enabled := (C > 0) and bSelTb;
   actBatRemoveFields.Enabled := (C > 0) and bSelTb;

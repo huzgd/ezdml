@@ -8,6 +8,7 @@
 {"hash":13088,"name":"tfrmimportcttable.labelprog.caption","sourcebytes":[48,47,48],"value":"0/0"},
 {"hash":5941396,"name":"tfrmimportcttable.btnok.caption","sourcebytes":[83,116,97,114,116],"value":"Start"},
 {"hash":4863637,"name":"tfrmimportcttable.btncancel.caption","sourcebytes":[67,108,111,115,101],"value":"Close"},
+{"hash":174410724,"name":"tfrmimportcttable.btndblogon.hint","sourcebytes":[67,111,110,110,101,99,116],"value":"Connect"},
 {"hash":782,"name":"tfrmimportcttable.btndblogon.caption","sourcebytes":[46,46],"value":".."},
 {"hash":196280757,"name":"tfrmimportcttable.ckbautocapitalize.caption","sourcebytes":[65,117,116,111,32,99,97,112,105,116,97,108,105,122,101],"value":"Auto capitalize"},
 {"hash":81265349,"name":"tfrmimportcttable.ckbcomments2displayname.caption","sourcebytes":[67,111,109,109,101,110,116,115,32,97,115,32,76,111,103,105,99,45,78,97,109,101],"value":"Comments as Logic-Name"},
@@ -18,5 +19,7 @@
 {"hash":156399001,"name":"tfrmimportcttable.mn_checkselected.caption","sourcebytes":[67,104,101,99,107,47,117,110,99,104,101,99,107,32,40,115,101,108,101,99,116,101,100,41],"value":"Check/uncheck (selected)"},
 {"hash":244062041,"name":"tfrmimportcttable.mn_checkall.caption","sourcebytes":[67,104,101,99,107,47,117,110,99,104,101,99,107,32,40,97,108,108,41],"value":"Check/uncheck (all)"},
 {"hash":192777182,"name":"tfrmimportcttable.mn_inversesel.caption","sourcebytes":[73,110,118,101,114,115,101,32,115,101,108,101,99,116,105,111,110],"value":"Inverse selection"},
-{"hash":31957139,"name":"tfrmimportcttable.mn_tableprops.caption","sourcebytes":[84,97,98,108,101,32,112,114,111,112,112,101,114,116,105,101,115],"value":"Table propperties"}
+{"hash":31957139,"name":"tfrmimportcttable.mn_tableprops.caption","sourcebytes":[84,97,98,108,101,32,112,114,111,112,112,101,114,116,105,101,115],"value":"Table propperties"},
+{"hash":174410724,"name":"tfrmimportcttable.menuitemdbconn.caption","sourcebytes":[67,111,110,110,101,99,116],"value":"Connect"},
+{"hash":27608884,"name":"tfrmimportcttable.menuitemdedicatedconn.caption","sourcebytes":[68,101,100,105,99,97,116,101,100,32,99,111,110,110,101,99,116],"value":"Dedicated connect"}
 ]}
