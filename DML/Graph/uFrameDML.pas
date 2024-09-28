@@ -55,6 +55,12 @@ type
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
     MenuItem16: TMenuItem;
+    MNSF_DbFile: TMenuItem;
+    MNSF_LocalFile: TMenuItem;
+    MNOF_OnlineFile: TMenuItem;
+    MNOF_DbFile: TMenuItem;
+    MNOF_LocalFile: TMenuItem;
+    MNSF_OnlineFile: TMenuItem;
     PMNAI_GenFKLinks: TMenuItem;
     MNAI_GenFKLinks: TMenuItem;
     PMNAI_GenComments: TMenuItem;
@@ -99,6 +105,8 @@ type
     MN_CamelCasetoUnderline: TMenuItem;
     MN_UnderlinetoCamelCase: TMenuItem;
     MN_ConvertChinesetoPinYin: TMenuItem;
+    PopupMenuOpenFile: TPopupMenu;
+    PopupMenuSaveFile: TPopupMenu;
     PopupMenuRunGens: TPopupMenu;
     PopupMenuAIActs: TPopupMenu;
     StatusBar1: TStatusBar;
@@ -258,6 +266,7 @@ type
     procedure MNAI_GenFKLinksClick(Sender: TObject);
     procedure MNAI_GenNewModelClick(Sender: TObject);
     procedure MNAI_GenTablesClick(Sender: TObject);
+    procedure MNFile_OperClick(Sender: TObject);
     procedure MNRun_GenCodeClick(Sender: TObject);
     procedure MNRun_GenDataClick(Sender: TObject);
     procedure MNRun_GenSQLClick(Sender: TObject);
@@ -718,6 +727,11 @@ end;
 procedure TFrameDML.MNAI_GenTablesClick(Sender: TObject);
 begin
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 2);
+end;
+
+procedure TFrameDML.MNFile_OperClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 11, TMenuItem(Sender).Tag);
 end;
 
 

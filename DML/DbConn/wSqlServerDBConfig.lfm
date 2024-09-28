@@ -59,7 +59,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 10
+    TabOrder = 13
   end
   object btnCancel: TButton
     Left = 376
@@ -69,7 +69,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 11
+    TabOrder = 14
   end
   object combAddr: TComboBox
     Left = 116
@@ -91,7 +91,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Width = 74
     Caption = 'Help'
     OnClick = btnHelpClick
-    TabOrder = 12
+    TabOrder = 15
   end
   object Label4: TLabel
     Left = 48
@@ -136,7 +136,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Width = 90
     Caption = 'ODBC DSN:'
     OnChange = rdbIPAddrChange
-    TabOrder = 5
+    TabOrder = 8
   end
   object Label6: TLabel
     Left = 48
@@ -151,7 +151,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Height = 25
     Top = 352
     Width = 256
-    TabOrder = 6
+    TabOrder = 9
   end
   object btnBrowseDsn: TButton
     Left = 376
@@ -160,7 +160,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Width = 64
     Caption = 'Browse'
     OnClick = btnBrowseDsnClick
-    TabOrder = 7
+    TabOrder = 10
   end
   object rdbOdbcConnStr: TRadioButton
     Left = 22
@@ -169,7 +169,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Width = 167
     Caption = 'ODBC Connection String:'
     OnChange = rdbIPAddrChange
-    TabOrder = 8
+    TabOrder = 11
   end
   object MemoOdbcConnStr: TMemo
     Left = 48
@@ -179,7 +179,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Lines.Strings = (
       'Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;'
     )
-    TabOrder = 9
+    TabOrder = 12
   end
   object btnSettings: TButton
     Left = 100
@@ -188,7 +188,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Width = 70
     Caption = 'Settings'
     OnClick = btnSettingsClick
-    TabOrder = 13
+    TabOrder = 16
   end
   object MemoJdbcConnStr: TMemo
     Left = 48
@@ -201,7 +201,7 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     )
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 14
+    TabOrder = 7
     WantReturns = False
   end
   object rdbJdbcConnStr: TRadioButton
@@ -211,6 +211,14 @@ object frmSqlSvrDBConfig: TfrmSqlSvrDBConfig
     Width = 120
     Caption = 'JDBC properties:'
     OnChange = rdbIPAddrChange
-    TabOrder = 15
+    TabOrder = 5
+  end
+  object ckbShowJdbcConsole: TCheckBox
+    Left = 304
+    Height = 21
+    Top = 216
+    Width = 136
+    Caption = 'Show JDBC console'
+    TabOrder = 6
   end
 end

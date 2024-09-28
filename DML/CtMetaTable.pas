@@ -1141,6 +1141,7 @@ var
   G_QuotReservedNames: boolean;
   G_QuotAllNames: boolean;
   G_LogicNamesForTableData: boolean;
+  G_AddLimitToCursorSQL: Boolean;
   G_MaxRowCountForTableData: integer;  
   G_CtSqlMaxFetchCount: Integer = 1000;
   G_HugeModeTableCount: integer = 500;

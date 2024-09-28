@@ -14,25 +14,25 @@ object frmOraDBConfig: TfrmOraDBConfig
   LCLVersion = '2.0.12.0'
   object Label1: TLabel
     Left = 48
-    Height = 12
+    Height = 17
     Top = 108
-    Width = 48
+    Width = 45
     Caption = 'Host IP:'
     ParentColor = False
   end
   object Label2: TLabel
     Left = 320
-    Height = 12
+    Height = 17
     Top = 108
-    Width = 30
+    Width = 27
     Caption = 'Port:'
     ParentColor = False
   end
   object Label3: TLabel
     Left = 48
-    Height = 12
+    Height = 17
     Top = 148
-    Width = 24
+    Width = 23
     Caption = 'SID:'
     ParentColor = False
   end
@@ -66,7 +66,7 @@ object frmOraDBConfig: TfrmOraDBConfig
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 6
+    TabOrder = 14
   end
   object btnCancel: TButton
     Left = 376
@@ -76,7 +76,7 @@ object frmOraDBConfig: TfrmOraDBConfig
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 7
+    TabOrder = 15
   end
   object combNetSvcName: TComboBox
     Left = 48
@@ -127,7 +127,7 @@ object frmOraDBConfig: TfrmOraDBConfig
     Width = 74
     Caption = 'Help'
     OnClick = btnHelpClick
-    TabOrder = 8
+    TabOrder = 16
   end
   object btnSettings: TButton
     Left = 100
@@ -136,7 +136,7 @@ object frmOraDBConfig: TfrmOraDBConfig
     Width = 70
     Caption = 'Settings'
     OnClick = btnSettingsClick
-    TabOrder = 9
+    TabOrder = 17
   end
   object rbdOdbcDsn: TRadioButton
     Left = 22
@@ -145,13 +145,13 @@ object frmOraDBConfig: TfrmOraDBConfig
     Width = 90
     Caption = 'ODBC DSN:'
     OnClick = rdbNetSvcClick
-    TabOrder = 10
+    TabOrder = 9
   end
   object Label6: TLabel
     Left = 48
-    Height = 12
+    Height = 17
     Top = 412
-    Width = 24
+    Width = 29
     Caption = 'DSN:'
     ParentColor = False
   end
@@ -160,7 +160,7 @@ object frmOraDBConfig: TfrmOraDBConfig
     Height = 25
     Top = 408
     Width = 256
-    TabOrder = 11
+    TabOrder = 10
   end
   object btnBrowseDsn: TButton
     Left = 376
@@ -169,7 +169,7 @@ object frmOraDBConfig: TfrmOraDBConfig
     Width = 64
     Caption = 'Browse'
     OnClick = btnBrowseDsnClick
-    TabOrder = 12
+    TabOrder = 11
   end
   object rdbOdbcConnStr: TRadioButton
     Left = 22
@@ -178,7 +178,7 @@ object frmOraDBConfig: TfrmOraDBConfig
     Width = 167
     Caption = 'ODBC Connection String:'
     OnClick = rdbNetSvcClick
-    TabOrder = 13
+    TabOrder = 12
   end
   object MemoOdbcConnStr: TMemo
     Left = 48
@@ -188,12 +188,12 @@ object frmOraDBConfig: TfrmOraDBConfig
     Lines.Strings = (
       'Driver=Oracle in instantclient_11_2;Server=My Db Server;UID=UserName;'
     )
-    TabOrder = 14
+    TabOrder = 13
   end
   object MemoJdbcConnStr: TMemo
     Left = 46
     Height = 54
-    Hint = 'Format: url=jdbc:oracle:thin:@192.168.1.5:1521:orcl;driver=oracle.jdbc.OracleDriver'
+    Hint = 'Format: url=jdbc:oracle:thin:@192.168.1.5:1521:orcl;driver=oracle.jdbc.OracleDriver'#13#10'Dameng: url=jdbc:dm://192.168.1.5:5236;driver=dm.jdbc.driver.DmDriver'
     Top = 304
     Width = 392
     Lines.Strings = (
@@ -201,7 +201,7 @@ object frmOraDBConfig: TfrmOraDBConfig
     )
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 15
+    TabOrder = 8
     WantReturns = False
   end
   object rdbJdbcConnStr: TRadioButton
@@ -211,6 +211,14 @@ object frmOraDBConfig: TfrmOraDBConfig
     Width = 120
     Caption = 'JDBC properties:'
     OnClick = rdbNetSvcClick
-    TabOrder = 16
+    TabOrder = 6
+  end
+  object ckbShowJdbcConsole: TCheckBox
+    Left = 302
+    Height = 21
+    Top = 272
+    Width = 136
+    Caption = 'Show JDBC console'
+    TabOrder = 7
   end
 end

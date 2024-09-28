@@ -1237,6 +1237,10 @@ msgstr ""
 msgid "Do you want to save data before exit?"
 msgstr ""
 
+#: ezdmlstrs.srezdmlconfirmforcereconndb
+msgid "This database is already connected. Do you want to force a disconnection and reconnection?"
+msgstr ""
+
 #: ezdmlstrs.srezdmlconfirmopendbtmpfile
 msgid "Database file is not ready, open local temporary file instead?"
 msgstr ""
@@ -1353,6 +1357,7 @@ msgid ""
 msgstr ""
 
 #: ezdmlstrs.srezdmlopenfile
+msgctxt "ezdmlstrs.srezdmlopenfile"
 msgid "Open file"
 msgstr ""
 
@@ -3603,6 +3608,21 @@ msgctxt "tframedml.mnai_gentables.caption"
 msgid "Add More Tables"
 msgstr ""
 
+#: tframedml.mnof_dbfile.caption
+msgctxt "tframedml.mnof_dbfile.caption"
+msgid "Open database file"
+msgstr ""
+
+#: tframedml.mnof_localfile.caption
+msgctxt "tframedml.mnof_localfile.caption"
+msgid "Open file"
+msgstr ""
+
+#: tframedml.mnof_onlinefile.caption
+msgctxt "tframedml.mnof_onlinefile.caption"
+msgid "Open online file"
+msgstr ""
+
 #: tframedml.mnrun_gencode.caption
 msgctxt "tframedml.mnrun_gencode.caption"
 msgid "Generate Code"
@@ -3621,6 +3641,18 @@ msgstr ""
 #: tframedml.mnrun_sqltool.caption
 msgctxt "tframedml.mnrun_sqltool.caption"
 msgid "SQL Tool"
+msgstr ""
+
+#: tframedml.mnsf_dbfile.caption
+msgid "Save database file"
+msgstr ""
+
+#: tframedml.mnsf_localfile.caption
+msgid "Save as file..."
+msgstr ""
+
+#: tframedml.mnsf_onlinefile.caption
+msgid "Share online..."
 msgstr ""
 
 #: tframedml.mn_batchcopy.caption
@@ -4057,6 +4089,11 @@ msgstr ""
 msgid "Database Connection"
 msgstr ""
 
+#: tfrmcommdbconfig.ckbshowjdbcconsole.caption
+msgctxt "tfrmcommdbconfig.ckbshowjdbcconsole.caption"
+msgid "Show JDBC console"
+msgstr ""
+
 #: tfrmcommdbconfig.label1.caption
 msgid "Server:"
 msgstr ""
@@ -4365,6 +4402,10 @@ msgstr ""
 #: tfrmcttableprop.btncapitalize.caption
 msgctxt "tfrmcttableprop.btncapitalize.caption"
 msgid "Capitalize"
+msgstr ""
+
+#: tfrmcttableprop.btnnewtbtemplate.caption
+msgid "Template..."
 msgstr ""
 
 #: tfrmcttableprop.btnok.caption
@@ -4791,6 +4832,16 @@ msgctxt "tfrmezdmldbfile.listviewfiles.columns[6].caption"
 msgid "Version"
 msgstr ""
 
+#: tfrmezdmldbfile.menuitemdbconn.caption
+msgctxt "tfrmezdmldbfile.menuitemdbconn.caption"
+msgid "Connect"
+msgstr ""
+
+#: tfrmezdmldbfile.menuitemdedicatedconn.caption
+msgctxt "tfrmezdmldbfile.menuitemdedicatedconn.caption"
+msgid "Dedicated connect"
+msgstr ""
+
 #: tfrmezdmldbfile.mn_delete.caption
 msgctxt "tfrmezdmldbfile.mn_delete.caption"
 msgid "Delete"
@@ -5212,6 +5263,7 @@ msgid "Import PDM File..."
 msgstr ""
 
 #: tfrmmaindml.actloadfromdb.caption
+msgctxt "tfrmmaindml.actloadfromdb.caption"
 msgid "Open database file"
 msgstr ""
 
@@ -5423,6 +5475,7 @@ msgid "OK"
 msgstr ""
 
 #: tfrmonlinefile.caption
+msgctxt "tfrmonlinefile.caption"
 msgid "Open online file"
 msgstr ""
 
@@ -5493,6 +5546,11 @@ msgstr ""
 msgid "ORACLE Connection"
 msgstr ""
 
+#: tfrmoradbconfig.ckbshowjdbcconsole.caption
+msgctxt "tfrmoradbconfig.ckbshowjdbcconsole.caption"
+msgid "Show JDBC console"
+msgstr ""
+
 #: tfrmoradbconfig.edtport.text
 msgid "1521"
 msgstr ""
@@ -5521,7 +5579,9 @@ msgid "DSN:"
 msgstr ""
 
 #: tfrmoradbconfig.memojdbcconnstr.hint
-msgid "Format: url=jdbc:oracle:thin:@192.168.1.5:1521:orcl;driver=oracle.jdbc.OracleDriver"
+msgid ""
+"Format: url=jdbc:oracle:thin:@192.168.1.5:1521:orcl;driver=oracle.jdbc.OracleDriver\n"
+"Dameng: url=jdbc:dm://192.168.1.5:5236;driver=dm.jdbc.driver.DmDriver\n"
 msgstr ""
 
 #: tfrmoradbconfig.rbdodbcdsn.caption
@@ -5645,6 +5705,14 @@ msgstr ""
 msgid "Add field-comments to table-creation-SQL"
 msgstr ""
 
+#: tfrmsettings.ckbaddlimittocursorsql.caption
+msgid "Add limit clause on Execute"
+msgstr ""
+
+#: tfrmsettings.ckbaddlimittocursorsql.hint
+msgid "Prevent lag cause by large amounts of data, for MySQL/PostgreSQL only"
+msgstr ""
+
 #: tfrmsettings.ckbautocommit.caption
 msgid "Auto commit"
 msgstr ""
@@ -5729,6 +5797,7 @@ msgid "Save temporary file on exit"
 msgstr ""
 
 #: tfrmsettings.ckbshowjdbcconsole.caption
+msgctxt "tfrmsettings.ckbshowjdbcconsole.caption"
 msgid "Show JDBC console"
 msgstr ""
 
@@ -6225,6 +6294,11 @@ msgstr ""
 
 #: tfrmsqlsvrdbconfig.caption
 msgid "SQLServer Connection"
+msgstr ""
+
+#: tfrmsqlsvrdbconfig.ckbshowjdbcconsole.caption
+msgctxt "tfrmsqlsvrdbconfig.ckbshowjdbcconsole.caption"
+msgid "Show JDBC console"
 msgstr ""
 
 #: tfrmsqlsvrdbconfig.edtport.text

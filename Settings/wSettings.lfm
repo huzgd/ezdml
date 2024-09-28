@@ -613,12 +613,12 @@ object frmSettings: TfrmSettings
         end
         object GroupBoxTableDataSQL: TGroupBox
           Left = 8
-          Height = 142
+          Height = 166
           Top = 218
           Width = 520
           Align = alTop
           Caption = 'Preview table data'
-          ClientHeight = 120
+          ClientHeight = 144
           ClientWidth = 516
           TabOrder = 1
           object edtMaxRowCountForTableData: TEdit
@@ -658,6 +658,17 @@ object frmSettings: TfrmSettings
             Width = 92
             Caption = 'Max fetch rows:'
             ParentColor = False
+          end
+          object ckbAddLimitToCursorSQL: TCheckBox
+            Left = 208
+            Height = 21
+            Hint = 'Prevent lag cause by large amounts of data, for MySQL/PostgreSQL only'
+            Top = 112
+            Width = 181
+            Caption = 'Add limit clause on Execute'
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 3
           end
         end
         object GroupBoxSQLGen: TGroupBox
@@ -722,7 +733,7 @@ object frmSettings: TfrmSettings
         object GroupBoxSQLDbSpec: TGroupBox
           Left = 8
           Height = 141
-          Top = 370
+          Top = 394
           Width = 520
           Align = alTop
           Caption = 'Spetial'
@@ -781,7 +792,7 @@ object frmSettings: TfrmSettings
         object Bevel19: TBevel
           Left = 8
           Height = 10
-          Top = 360
+          Top = 384
           Width = 520
           Align = alTop
           Shape = bsSpacer

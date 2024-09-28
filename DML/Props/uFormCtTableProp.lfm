@@ -68,6 +68,17 @@ object frmCtTableProp: TfrmCtTableProp
       ParentColor = False
       ParentFont = False
     end
+    object btnNewTbTemplate: TButton
+      Left = 128
+      Height = 27
+      Top = 4
+      Width = 102
+      Caption = 'Template...'
+      OnClick = btnNewTbTemplateClick
+      ParentFont = False
+      TabOrder = 3
+      Visible = False
+    end
   end
   object Panel2: TPanel
     Left = 0
@@ -200,5 +211,9 @@ object frmCtTableProp: TfrmCtTableProp
     OnTimer = TimerDelayCmdTimer
     left = 107
     top = 203
+  end
+  object PopupMenuNewTbTmpls: TPopupMenu
+    left = 126
+    top = 326
   end
 end

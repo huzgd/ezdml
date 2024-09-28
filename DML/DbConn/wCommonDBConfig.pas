@@ -16,6 +16,7 @@ type
     btnBrowseDsn: TButton;
     btnHelp: TButton;
     btnSettings: TButton;
+    ckbShowJdbcConsole: TCheckBox;
     combSveIp: TComboBox;
     edtDsnName: TEdit;
     Label1: TLabel;
@@ -60,16 +61,24 @@ uses
 { TForm1 }
 
 class function TfrmCommDBConfig.DoDBConfig(AString, ADbType: string): string;
+  function NvlStr(s, def: string): string;
+  begin
+    if Trim(S)='' then
+      Result := def
+    else
+      Result := Trim(S);
+  end;
 var
   po: Integer;
   S,V: String;
 begin
   with TfrmCommDBConfig.Create(nil) do
   try
+    ckbShowJdbcConsole.Checked := G_ShowJdbcConsole;
     FDBType :=ADbType;
     if FDBType = 'MYSQL' then
     begin                                
-      MemoJdbcConnStr.Lines.Text := 'url=jdbc:mysql://192.168.1.1:3306/dbname;';
+      MemoJdbcConnStr.Lines.Text := 'url=jdbc:mysql://192.168.1.1:3306/dbname?useUnicode=true&characterEncoding=UTF-8;';
       MemoOdbcConnStr.Lines.Text := 'Driver=MySQL ODBC 8.0 Driver;Server=MyDbServer;Port=3306;Database={database_name};';
     end
     else if FDBType = 'POSTGRESQL' then
@@ -77,6 +86,11 @@ begin
       MemoJdbcConnStr.Lines.Text := 'url=jdbc:postgresql://localhost:5432/dbname;';
       MemoOdbcConnStr.Lines.Text := 'Driver=PostgreSQL Unicode;Server=MyDbServer;Port=5432;Database={database_name};';
     end;
+    S := MemoJdbcConnStr.Hint;
+    po := Pos('url=jdbc:', S);
+    if po>0 then
+      MemoJdbcConnStr.Hint := Copy(S, 1, po-1)+MemoJdbcConnStr.Lines.Text;
+
     if Copy(AString, 1,4)='DSN:' then
     begin
       rbdOdbcDsn.Checked := True;
@@ -94,6 +108,30 @@ begin
             S:=S+';';
         end;
       MemoJdbcConnStr.Lines.Text := S;
+      if S<>'' then
+      begin
+        po := Pos('?', S);
+        if po>0 then
+          S:=Copy(S, 1, po-1)+';';
+        if FDBType = 'MYSQL' then
+        begin
+          combSveIp.Text := ExtractCompStr(S, 'jdbc:mysql://', ':', False, '');      
+          if combSveIp.Text <> '' then
+          begin
+            edtPort.Text := ExtractCompStr(S, 'jdbc:mysql://'+ combSveIp.Text + ':', '/', True, '');
+            edtDbName.Text := ExtractCompStr(S, 'jdbc:mysql://'+ combSveIp.Text + ':'+edtPort.Text+'/', ';', True);
+          end;
+        end
+        else if FDBType = 'POSTGRESQL' then
+        begin                          
+          combSveIp.Text := ExtractCompStr(S, 'jdbc:postgresql://', ':', False, '');
+          if combSveIp.Text <> '' then
+          begin
+            edtPort.Text := ExtractCompStr(S, 'jdbc:postgresql://'+ combSveIp.Text + ':', '/', True, '');
+            edtDbName.Text := ExtractCompStr(S, 'jdbc:postgresql://'+ combSveIp.Text + ':'+edtPort.Text+'/', ';', True);
+          end;
+        end;
+      end;
     end
     else if Copy(AString, 1, 5)='ODBC:' then
     begin
@@ -138,6 +176,17 @@ begin
           end;
         end;
 
+        if Trim(combSveIp.Text) <> '' then
+        begin
+          if FDBType = 'MYSQL' then
+          begin
+            MemoJdbcConnStr.Lines.Text := 'url=jdbc:mysql://'+Trim(combSveIp.Text)+':'+NvlStr(edtPort.Text,'3306')+'/'+NvlStr(edtDbName.Text,'dbname')+';';
+          end
+          else if FDBType = 'POSTGRESQL' then
+          begin
+            MemoJdbcConnStr.Lines.Text := 'url=jdbc:postgresql://'+Trim(combSveIp.Text)+':'+NvlStr(edtPort.Text,'5432')+'/'+NvlStr(edtDbName.Text,'dbname')+';';
+          end;
+        end;
       end;
     end;
     CheckControlReadOnly;
@@ -223,7 +272,8 @@ begin
       Result :=  Result + '@' + Trim(edtDbName.Text);
   end    
   else if rdbJdbcConnStr.Checked then
-  begin
+  begin              
+    G_ShowJdbcConsole := ckbShowJdbcConsole.Checked;
     if Trim(MemoJdbcConnStr.Lines.Text) = '' then
       Exit;
     S := Trim(MemoJdbcConnStr.Lines.Text); 
@@ -285,12 +335,14 @@ begin
   if not rdbJdbcConnStr.Checked then
   begin
     MemoJdbcConnStr.ParentColor := True;
-    MemoJdbcConnStr.Enabled := False;
+    MemoJdbcConnStr.Enabled := False;           
+    ckbShowJdbcConsole.Enabled := False;
   end
   else
   begin
     MemoJdbcConnStr.Color := clWindow;
-    MemoJdbcConnStr.Enabled := True;
+    MemoJdbcConnStr.Enabled := True;        
+    ckbShowJdbcConsole.Enabled := True;
   end;
 
   if not rbdOdbcDsn.Checked then

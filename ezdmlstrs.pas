@@ -17,8 +17,8 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.62';
-  srEzdmlVersionDate = '2024-09-22';
+  srEzdmlVersionNum = '3.63';
+  srEzdmlVersionDate = '2024-09-28';
 
 {$ifdef EZDML_LITE}
 
@@ -120,6 +120,7 @@ resourcestring
   srEzdmlOnlineFiltTypes = 'Public Share'#13#10'History';
   srEzdmlSharedByMe = 'Shared by me';
   srEzdmlError = 'Error';
+  srEzdmlConfirmForceReconnDb = 'This database is already connected. Do you want to force a disconnection and reconnection?';
 
 implementation
 

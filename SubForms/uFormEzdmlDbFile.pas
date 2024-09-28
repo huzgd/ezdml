@@ -33,6 +33,8 @@ type
     ListViewFiles: TListView;
     MemoDML: TMemo;
     MenuItem1: TMenuItem;
+    MenuItemDbConn: TMenuItem;
+    MenuItemDedicatedConn: TMenuItem;
     MN_Lock: TMenuItem;
     Mn_Memo: TMenuItem;
     MN_Refresh: TMenuItem;
@@ -40,6 +42,7 @@ type
     MN_Delete: TMenuItem;
     MN_Rename: TMenuItem;
     MN_ShowHist: TMenuItem;
+    PopupMenuDbConn: TPopupMenu;
     PopupMenuFiles: TPopupMenu;
     rdbLock: TRadioButton;
     rdbUnlock: TRadioButton;
@@ -50,6 +53,7 @@ type
       Change: TItemChange);
     procedure ListViewFilesClick(Sender: TObject);
     procedure ListViewFilesDblClick(Sender: TObject);
+    procedure MenuItemDbConnClick(Sender: TObject);
     procedure MN_DeleteClick(Sender: TObject);
     procedure MN_InfoClick(Sender: TObject);
     procedure MN_LockClick(Sender: TObject);
@@ -256,20 +260,12 @@ end;
 
 procedure TfrmEzdmlDbFile.btnDBLogonClick(Sender: TObject);
 var
-  I: Integer;
+  p: TPoint;
 begin
-  if Sender = btnDBLogon then
-    if (GetKeyState(VK_SHIFT) and $80) <> 0 then
-    begin
-      Self.SyncDML;
-      Exit;
-    end;
-  I := ExecCtDbLogon;
-  if I >= 0 then
-  begin
-    FLinkDbNo := I;
-    RefreshDbInfo;
-  end;
+  p.X := 0;
+  p.Y := btnDBLogon.Height;
+  p := btnDBLogon.ClientToScreen(p);
+  PopupMenuDbConn.Popup(p.X, p.Y);
 end;
 
 
@@ -699,7 +695,7 @@ begin
     Exit;
             
   if not Assigned(FCtMetaDatabase) then
-    btnDBLogonClick(nil);
+    MenuItemDbConnClick(nil);
 
   if FCtMetaDatabase=nil then
     Exit;
@@ -766,7 +762,7 @@ begin
       Exit;
 
     try
-      btnDBLogonClick(nil);
+      MenuItemDbConnClick(nil);
     except
       on E: Exception do
       begin
@@ -1116,7 +1112,7 @@ begin
     else
     begin
       //if CanAutoShowLogin then
-      btnDBLogonClick(nil);
+      MenuItemDbConnClick(nil);
     end;
   end
   else if FShowHistories or (ListViewFiles.Items.Count = 0) then
@@ -1146,6 +1142,24 @@ procedure TfrmEzdmlDbFile.ListViewFilesDblClick(Sender: TObject);
 begin      
   if Assigned(ListViewFiles.Selected) then
     btnOKClick(nil);
+end;
+
+procedure TfrmEzdmlDbFile.MenuItemDbConnClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  if Sender = MenuItemDbConn then
+    if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+    begin
+      Self.SyncDML;
+      Exit;
+    end;
+  I := ExecCtDbLogon;
+  if I >= 0 then
+  begin
+    FLinkDbNo := I;
+    RefreshDbInfo;
+  end;
 end;
 
 procedure TfrmEzdmlDbFile.MN_DeleteClick(Sender: TObject);

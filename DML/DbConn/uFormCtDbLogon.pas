@@ -680,6 +680,7 @@ procedure TfrmLogonCtDB.DoConnectDb(bForceReConnect: Boolean);
 var
   ini: TIniFile;
   S, P, his: string;
+  I: Integer;
 begin
   if CurMetaDb = nil then
     raise Exception.Create('Not supported connection type');
@@ -689,7 +690,11 @@ begin
                                    
   CtCurMetaDbConn := nil;
   try
-    CurMetaDb.Connected := False;
+    CurMetaDb.Connected := False;   
+    if not FCloneMode then
+      for I:=0 to High(CtMetaDBRegs) do
+        if CtMetaDBRegs[I].DbImpl <> nil then
+          CtMetaDBRegs[I].DbImpl.Connected := False;
   except
     //Application.HandleException(Self);
   end;
@@ -922,10 +927,20 @@ begin
     S := Caption;
     try
       Caption := lbConnectingTip.Caption;
-      if CtMetaDBRegs[I].DbImpl.ExecCmd('CT_BEFORE_RECONNECT', combDBName.Text, edtUserName.Text+'/'+edtPassword.Text) = '_HANDLED' then
-        ModalResult := mrOk
-      else
-        DoConnectDb(True);
+      if not FCloneMode
+         and (CtMetaDBRegs[I].DbImpl.ExecCmd('CT_BEFORE_RECONNECT',
+              combDBName.Text, edtUserName.Text+'/'+edtPassword.Text) = '_HANDLED') then
+      begin
+        case Application.MessageBox(PChar(srEzdmlConfirmForceReconnDb),
+          PChar(Application.Title), MB_YESNOCANCEL or MB_ICONQUESTION) of
+          IDYES:
+            DoConnectDb(True);
+          IDNO:
+            ModalResult := mrOk;
+        end;
+        Exit;
+      end;
+      DoConnectDb(True);
     finally                    
       Caption := S;
       btnOK.Enabled := True;

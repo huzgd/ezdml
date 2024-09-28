@@ -1354,7 +1354,9 @@ begin
       G_QuotReservedNames);
     G_QuotAllNames := ini.ReadBool('Options', 'QuotAllNames', G_QuotAllNames);
     G_LogicNamesForTableData :=
-      ini.ReadBool('Options', 'LogicNamesForTableData', G_LogicNamesForTableData);
+      ini.ReadBool('Options', 'LogicNamesForTableData', G_LogicNamesForTableData);   
+    G_AddLimitToCursorSQL :=
+      ini.ReadBool('Options', 'AddLimitToCursorSQL', G_AddLimitToCursorSQL);
     G_WriteConstraintToDescribeStr :=
       ini.ReadBool('Options', 'WriteConstraintToDescribeStr', G_WriteConstraintToDescribeStr);
 
@@ -2979,7 +2981,20 @@ begin
     if msg.lParam = 1 then
        actShareFile.Execute
     else if msg.lParam = 2 then
-      actOpenUrl.Execute;
+      actOpenUrl.Execute
+    else if msg.lParam = 101 then
+      actOpenFile.Execute
+    else if msg.lParam = 102 then
+      actLoadFromDb.Execute
+    else if msg.lParam = 103 then
+      actOpenUrl.Execute
+    else if msg.lParam = 201 then
+      actSaveFileAs.Execute
+    else if msg.lParam = 202 then
+      actSaveToDb.Execute
+    else if msg.lParam = 203 then
+      actShareFile.Execute;
+
     Exit;
   end;
 end;
@@ -3270,9 +3285,9 @@ begin
     Exit;
   end;
   bDb := False;
-  if FCurFileName <> '' then
+  {if FCurFileName <> '' then
     if IsDbFile(FCurFileName) then   
-      bDb := True;
+      bDb := True; }
   if (GetKeyState(VK_SHIFT) and $80) <> 0 then
     bDb := not bDb;
   if bDb then
@@ -4462,7 +4477,8 @@ initialization
   G_BigIntForIntKeys := False;
   G_QuotReservedNames := False;
   G_QuotAllNames := False;
-  G_LogicNamesForTableData := False;
+  G_LogicNamesForTableData := False;        
+  G_AddLimitToCursorSQL := True;
   G_MaxRowCountForTableData := 25;         
   G_CtSqlMaxFetchCount := 1000;
   G_WriteConstraintToDescribeStr := True;
@@ -4474,7 +4490,7 @@ initialization
   G_MysqlVersion := 5;
   G_AutoCommit := True;
   G_RetainAfterCommit := False;    
-  G_ShowJdbcConsole := True;
+  G_ShowJdbcConsole := False;
   G_EnableCustomPropUI := False;       
   G_EnableAdvTbProp := False;
   G_EnableTbPropGenerate := True;

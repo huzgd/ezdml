@@ -539,6 +539,8 @@ begin
 end;
 
 function GetUrlData_Net(URL: string; PostData: string; Opts: string): string;
+var
+  cr:TCursor;
 begin
   if Pos('[SHOW_PROGRESS]', UpperCase(Opts)) = 0 then
   begin
@@ -546,8 +548,14 @@ begin
     Exit;
   end;
   {$IFNDEF WINDOWS}   
+  cr := Screen.Cursor;
+  Screen.Cursor:=crAppStart;
+  try
     Result := GetUrlData_Net_Ex(URL, PostData, Opts);
-    Exit;
+  finally
+    Screen.Cursor:=cr;
+  end;
+  Exit;
   {$ENDIF}
   with TUrlWaitor.Create do
   try

@@ -64,6 +64,7 @@ type
   protected
     FIsCursorType: Boolean;
     FCtMaxFetchCount: Integer;
+    FCtFetchCounter: Integer;
     function Fetch : boolean; override;
     procedure InternalOpen; override;
   public             
@@ -181,16 +182,20 @@ end;
 
 function TCtSQLQuery.Fetch: boolean;
 begin
-  if (FCtMaxFetchCount>0) and (Self.RecordCount >= FCtMaxFetchCount) then
+  if (FCtMaxFetchCount>0) and (FCtFetchCounter >= FCtMaxFetchCount) then
     Result := False
   else
+  begin
     Result:=inherited Fetch;
+    Inc(FCtFetchCounter);
+  end;
 end;
 
 procedure TCtSQLQuery.InternalOpen;
 begin                   
   try
     FIsCursorType := True;
+    FCtFetchCounter := 0;
     if G_SqlLogEnalbed then
       WriteSqlLog('OpenSQL: '+Self.SQL.Text);
     inherited InternalOpen;   

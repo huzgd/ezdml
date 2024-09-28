@@ -83,114 +83,118 @@ object FrameDML: TFrameDML
       Left = 52
       Top = 0
       Action = actFileOpen
+      DropdownMenu = PopupMenuOpenFile
+      Style = tbsDropDown
     end
     object ToolButtonDmlOpenURL: TToolButton
-      Left = 75
+      Left = 87
       Top = 0
       Action = actOpenURL
     end
     object ToolButtonDML03: TToolButton
-      Left = 98
+      Left = 110
       Top = 0
       Action = actFileSave
+      DropdownMenu = PopupMenuSaveFile
+      Style = tbsDropDown
     end
     object ToolButtonDMLShare: TToolButton
-      Left = 121
+      Left = 145
       Top = 0
       Action = actShareFile
     end
     object ToolButtonDMLSp1: TToolButton
-      Left = 144
+      Left = 168
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML04: TToolButton
-      Left = 149
+      Left = 173
       Top = 0
       Action = actRearrange
     end
     object ToolButtonDML05: TToolButton
-      Left = 172
+      Left = 196
       Top = 0
       Action = actCheckFKLinks
     end
     object ToolButtonDML06: TToolButton
-      Left = 195
+      Left = 219
       Top = 0
       Action = actBriefMode
     end
     object ToolButtonDML07: TToolButton
-      Left = 218
+      Left = 242
       Top = 0
       Action = actShowPhyView
     end
     object ToolButtonFindObjs: TToolButton
-      Left = 241
+      Left = 265
       Top = 0
       Action = actFindObject
     end
     object ToolButtonDML09: TToolButton
-      Left = 264
+      Left = 288
       Top = 0
       Action = actImportDB
     end
     object ToolButtonDML10: TToolButton
-      Left = 287
+      Left = 311
       Top = 0
       Action = actSetEntityColor
       Style = tbsButtonDrop
     end
     object ToolButtonDMLsp2: TToolButton
-      Left = 320
+      Left = 344
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML11: TToolButton
-      Left = 325
+      Left = 349
       Top = 0
       Action = actShowHideProps
     end
     object ToolButtonDML12: TToolButton
-      Left = 348
+      Left = 372
       Top = 0
       Action = actDeleteObj
     end
     object ToolButtonDMLsp3: TToolButton
-      Left = 371
+      Left = 395
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML14: TToolButton
-      Left = 376
+      Left = 400
       Top = 0
       Action = actNewObj
     end
     object ToolButtonDML15: TToolButton
-      Left = 399
+      Left = 423
       Top = 0
       Action = actNewText
     end
     object ToolButtonDML16: TToolButton
-      Left = 422
+      Left = 446
       Top = 0
       Action = actAddLink
     end
     object ToolButtonDML13: TToolButton
-      Left = 445
+      Left = 469
       Top = 0
       Action = actNewGroupBox
     end
     object ToolButtonDMLsp4: TToolButton
-      Left = 468
+      Left = 492
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonRun: TToolButton
-      Left = 473
+      Left = 497
       Hint = 'Run generation'
       Top = 0
       Caption = 'Run generation'
@@ -199,74 +203,74 @@ object FrameDML: TFrameDML
       Style = tbsButtonDrop
     end
     object ToolButtonDML17: TToolButton
-      Left = 506
+      Left = 530
       Top = 0
       Action = actRectSelect
     end
     object ToolButtonDML18: TToolButton
-      Left = 529
+      Left = 553
       Top = 0
       Action = actPan
     end
     object ToolButtonDML19: TToolButton
-      Left = 552
+      Left = 576
       Top = 0
       Action = actZoomIn
     end
     object ToolButtonDML20: TToolButton
-      Left = 575
+      Left = 599
       Top = 0
       Action = actZoomOut
     end
     object ToolButtonDML21: TToolButton
-      Left = 598
+      Left = 622
       Top = 0
       Action = actAutoA
     end
     object ToolButtonDMLsp5: TToolButton
-      Left = 621
+      Left = 645
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML22: TToolButton
-      Left = 626
+      Left = 650
       Top = 0
       Action = actBestFit
     end
     object ToolButtonDML23: TToolButton
-      Left = 649
+      Left = 673
       Top = 0
       Action = actRestore
     end
     object ToolButtonDML24: TToolButton
-      Left = 672
+      Left = 696
       Top = 0
       Action = actRefresh
     end
     object ToolButtonDMLsp6: TToolButton
-      Left = 695
+      Left = 719
       Height = 22
       Top = 0
       Style = tbsDivider
     end
     object ToolButtonDML25: TToolButton
-      Left = 700
+      Left = 724
       Top = 0
       Action = actColorStyles
     end
     object ToolButtonDML26: TToolButton
-      Left = 723
+      Left = 747
       Top = 0
       Action = actDMLObjProp
     end
     object ToolButtonFullScrn: TToolButton
-      Left = 746
+      Left = 770
       Top = 0
       Action = actFullScreen
     end
     object ToolButtonAI: TToolButton
-      Left = 769
+      Left = 793
       Hint = 'AI Assistant'
       Top = 0
       Caption = 'AI'
@@ -2148,29 +2152,6 @@ object FrameDML: TFrameDML
       Action = actResetObjLinks
       GroupIndex = 1
     end
-    object MenuItem_AI: TMenuItem
-      Caption = 'AI Assistant'
-      object PMNAI_GenTables: TMenuItem
-        Caption = 'Add More Tables'
-        ImageIndex = 76
-        OnClick = MNAI_GenTablesClick
-      end
-      object PMNAI_GenFields: TMenuItem
-        Caption = 'Add More Fields'
-        ImageIndex = 13
-        OnClick = MNAI_GenFieldsClick
-      end
-      object PMNAI_GenComments: TMenuItem
-        Caption = 'Generate Comments'
-        ImageIndex = 29
-        OnClick = MNAI_GenCommentsClick
-      end
-      object PMNAI_GenFKLinks: TMenuItem
-        Caption = 'Generate Foreign Keys'
-        ImageIndex = 75
-        OnClick = MNAI_GenFKLinksClick
-      end
-    end
     object MenuItem13: TMenuItem
       Caption = '-'
     end
@@ -2262,6 +2243,29 @@ object FrameDML: TFrameDML
       end
       object MenuItem6: TMenuItem
         Action = actBatCopyUpdateSQL
+      end
+    end
+    object MenuItem_AI: TMenuItem
+      Caption = 'AI Assistant'
+      object PMNAI_GenTables: TMenuItem
+        Caption = 'Add More Tables'
+        ImageIndex = 76
+        OnClick = MNAI_GenTablesClick
+      end
+      object PMNAI_GenFields: TMenuItem
+        Caption = 'Add More Fields'
+        ImageIndex = 13
+        OnClick = MNAI_GenFieldsClick
+      end
+      object PMNAI_GenComments: TMenuItem
+        Caption = 'Generate Comments'
+        ImageIndex = 29
+        OnClick = MNAI_GenCommentsClick
+      end
+      object PMNAI_GenFKLinks: TMenuItem
+        Caption = 'Generate Foreign Keys'
+        ImageIndex = 75
+        OnClick = MNAI_GenFKLinksClick
       end
     end
     object MenuItem16: TMenuItem
@@ -5337,6 +5341,44 @@ object FrameDML: TFrameDML
       Caption = 'Generate Foreign Keys'
       ImageIndex = 75
       OnClick = MNAI_GenFKLinksClick
+    end
+  end
+  object PopupMenuOpenFile: TPopupMenu
+    left = 274
+    top = 235
+    object MNOF_LocalFile: TMenuItem
+      Tag = 101
+      Caption = 'Open file'
+      OnClick = MNFile_OperClick
+    end
+    object MNOF_DbFile: TMenuItem
+      Tag = 102
+      Caption = 'Open database file'
+      OnClick = MNFile_OperClick
+    end
+    object MNOF_OnlineFile: TMenuItem
+      Tag = 103
+      Caption = 'Open online file'
+      OnClick = MNFile_OperClick
+    end
+  end
+  object PopupMenuSaveFile: TPopupMenu
+    left = 368
+    top = 260
+    object MNSF_LocalFile: TMenuItem
+      Tag = 201
+      Caption = 'Save as file...'
+      OnClick = MNFile_OperClick
+    end
+    object MNSF_DbFile: TMenuItem
+      Tag = 202
+      Caption = 'Save database file'
+      OnClick = MNFile_OperClick
+    end
+    object MNSF_OnlineFile: TMenuItem
+      Tag = 203
+      Caption = 'Share online...'
+      OnClick = MNFile_OperClick
     end
   end
 end

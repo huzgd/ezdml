@@ -16,5 +16,6 @@
 {"hash":79787546,"name":"tfrmsqlsvrdbconfig.rdbodbcconnstr.caption","sourcebytes":[79,68,66,67,32,67,111,110,110,101,99,116,105,111,110,32,83,116,114,105,110,103,58],"value":"ODBC Connection String:"},
 {"hash":213582195,"name":"tfrmsqlsvrdbconfig.btnsettings.caption","sourcebytes":[83,101,116,116,105,110,103,115],"value":"Settings"},
 {"hash":221676146,"name":"tfrmsqlsvrdbconfig.memojdbcconnstr.hint","sourcebytes":[70,111,114,109,97,116,58,32,117,114,108,61,106,100,98,99,58,115,113,108,115,101,114,118,101,114,58,47,47,108,111,99,97,108,104,111,115,116,58,49,52,51,51,35,53,57,35,100,97,116,97,98,97,115,101,78,97,109,101,61,68,98,78,97,109,101,59,100,114,105,118,101,114,61,99,111,109,46,109,105,99,114,111,115,111,102,116,46,115,113,108,115,101,114,118,101,114,46,106,100,98,99,46,83,81,76,83,101,114,118,101,114,68,114,105,118,101,114],"value":"Format: url=jdbc:sqlserver://localhost:1433#59#databaseName=DbName;driver=com.microsoft.sqlserver.jdbc.SQLServerDriver"},
-{"hash":166298218,"name":"tfrmsqlsvrdbconfig.rdbjdbcconnstr.caption","sourcebytes":[74,68,66,67,32,112,114,111,112,101,114,116,105,101,115,58],"value":"JDBC properties:"}
+{"hash":166298218,"name":"tfrmsqlsvrdbconfig.rdbjdbcconnstr.caption","sourcebytes":[74,68,66,67,32,112,114,111,112,101,114,116,105,101,115,58],"value":"JDBC properties:"},
+{"hash":250877909,"name":"tfrmsqlsvrdbconfig.ckbshowjdbcconsole.caption","sourcebytes":[83,104,111,119,32,74,68,66,67,32,99,111,110,115,111,108,101],"value":"Show JDBC console"}
 ]}

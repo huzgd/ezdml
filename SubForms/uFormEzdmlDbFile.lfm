@@ -539,4 +539,17 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
       FF00FF80FF00FF80FF00FF80FF00
     }
   end
+  object PopupMenuDbConn: TPopupMenu
+    left = 412
+    top = 200
+    object MenuItemDbConn: TMenuItem
+      Caption = 'Connect'
+      Default = True
+      OnClick = MenuItemDbConnClick
+    end
+    object MenuItemDedicatedConn: TMenuItem
+      Caption = 'Dedicated connect'
+      Enabled = False
+    end
+  end
 end

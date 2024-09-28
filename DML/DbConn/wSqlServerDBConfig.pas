@@ -16,6 +16,7 @@ type
     btnHelp: TButton;
     btnBrowseDsn: TButton;
     btnSettings: TButton;
+    ckbShowJdbcConsole: TCheckBox;
     edtDbName: TEdit;
     edtDsnName: TEdit;
     Label1: TLabel;
@@ -100,12 +101,14 @@ begin
   if not rdbJdbcConnStr.Checked then
   begin
     MemoJdbcConnStr.ParentColor := True;
-    MemoJdbcConnStr.Enabled := False;
+    MemoJdbcConnStr.Enabled := False;  
+    ckbShowJdbcConsole.Enabled := False;
   end
   else
   begin
     MemoJdbcConnStr.Color := clWindow;
     MemoJdbcConnStr.Enabled := True;
+    ckbShowJdbcConsole.Enabled := True;
   end;
 
   if not rbdOdbcDsn.Checked then
@@ -136,12 +139,20 @@ begin
 end;
 
 class function TfrmSqlSvrDBConfig.DoDBConfig(AString: string): string;
+  function NvlStr(s, def: string): string;
+  begin
+    if Trim(S)='' then
+      Result := def
+    else
+      Result := Trim(S);
+  end;
 var
   po: Integer;
   S, V: String;
 begin
   with TfrmSqlSvrDBConfig.Create(nil) do
-  try    
+  try                 
+    ckbShowJdbcConsole.Checked := G_ShowJdbcConsole;
     if Copy(AString, 1, 5)='JDBC:' then
     begin
       rdbJdbcConnStr.Checked := True;
@@ -153,7 +164,23 @@ begin
           if Copy(S, Length(S), 1)<>';' then
             S:=S+';';
         end;
-      MemoJdbcConnStr.Lines.Text := S;
+      MemoJdbcConnStr.Lines.Text := S;   
+      if S <> '' then
+      begin        
+        po := Pos('?', S);
+        if po>0 then
+          S:=Copy(S, 1, po-1)+';';
+        combAddr.Text := ExtractCompStr(S, 'jdbc:sqlserver://', ':', False, '');
+        if combAddr.Text <> '' then
+        begin
+          edtPort.Text := ExtractCompStr(S, 'jdbc:sqlserver://'+ combAddr.Text + ':', '#59#', True, '');
+          if edtPort.Text='' then     
+            edtPort.Text := ExtractCompStr(S, 'jdbc:sqlserver://'+ combAddr.Text + ':', ';', True, '');
+          edtDbName.Text := ExtractCompStr(S, '#59#databaseName=', '#59#', True);
+          if edtDbName.Text = '' then
+            edtDbName.Text := ExtractCompStr(S, '#59#databaseName=', ';', True);
+        end;
+      end;
     end
     else if Copy(AString, 1,4)='DSN:' then
     begin
@@ -198,6 +225,11 @@ begin
          edtPort.Text := '';
 
       combAddr.Text:=V;
+
+      if Trim(combAddr.Text) <> '' then
+      begin
+        MemoJdbcConnStr.Lines.Text := 'url=jdbc:sqlserver://'+Trim(combAddr.Text)+':'+NvlStr(edtPort.Text,'1433')+'#59#databaseName='+NvlStr(edtDbName.Text,'DbName')+';';
+      end;
     end;
 
     CheckControlReadOnly;
@@ -230,7 +262,8 @@ begin
       Result := Result + '@'+ Trim(edtDbName.Text);
   end
   else if rdbJdbcConnStr.Checked then
-  begin
+  begin             
+    G_ShowJdbcConsole := ckbShowJdbcConsole.Checked;
     if Trim(MemoJdbcConnStr.Lines.Text) = '' then
       Exit;
     S := Trim(MemoJdbcConnStr.Lines.Text);

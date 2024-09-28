@@ -18,7 +18,7 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Height = 25
     Top = 48
     Width = 392
-    TabOrder = 0
+    TabOrder = 1
   end
   object btnOK: TButton
     Left = 272
@@ -28,7 +28,7 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 1
+    TabOrder = 8
   end
   object btnCancel: TButton
     Left = 376
@@ -38,7 +38,7 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 2
+    TabOrder = 9
   end
   object btnHelp: TButton
     Left = 28
@@ -47,7 +47,7 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Width = 71
     Caption = 'Help'
     OnClick = btnHelpClick
-    TabOrder = 3
+    TabOrder = 10
   end
   object btnSettings: TButton
     Left = 108
@@ -56,7 +56,7 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Width = 71
     Caption = 'Settings'
     OnClick = btnSettingsClick
-    TabOrder = 4
+    TabOrder = 11
   end
   object rdbHttp: TRadioButton
     Left = 22
@@ -66,7 +66,7 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Caption = 'Http URL:'
     Checked = True
     OnChange = rdbHttpChange
-    TabOrder = 5
+    TabOrder = 0
     TabStop = True
   end
   object rdbJdbc: TRadioButton
@@ -76,7 +76,7 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Width = 55
     Caption = 'JDBC:'
     OnChange = rdbHttpChange
-    TabOrder = 6
+    TabOrder = 3
   end
   object btnStartHttpSv: TButton
     Left = 49
@@ -85,7 +85,7 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Width = 135
     Caption = 'Start JDBC Server'
     OnClick = btnStartHttpSvClick
-    TabOrder = 7
+    TabOrder = 2
   end
   object Label1: TLabel
     Left = 49
@@ -102,7 +102,7 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Width = 304
     ItemHeight = 17
     OnCloseUp = combDbTypeCloseUp
-    TabOrder = 8
+    TabOrder = 5
   end
   object Label2: TLabel
     Left = 49
@@ -117,14 +117,14 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Height = 25
     Top = 228
     Width = 304
-    TabOrder = 9
+    TabOrder = 6
   end
   object edtJdbcUrl: TEdit
     Left = 136
     Height = 25
     Top = 268
     Width = 304
-    TabOrder = 10
+    TabOrder = 7
   end
   object Label3: TLabel
     Left = 49
@@ -143,5 +143,13 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Caption = 'Note: JDBC requires the Java runtime environment, and database driver jar files should be placed in the EZDML/jdbc/lib directory.'
     ParentColor = False
     WordWrap = True
+  end
+  object ckbShowJdbcConsole: TCheckBox
+    Left = 304
+    Height = 21
+    Top = 140
+    Width = 136
+    Caption = 'Show JDBC console'
+    TabOrder = 4
   end
 end

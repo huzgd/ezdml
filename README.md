@@ -370,3 +370,6 @@ Copy/paste as JSON format, share models with encryption and publish to web, open
 
 2024-09-22 V3.62
 Temporary dedicated DB connection, max count of fecth rows，optimize SQL Tool and AI menus. Bugs fixed.
+
+2024-09-28 V3.63
+New tables template switching, SQL tools improve PG/MYSQL performance, optimize JDBC connections. Bugs fixed.

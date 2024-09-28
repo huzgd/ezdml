@@ -1080,6 +1080,9 @@ begin
     sql := FCtMetaTable.GenSelectSqlEx(G_MaxRowCountForTableData, '  t.*', '', '', '', dbType, fr.FCtMetaDatabase);
   if fr.AutoExecSql = sql then
     Exit;
+  if Assigned(fr.ResultDataSet) then
+    fr.ClearSql;      
+  fr.TimerInit.Tag := 1;
   fr.AutoExecSql := sql;
   fr.MemoSql.Lines.Text := sql;
   if not fr.Showing then

@@ -11,6 +11,7 @@ HugeModeTableCount            Integer
 MaxRowCountForTableData       Integer
 CtSqlMaxFetchCount            Integer
 LogicNamesForTableData        Bool
+AddLimitToCursorSQL           Bool
 CreateSeqForOracle            Bool
 OCILIB                        String
 NLSLang                       String
@@ -96,6 +97,7 @@ type
     btnTpnRepRemove: TButton;
     btnFDGenRemove: TButton;
     ckbAutoCommit: TCheckBox;
+    ckbAddLimitToCursorSQL: TCheckBox;
     ckbShowJdbcConsole: TCheckBox;
     ckbBigIntForIntKeys: TCheckBox;
     ckbCheckForUpdates: TCheckBox;
@@ -272,7 +274,8 @@ type
     FHugeModeTableCount: integer;
     FMaxRowCountForTableData: integer;
     FCtSqlMaxFetchCount: Integer;
-    FLogicNamesForTableData: boolean;
+    FLogicNamesForTableData: boolean;   
+    FAddLimitToCursorSQL: boolean;
     FCreateSeqForOracle: boolean;
     FOCILIB: string;
     FNLSLang: string;
@@ -746,7 +749,9 @@ begin
     FCtSqlMaxFetchCount := ini.ReadInteger('Options', 'CtSqlMaxFetchCount',
       1000);
     FLogicNamesForTableData := ini.ReadBool('Options', 'LogicNamesForTableData',
-      False);
+      False);                     
+    FAddLimitToCursorSQL := ini.ReadBool('Options', 'AddLimitToCursorSQL',
+      True);
     FCreateSeqForOracle := ini.ReadBool('Options', 'CreateSeqForOracle',
       False);
     FOCILIB := ini.ReadString('Options', 'OCILIB', '');
@@ -787,7 +792,7 @@ begin
     FAutoCommit :=
       ini.ReadBool('Options', 'AutoCommit', True);
     FShowJdbcConsole :=
-      ini.ReadBool('Options', 'ShowJdbcConsole', True);
+      ini.ReadBool('Options', 'ShowJdbcConsole', False);
     FEnableCustomPropUI := ini.ReadBool('Options', 'EnableCustomPropUI',
       False);       
     FCustomPropUICaption := ini.ReadString('Options', 'CustomPropUICaption', '');   
@@ -882,7 +887,8 @@ begin
   ckbCreateSeqForOracle.Checked := FCreateSeqForOracle;
 
   edtMaxRowCountForTableData.Text := IntToStr(FMaxRowCountForTableData);
-  ckbLogicNamesForTableData.Checked := FLogicNamesForTableData;           
+  ckbLogicNamesForTableData.Checked := FLogicNamesForTableData;
+  ckbAddLimitToCursorSQL.Checked := FAddLimitToCursorSQL;
   edtCtSqlMaxFetchCount.Text := IntToStr(FCtSqlMaxFetchCount);
 
   edtOCILIB.Text := FOCILIB;
@@ -997,7 +1003,8 @@ begin
 
   FMaxRowCountForTableData := StrToIntDef(edtMaxRowCountForTableData.Text,
     FMaxRowCountForTableData);
-  FLogicNamesForTableData := ckbLogicNamesForTableData.Checked;   
+  FLogicNamesForTableData := ckbLogicNamesForTableData.Checked;    
+  FAddLimitToCursorSQL := ckbAddLimitToCursorSQL.Checked;
   FCtSqlMaxFetchCount := StrToIntDef(edtCtSqlMaxFetchCount.Text,
     FCtSqlMaxFetchCount);
 
@@ -1047,7 +1054,8 @@ begin
     ini.WriteInteger('Options', 'HugeModeTableCount', FHugeModeTableCount);
     ini.WriteInteger('Options', 'MaxRowCountForTableData', FMaxRowCountForTableData);   
     ini.WriteInteger('Options', 'CtSqlMaxFetchCount', FCtSqlMaxFetchCount);
-    ini.WriteBool('Options', 'LogicNamesForTableData', FLogicNamesForTableData);
+    ini.WriteBool('Options', 'LogicNamesForTableData', FLogicNamesForTableData);     
+    ini.WriteBool('Options', 'AddLimitToCursorSQL', FAddLimitToCursorSQL);
     ini.WriteBool('Options', 'CreateSeqForOracle', FCreateSeqForOracle);
     ini.WriteString('Options', 'OCILIB', FOCILIB);                        
     ini.WriteString('Options', 'NLSLang', FNLSLang);

@@ -186,6 +186,31 @@ var
 {$ELSE}     
   G_SysIsUtf8Encoding: Boolean = True; //系统是否UTF8编码？LAZARUS为TRUE，BDS为FALSE
 {$ENDIF}
+      
+  CtFormatSettings : TFormatSettings = (
+    CurrencyFormat: 1;
+    NegCurrFormat: 5;
+    ThousandSeparator: ',';
+    DecimalSeparator: '.';
+    CurrencyDecimals: 2;
+    DateSeparator: '-';
+    TimeSeparator: ':';
+    ListSeparator: ',';
+    CurrencyString: '$';
+    ShortDateFormat: 'yyyy-mm-dd';
+    LongDateFormat: 'dd" "mmmm" "yyyy';
+    TimeAMString: 'AM';
+    TimePMString: 'PM';
+    ShortTimeFormat: 'hh:nn';
+    LongTimeFormat: 'hh:nn:ss';
+    ShortMonthNames: ('Jan','Feb','Mar','Apr','May','Jun',
+                      'Jul','Aug','Sep','Oct','Nov','Dec');
+    LongMonthNames: ('January','February','March','April','May','June',
+                     'July','August','September','October','November','December');
+    ShortDayNames: ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
+    LongDayNames:  ('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+    TwoDigitYearCenturyWindow: 50;
+  );
 
 resourcestring
   srEzdmlNewVersionNeeded = 'Data version not supported. You may need a newer version of EZDML.';  
@@ -457,15 +482,14 @@ begin
   if S = '' then
     Double(PropValue) := 0
   else
-  try       
-    if System.Pos(DateSeparator, S)=0 then   //added by huz 20210329
+  try
+    if System.Pos('-', S)=0 then   //added by huz 20210329
     begin
-      if (DateSeparator='/') and (System.Pos('-', S)>0) then
-        S:=StringReplace(S,'-','/',[rfReplaceAll])
-      else if (DateSeparator='-') and (System.Pos('/', S)>0) then
+      if (System.Pos('/', S)>0) then
         S:=StringReplace(S,'/','-',[rfReplaceAll]);
     end;
-    PropValue := StrToDateTime(S);
+    TryStrToDateTime(S, PropValue, CtFormatSettings); //changed by huz 20240731
+    //PropValue := StrToDateTime(S, CtFormatSettings);
   except
     on Exception do
       if RaiseErrIfFailed then
@@ -593,7 +617,7 @@ end;
 procedure TCtObjSerialer.WriteDate(const PropName: string;
   const PropValue: TDateTime);
 begin
-  WriteString(PropName, DateTimeToStr(PropValue));
+  WriteString(PropName, DateTimeToStr(PropValue, CtFormatSettings));
 end;
 
 procedure TCtObjSerialer.WriteFloat(const PropName: string;

@@ -13,5 +13,6 @@
 {"hash":77164181,"name":"tfrmcommdbconfig.btnbrowsedsn.caption","sourcebytes":[66,114,111,119,115,101],"value":"Browse"},
 {"hash":79787546,"name":"tfrmcommdbconfig.rdbodbcconnstr.caption","sourcebytes":[79,68,66,67,32,67,111,110,110,101,99,116,105,111,110,32,83,116,114,105,110,103,58],"value":"ODBC Connection String:"},
 {"hash":166298218,"name":"tfrmcommdbconfig.rdbjdbcconnstr.caption","sourcebytes":[74,68,66,67,32,112,114,111,112,101,114,116,105,101,115,58],"value":"JDBC properties:"},
-{"hash":38908098,"name":"tfrmcommdbconfig.memojdbcconnstr.hint","sourcebytes":[70,111,114,109,97,116,58,32,117,114,108,61,106,100,98,99,58,120,120,120,58,64,49,57,50,46,49,54,56,46,49,46,49,58,120,120,120,47,100,98,59,100,114,105,118,101,114,61,99,111,109,46,120,120,120,46,68,114,105,118,101,114],"value":"Format: url=jdbc:xxx:@192.168.1.1:xxx/db;driver=com.xxx.Driver"}
+{"hash":38908098,"name":"tfrmcommdbconfig.memojdbcconnstr.hint","sourcebytes":[70,111,114,109,97,116,58,32,117,114,108,61,106,100,98,99,58,120,120,120,58,64,49,57,50,46,49,54,56,46,49,46,49,58,120,120,120,47,100,98,59,100,114,105,118,101,114,61,99,111,109,46,120,120,120,46,68,114,105,118,101,114],"value":"Format: url=jdbc:xxx:@192.168.1.1:xxx/db;driver=com.xxx.Driver"},
+{"hash":250877909,"name":"tfrmcommdbconfig.ckbshowjdbcconsole.caption","sourcebytes":[83,104,111,119,32,74,68,66,67,32,99,111,110,115,111,108,101],"value":"Show JDBC console"}
 ]}

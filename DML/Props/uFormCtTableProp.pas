@@ -19,6 +19,7 @@ type
     actCnWordSegment: TAction;
     actUnderlineToCamelCase: TAction;
     bbtnView: TBitBtn;
+    btnNewTbTemplate: TButton;
     Label1: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
@@ -46,6 +47,7 @@ type
     CheckwithMyDicttxt1: TMenuItem;
     actConvertChnToPy: TAction;
     ConvertChinesetoPinYin1: TMenuItem;
+    PopupMenuNewTbTmpls: TPopupMenu;
     TimerDelayCmd: TTimer;
     procedure actCameCaselToUnderlineExecute(Sender: TObject);
     procedure actCheckWithMyDictExecute(Sender: TObject);
@@ -53,6 +55,7 @@ type
     procedure actUnderlineToCamelCaseExecute(Sender: TObject);
     procedure bbtnViewClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
+    procedure btnNewTbTemplateClick(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormDeactivate(Sender: TObject);
@@ -82,6 +85,8 @@ type
     FInitTbJson: string;
     procedure DoCapitalizeProc(sType: string);
     procedure _DoGridEscape(Sender: TObject);
+    procedure CreateNewTbTmplMenus;    
+    procedure MN_NewTbTmpl_Click(Sender: TObject);
   public
     { Public declarations }
     procedure LoadIni;
@@ -198,6 +203,10 @@ begin
   bOk := False;
   with frm do
     try
+      if bIsNew and atb.IsTable then
+      begin
+        CreateNewTbTmplMenus;
+      end;
       if bReadOnly then
         FSaveColIni := 'DialogView'
       else
@@ -756,6 +765,14 @@ begin
   Close;
 end;
 
+procedure TfrmCtTableProp.btnNewTbTemplateClick(Sender: TObject);
+var
+  pt: TPoint;
+begin
+  pt := btnNewTbTemplate.ClientToScreen(Point(0, btnNewTbTemplate.Height));
+  PopupMenuNewTbTmpls.Popup(pt.X, pt.Y);
+end;
+
 procedure TfrmCtTableProp.btnOkClick(Sender: TObject);
 var
   ATb: TCtMetaTable;
@@ -860,6 +877,80 @@ end;
 procedure TfrmCtTableProp._DoGridEscape(Sender: TObject);
 begin
   Close;
+end;
+
+procedure TfrmCtTableProp.CreateNewTbTmplMenus;
+  procedure AddNtMenu(AFn, ADir: string);
+  var
+    S, tfn: String;
+    mn: TMenuItem;
+  begin
+    tfn := FolderAddFileName(ADir, AFn);   
+    mn:= TMenuItem.Create(Self);
+    S:=ChangeFileExt(AFn,'');
+    S:=Copy(S, 11, Length(S));
+    mn.Caption := S;
+    mn.Hint := tfn;
+    mn.OnClick:=MN_NewTbTmpl_Click;
+    PopupMenuNewTbTmpls.Items.Add(mn);
+  end;
+var
+  Sr: TSearchRec;
+  AFolderName, fn, ext: string;
+begin
+  AFolderName := GetFolderPathOfAppExe('Templates');
+  if not DirectoryExists(AFolderName) then
+    Exit;
+  PopupMenuNewTbTmpls.Items.Clear;
+  if FindFirst(FolderAddFileName(AFolderName, 'new_table_*.txt'),
+    SysUtils.faAnyFile,
+    //SysUtils.faAnyFile + SysUtils.faHidden + SysUtils.faSysFile + SysUtils.faDirectory + SysUtils.faArchive,
+    Sr) = 0 then
+    try
+      repeat
+        if (Sr.Name = '.') or (Sr.Name = '..') then
+          Continue;
+        if (Sr.Attr and SysUtils.faDirectory) <> 0 then
+          Continue;
+        fn := LowerCase(Sr.Name);
+        if Pos('new_table_',fn)<>1 then
+          Continue;
+        ext := ExtractFileExt(fn);
+        if (ext <> '.txt') then
+          Continue;
+
+        AddNtMenu(Sr.Name, AFolderName);
+      until FindNext(Sr) <> 0;
+    finally
+      FindClose(Sr);
+    end;
+  if PopupMenuNewTbTmpls.Items.Count > 0 then
+    btnNewTbTemplate.Visible := True;
+end;
+
+procedure TfrmCtTableProp.MN_NewTbTmpl_Click(Sender: TObject);
+var
+  S, fn: String;
+  ss: TStringList;
+begin
+  fn:=TMenuItem(Sender).Hint;
+  if not FileExists(fn) then
+    Exit;
+  ss := TStringList.Create;
+  try
+    ss.LoadFromFile(fn);
+    S := ss.Text;
+    if Copy(S, 1, 2) = #$FE#$FF then
+      Delete(S, 1, 2)
+    else if Copy(S, 1, 2) = #$FE#$FE then
+      Delete(S, 1, 2)
+    else if Copy(S, 1, 3) = #$EF#$BB#$BF then
+      Delete(S, 1, 3);
+    FTempMetaTable.Describe := S;
+    FFrameCtTableProp.Init(FTempMetaTable, FReadOnlyMode);
+  finally
+    ss.Free;
+  end;
 end;
 
 procedure TfrmCtTableProp.LoadIni;

@@ -115,12 +115,12 @@
 {"hash":227304142,"name":"tframedml.actsharefile.hint","sourcebytes":[79,110,108,105,110,101,32,115,104,97,114,101,46,46,46],"value":"Online share..."},
 {"hash":56382238,"name":"tframedml.actopenurl.caption","sourcebytes":[79,110,108,105,110,101,32,111,112,101,110,46,46,46],"value":"Online open..."},
 {"hash":56382238,"name":"tframedml.actopenurl.hint","sourcebytes":[79,110,108,105,110,101,32,111,112,101,110,46,46,46],"value":"Online open..."},
+{"hash":161623769,"name":"tframedml.mn_batchcopy.caption","sourcebytes":[66,97,116,99,104,32,99,111,112,121],"value":"Batch copy"},
 {"hash":240251124,"name":"tframedml.menuitem_ai.caption","sourcebytes":[65,73,32,65,115,115,105,115,116,97,110,116],"value":"AI Assistant"},
 {"hash":66305299,"name":"tframedml.pmnai_gentables.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,84,97,98,108,101,115],"value":"Add More Tables"},
 {"hash":43756899,"name":"tframedml.pmnai_genfields.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,70,105,101,108,100,115],"value":"Add More Fields"},
 {"hash":251925971,"name":"tframedml.pmnai_gencomments.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,67,111,109,109,101,110,116,115],"value":"Generate Comments"},
 {"hash":236671299,"name":"tframedml.pmnai_genfklinks.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,70,111,114,101,105,103,110,32,75,101,121,115],"value":"Generate Foreign Keys"},
-{"hash":161623769,"name":"tframedml.mn_batchcopy.caption","sourcebytes":[66,97,116,99,104,32,99,111,112,121],"value":"Batch copy"},
 {"hash":10799477,"name":"tframedml.mn_capitalize.caption","sourcebytes":[67,97,112,105,116,97,108,105,122,101],"value":"Capitalize"},
 {"hash":6306037,"name":"tframedml.mnrun_gensql.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,68,97,116,97,98,97,115,101],"value":"Generate Database"},
 {"hash":102743777,"name":"tframedml.mnrun_gendata.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,84,101,115,116,32,68,97,116,97],"value":"Generate Test Data"},
@@ -130,5 +130,11 @@
 {"hash":66305299,"name":"tframedml.mnai_gentables.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,84,97,98,108,101,115],"value":"Add More Tables"},
 {"hash":43756899,"name":"tframedml.mnai_genfields.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,70,105,101,108,100,115],"value":"Add More Fields"},
 {"hash":251925971,"name":"tframedml.mnai_gencomments.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,67,111,109,109,101,110,116,115],"value":"Generate Comments"},
-{"hash":236671299,"name":"tframedml.mnai_genfklinks.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,70,111,114,101,105,103,110,32,75,101,121,115],"value":"Generate Foreign Keys"}
+{"hash":236671299,"name":"tframedml.mnai_genfklinks.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,70,111,114,101,105,103,110,32,75,101,121,115],"value":"Generate Foreign Keys"},
+{"hash":201759301,"name":"tframedml.mnof_localfile.caption","sourcebytes":[79,112,101,110,32,102,105,108,101],"value":"Open file"},
+{"hash":110786757,"name":"tframedml.mnof_dbfile.caption","sourcebytes":[79,112,101,110,32,100,97,116,97,98,97,115,101,32,102,105,108,101],"value":"Open database file"},
+{"hash":67632229,"name":"tframedml.mnof_onlinefile.caption","sourcebytes":[79,112,101,110,32,111,110,108,105,110,101,32,102,105,108,101],"value":"Open online file"},
+{"hash":9747950,"name":"tframedml.mnsf_localfile.caption","sourcebytes":[83,97,118,101,32,97,115,32,102,105,108,101,46,46,46],"value":"Save as file..."},
+{"hash":107246021,"name":"tframedml.mnsf_dbfile.caption","sourcebytes":[83,97,118,101,32,100,97,116,97,98,97,115,101,32,102,105,108,101],"value":"Save database file"},
+{"hash":176377534,"name":"tframedml.mnsf_onlinefile.caption","sourcebytes":[83,104,97,114,101,32,111,110,108,105,110,101,46,46,46],"value":"Share online..."}
 ]}

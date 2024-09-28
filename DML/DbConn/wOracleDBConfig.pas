@@ -16,6 +16,7 @@ type
     btnBrowseDsn: TButton;
     btnHelp: TButton;
     btnSettings: TButton;
+    ckbShowJdbcConsole: TCheckBox;
     edtDsnName: TEdit;
     Label1: TLabel;
     edtIP: TEdit;
@@ -109,12 +110,14 @@ begin
   if not rdbJdbcConnStr.Checked then
   begin
     MemoJdbcConnStr.ParentColor := True;
-    MemoJdbcConnStr.Enabled := False;
+    MemoJdbcConnStr.Enabled := False; 
+    ckbShowJdbcConsole.Enabled := False;
   end
   else
   begin
     MemoJdbcConnStr.Color := clWindow;
     MemoJdbcConnStr.Enabled := True;
+    ckbShowJdbcConsole.Enabled := True;
   end;
 
   if not rbdOdbcDsn.Checked then
@@ -144,13 +147,21 @@ begin
   end;
 end;
 
-class function TfrmOraDBConfig.DoOracleNetConfig(AString: string): string;
+class function TfrmOraDBConfig.DoOracleNetConfig(AString: string): string;  
+  function NvlStr(s, def: string): string;
+  begin
+    if Trim(S)='' then
+      Result := def
+    else
+      Result := Trim(S);
+  end;
 var
   po: Integer;
-  V, S: string;
+  V, S, hd: string;
 begin
   with TfrmOraDBConfig.Create(nil) do
-  try
+  try         
+    ckbShowJdbcConsole.Checked := G_ShowJdbcConsole;
     if Copy(AString, 1, 5)='JDBC:' then
     begin
       rdbJdbcConnStr.Checked := True;
@@ -163,6 +174,30 @@ begin
             S:=S+';';
         end;
       MemoJdbcConnStr.Lines.Text := S;
+      if S <> '' then
+      begin               
+        po := Pos('?', S);
+        if po>0 then
+          S:=Copy(S, 1, po-1)+';';
+        hd := 'jdbc:oracle:thin:@';       
+        edtIP.Text := ExtractCompStr(S, hd, ':', False, '');
+        if edtIP.Text = '' then
+        begin
+          hd := 'jdbc:dm://';
+          edtIP.Text := ExtractCompStr(S, hd, ':', False, '');
+        end;
+        if edtIP.Text <> '' then
+        begin
+          edtPort.Text := ExtractCompStr(S, hd+ edtIP.Text + ':', ':', True, '');
+          if edtPort.Text = '' then       
+            edtPort.Text := ExtractCompStr(S, hd+ edtIP.Text + ':', ';', True, '');
+          edtSvcName.Text := ExtractCompStr(S, hd+ edtIP.Text + ':'+edtPort.Text+':', ';', True);
+          if Trim(edtSvcName.Text)<>'' then
+            combNetSvcName.Text :=  edtIP.Text + ':'+edtPort.Text+'/'+edtSvcName.Text
+          else
+            combNetSvcName.Text :=  edtIP.Text + ':'+edtPort.Text;
+        end;
+      end;
     end
     else if Copy(AString, 1,4)='DSN:' then
     begin
@@ -199,6 +234,13 @@ begin
         end;
         edtIP.Text := V;
       end;
+
+
+      if Trim(edtIP.Text) <> '' then
+      begin
+        S := 'url=jdbc:oracle:thin:@'+Trim(edtIP.Text)+':'+NvlStr(edtPort.Text,'1521')+':'+NvlStr(edtSvcName.Text,'orcl')+';';
+        MemoJdbcConnStr.Lines.Text := S;
+      end;
     end;
     CheckControlReadOnly;
     if ShowModal = mrOk then
@@ -225,7 +267,8 @@ begin
      // edtIP.Text + ')(PORT = ' + edtPort.Text + ')) ) (CONNECT_DATA = (SERVICE_NAME = ' + edtSvcName.Text + ') ) )';
   end           
   else if rdbJdbcConnStr.Checked then
-  begin
+  begin            
+    G_ShowJdbcConsole := ckbShowJdbcConsole.Checked;
     if Trim(MemoJdbcConnStr.Lines.Text) = '' then
       Exit;
     S := Trim(MemoJdbcConnStr.Lines.Text);

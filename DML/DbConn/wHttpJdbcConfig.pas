@@ -16,6 +16,7 @@ type
     btnHelp: TButton;
     btnSettings: TButton;
     btnStartHttpSv: TButton;
+    ckbShowJdbcConsole: TCheckBox;
     combDbType: TComboBox;
     edtDriver: TEdit;
     edtJdbcUrl: TEdit;
@@ -62,7 +63,8 @@ var
 begin
   //注意：JDBC需要安装java运行环境，数据库驱动的相关jar包要放入EZDML/jdbc/lib目录。
   with TfrmHttpJdbcConfig.Create(nil) do
-  try
+  try                
+    ckbShowJdbcConsole.Checked := G_ShowJdbcConsole;
     if Copy(AString, 1, 5)='JDBC:' then
     begin
       rdbJdbc.Checked := True;
@@ -297,7 +299,8 @@ begin
     Result := Trim(edtHttpUrl.Text);
   end    
   else if rdbJdbc.Checked then
-  begin
+  begin           
+    G_ShowJdbcConsole := ckbShowJdbcConsole.Checked;
     S := Trim(edtJdbcUrl.Text);
     dbTp := GetDefaultDbTypeOfUrl(S);
     drv := GetDefaultDbDriverOfUrl(S);
@@ -344,7 +347,8 @@ begin
     edtDriver.ParentColor := True;
     edtDriver.Enabled := False;
     edtJdbcUrl.ParentColor := True;
-    edtJdbcUrl.Enabled := False;
+    edtJdbcUrl.Enabled := False; 
+    ckbShowJdbcConsole.Enabled := False;
   end
   else
   begin
@@ -353,6 +357,7 @@ begin
     edtDriver.Enabled := True;
     edtJdbcUrl.Color := clWindow;
     edtJdbcUrl.Enabled := True;
+    ckbShowJdbcConsole.Enabled := True;
   end;
 
 end;
