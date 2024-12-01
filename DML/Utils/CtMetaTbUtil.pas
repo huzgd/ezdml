@@ -7,11 +7,13 @@
 interface
 
 uses
-  Classes, SysUtils, CtMetaTable;
+  Classes, SysUtils, CtMetaData, CtMetaTable;
 
 
 function TryExtractLogicNameFromMemo(AObj: TCtMetaObject; var AMemo: string): string;
 //function TryExtractLogicName(AMemo: string): string;
+
+function GenRandBgColors(tbs: TCtMetaTableList): Integer;
 
 implementation
 
@@ -26,17 +28,36 @@ begin
   if Length(Result) > len then
     Result := Copy(Result, 1, len);
 end;
+                                               
+function IsPureAnsiText(S: string): Boolean;
+var
+  Idx, v: Integer;
+begin
+  Result := True;
+  for Idx := 1 to Length(S) do
+  begin
+    v := Ord(S[Idx]);
+    if (v=9) or (v=10) or (v=13) then
+      Continue;
+    if (V>=32) and (V<127) then
+      Continue;
+    Result := False;
+    Break;
+  end;
+end;
 
 function GetSplitPosOfMemo(AMemo: string): integer;
 var
   CurP, EndP: PChar;
   Len, po: integer;
   S, V: string;
+  bAnsi: Boolean;
 begin
   Result := 0;
   S := AMemo;
   if S = '' then
     Exit;
+  bAnsi := IsPureAnsiText(S);
   CurP := PChar(S);
   EndP := CurP + length(S);
   po := 1;
@@ -45,7 +66,7 @@ begin
     Len := UTF8CodepointSize(CurP);
     V := Copy(S, po, Len);
     //ctalert(V+' s:'+S+' len:'+IntToStr(len));
-    if (V = ' ') or
+    if ((V = ' ') and not bAnsi) or
       (V = #13) or
       (V = #10) or
       (V = #9) or
@@ -327,6 +348,83 @@ begin
 end;
 
 {$ENDIF}
+
+function GenRandBgColors(tbs: TCtMetaTableList): Integer;
+
+  function GetLinkCount(atb: TCtMetaTable): Integer;
+  var
+    tbN: string;
+    J, K: Integer;
+    fd: TCtMetaField;   
+    tb: TCtMetaTable;
+  begin
+    Result := 0;
+    for K:=0 to atb.MetaFields.Count -1 do
+    begin
+      fd := atb.MetaFields.Items[K];
+      if (fd.RelateTable <> '') and (fd.RelateField <> '') then
+        Inc(Result);
+    end;
+
+    tbN := atb.Name;
+    for J:=0 to tbs.Count-1 do
+    begin
+      tb := tbs.Items[J];
+      if tb=atb then
+        Continue;
+      for K:=0 to tb.MetaFields.Count -1 do
+      begin
+        fd := tb.MetaFields.Items[K];
+        if fd.DataLevel = ctdlDeleted then
+          Continue;
+        if (UpperCase(fd.RelateTable)=UpperCase(tbN)) and (fd.RelateField<>'') then
+        begin
+          Inc(Result);
+        end;
+      end;
+    end;
+  end;
+
+  function GetRandColor(lkC: Integer): Integer;
+  var
+    r, g, b, lk, dd: Integer;
+  begin
+    lk := lkC+1;
+    lk := lk*lk;
+    if lk>48 then
+      lk := 48;
+    if lk<10 then
+      lk := 10;
+
+    while True do
+    begin
+      r := 245-Random(lk);
+      g := 245-Random(lk);
+      b := 245-Random(lk);
+      dd := Abs(r-g)+Abs(g-b);
+      if dd>12 then
+        Break;
+    end;
+    Result := r+(g shl 8) + (b shl 16);
+  end;
+var
+  I, K: Integer;
+  tb: TCtMetaTable;
+begin
+  Result := 0;
+  for I:=0 to tbs.Count-1 do
+  begin
+    tb := tbs.Items[I];
+    if (tb.BgColor<>0) and (tb.BgColor<>$ffffff) then
+      Continue;
+    K := GetLinkCount(tb);
+    if K>=2 then
+    begin
+      tb.BgColor := GetRandColor(K);
+      Inc(Result);
+    end;
+  end;
+end;
 
 end.
 

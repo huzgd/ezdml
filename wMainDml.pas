@@ -48,6 +48,7 @@ type
     actGenerateTestData: TAction;
     actImportExcel: TAction;
     actChatGPT: TAction;
+    actImportDDLSql: TAction;
     actOpenUrl: TAction;
     actShareFile: TAction;
     actNewAppWin: TAction;
@@ -64,6 +65,7 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MN_ImportDDLSql: TMenuItem;
     MNAI_GenFKLinks: TMenuItem;
     MNAI_GenComments: TMenuItem;
     MNAI_GenFields: TMenuItem;
@@ -176,6 +178,7 @@ type
     procedure actGenerateLastCodeExecute(Sender: TObject);
     procedure actGenerateTestDataExecute(Sender: TObject);
     procedure actHttpServerExecute(Sender: TObject);
+    procedure actImportDDLSqlExecute(Sender: TObject);
     procedure actImportExcelExecute(Sender: TObject);
     procedure actImportFileExecute(Sender: TObject);
     procedure actLoadFromDbExecute(Sender: TObject);
@@ -347,6 +350,7 @@ uses
   {$ifndef EZDML_LITE}
   CtMetaPdmImporter, DmlPasScript, DmlGlobalPasScript, ide_editor, uFormGenCode,
   uFormHttpSvr, FindHexDlg, wExcelImp, DmlScriptControl, uFormGenData, CtTestDataGen,
+  wDDLSqlImp,
   {$else}
   DmlGlobalPasScriptLite, DmlPasScriptLite,
   {$endif}  
@@ -1089,6 +1093,7 @@ begin
   actGenerateCode.Visible:=False;
   actCharCodeTool.Visible:=False;    
   actImportExcel.Visible:=False;
+  actImportDDLSql.Visible:=False;
   actCheckUpdates.Visible:=False;   
   actGenerateTestData.Visible:=False;
   {$endif}
@@ -3691,6 +3696,37 @@ begin
   {$endif}
 end;
 
+procedure TfrmMainDml.actImportDDLSqlExecute(Sender: TObject);
+var
+  oc: Integer;
+begin
+  {$ifndef EZDML_LITE}
+  with TfrmDDLSqlImp.Create(Self) do
+  try
+    FCtTbList := Self.FCtDataModelList.CurDataModel.Tables;
+    FCtTbList.Pack;
+    oc := FCtTbList.Count;   
+    FCtDataModelList.ModelFileConfig.LastModel := '';
+    if ShowModal = mrOk then
+    begin
+      FFrameCtTableDef.FFrameCtTableList.RefreshTheTree;
+      FFrameCtTableDef.RefreshProp;
+      if oc=0 then
+        if FCtTbList.Count > 2 then
+        begin
+          FCtDataModelList.ModelFileConfig.LastModel := Self.FCtDataModelList.CurDataModel.Name;    
+          TimerDelayCmd.Tag := 11;
+          TimerDelayCmd.Enabled := True;
+        end;
+    end;
+  finally
+    Release;
+  end;
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
+end;
+
 procedure TfrmMainDml.actImportExcelExecute(Sender: TObject);
 begin
   {$ifndef EZDML_LITE}
@@ -4397,26 +4433,32 @@ begin
   end;
 end;
 
-procedure TfrmMainDml.RecreateRecentMn;
-var
-  mn: TMenuItem;
-  I: integer;
-  fn: string;
-begin
-  MN_Recentfiles.Clear;
-  for I := 0 to FRecentFiles.Count - 1 do
+
+procedure TfrmMainDml.RecreateRecentMn;  
+  procedure RecreateRecentMnEx(Pmns: TMenuItem);
+  var
+    mn: TMenuItem;
+    I: integer;
+    fn: string;
   begin
-    fn := FRecentFiles[I];
-    mn := TMenuItem.Create(Self);     
-    if IsDbFile(fn) then              
-      mn.Caption := '@'+ExtractDmlFileName(fn)
-    else
-      mn.Caption := ExtractFileName(fn);
-    mn.Hint := fn;
-    mn.Tag := I;
-    mn.OnClick := _OnRecentFileClick;
-    MN_Recentfiles.Add(mn);
+    Pmns.Clear;
+    for I := 0 to FRecentFiles.Count - 1 do
+    begin
+      fn := FRecentFiles[I];
+      mn := TMenuItem.Create(Self);
+      if IsDbFile(fn) then
+        mn.Caption := '@'+ExtractDmlFileName(fn)
+      else
+        mn.Caption := ExtractFileName(fn);
+      mn.Hint := fn;
+      mn.Tag := I;
+      mn.OnClick := _OnRecentFileClick;
+      Pmns.Add(mn);
+    end;
   end;
+begin
+  RecreateRecentMnEx(MN_Recentfiles);                
+  RecreateRecentMnEx(FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.MNOF_Recentfiles);
 end;
 
 procedure TfrmMainDml.RememberFileDateSize;

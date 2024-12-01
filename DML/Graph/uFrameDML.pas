@@ -55,6 +55,8 @@ type
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
     MenuItem16: TMenuItem;
+    MenuItem17: TMenuItem;
+    MNOF_Recentfiles: TMenuItem;
     MNSF_DbFile: TMenuItem;
     MNSF_LocalFile: TMenuItem;
     MNOF_OnlineFile: TMenuItem;

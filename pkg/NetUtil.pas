@@ -623,7 +623,7 @@ var
   S: string;
 begin
   Result := '';
-  S := Utf8Encode(VS);
+  S := VS;//Utf8Encode(VS);
   InQueryString := False;
   for Idx := 1 to Length(S) do
   begin

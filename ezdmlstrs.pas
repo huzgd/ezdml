@@ -17,8 +17,8 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.63';
-  srEzdmlVersionDate = '2024-09-28';
+  srEzdmlVersionNum = '3.64';
+  srEzdmlVersionDate = '2024-11-30';
 
 {$ifdef EZDML_LITE}
 

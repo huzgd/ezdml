@@ -844,6 +844,10 @@ msgstr ""
 msgid "Error: object name \"%s\" contains invalid characters"
 msgstr ""
 
+#: dmlstrs.srjdbccheckprompt
+msgid "JVM not found or manual config needed. You can manually run the HTTP_JDBC in a separate command line (Shift+OK=I have run HTTP_JDBC server manually)."
+msgstr ""
+
 #: dmlstrs.srlink
 msgctxt "dmlstrs.srlink"
 msgid "Link"
@@ -3623,6 +3627,11 @@ msgctxt "tframedml.mnof_onlinefile.caption"
 msgid "Open online file"
 msgstr ""
 
+#: tframedml.mnof_recentfiles.caption
+msgctxt "tframedml.mnof_recentfiles.caption"
+msgid "Recent files"
+msgstr ""
+
 #: tframedml.mnrun_gencode.caption
 msgctxt "tframedml.mnrun_gencode.caption"
 msgid "Generate Code"
@@ -5254,6 +5263,10 @@ msgctxt "tfrmmaindml.actimportdatabase.caption"
 msgid "Import Database"
 msgstr ""
 
+#: tfrmmaindml.actimportddlsql.caption
+msgid "Import DDL SQL..."
+msgstr ""
+
 #: tfrmmaindml.actimportexcel.caption
 msgid "Import Excel..."
 msgstr ""
@@ -5442,6 +5455,7 @@ msgid "Model"
 msgstr ""
 
 #: tfrmmaindml.mn_recentfiles.caption
+msgctxt "tfrmmaindml.mn_recentfiles.caption"
 msgid "Recent files"
 msgstr ""
 

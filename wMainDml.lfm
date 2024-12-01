@@ -166,6 +166,9 @@ object frmMainDml: TfrmMainDml
       object MnImportDatabase: TMenuItem
         Action = actImportDatabase
       end
+      object MN_ImportDDLSql: TMenuItem
+        Action = actImportDDLSql
+      end
       object MNImportExcel: TMenuItem
         Action = actImportExcel
       end
@@ -476,7 +479,7 @@ object frmMainDml: TfrmMainDml
       OnExecute = actEditGlobalScriptExecute
     end
     object actImportFile: TAction
-      Category = 'File'
+      Category = 'Model'
       Caption = 'Import PDM File...'
       OnExecute = actImportFileExecute
     end
@@ -553,7 +556,7 @@ object frmMainDml: TfrmMainDml
       OnExecute = actSaveToDbExecute
     end
     object actImportExcel: TAction
-      Category = 'File'
+      Category = 'Model'
       Caption = 'Import Excel...'
       OnExecute = actImportExcelExecute
     end
@@ -578,6 +581,11 @@ object frmMainDml: TfrmMainDml
       Category = 'File'
       Caption = 'Online open...'
       OnExecute = actOpenUrlExecute
+    end
+    object actImportDDLSql: TAction
+      Category = 'Model'
+      Caption = 'Import DDL SQL...'
+      OnExecute = actImportDDLSqlExecute
     end
   end
   object TimerAutoSave: TTimer

@@ -57,7 +57,7 @@ uses
   CtObjJsonSerial,
   NetUtil,
   PasGen_Cpp, PasGen_Excel, PasGen_Word, PasGen_Test, PasGen_AddAllTables,
-  PasGen_JDBCServer;
+  PasGen_JDBCServer, PasGen_RandColor;
 
 procedure RegisterPasLite(Name: string; PsClass: TDmlPasScriptorLiteClass; Cat: String);
 var

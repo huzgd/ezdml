@@ -329,7 +329,7 @@ type
     function MaybeSame(ATb: TCtMetaTable): boolean;
 
     function GetTableComments: string; virtual;
-    function GetPrimaryKeyNames(AQuotDbType: string = ''): string;
+    function GetPrimaryKeyNames(AQuotDbType: string = ''): string; virtual;
     function GetSpecKeyNames(keyFieldTp: TCtKeyFieldType;
       AQuotDbType: string = ''): string;
     function GetPossibleKeyName(keyFieldTp: TCtKeyFieldType): string;

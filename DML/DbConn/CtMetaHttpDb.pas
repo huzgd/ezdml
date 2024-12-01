@@ -85,7 +85,9 @@ begin
         FreeAndNil(FTrans);
         FTrans := TCtSQLTransaction.Create(nil);  
         FCtJdbcConn.Transaction := FTrans;
-      end;
+      end
+      else
+        FCtJdbcConn.Connected:=False;
       FCtJdbcConn.HostName:=Self.Database; 
       S := FCtJdbcConn.HostName;
       if Pos('JDBC:', S) = 1 then

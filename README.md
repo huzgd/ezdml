@@ -373,3 +373,6 @@ Temporary dedicated DB connection, max count of fecth rows，optimize SQL Tool a
 
 2024-09-28 V3.63
 New tables template switching, SQL tools improve PG/MYSQL performance, optimize JDBC connections. Bugs fixed.
+
+2024-11-30 V3.64
+Find FKs and RandomColor scripts, import DDL SQL. Bugs fixed.

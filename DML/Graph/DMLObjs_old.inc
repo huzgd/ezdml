@@ -3799,13 +3799,13 @@ begin
       begin
         pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 1),
           ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + Self.Height));
-        DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_SINGLELINE or DT_VCENTER);
+        DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_SINGLELINE or DT_VCENTER or DT_NOPREFIX);
       end
       else
       begin
         pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 1 + 7),
           ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + Self.Height));
-        DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER);
+        DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER or DT_NOPREFIX);
       end;
 
       DrawSelectedGrips(ADrawer);
@@ -3834,7 +3834,7 @@ begin
         begin
           pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 2),
             ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 4));
-          DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER);
+          DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER or DT_NOPREFIX);
 
         end;
       end
@@ -3849,7 +3849,7 @@ begin
         begin
           pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 2),
             ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 4));
-          DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER);
+          DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER or DT_NOPREFIX);
 
         end;
       end
@@ -3862,7 +3862,7 @@ begin
         begin
           pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 2),
             ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 4));
-          DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER);
+          DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_CENTER or DT_VCENTER or DT_NOPREFIX);
 
         end;
       end;
@@ -3967,14 +3967,14 @@ begin
               S := F.PhyName;
           end;
 
-          DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_LEFT);
+          DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_LEFT or DT_NOPREFIX);
 
           if (FMaxDrawFieldCount >= 10) and (I = FMaxDrawFieldCount - 1) then
           begin
             pR := Rect(ADrawer.GetX(Left + 16 + 5 + Round(FMaxFieldLen * DML_FONTSC + DML_FONT_EXWIDTH)), ADrawer.GetY(Top + RowHeight * (I + 1) + 3 + ExtraDY),
               ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight * (I + 2) + 3 + ExtraDY));
             S := '...';
-            DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_LEFT);
+            DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_LEFT or DT_NOPREFIX);
           end
           else if ADrawer.ShowFieldType then
           begin
@@ -3990,7 +3990,7 @@ begin
             end
             else
               S := F.Get_FieldTypeStr(False);
-            DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_LEFT);
+            DrawText(ADrawer.Canvas.Handle, PChar(S), Length(S), pR, DT_LEFT or DT_NOPREFIX);
 
           end;
 
@@ -5179,9 +5179,9 @@ begin
     if not ADrawer.FFastDrawMode and (Abs(Font.Height) > 3) then
     begin
       if FDrawComment <> '' then
-        DrawText(ADrawer.Canvas.Handle, PChar(FDrawComment), Length(FDrawComment), pR, DT_LEFT)
+        DrawText(ADrawer.Canvas.Handle, PChar(FDrawComment), Length(FDrawComment), pR, DT_LEFT or DT_NOPREFIX)
       else
-        DrawText(ADrawer.Canvas.Handle, PChar(FComment), Length(FComment), pR, DT_LEFT);
+        DrawText(ADrawer.Canvas.Handle, PChar(FComment), Length(FComment), pR, DT_LEFT or DT_NOPREFIX);
     end;
 
     DrawSelectedGrips(ADrawer);

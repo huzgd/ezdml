@@ -1217,6 +1217,8 @@ begin
   lastPos := Self.FFrameCtDML.DMLGraph.LastMouseDownPos;
 
   I := Pos('"RootName": "Tables"', S);
+  if I=0 then   
+    I := Pos('"RootName":"Tables"', S);
   if (I > 0) and (I < 100) then
   begin
     ///LockWindowUpdate(Self.Handle);
@@ -1295,6 +1297,8 @@ begin
 
 
   I := Pos('"RootName": "Fields"', S);
+  if I=0 then
+    I := Pos('"RootName":"Fields"', S);
   if (I > 0) and (I < 100) then
   begin
     tb := GetSelectedTable;
@@ -1404,7 +1408,9 @@ begin
     end
     else
     begin
-      I := Pos('"RootName": "Tables"', S);
+      I := Pos('"RootName": "Tables"', S);    
+      if I=0 then
+        I := Pos('"RootName":"Tables"', S);
       if (I > 0) and (I < 100) then
       begin
         FFrameCtDML.actPasteAsCopy.Enabled := True;
@@ -1414,7 +1420,9 @@ begin
       begin          
         FFrameCtDML.actPasteAsCopy.Enabled := False;
                         
-        I := Pos('"RootName": "Fields"', S);
+        I := Pos('"RootName": "Fields"', S);  
+        if I=0 then
+          I := Pos('"RootName":"Fields"', S);
         if (I > 0) and (I < 100) then
         begin
           FFrameCtDML.actPaste.Enabled := (GetSelectedTable <> nil);

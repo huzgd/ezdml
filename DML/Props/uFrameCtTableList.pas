@@ -2182,7 +2182,9 @@ begin
     Exit;
   end;
 
-  I := Pos('"RootName": "Tables"', S);
+  I := Pos('"RootName": "Tables"', S); 
+  if I=0 then
+    I := Pos('"RootName":"Tables"', S);
   if (I > 0) and (I < 100) then
   begin
     vTempTbs := TCtMetaTableList.Create;
@@ -2239,7 +2241,9 @@ begin
   end;
 
 
-  I := Pos('"RootName": "Fields"', S);
+  I := Pos('"RootName": "Fields"', S);  
+  if I=0 then
+    I := Pos('"RootName":"Fields"', S);
   if (I > 0) and (I < 100) then
   begin
     if SelectedCtNode is TCtMetaTable then

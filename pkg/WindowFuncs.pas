@@ -104,12 +104,15 @@ function GetUnusedTmpFileName(AFileName: string): string;
 function Utf8URLEncode(const msg: string): string;
 function URLEncode(const msg: string): string;
 function URLDecode(const S: string): string;
+                     
+function IsJdkInstalled: Boolean;
 
 procedure ShellCmd(cmd: string; par: string = '');    
 function RunCmd(cmd: string; timeout: integer): string;
 procedure CtOpenDoc(adoc: string); 
 procedure CtOpenDir(dir: string);
 procedure CtBrowseFile(fn: string);
+
 
 function CtCopyFile(lpExistingFileName, lpNewFileName: PChar; bFailIfExists: BOOL): BOOL;
 
@@ -777,6 +780,33 @@ begin
   if Result[1] = '{' then
     Result := Copy(Result, 2, Length(Result) - 2);
   Result := StringReplace(Result, '-', '', [rfReplaceAll]);
+end;
+
+function IsJdkInstalled: Boolean;
+var
+  AProcess: TProcess;
+  sl: TStringList;
+begin
+  Result := False;
+  sl := TStringList.Create;
+  AProcess := TProcess.Create(nil);
+  try
+    try
+      AProcess.CommandLine := 'java -version';
+      AProcess.Options := AProcess.Options + [poUsePipes,poNoConsole];
+      AProcess.Execute;
+      if AProcess.WaitOnExit then
+      begin
+        if AProcess.Output <> nil then
+          if AProcess.ExitCode = 0 then
+            Result := True;
+      end;
+    except
+    end;
+  finally
+    AProcess.Free;
+    sl.Free;
+  end;
 end;
 
 procedure ShellCmd(cmd, par: string);

@@ -453,9 +453,6 @@ begin
           end;
         end;
         DefaultValue := FieldByName('column_default').AsString;
-        po := Pos('::', DefaultValue);
-        if po > 0 then
-          DefaultValue := Copy(DefaultValue, 1, po - 1);
       end;
       Next;
     end;

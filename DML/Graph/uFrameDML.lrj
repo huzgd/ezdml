@@ -134,6 +134,7 @@
 {"hash":201759301,"name":"tframedml.mnof_localfile.caption","sourcebytes":[79,112,101,110,32,102,105,108,101],"value":"Open file"},
 {"hash":110786757,"name":"tframedml.mnof_dbfile.caption","sourcebytes":[79,112,101,110,32,100,97,116,97,98,97,115,101,32,102,105,108,101],"value":"Open database file"},
 {"hash":67632229,"name":"tframedml.mnof_onlinefile.caption","sourcebytes":[79,112,101,110,32,111,110,108,105,110,101,32,102,105,108,101],"value":"Open online file"},
+{"hash":65502867,"name":"tframedml.mnof_recentfiles.caption","sourcebytes":[82,101,99,101,110,116,32,102,105,108,101,115],"value":"Recent files"},
 {"hash":9747950,"name":"tframedml.mnsf_localfile.caption","sourcebytes":[83,97,118,101,32,97,115,32,102,105,108,101,46,46,46],"value":"Save as file..."},
 {"hash":107246021,"name":"tframedml.mnsf_dbfile.caption","sourcebytes":[83,97,118,101,32,100,97,116,97,98,97,115,101,32,102,105,108,101],"value":"Save database file"},
 {"hash":176377534,"name":"tframedml.mnsf_onlinefile.caption","sourcebytes":[83,104,97,114,101,32,111,110,108,105,110,101,46,46,46],"value":"Share online..."}

@@ -65,5 +65,6 @@
 {"hash":134234030,"name":"tfrmmaindml.actchatgpt.hint","sourcebytes":[85,115,101,32,65,73,32,116,111,32,97,115,115,105,115,116,32,105,110,32,103,101,110,101,114,97,116,105,110,103,32,109,111,100,101,108,32,100,101,115,105,103,110],"value":"Use AI to assist in generating model design"},
 {"hash":58038295,"name":"tfrmmaindml.actnewappwin.caption","sourcebytes":[78,101,119,32,69,90,68,77,76,32,119,105,110,100,111,119],"value":"New EZDML window"},
 {"hash":227304142,"name":"tfrmmaindml.actsharefile.caption","sourcebytes":[79,110,108,105,110,101,32,115,104,97,114,101,46,46,46],"value":"Online share..."},
-{"hash":56382238,"name":"tfrmmaindml.actopenurl.caption","sourcebytes":[79,110,108,105,110,101,32,111,112,101,110,46,46,46],"value":"Online open..."}
+{"hash":56382238,"name":"tfrmmaindml.actopenurl.caption","sourcebytes":[79,110,108,105,110,101,32,111,112,101,110,46,46,46],"value":"Online open..."},
+{"hash":212942990,"name":"tfrmmaindml.actimportddlsql.caption","sourcebytes":[73,109,112,111,114,116,32,68,68,76,32,83,81,76,46,46,46],"value":"Import DDL SQL..."}
 ]}

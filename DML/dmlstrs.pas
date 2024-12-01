@@ -284,6 +284,7 @@ resourcestring
   srChooseDbType = 'Database engine type:';
   srEnterPwd = 'Enter password:';
   srPwdDecryptFailed = 'Decryption failed due to invalid password';
+  srJdbcCheckPrompt = 'JVM not found or manual config needed. You can manually run the HTTP_JDBC in a separate command line (Shift+OK=I have run HTTP_JDBC server manually).';
 
   srFieldEditorTypes='TextEdit' + #13#10 +
     'Memo' + #13#10 +

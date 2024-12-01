@@ -594,6 +594,8 @@ begin
         end;
       end;
     FCtMetaObjList.SaveCurrentOrder;
+    if FCtMetaObjList is TCtMetaTableList then
+      GenRandBgColors(TCtMetaTableList(FCtMetaObjList));
     if FWorkMode = 1 then
       WriteDatabaseBakFile(SaveDialog1.FileName);
     LabelProg.Caption := LabelProg.Caption + '.' + srStrFinished;

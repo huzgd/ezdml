@@ -5361,6 +5361,12 @@ object FrameDML: TFrameDML
       Caption = 'Open online file'
       OnClick = MNFile_OperClick
     end
+    object MenuItem17: TMenuItem
+      Caption = '-'
+    end
+    object MNOF_Recentfiles: TMenuItem
+      Caption = 'Recent files'
+    end
   end
   object PopupMenuSaveFile: TPopupMenu
     left = 368
