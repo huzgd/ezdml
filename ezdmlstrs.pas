@@ -17,8 +17,8 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.64';
-  srEzdmlVersionDate = '2024-11-30';
+  srEzdmlVersionNum = '3.65';
+  srEzdmlVersionDate = '2025-01-12';
 
 {$ifdef EZDML_LITE}
 
@@ -71,7 +71,7 @@ resourcestring
   srEzdmlOpenFile = 'Open file';
   srEzdmlOpening = 'Opening...';
   srEzdmlAbortOpening = 'Are you sure to abort opening file?';
-  srEzdmlConfirmClearAll = 'Create new file will clear all tables in the model file. Are you sure to continue?';  
+  srEzdmlConfirmNewFile = 'Will create a new file, please ensure your work has been saved. Are you sure to continue?';
   srEzdmlConfirmReOpenFile = 'Do you want to force the current file to be reopened (will skip the temp file)?';
   srEzdmlConfirmClearOnOpen = 'Current model will be cleared before opening the file. Are you sure to continue?';   
   srEzdmlConfirmOpenDbTmpFile = 'Database file is not ready, open local temporary file instead?';

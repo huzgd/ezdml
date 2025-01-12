@@ -3830,7 +3830,7 @@ begin
         S := FPhyTbName;
         if S = '' then
           S := FName;
-        if ADrawer.RectInRange(Left + 1, Top + 1, Length(S) * 7, RowHeight) then
+        if ADrawer.RectInRange(Left + 1, Top + 1, Self.Width, RowHeight) then
         begin
           pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 2),
             ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 4));
@@ -3845,7 +3845,7 @@ begin
           S := FPhyTbName
         else if (FPhyTbName <> '') and (FPhyTbName <> FName) then
           S := FPhyTbName + '(' + FName + ')';
-        if ADrawer.RectInRange(Left + 1, Top + 1, Length(S) * 7, RowHeight) then
+        if ADrawer.RectInRange(Left + 1, Top + 1, Self.Width, RowHeight) then
         begin
           pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 2),
             ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 4));
@@ -3858,7 +3858,7 @@ begin
         S := FName;
         if S = '' then
           S := FPhyTbName;
-        if ADrawer.RectInRange(Left + 1, Top + 1, Length(S) * 7, RowHeight) then
+        if ADrawer.RectInRange(Left + 1, Top + 1, Self.Width, RowHeight) then
         begin
           pR := Rect(ADrawer.GetX(Left + 1), ADrawer.GetY(Top + 2),
             ADrawer.GetX(Left + Self.Width), ADrawer.GetY(Top + RowHeight + 4));

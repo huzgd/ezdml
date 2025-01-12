@@ -1217,10 +1217,6 @@ msgstr ""
 msgid "Warning: File %s can not be locked and may have been opened in another EZDML process, continue operation may lead to unexpected consequences! Do you still want to forcibly open it?"
 msgstr ""
 
-#: ezdmlstrs.srezdmlconfirmclearall
-msgid "Create new file will clear all tables in the model file. Are you sure to continue?"
-msgstr ""
-
 #: ezdmlstrs.srezdmlconfirmclearonopen
 msgid "Current model will be cleared before opening the file. Are you sure to continue?"
 msgstr ""
@@ -1243,6 +1239,10 @@ msgstr ""
 
 #: ezdmlstrs.srezdmlconfirmforcereconndb
 msgid "This database is already connected. Do you want to force a disconnection and reconnection?"
+msgstr ""
+
+#: ezdmlstrs.srezdmlconfirmnewfile
+msgid "Will create a new file, please ensure your work has been saved. Are you sure to continue?"
 msgstr ""
 
 #: ezdmlstrs.srezdmlconfirmopendbtmpfile

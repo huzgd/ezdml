@@ -252,7 +252,15 @@ begin
   //执行命令，返回JSON字符串，其中resultCode=-1表示失败，errorMsg为出错信息，其它情况为成功
   url := Self.Database;
   if Assigned(FCtJdbcConn) then
-    url := FCtJdbcConn.FJdbcSvAddr;
+    url := FCtJdbcConn.FJdbcSvAddr; 
+  if EngineType='H2' then
+  begin
+    if (cmd='GetDbObjs') or (cmd='GetObjInfos') or (cmd='ObjectExists') then
+    begin
+      par1 := UpperCase(par1);
+      par2 := UpperCase(par2);
+    end;
+  end;
   url := url + '?cmd=' + cmd;
   if Self.Connected then
     if FAccessToken <> '' then

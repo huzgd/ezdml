@@ -342,7 +342,8 @@ type
 
     function GetPrimaryKeyField: TCtMetaField; virtual; 
     function FieldOfChildTable(ATbName: string): TCtMetaField; virtual; //获取引用子表的List字段
-    function IsManyToManyLinkTable: Boolean; virtual;
+    function IsManyToManyLinkTable: Boolean; virtual;    
+    function GetManyToManyLinkField(idx: Integer): TCtMetaField; virtual;
     function GetOneToManyInfo(bFKsOnly: Boolean): string; virtual;
     function GetManyToManyInfo: string; virtual;
 
@@ -5502,33 +5503,59 @@ end;
 
 function TCtMetaTable.IsManyToManyLinkTable: Boolean;
 var
-  I: Integer;
+  I, fkC, fdC: Integer;
   fd: TCtMetaField;
 begin
   Result := False;
-  MetaFields.Pack;   
+  MetaFields.Pack;
   if MetaFields.Count < 2 then
-    Exit;
-  for I:=0 to 1 do
-  begin
-    fd := MetaFields.Items[I];
-    if not fd.IsPhysicalField then
-      Exit;
-    if fd.KeyFieldType <> cfktRid then
-      Exit;
-    if Trim(fd.RelateTable)='' then
-      Exit;
-    if Trim(fd.RelateField)='' then
-      Exit;
-  end;
+    Exit;  
   if Pos('/*[m2m_link]*/', LowerCase(Self.Memo))>0 then
   begin
     Result := True;
     Exit;
   end;
-  if MetaFields.Count <> 2 then
-    Exit;
-  Result := True;
+  fkC := 0;
+  fdC := 0;
+  for I:=0 to MetaFields.Count - 1 do
+  begin
+    fd := MetaFields.Items[I];
+    if not fd.IsPhysicalField then
+      Continue;
+    if fd.IsFK then
+      Inc(fkC)
+    else
+    begin
+      if fd.KeyFieldType = cfktNormal then
+        Inc(fdC);
+    end;
+  end;
+  if (fkC=2) and (fdC=0) then
+    Result := True;
+end;
+
+function TCtMetaTable.GetManyToManyLinkField(idx: Integer): TCtMetaField;
+var
+  I, fkC: Integer;
+  fd: TCtMetaField;
+begin
+  Result := nil;
+  fkC := 0;
+  for I:=0 to MetaFields.Count - 1 do
+  begin
+    fd := MetaFields.Items[I];
+    if not fd.IsPhysicalField then
+      Continue;
+    if fd.IsFK then
+    begin       
+      if fkC=idx then
+      begin
+        Result := fd;
+        Exit;
+      end;
+      Inc(fkC);
+    end;
+  end;
 end;
 
 function TCtMetaTable.GetOneToManyInfo(bFKsOnly: Boolean): string;
@@ -5600,20 +5627,20 @@ begin
           Continue;
         S1 := '';
         S2 := '';
-        fd := tb.MetaFields.Items[0];
+        fd := tb.GetManyToManyLinkField(0);
         if (UpperCase(fd.RelateTable)=UpperCase(tbN)) and (fd.RelateField<>'') then
         begin
           S2 := fd.RelateField;   
-          fd := tb.MetaFields.Items[1];
+          fd := tb.GetManyToManyLinkField(1);
           S1 := fd.RelateTable + '.'+fd.RelateField;
         end
         else
         begin    
-          fd := tb.MetaFields.Items[1];
+          fd := tb.GetManyToManyLinkField(1);
           if (UpperCase(fd.RelateTable)=UpperCase(tbN)) and (fd.RelateField<>'') then
           begin
             S2 := fd.RelateField;
-            fd := tb.MetaFields.Items[0];
+            fd := tb.GetManyToManyLinkField(0);
             S1 := fd.RelateTable + '.'+fd.RelateField;
           end;
         end;
@@ -7308,11 +7335,13 @@ begin
       if Self.KeyFieldType = cfktID then
       begin
         //Result := Result + ' primary key'; //removed by huz 20230617: 转为独立声明  CONSTRAINT xxx PRIMARY KEY(xxx)
-        if (RelateTable <> '') and (RelateField <> '') and (Pos('{Link:', RelateField)=0) then
-          Result := Result + ' references ' + RelateTableRealName + '(' + RelateField + ')';
         //added by huz 20240416: 自增型的仍在这里声明
         if Trim(DefaultValue) = DEF_VAL_auto_increment then
-          Result := Result + ' primary key';
+          Result := Result + ' primary key'
+        else
+          Result := Result + ' /*primary_key*/'; 
+        if (RelateTable <> '') and (RelateField <> '') and (Pos('{Link:', RelateField)=0) then
+          Result := Result + ' references ' + RelateTableRealName + '(' + RelateField + ')';
       end
       else if Self.KeyFieldType = cfktRID then
       begin
@@ -7327,6 +7356,13 @@ begin
         Result := Result + ' primary key';
         if (RelateTable <> '') and (RelateField <> '') then
           Result := Result + ' references ' + RelateTableRealName + '(' + RelateField + ')';
+      end;
+    end
+    else
+    begin
+      if Self.KeyFieldType = cfktID then
+      begin
+        Result := Result + ' /*primary_key*/';
       end;
     end;
     if Assigned(GProc_OnEzdmlGenFieldTypeDescEvent) then
@@ -10340,13 +10376,15 @@ begin
 
   //判断有无sequences，无则创建
   strtmp := dmlLsTbObj.RealTableName;
-  if EngineType = 'ORACLE' then
+  {if EngineType = 'ORACLE' then
     if G_CreateSeqForOracle and dmlLsTbObj.IsSeqNeeded then
       if not ObjectExists(dbu, 'SEQ_' + strtmp) then
       begin
         strSQL := 'create sequence ' + GetQuotName('SEQ_' + strtmp) + '; ';
         ResTbSQL.Add(strSQL);
       end;
+    //removed by huz 20250101: 改在CtMetaOracleDb中处理
+  }
 
   //额外的SQL
   if dmlLsTbObj.ExtraSQL <> '' then

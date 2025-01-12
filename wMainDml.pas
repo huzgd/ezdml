@@ -312,7 +312,7 @@ type
     function GetLastTmpFileName(fn: string): string; //最后一次的临时文件名
     function GetNewTmpFileName(fn: string): string;
     function SaveDMLToTmpFile: string;
-    procedure SaveDMLFastTmpFile;
+    procedure SaveDMLFastTmpFile(bForceSaveHuge: Boolean=False);
     function TryLoadFromTmpFile(sfn: string): boolean;
 
     procedure CheckReloadGlobalScript;
@@ -850,7 +850,12 @@ begin
           Exit;
       end;
     end
-    else if bHuge or not FSaveTempFileOnExit then
+    else if bHuge then
+    begin
+      PromptSaveFile;  
+      SaveDmlFastTmpFile(True);
+    end
+    else if not FSaveTempFileOnExit then
     begin
       PromptSaveFile;
     end;
@@ -1888,15 +1893,16 @@ begin
   end;
 end;
 
-procedure TfrmMainDml.SaveDMLFastTmpFile;
+procedure TfrmMainDml.SaveDMLFastTmpFile(bForceSaveHuge: Boolean);
 var
   fn, fastFn: string;
   vFileDate: TDateTime;
 begin
   if FCtDataModelList.TableCount <= 0 then
     Exit;
-  if FCtDataModelList.IsHuge then
-    Exit;
+  if not bForceSaveHuge then
+    if FCtDataModelList.IsHuge then
+      Exit;
 
   if not FSaveTempFileOnExit then
   begin
@@ -3232,7 +3238,7 @@ begin
   FCtDataModelList.Pack;
   if FCtDataModelList.Count = 0 then
     Exit;
-  if Application.MessageBox(PChar(srEzdmlConfirmClearAll),
+  if Application.MessageBox(PChar(srEzdmlConfirmNewFile),
     PChar(srEzdmlNew), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
     Exit;
   if FCurFileName <> '' then
@@ -3242,7 +3248,7 @@ begin
       PromptSaveFile;
     end
     else
-      SaveDMLFastTmpFile;
+      SaveDMLFastTmpFile(True);
   end;
   try
     FCtDataModelList.Clear;
@@ -3871,7 +3877,7 @@ begin
             PromptSaveFile;
           end
           else
-            SaveDMLFastTmpFile;
+            SaveDMLFastTmpFile(True);
         end;
       idNo:
       begin
@@ -4253,7 +4259,7 @@ begin
             PromptSaveFile;
           end
           else
-            SaveDMLFastTmpFile;
+            SaveDMLFastTmpFile(True);
         end;
       idNo:
       begin

@@ -253,7 +253,7 @@ begin
   CheckConnected;
   if (sqlType = 0) or (sqlType = 1) then
     if G_CreateSeqForOracle and (obj_db <> nil) and (obj_db is TCtMetaTable) and
-      (TCtMetaTable(obj_db).KeyFieldName <> '') then
+      (TCtMetaTable(obj_db).KeyFieldName <> '') and TCtMetaTable(obj_db).IsSeqNeeded then
     begin
       tb := UpperCase(TCtMetaTable(obj_db).Name);
       key := TCtMetaTable(obj_db).KeyFieldName;
@@ -276,8 +276,9 @@ begin
             seqval := Fields[0].AsInteger
           else
           begin
+            //added by huz 20250101   
+            Result := Result + 'create sequence SEQ_' + tb + ' start with ' + IntToStr(kval+1)+ ';'+#13#10;
             seqval := 0;
-            //Result := Result + 'create sequence SEQ_' + tb + ';'+#13#10;
           end;
 
           if (kval > 0) and (seqval > 0) then

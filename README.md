@@ -376,3 +376,6 @@ New tables template switching, SQL tools improve PG/MYSQL performance, optimize 
 
 2024-11-30 V3.64
 Find FKs and RandomColor scripts, import DDL SQL. Bugs fixed.
+
+2025-01-12 V3.65
+Generate code for Ruoyi-fast. Bugs fixed.
