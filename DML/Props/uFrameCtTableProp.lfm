@@ -15,9 +15,9 @@ object FrameCtTableProp: TFrameCtTableProp
     Height = 766
     Top = 0
     Width = 838
-    ActivePage = TabSheetTable
+    ActivePage = TabSheetUI
     Align = alClient
-    TabIndex = 0
+    TabIndex = 2
     TabOrder = 0
     OnChange = PageControlTbPropChange
     OnChanging = PageControlTbPropChanging
@@ -574,6 +574,20 @@ object FrameCtTableProp: TFrameCtTableProp
         Width = 5
         Align = alRight
         ResizeAnchor = akRight
+      end
+    end
+    object TabSheetUI: TTabSheet
+      Caption = 'UI Design'
+      ClientHeight = 736
+      ClientWidth = 830
+      object PanelUIPreview: TPanel
+        Left = 0
+        Height = 736
+        Top = 0
+        Width = 830
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 0
       end
     end
     object TabSheetRelations: TTabSheet
@@ -1388,20 +1402,6 @@ object FrameCtTableProp: TFrameCtTableProp
         OnMoved = SplitterGenTpsMoved
       end
     end
-    object TabSheetUI: TTabSheet
-      Caption = 'UI Design'
-      ClientHeight = 528
-      ClientWidth = 704
-      object PanelUIPreview: TPanel
-        Left = 0
-        Height = 528
-        Top = 0
-        Width = 704
-        Align = alClient
-        BevelOuter = bvNone
-        TabOrder = 0
-      end
-    end
     object TabSheetData: TTabSheet
       Caption = 'Data'
       ImageIndex = 4
@@ -1510,8 +1510,8 @@ object FrameCtTableProp: TFrameCtTableProp
     TabStop = False
   end
   object ActionList1: TActionList
-    left = 304
-    top = 160
+    Left = 304
+    Top = 160
     object actFieldAdd: TAction
       Category = 'Fields'
       Caption = 'Add'
@@ -1671,8 +1671,8 @@ object FrameCtTableProp: TFrameCtTableProp
   end
   object PopupMenuTbFields: TPopupMenu
     OnPopup = PopupMenuTbFieldsPopup
-    left = 432
-    top = 232
+    Left = 460
+    Top = 248
     object MN_ShowInGraph: TMenuItem
       Action = actShowInGraph
     end
@@ -1693,6 +1693,24 @@ object FrameCtTableProp: TFrameCtTableProp
     end
     object MN_PasteFromExcel: TMenuItem
       Action = actPasteFromExcel
+    end
+    object MenuItem_AI: TMenuItem
+      Caption = 'AI Assistant'
+      object MNAI_GenFields: TMenuItem
+        Tag = 3
+        Caption = 'Add More Fields'
+        OnClick = MNAI_GenFieldsClick
+      end
+      object MNAI_GenComments: TMenuItem
+        Tag = 4
+        Caption = 'Generate Comments'
+        OnClick = MNAI_GenFieldsClick
+      end
+      object MNAI_GenSampleValues: TMenuItem
+        Tag = 6
+        Caption = 'Generate Sample Values'
+        OnClick = MNAI_GenFieldsClick
+      end
     end
     object MN_SpltCp: TMenuItem
       Caption = '-'
@@ -1757,8 +1775,8 @@ object FrameCtTableProp: TFrameCtTableProp
     end
   end
   object ImageListCttb: TImageList
-    left = 228
-    top = 164
+    Left = 228
+    Top = 164
     Bitmap = {
       4C692900000010000000100000000000000000000000008484FF008484FF0084
       84FF008484FF008484FF000000FF000000000000000000000000000000000000
@@ -3077,8 +3095,8 @@ object FrameCtTableProp: TFrameCtTableProp
   end
   object PopupMenuGenMemo: TPopupMenu
     OnPopup = PopupMenuGenMemoPopup
-    left = 256
-    top = 232
+    Left = 228
+    Top = 248
     object pmUndo1: TMenuItem
       Action = actEditUndo
     end
@@ -3139,25 +3157,25 @@ object FrameCtTableProp: TFrameCtTableProp
     Enabled = False
     Interval = 300
     OnTimer = TimerShowDataTimer
-    left = 344
-    top = 224
+    Left = 344
+    Top = 224
   end
   object TimerGridEditingCheck: TTimer
     Enabled = False
     Interval = 300
     OnTimer = TimerGridEditingCheckTimer
-    left = 340
-    top = 304
+    Left = 340
+    Top = 304
   end
   object FindDialogTxt: TFindDialog
     Options = [frDown, frHideMatchCase, frHideWholeWord, frHideUpDown, frHideEntireScope, frHidePromptOnReplace]
     OnFind = FindDialogTxtFind
-    left = 472
-    top = 338
+    Left = 472
+    Top = 338
   end
   object PopupMenuGenTabs: TPopupMenu
-    left = 453
-    top = 492
+    Left = 453
+    Top = 492
     object MNGenTab_Customize: TMenuItem
       Caption = 'Customize'
       OnClick = MNGenTab_CustomizeClick
@@ -3168,13 +3186,13 @@ object FrameCtTableProp: TFrameCtTableProp
     end
   end
   object SaveDialogCode: TSaveDialog
-    left = 328
-    top = 384
+    Left = 328
+    Top = 384
   end
   object PopupMenuTabs: TPopupMenu
     OnPopup = PopupMenuTabsPopup
-    left = 445
-    top = 159
+    Left = 445
+    Top = 159
     object MNTabs_Relations: TMenuItem
       Caption = 'Relations'
       OnClick = MNTabs_RelationsClick
@@ -3215,7 +3233,7 @@ object FrameCtTableProp: TFrameCtTableProp
     Enabled = False
     Interval = 200
     OnTimer = TimerAutoFocusTimer
-    left = 223
-    top = 477
+    Left = 223
+    Top = 477
   end
 end

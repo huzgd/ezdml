@@ -379,3 +379,6 @@ Find FKs and RandomColor scripts, import DDL SQL. Bugs fixed.
 
 2025-01-12 V3.65
 Generate code for Ruoyi-fast. Bugs fixed.
+
+2025-05-04 V3.66
+Gen comment option, Text2SQL, Huge file & UI optimization. Bugs fixed.

@@ -20,6 +20,7 @@ type
     btnDBLogon: TButton;
     btnListMenu: TBitBtn;
     ckbCreateForeignkeys: TCheckBox;
+    ckbGenDBComments: TCheckBox;
     ckbProcOracleSeqs: TCheckBox;
     ckbSketchMode: TCheckBox;
     cklbDbObjs: TCheckListBox;
@@ -40,7 +41,6 @@ type
     MN_CheckSelected: TMenuItem;
     MN_InverseSel: TMenuItem;
     N1: TMenuItem;
-    MnShowPhyName: TMenuItem;
     Panel1: TPanel;
     LabelProg: TLabel;
     PopupMenuDbConn: TPopupMenu;
@@ -69,6 +69,7 @@ type
     combModels: TComboBox;
     procedure btnListMenuClick(Sender: TObject);
     procedure ckbCreateForeignkeysChange(Sender: TObject);
+    procedure ckbGenDBCommentsChange(Sender: TObject);
     procedure cklbDbObjsDblClick(Sender: TObject);
     procedure cklbDbObjsResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -86,7 +87,6 @@ type
     procedure PopupMenu1Popup(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
-    procedure MnShowPhyNameClick(Sender: TObject);
     procedure btnBuildSQLClick(Sender: TObject);
     procedure btnExecSQLClick(Sender: TObject);
     procedure btnResumClick(Sender: TObject);
@@ -96,7 +96,6 @@ type
     procedure ckbProcOracleSeqsClick(Sender: TObject);
     procedure ckbSketchModeClick(Sender: TObject);
   private
-    FShowPhyFieldName: boolean;
     FLinkDbNo: integer;
     FCtMetaDatabase: TCtMetaDatabase;
     FAborted: boolean;
@@ -142,7 +141,6 @@ type
     function LoadDbBackFile: boolean;
     procedure LoadCompareDml(fn: string);
 
-    property ShowPhyFieldName: boolean read FShowPhyFieldName write FShowPhyFieldName;
     property MetaObjList: TCtMetaObjectList read FMetaObjList write SetMetaObjList;
     property CtDataModelList: TCtDataModelGraphList
       read FCtDataModelList write SetCtDataModelList;
@@ -186,7 +184,6 @@ var
 begin
   cklbDbObjs.MultiSelect := True;
   FLinkDbNO := -1;
-  FShowPhyFieldName := True;
   
   FAllTbGraph:= TCtDataModelGraph.Create;
   FAllTbGraph.Name:='('+srdmlall+')';
@@ -263,6 +260,11 @@ end;
 procedure TfrmCtGenSQL.ckbCreateForeignkeysChange(Sender: TObject);
 begin
   G_CreateForeignkeys := ckbCreateForeignkeys.Checked;
+end;
+
+procedure TfrmCtGenSQL.ckbGenDBCommentsChange(Sender: TObject);
+begin
+  G_GenDBComments := ckbGenDBComments.Checked;
 end;
 
 procedure TfrmCtGenSQL.FormClose(Sender: TObject; var CloseAction: TCloseAction
@@ -759,8 +761,8 @@ begin
   memExecSQL.Lines.Text:=FSave_memExecSQL ;
   memError.Lines.Text:=FSave_memError ;
 
-  MnShowPhyName.Checked := FShowPhyFieldName;
-  ckbProcOracleSeqs.Checked := G_CreateSeqForOracle;
+  ckbProcOracleSeqs.Checked := G_CreateSeqForOracle; 
+  ckbGenDBComments.Checked := G_GenDBComments;
   ckbCreateForeignkeys.Checked := G_CreateForeignkeys;
   if Assigned(FCtMetaDatabase) and (FCtMetaDatabase.EngineType = 'ORACLE') then
     ckbProcOracleSeqs.Show
@@ -806,9 +808,7 @@ begin
   begin
     for i := 0 to FCtDataModelList.Count - 1 do
     begin
-      S := FCtDataModelList[I].Name;
-      if FCtDataModelList[I].Caption <> '' then
-        S := S + '(' + FCtDataModelList[I].Caption + ')';
+      S := FCtDataModelList[I].NameCaption;
       combModels.Items.AddObject(S, FCtDataModelList[I]);
       CheckAddTbs(FCtDataModelList[I].Tables);
     end;       
@@ -834,10 +834,7 @@ begin
       if TCtMetaTable(MetaObjList[i]).GenDatabase then
         if MetaObjList[i].DataLevel <> ctdlDeleted then
         begin
-          if ShowPhyFieldName then
-            S := TCtMetaTable(MetaObjList[i]).Name
-          else
-            S := TCtMetaTable(MetaObjList[i]).DisplayText;
+          S := TCtMetaTable(MetaObjList[i]).NameCaption;
           cklbDbObjs.Items.AddObject(S, TObject((MetaObjList[i])));
         end;
 
@@ -901,13 +898,6 @@ begin
     MetaObjList := FRestoringTbList;
     Result := True;
   end;
-end;
-
-procedure TfrmCtGenSQL.MnShowPhyNameClick(Sender: TObject);
-begin
-  (Sender as TMenuItem).Checked := not (Sender as TMenuItem).Checked;
-  FShowPhyFieldName := (Sender as TMenuItem).Checked;
-  InitListObj;
 end;
 
 function TfrmCtGenSQL.GenSQL: TStringList;

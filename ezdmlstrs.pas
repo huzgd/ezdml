@@ -17,8 +17,8 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.65';
-  srEzdmlVersionDate = '2025-01-12';
+  srEzdmlVersionNum = '3.66';
+  srEzdmlVersionDate = '2025-05-04';
 
 {$ifdef EZDML_LITE}
 
@@ -73,7 +73,7 @@ resourcestring
   srEzdmlAbortOpening = 'Are you sure to abort opening file?';
   srEzdmlConfirmNewFile = 'Will create a new file, please ensure your work has been saved. Are you sure to continue?';
   srEzdmlConfirmReOpenFile = 'Do you want to force the current file to be reopened (will skip the temp file)?';
-  srEzdmlConfirmClearOnOpen = 'Current model will be cleared before opening the file. Are you sure to continue?';   
+  srEzdmlConfirmClearOnOpen = 'Please ensure your work has been saved before opening file. Are you sure to continue?';
   srEzdmlConfirmOpenDbTmpFile = 'Database file is not ready, open local temporary file instead?';
   //srEzdmlConfirmClearOnLoad = 'Do you want to clear current model before load new models?';    
   //srEzdmlConfirmSyncWithDbFile = 'Since current file has the same name (%s) as the DB file being loaded, do you want to import the content into the current file (overwrite content but keep the local file name)?';
@@ -84,7 +84,8 @@ resourcestring
   srEzdmlDbOfflineTip = '(Offline)';
   srEzdmlConfirmCloseModified = 'Do you want to save and apply changes before close?';
   srEzdmlSaveingFileFmt = 'Saving file %s...';
-  srEzdmlSaveFile = 'Save file';
+  srEzdmlSaveFile = 'Save file';    
+  srEzdmlSaveTemporFile = 'Save temporary file';
   srEzdmlSaving = 'Saving...'; 
   srEzdmlDbFileSavedFmt = 'Database file saved: %s. Do you want to open the Generate-Database dialog?';
   srEzdmlNew = 'New File';
@@ -108,6 +109,7 @@ resourcestring
   srEzdmlChatAITip_GenTables = 'Add More Tables: AI will supplement and add new tables to the model based on the system description and existing table information.'#13#10'Exists tables:';
   srEzdmlChatAITip_GenFields = 'Add More Fields: AI will supplement and add new fields to the selected tables based on the system description and existing tables/fields information.'#13#10'Existing tables/fields:';
   srEzdmlChatAITip_GenComments = 'Generate Comments: AI will add logical names and comments to the selected tables/fields based on the system description and existing tables/fields information.'#13#10'Existing tables/fields:';
+  srEzdmlChatAITip_GenSampleValues = 'Generate Sample Values: AI will generate some example data and candidate values for the selected fields based on the system description and existing tables/fields information.'#13#10'Existing tables/fields:';
   srEzdmlChatAITip_GenFKLinks = 'Generate Foreign Keys: AI will add foreign key links to the selected table based on the system description and existing table information.'#13#10'Existing tables:';
   srEzdmlNoUpdateFound = 'No updatable version present.'; 
   srEzdmlDmjUnicodePropmt = 'Save json data with \uXXXX unicode format?';

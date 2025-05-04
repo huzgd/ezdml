@@ -1149,9 +1149,11 @@ var
   G_WriteConstraintToDescribeStr: boolean;
   G_FieldGridShowLines: boolean;
   G_AddColCommentToCreateTbSql: boolean;
+  G_GenDBComments: boolean;
   G_CreateForeignkeys: boolean;
   G_CreateIndexForForeignkey: boolean;
-  G_HiveVersion: Integer;             
+  G_MaxCharSize: Integer;
+  G_HiveVersion: Integer;
   G_MysqlVersion: Integer;   
   G_AutoCommit: boolean;
   G_RetainAfterCommit: boolean;       
@@ -1986,15 +1988,19 @@ begin
 end;
 
 function CheckStringMaxLen(DbType, custTpName: string; var res: string; len: integer): boolean;
+var
+  msz: Integer;
 begin
   Result := False;
+  msz := G_MaxCharSize;
   if dbType = 'POSTGRESQL' then
   begin
+    if msz<=0 then msz := 8000;
     if LowerCase(res) = 'varchar' then
     begin
       if len = 0 then
         Result := True
-      else if len > 8000 then
+      else if len > msz then
       begin
         res := 'text';
         if Trim(custTpName) <> '' then
@@ -2004,8 +2010,9 @@ begin
     end;
   end
   else if dbType = 'SQLSERVER' then
-  begin
-    if len > 8000 then
+  begin       
+    if msz<=0 then msz := 8000;
+    if len > msz then
     begin
       if UpperCase(res) = 'VARCHAR' then
         res := res+'(MAX)'
@@ -2018,8 +2025,9 @@ begin
     end;
   end
   else if dbType = 'ORACLE' then
-  begin
-    if len > 4000 then
+  begin         
+    if msz<=0 then msz := 4000;
+    if len > msz then
     begin
       res := 'CLOB';  
       if Trim(custTpName) <> '' then
@@ -2028,8 +2036,9 @@ begin
     end;
   end
   else if dbType = 'MYSQL' then
-  begin
-    if len > 65532 then
+  begin       
+    if msz<=0 then msz := 65532;
+    if len > msz then
     begin
       res := 'LONGTEXT';  
       if Trim(custTpName) <> '' then
@@ -2038,8 +2047,9 @@ begin
     end;
   end
   else if dbType = 'SQLITE' then
-  begin
-    if len > 8000 then
+  begin          
+    if msz<=0 then msz := 8000;
+    if len > msz then
     begin
       res := 'TEXT';   
       if Trim(custTpName) <> '' then
@@ -2048,8 +2058,9 @@ begin
     end;
   end    
   else if dbType = 'HIVE' then
-  begin
-    if len > 65535 then
+  begin           
+    if msz<=0 then msz := 65535;
+    if len > msz then
     begin
       res := 'string';   
       if Trim(custTpName) <> '' then
@@ -2057,7 +2068,7 @@ begin
       Result := True;
     end;
   end
-  else if len > 8000 then
+  else if len > IfElse(msz>=0,msz,8000) then
   begin
     res := 'TEXT';  
     if Trim(custTpName) <> '' then
@@ -3447,6 +3458,15 @@ begin
       Result := f.Name;
       Exit;
     end;
+  end;        
+  for I := 0 to MetaFields.Count - 1 do
+  begin
+    f := MetaFields[I];
+    if f.PossibleKeyFieldType in [cfktName, cfktCaption] then
+    begin
+      Result := f.Name;
+      Exit;
+    end;
   end;
 
   for I := 0 to MetaFields.Count - 1 do
@@ -3454,7 +3474,65 @@ begin
     f := MetaFields[I];
     if not f.IsPhysicalField then
       Continue;
+    if f.DataType <> cfdtString then
+      Continue;
     if f.CanDisplay('grid') then
+    if (UpperCase(f.Name)='NAME') or (UpperCase(f.Name)='名称')
+      or (UpperCase(f.DisplayName)='NAME')or (UpperCase(f.DisplayName)='名称')
+      or (UpperCase(f.Name)='CAPTION') or (UpperCase(f.Name)='TITLE') or (UpperCase(f.Name)='标题')
+      or (UpperCase(f.DisplayName)='CAPTION') or (UpperCase(f.DisplayName)='TITLE') or (UpperCase(f.DisplayName)='标题')then
+    begin
+      Result := f.Name;
+      Exit;
+    end;
+  end;
+
+  for I := 0 to MetaFields.Count - 1 do
+  begin
+    f := MetaFields[I];
+    if not f.IsPhysicalField then
+      Continue;       
+    if f.DataType <> cfdtString then
+      Continue;
+    if f.PossibleKeyFieldType <> cfktNormal then
+      Continue;
+    if f.CanDisplay('grid') then
+    begin
+      Result := f.Name;
+      Exit;
+    end;
+  end;             
+
+  for I := 0 to MetaFields.Count - 1 do
+  begin
+    f := MetaFields[I];
+    if not f.IsPhysicalField then
+      Continue;      
+    if f.DataType <> cfdtString then
+      Continue;
+    if f.CanDisplay('grid') then
+    begin
+      Result := f.Name;
+      Exit;
+    end;
+  end;
+
+  for I := 0 to MetaFields.Count - 1 do
+  begin
+    f := MetaFields[I];  
+    if f.DataType <> cfdtString then
+      Continue;
+    if f.CanDisplay('') then
+    begin
+      Result := f.Name;
+      Exit;
+    end;
+  end;
+
+  for I := 0 to MetaFields.Count - 1 do
+  begin
+    f := MetaFields[I];
+    if f.CanDisplay('') then
     begin
       Result := f.Name;
       Exit;
@@ -3560,56 +3638,59 @@ begin
     pkAdded := False;
 
     S := RealTableName;
-    if not IsNameOk(S) then
+    if DbType<>'LLM' then
     begin
-      if T <> '' then
-        T := T + #13#10;
-      T := T + Format(srInvalidTableNameWarningFmt, [S]);
-    end;
-
-    for I := 0 to MetaFields.Count - 1 do
-      if MetaFields[I].DataLevel <> ctdlDeleted then
+      if not IsNameOk(S) then
       begin
-        if not MetaFields[I].IsPhysicalField then
-          Continue;
-        S := MetaFields[I].Name;
-        if not IsNameOk(S) then
-        begin
-          if T <> '' then
-            T := T + #13#10;
-          T := T + Format(srInvalidFieldNameWarningFmt, [S]);
-        end;
-
-        for J := I - 1 downto 0 do
-          if MetaFields[J].DataLevel <> ctdlDeleted then
-            if UpperCase(S) = UpperCase(MetaFields[J].Name) then
-            begin
-              if T <> '' then
-                T := T + #13#10;
-              T := T + Format(srDuplicateFieldNameWarningFmt, [S]);
-            end;
+        if T <> '' then
+          T := T + #13#10;
+        T := T + Format(srInvalidTableNameWarningFmt, [S]);
       end;
 
-    if T <> '' then
-    begin
-      if dbType='HIVE' then
+      for I := 0 to MetaFields.Count - 1 do
+        if MetaFields[I].DataLevel <> ctdlDeleted then
+        begin
+          if not MetaFields[I].IsPhysicalField then
+            Continue;
+          S := MetaFields[I].Name;
+          if not IsNameOk(S) then
+          begin
+            if T <> '' then
+              T := T + #13#10;
+            T := T + Format(srInvalidFieldNameWarningFmt, [S]);
+          end;
+
+          for J := I - 1 downto 0 do
+            if MetaFields[J].DataLevel <> ctdlDeleted then
+              if UpperCase(S) = UpperCase(MetaFields[J].Name) then
+              begin
+                if T <> '' then
+                  T := T + #13#10;
+                T := T + Format(srDuplicateFieldNameWarningFmt, [S]);
+              end;
+        end;
+
+      if T <> '' then
       begin
-        with TStringList.Create do
-        try
-          Text := T;
-          for I:=0 to Count - 1 do
-            Strings[I] := '-- '+ Strings[I];
-          T := Text;
-        finally
-          Free;
-        end;   
-        Infos.Add(Trim(T));
-      end
-      else
-      begin
-        Infos.Add('/*');
-        Infos.Add(T);
-        Infos.Add('*/');
+        if dbType='HIVE' then
+        begin
+          with TStringList.Create do
+          try
+            Text := T;
+            for I:=0 to Count - 1 do
+              Strings[I] := '-- '+ Strings[I];
+            T := Text;
+          finally
+            Free;
+          end;
+          Infos.Add(Trim(T));
+        end
+        else
+        begin
+          Infos.Add('/*');
+          Infos.Add(T);
+          Infos.Add('*/');
+        end;
       end;
     end;
 
@@ -3639,7 +3720,7 @@ begin
     C := 0;
 
     T := Self.GetTableComments;
-    if T <> '' then
+    if G_GenDBComments and (T <> '') then
     begin
       if (dbType = 'ORACLE') or (dbType = 'POSTGRESQL') then
       begin
@@ -3686,7 +3767,7 @@ begin
         if (dbType = 'HIVE') and (G_HiveVersion < 3) then
         begin  //hive2不支持缺省值
         end
-        else
+        else if dbType<>'LLM' then
           S := S + F.GetFieldDefaultValDesc(dbType);
         //          if dbType = 'SQLSERVER' then     //似乎sqlserver 也支持default 0
         //          begin
@@ -3703,35 +3784,49 @@ begin
         if dbEngine <> nil then
           if Pos('[GSQL_FIELD_NULL]', dbEngine.ExtraOpt) > 0 then
             sNull := ' null';
-      S := S + sNull;
+      if dbType<>'LLM' then
+        S := S + sNull;
 
       T := F.GetFieldComments;
       if T <> '' then
       begin
-        if (dbType = 'MYSQL') or (dbType = 'HIVE') then
+        if G_GenDBComments then
         begin
-          S := S + ' comment ''' + ReplaceSingleQuotmark(T) + '''';
+          if (dbType = 'MYSQL') or (dbType = 'HIVE') or (dbType = 'LLM') then
+          begin
+            S := S + ' comment ''' + ReplaceSingleQuotmark(T) + '''';
+          end
+          else
+          begin
+            if (dbType = 'ORACLE') or (dbType = 'POSTGRESQL') then
+            begin
+              if sComment <> '' then
+                sComment := sComment + #13#10;
+              sComment := sComment + 'comment on column '
+                + vTbn + '.' + sFPN + ' is ''' + ReplaceSingleQuotmark(T) + ''';';
+            end
+            else if dbType = 'SQLSERVER' then
+            begin
+              if sComment <> '' then
+                sComment := sComment + #13#10;
+              sComment := sComment +
+                'EXEC sp_addextendedproperty ''MS_Description'', ''' +
+                ReplaceSingleQuotmark(T) + ''', ''user'', ' +
+                GetSqlDbSchemaName + ', ''table'', ' + GetQuotName(RealTableName) +
+                ', ''column'', ' + sFPN + ';';
+            end;
+            if G_AddColCommentToCreateTbSql and (dbType <> 'HIVE') and (F.DisplayName <> '') and (F.DisplayName <> F.Name) then
+            begin
+              if F.Nullable and (F.DefaultValue <> '') and (sNull = '') then
+                S := S + ' null';
+              S := S + '  /*' + ReplaceSingleQuotmark(F.DisplayName) + '*/';
+            end;
+          end;
         end
         else
         begin
-          if (dbType = 'ORACLE') or (dbType = 'POSTGRESQL') then
-          begin
-            if sComment <> '' then
-              sComment := sComment + #13#10;
-            sComment := sComment + 'comment on column '
-              + vTbn + '.' + sFPN + ' is ''' + ReplaceSingleQuotmark(T) + ''';';
-          end
-          else if dbType = 'SQLSERVER' then
-          begin
-            if sComment <> '' then
-              sComment := sComment + #13#10;
-            sComment := sComment +
-              'EXEC sp_addextendedproperty ''MS_Description'', ''' +
-              ReplaceSingleQuotmark(T) + ''', ''user'', ' +
-              GetSqlDbSchemaName + ', ''table'', ' + GetQuotName(RealTableName) +
-              ', ''column'', ' + sFPN + ';';
-          end;
-          if G_AddColCommentToCreateTbSql and (dbType <> 'HIVE') and (F.DisplayName <> '') and (F.DisplayName <> F.Name) then
+          if G_AddColCommentToCreateTbSql and (dbType <> 'HIVE') and (dbType <> 'LLM')
+             and (F.DisplayName <> '') and (F.DisplayName <> F.Name) then
           begin
             if F.Nullable and (F.DefaultValue <> '') and (sNull = '') then
               S := S + ' null';
@@ -3768,7 +3863,7 @@ begin
         else if (dbType = 'HIVE') and (G_HiveVersion < 3) then
         begin  //hive2不支持主外键
         end
-        else if not pkAdded then
+        else if not pkAdded and (dbType<>'LLM') then
         begin
           pkAdded := True;
           if sPK <> '' then
@@ -3789,7 +3884,7 @@ begin
           if (dbType = 'HIVE') and (G_HiveVersion < 3) then
           begin  //hive2不支持主外键
           end
-          else
+          else if dbType<>'LLM' then
           begin
             if sFK <> '' then
               sFK := sFK + #13#10;
@@ -3827,7 +3922,7 @@ begin
           else if (dbType = 'HIVE') and (G_HiveVersion < 3) then
           begin  //hive2不支持主外键
           end
-          else
+          else if dbType<>'LLM' then
           begin
             if sFK <> '' then
               sFK := sFK + #13#10;
@@ -3861,7 +3956,7 @@ begin
               sIdx := sIdx + 'alter table ' + vTbn + ' add constraint ' + GetQuotName('UNQ_' + T) + ' unique (' +  sFPN + GetIndexPrefixInfo(F) + ') disable novalidate;';
             end;
           end
-          else
+          else if dbType<>'LLM' then
           begin
             if sIdx <> '' then
               sIdx := sIdx + #13#10;
@@ -3879,7 +3974,7 @@ begin
               ' on table ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ')'#13#10 +
               ' as ''org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'' with deferred rebuild;';
           end
-          else
+          else if dbType<>'LLM' then
             sIdx := sIdx + 'create index ' + GetQuotName('IDX_' + T) +
               ' on ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ');';
         end
@@ -3893,11 +3988,12 @@ begin
               ' on table ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ')'#13#10 +
               ' as ''org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'' with deferred rebuild;';
           end
-          else
+          else if dbType<>'LLM' then
             sIdx := sIdx + 'create index ' + GetQuotName('IDX_' + T) +
               ' on ' + vTbn + '(' + sFPN + GetIndexPrefixInfo(F) + ');';
         end;
-            
+
+        if dbType<>'LLM' then
         if Trim(F.DBCheck) <> '' then
         begin
           if sChk <> '' then
@@ -3910,6 +4006,7 @@ begin
     end;
 
     //多字段索引
+    if dbType<>'LLM' then
     for I := 0 to MetaFields.Count - 1 do
       if MetaFields[I].DataLevel <> ctdlDeleted then
       begin
@@ -3979,10 +4076,10 @@ begin
       else
         S := S + #13#10');';
     end
-    else if (dbType = 'MYSQL') or (dbType = 'HIVE') then
+    else if (dbType = 'MYSQL') or (dbType = 'HIVE') or (dbType='LLM') then
     begin
       T := Self.GetTableComments;
-      if T <> '' then
+      if G_GenDBComments and (T <> '') then
       begin
         S := S + #13#10') comment ''' + ReplaceSingleQuotmark(T) + ''';';
       end
@@ -3994,30 +4091,33 @@ begin
     if bCreatTb then
       Infos.Add(S);
 
-    if bCreatTb then
+    if dbType<>'LLM' then
     begin
-      if sPK <> '' then
-        Infos.Add(sPK);
-      if sFK <> '' then
-        if bFK then
-          Infos.Add(sFK);
-      if sIdx <> '' then
-        Infos.Add(sIdx);   
-      if sChk <> '' then
-        Infos.Add(sChk);
+      if bCreatTb then
+      begin
+        if sPK <> '' then
+          Infos.Add(sPK);
+        if sFK <> '' then
+          if bFK then
+            Infos.Add(sFK);
+        if sIdx <> '' then
+          Infos.Add(sIdx);
+        if sChk <> '' then
+          Infos.Add(sChk);
 
-      if sComment <> '' then
-        Infos.Add(sComment);
-      if dbType = 'ORACLE' then
-        if G_CreateSeqForOracle and IsSeqNeeded then
-          Infos.Add('create sequence SEQ_' + Self.RealTableName + ';');
-      //额外的SQL
-      if Self.ExtraSQL <> '' then
-        Infos.Add(Self.ExtraSQL);
-      Infos.Add('');
-    end
-    else if bFK then
-      Infos.Add(sFK);
+        if sComment <> '' then
+          Infos.Add(sComment);
+        if dbType = 'ORACLE' then
+          if G_CreateSeqForOracle and IsSeqNeeded then
+            Infos.Add('create sequence SEQ_' + Self.RealTableName + ';');
+        //额外的SQL
+        if Self.ExtraSQL <> '' then
+          Infos.Add(Self.ExtraSQL);
+        Infos.Add('');
+      end
+      else if bFK then
+        Infos.Add(sFK);
+    end;
     Result := infos.Text;
   finally
     infos.Free;
@@ -4350,7 +4450,7 @@ function TCtMetaTable.GetDescribe: string;
   end;
 
 var
-  I, L, LM: integer;
+  I, L, DL, LM: integer;
   S, T, CSTR, FT: string;
   Infos: TStringList;
   f: TCtMetaField;
@@ -4368,8 +4468,9 @@ begin
       begin
         f := MetaFields[I];
         S := GetDesName(f.Name, f.DisplayName);
-        if L < Length(S) then
-          L := Length(S);
+        DL := DmlStrLength(S);
+        if L < DL then
+          L := DL;
       end;
     LM := 0;
     for I := 0 to MetaFields.Count - 1 do
@@ -4379,8 +4480,8 @@ begin
         S := ExtStr(GetDesName(f.Name, f.DisplayName), L);
         FT := f.GetFieldTypeDesc(False, 'DESC');
 
-        if LM < Length(S + ' ' + FT) then
-          LM := Length(S + ' ' + FT);
+        if LM < DmlStrLength(S + ' ' + FT) then
+          LM := DmlStrLength(S + ' ' + FT);
 
         T := F.Memo;
         if F.DataType = cfdtFunction then
@@ -4414,8 +4515,8 @@ begin
       if Trim(PhysicalName) <> Name then
         S:=S + ':' + Trim(PhysicalName);
     S := GetDesName(S, Trim(Caption));
-    if LM < Length(S) then
-      LM := Length(S);
+    if LM < DmlStrLength(S) then
+      LM := DmlStrLength(S);
     T := ExtStr('-', LM, '-');
     Infos.Insert(0, T);
     if Memo <> '' then
@@ -4516,6 +4617,7 @@ var
     po: integer;
   begin
     vMem := GetMemo(Des); //获取注释
+    vNam := '';
     if Trim(vMem) <> '' then
       Mem := vMem;
     DeleteMemo(Des); //删除注释
@@ -6111,12 +6213,25 @@ begin
 end;
 
 function TCtMetaField.GetLabelText: string;
+var
+  L: Integer;
 begin
   Result := LabelText;
   if Result = '' then
     Result := DisplayName;
   if Result = '' then
-    Result := Name;
+    Result := Name;    
+  if Self.PossibleKeyFieldType in [cfktRid, cfktPid, cfktOrgId, cfktCreatorId, cfktModifierId] then
+  //  if (Self.RelateTable <> '') and (Self.RelateField <> '') then
+  begin
+    L := Length(Result);
+    if LowerCase(Copy(Result, L-3+1,3))='_id' then
+      Result := Copy(Result,1,L-3)
+    else if LowerCase(Copy(Result, L-2+1,2))='id' then
+      Result := Copy(Result,1,L-2)
+    else if Copy(Result, L-6+1,6)='编号' then
+      Result := Copy(Result,1,L-6);
+  end;
 end;
 
 function TCtMetaField.PossibleEditorType: string;
@@ -6140,6 +6255,9 @@ begin
   end;
 
   case Self.PossibleKeyFieldType of
+    cfktOrgId,
+    cfktCreatorId,
+    cfktModifierId,
     cfktPid,
     cfktRid:
     begin
@@ -7243,11 +7361,46 @@ end;
 
 function TCtMetaField.PossibleKeyFieldType: TCtKeyFieldType;
 
-  function FindMatchKNP(kns: string): boolean;
+  function UnderlineToCamelCaseF(AName: string): string;
+  var
+    I, L: integer;
+    ch: char;
+    bNextWord: boolean;
+  begin
+    I := 1;
+    L := Length(AName);
+    Result := '';
+    bNextWord := False;
+    while I <= L do
+    begin
+      ch := AName[I];
+      if (ch = '_') then
+      begin
+        bNextWord := True;
+        Inc(I);
+      end
+      else
+      begin
+        if bNextWord then
+        begin
+          bNextWord := False;
+          if (ch >= 'a') and (ch <= 'z') then
+            Result := Result + UpperCase(ch)
+          else
+            Result := Result + ch;
+        end
+        else
+          Result := Result + ch;
+        Inc(I);
+      end;
+    end;
+  end;
+
+  function FindMatchKNP(AName: string; kns: string): boolean;
   var
     S: string;
   begin
-    S := ',' + LowerCase(Name) + ',';
+    S := ',' + LowerCase(AName) + ',';
     if Pos(S, ',' + LowerCase(kns) + ',') > 0 then
       Result := True
     else
@@ -7256,12 +7409,16 @@ function TCtMetaField.PossibleKeyFieldType: TCtKeyFieldType;
 
 var
   k: TCtKeyFieldType;
+  T: string;
 begin
   Result := KeyFieldType;
   if Result <> cfktNormal then
     Exit;
   if Name = '' then
     Exit;
+  T := UnderlineToCamelCaseF(Name);
+  if UpperCase(Name) = UpperCase(T) then
+    T := '';
   for k := Low(TCtKeyFieldType) to High(TCtKeyFieldType) do
   begin
     if UpperCase(Name) = UpperCase(DEF_CTMETAFIELD_KEYFIELD_NAMES_ENG[k]) then
@@ -7269,6 +7426,12 @@ begin
       Result := k;
       Exit;
     end;
+    if T<>'' then
+      if UpperCase(T) = UpperCase(DEF_CTMETAFIELD_KEYFIELD_NAMES_ENG[k]) then
+      begin
+        Result := k;
+        Exit;
+      end;
   end;
   for k := Low(TCtKeyFieldType) to High(TCtKeyFieldType) do
   begin
@@ -7277,14 +7440,26 @@ begin
       Result := k;
       Exit;
     end;
+    if T<>'' then
+      if UpperCase(T) = UpperCase(DEF_CTMETAFIELD_KEYFIELD_NAMES_CHN[k]) then
+      begin
+        Result := k;
+        Exit;
+      end;
   end;
   for k := Low(TCtKeyFieldType) to High(TCtKeyFieldType) do
   begin
-    if FindMatchKNP(DEF_CTMETAFIELD_KEYFIELD_NAMES_POSSIBLE[k]) then
+    if FindMatchKNP(Name, DEF_CTMETAFIELD_KEYFIELD_NAMES_POSSIBLE[k]) then
     begin
       Result := k;
       Exit;
     end;
+    if T<>'' then
+      if FindMatchKNP(T, DEF_CTMETAFIELD_KEYFIELD_NAMES_POSSIBLE[k]) then
+      begin
+        Result := k;
+        Exit;
+      end;
   end;
 end;
 
@@ -7330,7 +7505,21 @@ begin
   if bPhy then
   begin
     Result := GetPhyDataTypeName(dbType);
-    if (DbType = 'SQLITE') then
+    if DbType='LLM' then
+    begin
+      if Self.KeyFieldType = cfktID then
+      begin
+        Result := Result + ' primary key';
+        if (RelateTable <> '') and (RelateField <> '') and (Pos('{Link:', RelateField)=0) then
+          Result := Result + ' references ' + RelateTableRealName + '(' + RelateField + ')';
+      end
+      else if Self.KeyFieldType = cfktRID then
+      begin
+        if (RelateTable <> '') and (RelateField <> '') and (Pos('{Link:', RelateField)=0) then
+          Result := Result + ' references ' + RelateTableRealName + '(' + RelateField + ')';
+      end;
+    end
+    else if DbType = 'SQLITE' then
     begin //sqlite主键直接定义
       if Self.KeyFieldType = cfktID then
       begin
@@ -7436,7 +7625,12 @@ end;
 function TCtMetaField.GetPhyDataTypeName(dbType: string): string;
 var
   dl: integer;
-begin
+begin     
+  if dbType='LLM' then
+  begin
+    Result := GetLogicDataTypeName;
+    Exit;
+  end;
   case DataType of
     cfdtFloat:
     begin
@@ -7700,11 +7894,12 @@ end;
 function TCtMetaField.GenDemoDataEx(ARowIndex: integer; AOpt: string;
   ADataSet: TDataSet): string;
 var
-  S: string;
+  S, V: string;
   J: integer;
-  fd: TCtMetaField;
+  fd, rfd: TCtMetaField;
   bHasCustRule: boolean;
   bChkNulls: boolean;
+  rtb: TCtMetaTable;
 begin    
   if Pos('[REMOVE_NULLS]', AOpt)>0 then
   begin
@@ -7727,7 +7922,7 @@ begin
   else
     bHasCustRule := False;
 
-  if not bHasCustRule and (Self.KeyFieldType in [cfktPid, cfktRid]) then
+  {if not bHasCustRule and (Self.KeyFieldType in [cfktPid, cfktRid]) then
   begin
     if Self.LabelText <> '' then
     begin
@@ -7757,7 +7952,7 @@ begin
           end;
       end;
     end;
-  end;
+  end;}
 
   if not bHasCustRule and (Self.DataType = cfdtCalculate) then
   begin
@@ -7795,6 +7990,13 @@ begin
   S := Self.DisplayName;
   if S = '' then
     S := Self.Name;
+  if Pos('[GET_REC_TITLE]', AOpt)>0 then
+  if Self.OwnerTable<>nil then
+  begin
+    V := Self.OwnerTable.DisplayText;
+    if Pos(V, S)=0 then
+      S:=V+S;
+  end;
 
   J := ARowIndex;
   if J < 0 then
@@ -7831,6 +8033,34 @@ begin
 
   if Assigned(Proc_GenDemoData) then
     Result := Proc_GenDemoData(Self, '', Result, ARowIndex, AOpt, ADataSet);
+                       
+  if Self.KeyFieldType in [cfktId, cfktRid, cfktPid] then
+  if (Self.TestDataType='') and (Self.TestDataRules='') then
+  begin
+    if Self.KeyFieldType in [cfktPid] then
+      rtb := Self.OwnerTable
+    else
+    begin
+      rtb := Self.GetRelateTableObj;
+      if (rtb <> nil) and (Self.OwnerTable <> nil) then
+        if rtb.Name=Self.OwnerTable.Name then
+          rtb := Self.OwnerTable;
+    end;
+    if rtb<>nil then
+    begin
+      V := rtb.GetTitleFieldName;
+      if V<>'' then
+      begin
+        rfd := rtb.MetaFields.FieldByName(V);
+        if rfd <> nil then
+        begin
+          V := rfd.GenDemoData(ARowIndex, AOpt+'[GET_REC_TITLE]', nil);
+          if V<>'' then
+            Result:=V+'('+Result+')';
+        end;
+      end;
+    end;
+  end;
 
   if Result='_null' then
     if bChkNulls then
@@ -8926,7 +9156,7 @@ begin
       if Assigned(FOnObjProgress) then
       begin
         bCont := True;
-        FOnObjProgress(Self, obj.NameCaption, I, C, bCont);
+        FOnObjProgress(Self, obj.NameCaption, 0, 0, bCont);
         if not bCont then
           Break;
       end;
@@ -8942,7 +9172,7 @@ begin
         if Assigned(FOnObjProgress) then
         begin
           bCont := True;
-          FOnObjProgress(Self, obj.NameCaption, I, C, bCont);
+          FOnObjProgress(Self, obj.NameCaption, 0, 0, bCont);
           if not bCont then
             Break;
         end;
@@ -9095,7 +9325,7 @@ begin
     if Assigned(FOnObjProgress) then
     begin
       bCont := True;
-      FOnObjProgress(Self, Items[I].NameCaption, I, C, bCont);
+      FOnObjProgress(Self, Items[I].NameCaption, 0, 0, bCont);
       if not bCont then
         Break;
     end;
@@ -9366,8 +9596,9 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
         else if not dbF.Nullable then
           Result := Result + ' null';
 
-        Result := Result + ' comment ''' + ReplaceSingleQuotmark(
-          ctF.GetFieldComments) + '''';
+        if G_GenDBComments then
+          Result := Result + ' comment ''' + ReplaceSingleQuotmark(
+            ctF.GetFieldComments) + '''';
 
         Result := Result + ';';
       end
@@ -9378,8 +9609,9 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
         if ctF.DefaultValue <> '' then
           Result := Result + ctF.GetFieldDefaultValDesc(EngineType);
         Result := Result + nulls;
-        Result := Result + ' comment ''' + ReplaceSingleQuotmark(
-          ctF.GetFieldComments) + '''';
+        if G_GenDBComments then
+          Result := Result + ' comment ''' + ReplaceSingleQuotmark(
+            ctF.GetFieldComments) + '''';
         Result := Result + ';';
       end
       else if cmd = 'drop' then
@@ -9546,7 +9778,7 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
         nulls := ctF.GetNullableStr(EngineType);
         S := S + nulls;
         T := ctF.GetFieldComments;
-        if T <> '' then
+        if G_GenDBComments and (T <> '') then
           S := S + ' comment ''' + ReplaceSingleQuotmark(T) + '''';
 
         Result := 'alter  table ' + tableName + ' change ' + GetQuotName(ctF.Name)+ ' '
@@ -9563,7 +9795,7 @@ function TCtMetaDatabase.GenObjSql(obj, obj_db: TCtMetaObject; sqlType: integer)
         nulls := ctF.GetNullableStr(EngineType);
         S := S + nulls;
         T := ctF.GetFieldComments;
-        if T <> '' then
+        if G_GenDBComments and (T <> '') then
           S := S + ' comment ''' + ReplaceSingleQuotmark(T) + '''';
 
         Result := 'alter  table ' + tableName + ' add columns(' + GetQuotName(ctF.Name)
@@ -9742,7 +9974,7 @@ begin
   begin
 
   end
-  else if dmlLsTbObj.GetTableComments <> dmlDBTbObj.GetTableComments then
+  else if G_GenDBComments and (dmlLsTbObj.GetTableComments <> dmlDBTbObj.GetTableComments) then
   begin
     if (EngineType = 'ORACLE') or (EngineType = 'POSTGRESQL') then
     begin
@@ -9865,7 +10097,7 @@ begin
           end;
 
           //字段说明
-          if not MaybeSameStr(ctF.GetFieldComments, dbF.GetFieldComments) then
+          if G_GenDBComments and not MaybeSameStr(ctF.GetFieldComments, dbF.GetFieldComments) then
           begin
             if (EngineType = 'ORACLE') or (EngineType = 'POSTGRESQL') then
             begin
@@ -10007,7 +10239,7 @@ begin
             ResTbSQL.Add(strSQL);
           end;
           //字段说明
-          if not MaybeSameStr(dbF.GetFieldComments, ctF.GetFieldComments) then
+          if G_GenDBComments and not MaybeSameStr(dbF.GetFieldComments, ctF.GetFieldComments) then
           begin
             if (EngineType = 'ORACLE') or (EngineType = 'POSTGRESQL') then
             begin
@@ -10152,7 +10384,7 @@ begin
       strSQL := GetAlterTableColActStr('add', dmlLsTbObj, ctF, ctF);
       ResTbSQL.Add(strSQL);
       //字段说明
-      if ctF.GetFieldComments <> '' then
+      if G_GenDBComments and (ctF.GetFieldComments <> '') then
       begin
         if (EngineType = 'ORACLE') or (EngineType = 'POSTGRESQL') then
         begin

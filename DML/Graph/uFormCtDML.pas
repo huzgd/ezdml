@@ -1541,8 +1541,12 @@ begin
     MNRun_GenCode.Visible:=False;
     actBatchOps.Visible:=False;
     actCnWordSegment.Visible:=False;
-    {$else} 
+    {$else}          
+    {$ifdef WIN32} 
+    actChatGPT.Visible := False;   
+    {$else}
     actChatGPT.Visible := not FBrowseMode;// and (actChatGPT.Tag=2);
+    {$endif}
     {$endif}           
     ToolButtonAI.Visible := actChatGPT.Visible;        
     MenuItem_AI.Visible := actChatGPT.Visible;
@@ -1833,7 +1837,7 @@ var
   FLastObjX, FLastObjY, dv, vCenterX, vCenterY, vScale: double;
   DMLObjList: TDMLObjList;
   obj: TDMLObj;
-  I, po: integer;
+  I, po, idx: integer;
   tbs: TCtMetaTableList;
   bfMode: boolean;
   selStr, S, T: string;
@@ -1970,8 +1974,8 @@ begin
           end;
 
           o.ID := DMLObjList.GetNextObjID;
-          DMLObjList.Add(o);
-          DMLObjList.FindSpaceEx(o, FLastObjX, FLastObjY, 100);
+          idx := DMLObjList.Add(o);
+          DMLObjList.FindSpaceEx(o, FLastObjX, FLastObjY, 100, idx);
           //tb.GraphDesc := GetLocationDesc(o);
           FLastObjX := o.Left;
           FLastObjY := o.Top;

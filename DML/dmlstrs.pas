@@ -481,9 +481,9 @@ resourcestring
 
   srUIFieldCategory =
     'All' + #13#10 +
-    'Grid' + #13#10 +
-    'Sheet' + #13#10 +
+    'Grid' + #13#10 + 
     'Card' + #13#10 +
+    'Sheet' + #13#10 +
     'Query' + #13#10 +
     'Fast search' + #13#10 +   
     'Exportable' + #13#10 +
@@ -507,7 +507,8 @@ resourcestring
   srChatGPTGenModel = 'Generate New Model';
   srChatGPTGenTables = 'Add More Tables';         
   srChatGPTGenFields = 'Add More Fields';
-  srChatGPTGenComments = 'Generate Comments';
+  srChatGPTGenComments = 'Generate Comments';  
+  srChatGPTGenSampleValues = 'Generate Sample Values';
   srChatGPTGenRelations = 'Generate Foreign Keys';
   srChatGPTReqFailed = 'Request for AI service failed';
   srChatGPTRecoFailed = 'The content returned by AI service is not recognized. Please modify the text or try again later';

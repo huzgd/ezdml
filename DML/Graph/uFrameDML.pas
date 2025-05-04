@@ -56,6 +56,11 @@ type
     MenuItem15: TMenuItem;
     MenuItem16: TMenuItem;
     MenuItem17: TMenuItem;
+    PPMNAI_Text2SQL: TMenuItem;
+    PMNAI_Text2SQL: TMenuItem;
+    MNAI_Text2SQL: TMenuItem;
+    PMNAI_GenSampleValues: TMenuItem;
+    MNAI_GenSampleValues: TMenuItem;
     MNOF_Recentfiles: TMenuItem;
     MNSF_DbFile: TMenuItem;
     MNSF_LocalFile: TMenuItem;
@@ -267,7 +272,9 @@ type
     procedure MNAI_GenFieldsClick(Sender: TObject);
     procedure MNAI_GenFKLinksClick(Sender: TObject);
     procedure MNAI_GenNewModelClick(Sender: TObject);
+    procedure MNAI_GenSampleValuesClick(Sender: TObject);
     procedure MNAI_GenTablesClick(Sender: TObject);
+    procedure MNAI_Text2SQLClick(Sender: TObject);
     procedure MNFile_OperClick(Sender: TObject);
     procedure MNRun_GenCodeClick(Sender: TObject);
     procedure MNRun_GenDataClick(Sender: TObject);
@@ -726,9 +733,19 @@ begin
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 1);
 end;
 
+procedure TFrameDML.MNAI_GenSampleValuesClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 6);
+end;
+
 procedure TFrameDML.MNAI_GenTablesClick(Sender: TObject);
 begin
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 2);
+end;
+
+procedure TFrameDML.MNAI_Text2SQLClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 101);
 end;
 
 procedure TFrameDML.MNFile_OperClick(Sender: TObject);
@@ -1356,6 +1373,7 @@ end;
 procedure TFrameDML.actRearrangeExecute(Sender: TObject);
 var
   C: Integer;
+  bHuge: Boolean;
 begin
   if Sender <> nil then
   begin
@@ -1370,16 +1388,26 @@ begin
         PChar(Application.Title), MB_OKCANCEL or MB_ICONQUESTION) <> IDOK then
         Exit;
     end;
-  end;        
-  if DMLGraph.DMLDrawer.FIsHugeMode then
-    Toast(srHugeModeArrangeHint, 2000);
+  end;
+  bHuge := DMLGraph.DMLDrawer.FIsHugeMode;  
+  {$ifndef EZDML_LITE}
+  if bHuge then       
+    case Application.MessageBox(PChar(srHugeModeArrangeHint),
+      PChar(Application.Title), MB_YESNOCANCEL or MB_ICONQUESTION) of
+        IDYES:;
+        IDNO: bHuge := False;
+      else
+        Exit;
+      end; 
+  {$endif}
+
   Screen.Cursor := crAppStart;
   try
 
     if DMLGraph.DMLObjs.BriefMode then
       DMLGraph.DMLObjs.BriefMode := False;
 
-    if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+    if bHuge then
       DMLGraph.DMLObjs.ReArrange
     else
       DMLGraph.DMLObjs.ReArrangeV2;
@@ -1523,10 +1551,12 @@ begin
   MN_Capitalize.Enabled := (C > 0) and bSelTb;
 
   MNAI_GenFields.Enabled := (C = 1) and bSelTb;
-  MNAI_GenComments.Enabled := (C = 1) and bSelTb;
+  MNAI_GenComments.Enabled := (C = 1) and bSelTb;   
+  MNAI_GenSampleValues.Enabled := (C = 1) and bSelTb;
   MNAI_GenFKLinks.Enabled := (C > 0) and bSelTb;
   PMNAI_GenFields.Enabled := (C = 1) and bSelTb;
-  PMNAI_GenComments.Enabled := (C = 1) and bSelTb;
+  PMNAI_GenComments.Enabled := (C = 1) and bSelTb;     
+  PMNAI_GenSampleValues.Enabled := (C = 1) and bSelTb;
   PMNAI_GenFKLinks.Enabled := (C > 0) and bSelTb;
                                       
   actBatAddFields.Enabled := (C > 0) and bSelTb;

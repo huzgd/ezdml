@@ -558,7 +558,7 @@ type
 
     procedure PaintAll; virtual;
     procedure FindSpace(obj: TDMLObj);
-    procedure FindSpaceEx(obj: TDMLObj; FromX, FromY, DY: Double);
+    procedure FindSpaceEx(obj: TDMLObj; FromX, FromY, DY: Double; ObjIdx: Integer=-1);
 
     procedure ClearSelection;
     procedure ClearFieldSelection;
@@ -1639,17 +1639,25 @@ begin
   FindSpaceEx(obj, 10, 10, 50);
 end;
 
-procedure TDMLObjList.FindSpaceEx(obj: TDMLObj; FromX, FromY, DY: Double);
+procedure TDMLObjList.FindSpaceEx(obj: TDMLObj; FromX, FromY, DY: Double; ObjIdx: Integer);
 var
-  I: Integer;
+  I,I0,I1: Integer;
   ot: TDMLObj;
   RX, RY, RW, RH, DDY, DDS: Double;
-  bCross: Boolean;
+  bCont, bCross: Boolean;
 begin
   if not Assigned(obj) then
     Exit;
   if obj.DrawOnBackground<>0 then
     Exit;
+
+  bCont := True;
+  if Assigned(FOnObjProgress) then
+    FOnObjProgress(Self, srProcessing, 0, 0, bCont);
+  if not bCont then
+    Abort;
+
+
   obj.BLeft := 0;
   obj.BTop := 0;
   obj.CheckResize;
@@ -1667,11 +1675,26 @@ begin
   if (DY = 50) and (obj is TDMLEntityObj) and
     (TDMLEntityObj(obj).Links.Count > 0) then
     DY := 200;
+           
+  I0:=0;
+  I1:=Count-1;
+  if DMLDrawer.FIsHugeMode and (ObjIdx > 1000) then
+  begin
+    I := DMLDrawer.DrawerWidth div 100;
+    if I<30 then
+      I := 30
+    else if I>500 then
+      I := 500;
+    I0 := ObjIdx-I;
+    if I0<0 then
+      I0:=0;
+    I1 := ObjIdx-1;
+  end;
 
   while True do
   begin
     bCross := False;
-    for I := 0 to Count - 1 do
+    for I := I0 to I1 do
     begin
       ot := Items[I];
       if ot.Visible and (ot <> obj) and (ot.DrawOnBackground=0) then
@@ -2136,7 +2159,19 @@ begin
   end;
 end;
 
-procedure TDMLObjList.ReArrangeEx(initDX, initDY: Double);
+procedure TDMLObjList.ReArrangeEx(initDX, initDY: Double); 
+  function GetNextItem: Integer;
+  var
+    I: Integer;
+  begin
+    Result := -1;
+    for I:=0 to Count - 1 do
+      if not Items[I].Visible then
+      begin
+        Result := I;
+        Exit;
+      end;
+  end;
   function GetRandomItem: Integer;
   var
     I, C: Integer;
@@ -2190,8 +2225,11 @@ begin
   AC := C;
   Randomize;
   while AC > 0 do
-  begin
-    I := GetRandomItem;
+  begin        
+    if bHuge then
+      I := GetNextItem
+    else
+      I := GetRandomItem;
     if I = -1 then
       Break;
     Dec(AC);
@@ -2201,12 +2239,12 @@ begin
         FOnObjProgress(Self, srRearrangeObjs, C - AC, C, bCont);
       if bCont and (Items[I].DrawOnBackground=0) then
       begin
-        FindSpaceEx(Items[I], DX, DY, 50);
+        FindSpaceEx(Items[I], DX, DY, 50, I);
         Items[I].Visible := True;
         if not bHuge then
           if Items[I] is TDMLEntityObj then
             TDMLEntityObj(Items[I]).FindSpaceForLinkObjs(Self);
-        if bFast then
+        if bFast or bHuge then
         begin
           DX := Items[I].Left;
           DY := Items[I].Top;

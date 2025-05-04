@@ -86,6 +86,14 @@ begin
       if items.IndexOf(fdef) >= 0 then
       begin
         ItemIndex := items.IndexOf(fdef);
+        if tb1.IsText or (tb1.GetPrimaryKeyField=nil) then
+          frmAddTbLink.combLinkType.ItemIndex :=1
+        else
+        begin
+          if tb2.MetaFields.FieldByName(fdef) <> nil then
+          if tb1.GetPrimaryKeyField.DataType <> tb2.MetaFields.FieldByName(fdef).DataType then
+            frmAddTbLink.combLinkType.ItemIndex :=1;
+        end;
         frmAddTbLink.RefreshLinkInfo;
       end;
   if frmAddTbLink.ShowModal = mrOk then
@@ -183,12 +191,16 @@ begin
     else if cf.RelateField = '{Link:OppDirect}' then
       combLinkType.ItemIndex := 3
     else if tb1.IsText then
+      combLinkType.ItemIndex := 1 
+    else if tb1.GetPrimaryKeyField=nil then
+      combLinkType.ItemIndex := 1  
+    else if tb1.GetPrimaryKeyField.DataType <> cf.DataType then
       combLinkType.ItemIndex := 1
     else
       combLinkType.ItemIndex := 0;    
     ckbCreateNewField.Visible := False;
   end
-  else if tb1.IsText then
+  else if tb1.IsText or (tb1.GetPrimaryKeyField=nil) then
   begin
     combRelateField.ItemIndex := -1;
     combLinkType.ItemIndex := 1;  

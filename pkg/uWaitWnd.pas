@@ -458,7 +458,10 @@ var
   tm: Int64;
 begin
   if FCanceled then
+  begin
+    PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 12, 0);
     Abort;
+  end;
   tm := GetTickCount64;
   if Abs(tm - FLastChkAbtTick) > FSkipCTime then
   begin
@@ -466,7 +469,10 @@ begin
     ProcessMessages;
 
     if FCanceled then
+    begin
+      PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 12, 0);
       Abort;
+    end;
   end;
 end;
 

@@ -1,13 +1,13 @@
 object frmCtGenSQL: TfrmCtGenSQL
   Left = 324
-  Height = 594
+  Height = 664
   Top = 164
-  Width = 864
+  Width = 1019
   BorderIcons = [biSystemMenu, biMaximize]
   BorderWidth = 4
   Caption = 'Generate Database'
-  ClientHeight = 594
-  ClientWidth = 864
+  ClientHeight = 664
+  ClientWidth = 1019
   Color = clBtnFace
   OnClose = FormClose
   OnCreate = FormCreate
@@ -18,19 +18,19 @@ object frmCtGenSQL: TfrmCtGenSQL
   LCLVersion = '2.0.12.0'
   object Panel2: TPanel
     Left = 291
-    Height = 401
+    Height = 471
     Top = 116
-    Width = 569
+    Width = 724
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 401
-    ClientWidth = 569
+    ClientHeight = 471
+    ClientWidth = 724
     TabOrder = 2
     object tpgAction: TPageControl
       Left = 0
-      Height = 401
+      Height = 471
       Top = 0
-      Width = 569
+      Width = 724
       ActivePage = tbsResSQL
       Align = alClient
       MultiLine = True
@@ -39,13 +39,13 @@ object frmCtGenSQL: TfrmCtGenSQL
       Options = [nboMultiLine]
       object tbsResSQL: TTabSheet
         Caption = 'Result'
-        ClientHeight = 371
-        ClientWidth = 561
+        ClientHeight = 441
+        ClientWidth = 716
         object memSQL: TMemo
           Left = 0
-          Height = 371
+          Height = 441
           Top = 0
-          Width = 561
+          Width = 716
           Align = alClient
           Font.CharSet = ANSI_CHARSET
           Font.Color = clWindowText
@@ -89,7 +89,7 @@ object frmCtGenSQL: TfrmCtGenSQL
       end
     end
     object chkPause: TCheckBox
-      Left = 450
+      Left = 605
       Height = 21
       Top = -3
       Width = 102
@@ -100,7 +100,7 @@ object frmCtGenSQL: TfrmCtGenSQL
       TabOrder = 1
     end
     object ckbRecreateTable: TCheckBox
-      Left = 266
+      Left = 421
       Height = 21
       Hint = 'will rename old table'
       Top = -3
@@ -115,12 +115,12 @@ object frmCtGenSQL: TfrmCtGenSQL
   object Panel1: TPanel
     Left = 4
     Height = 73
-    Top = 517
-    Width = 856
+    Top = 587
+    Width = 1011
     Align = alBottom
     BevelOuter = bvNone
     ClientHeight = 73
-    ClientWidth = 856
+    ClientWidth = 1011
     TabOrder = 0
     object LabelProg: TLabel
       Left = 88
@@ -142,12 +142,12 @@ object frmCtGenSQL: TfrmCtGenSQL
       Left = 88
       Height = 22
       Top = 12
-      Width = 456
+      Width = 611
       Anchors = [akTop, akLeft, akRight]
       TabOrder = 0
     end
     object btnCancel: TButton
-      Left = 781
+      Left = 936
       Height = 27
       Top = 9
       Width = 58
@@ -159,7 +159,7 @@ object frmCtGenSQL: TfrmCtGenSQL
       TabOrder = 1
     end
     object btnBuildSQL: TButton
-      Left = 568
+      Left = 723
       Height = 27
       Top = 9
       Width = 92
@@ -170,7 +170,7 @@ object frmCtGenSQL: TfrmCtGenSQL
       TabOrder = 2
     end
     object btnExecSQL: TButton
-      Left = 655
+      Left = 810
       Height = 27
       Top = 9
       Width = 70
@@ -181,7 +181,7 @@ object frmCtGenSQL: TfrmCtGenSQL
       TabOrder = 3
     end
     object btnResum: TButton
-      Left = 719
+      Left = 874
       Height = 27
       Top = 9
       Width = 65
@@ -195,12 +195,12 @@ object frmCtGenSQL: TfrmCtGenSQL
   end
   object Panel3: TPanel
     Left = 4
-    Height = 401
+    Height = 471
     Top = 116
     Width = 282
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 401
+    ClientHeight = 471
     ClientWidth = 282
     TabOrder = 3
     object combModels: TComboBox
@@ -216,7 +216,7 @@ object frmCtGenSQL: TfrmCtGenSQL
     end
     object cklbDbObjs: TCheckListBox
       Left = 0
-      Height = 376
+      Height = 446
       Top = 25
       Width = 282
       Align = alClient
@@ -232,11 +232,11 @@ object frmCtGenSQL: TfrmCtGenSQL
     Left = 4
     Height = 112
     Top = 4
-    Width = 856
+    Width = 1011
     Align = alTop
     BevelOuter = bvNone
     ClientHeight = 112
-    ClientWidth = 856
+    ClientWidth = 1011
     TabOrder = 4
     object Bevel1: TBevel
       Left = 8
@@ -327,10 +327,19 @@ object frmCtGenSQL: TfrmCtGenSQL
       OnChange = ckbCreateForeignkeysChange
       TabOrder = 5
     end
+    object ckbGenDBComments: TCheckBox
+      Left = 848
+      Height = 21
+      Top = 76
+      Width = 139
+      Caption = 'Generate comments'
+      OnChange = ckbGenDBCommentsChange
+      TabOrder = 6
+    end
   end
   object Splitter1: TSplitter
     Left = 286
-    Height = 401
+    Height = 471
     Top = 116
     Width = 5
   end
@@ -338,7 +347,7 @@ object frmCtGenSQL: TfrmCtGenSQL
     Left = 232
     Height = 21
     Hint = 'menu...'
-    Top = 484
+    Top = 554
     Width = 24
     Anchors = [akLeft, akBottom]
     Glyph.Data = {
@@ -404,10 +413,6 @@ object frmCtGenSQL: TfrmCtGenSQL
     end
     object N1: TMenuItem
       Caption = '-'
-    end
-    object MnShowPhyName: TMenuItem
-      Caption = 'Show physical name'
-      OnClick = MnShowPhyNameClick
     end
     object MN_ModelTableInfo: TMenuItem
       Caption = 'Table properties (Model)'

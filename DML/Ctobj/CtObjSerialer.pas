@@ -660,7 +660,10 @@ begin
   end;
   Inc(FCheckCounter);
   if FCheckCounter > 200 then
-    CheckAbort(' ');
+  begin
+    ;//CheckAbort(' ');
+    FCheckCounter := 0;
+  end;
 end;
 
 procedure TCtObjSerialer.ReadStrings(const PropName: string;

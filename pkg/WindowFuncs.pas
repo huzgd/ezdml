@@ -3,7 +3,7 @@ unit WindowFuncs;
 interface
 
 uses
-  SysUtils, Classes, Graphics,
+  LMessages, SysUtils, Classes, Graphics,
   Forms, StdCtrls, LCLIntf, LCLType;
 
 
@@ -181,6 +181,7 @@ var
   G_AppFixWidthFontSize: integer = 0;
   G_DmlGraphFontName: string = '';      
   G_DmlGraphDefScale: string = '';
+  G_CheckAbortTk: Int64 = 0;
   GProc_Toast: procedure(const Msg: variant; closeTimeMs: integer);
 
 const
@@ -1470,7 +1471,41 @@ begin
 end;
 
 procedure CheckAbort(const Msg: string);
+var
+  S, T: string;
+  ks: Smallint;
+  tk: Int64;
 begin
+  if Application.ModalLevel > 0 then
+    Exit;
+  tk :=GetTickCount64;
+  if Abs(tk-G_CheckAbortTk)<200 then
+    Exit;
+  G_CheckAbortTk := tk;
+
+  Application.MainForm.Enabled := False;
+  try
+    Application.ProcessMessages;
+    ks := GetKeyState(VK_ESCAPE);
+  finally
+    Application.MainForm.Enabled := True;
+  end;
+
+  if (ks and $80) <> 0 then
+  begin
+    if Msg = '' then
+      Abort;
+    if Msg = ' ' then
+      S := srConfirmAbort
+    else
+      S := Msg;
+    T := srCapAbort;
+    if Application.MessageBox(PChar(S), PChar(T), MB_YESNO) = IDYES then
+    begin
+      PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 12, 0);
+      Abort;
+    end;
+  end;
 end;
 
 procedure DelTree(Dir: string);

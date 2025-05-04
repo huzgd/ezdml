@@ -2152,6 +2152,39 @@ object FrameDML: TFrameDML
       Action = actResetObjLinks
       GroupIndex = 1
     end
+    object MenuItem_AI: TMenuItem
+      Caption = 'AI Assistant'
+      object PMNAI_GenTables: TMenuItem
+        Caption = 'Add More Tables'
+        ImageIndex = 76
+        OnClick = MNAI_GenTablesClick
+      end
+      object PMNAI_GenFields: TMenuItem
+        Caption = 'Add More Fields'
+        ImageIndex = 13
+        OnClick = MNAI_GenFieldsClick
+      end
+      object PMNAI_GenComments: TMenuItem
+        Caption = 'Generate Comments'
+        ImageIndex = 29
+        OnClick = MNAI_GenCommentsClick
+      end
+      object PMNAI_GenSampleValues: TMenuItem
+        Caption = 'Generate Sample Values'
+        ImageIndex = 10
+        OnClick = MNAI_GenSampleValuesClick
+      end
+      object PMNAI_GenFKLinks: TMenuItem
+        Caption = 'Generate Foreign Keys'
+        ImageIndex = 75
+        OnClick = MNAI_GenFKLinksClick
+      end
+      object PMNAI_Text2SQL: TMenuItem
+        Caption = 'Text to SQL'
+        ImageIndex = 43
+        OnClick = MNAI_Text2SQLClick
+      end
+    end
     object MenuItem13: TMenuItem
       Caption = '-'
     end
@@ -2180,6 +2213,11 @@ object FrameDML: TFrameDML
     end
     object MenuItem12: TMenuItem
       Action = actExecSql
+    end
+    object PPMNAI_Text2SQL: TMenuItem
+      Caption = 'Text to SQL'
+      ImageIndex = 43
+      OnClick = MNAI_Text2SQLClick
     end
     object MN_GenSql: TMenuItem
       Action = actDBGenSql
@@ -2243,29 +2281,6 @@ object FrameDML: TFrameDML
       end
       object MenuItem6: TMenuItem
         Action = actBatCopyUpdateSQL
-      end
-    end
-    object MenuItem_AI: TMenuItem
-      Caption = 'AI Assistant'
-      object PMNAI_GenTables: TMenuItem
-        Caption = 'Add More Tables'
-        ImageIndex = 76
-        OnClick = MNAI_GenTablesClick
-      end
-      object PMNAI_GenFields: TMenuItem
-        Caption = 'Add More Fields'
-        ImageIndex = 13
-        OnClick = MNAI_GenFieldsClick
-      end
-      object PMNAI_GenComments: TMenuItem
-        Caption = 'Generate Comments'
-        ImageIndex = 29
-        OnClick = MNAI_GenCommentsClick
-      end
-      object PMNAI_GenFKLinks: TMenuItem
-        Caption = 'Generate Foreign Keys'
-        ImageIndex = 75
-        OnClick = MNAI_GenFKLinksClick
       end
     end
     object MenuItem16: TMenuItem
@@ -5337,10 +5352,20 @@ object FrameDML: TFrameDML
       ImageIndex = 29
       OnClick = MNAI_GenCommentsClick
     end
+    object MNAI_GenSampleValues: TMenuItem
+      Caption = 'Generate Sample Values'
+      ImageIndex = 10
+      OnClick = MNAI_GenSampleValuesClick
+    end
     object MNAI_GenFKLinks: TMenuItem
       Caption = 'Generate Foreign Keys'
       ImageIndex = 75
       OnClick = MNAI_GenFKLinksClick
+    end
+    object MNAI_Text2SQL: TMenuItem
+      Caption = 'Text to SQL'
+      ImageIndex = 43
+      OnClick = MNAI_Text2SQLClick
     end
   end
   object PopupMenuOpenFile: TPopupMenu

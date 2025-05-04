@@ -17,5 +17,9 @@
 {"hash":97869950,"name":"tfrmcttableprop.actconvertchntopy.caption","sourcebytes":[67,111,110,118,101,114,116,32,67,104,105,110,101,115,101,32,116,111,32,80,105,110,89,105,110],"value":"Convert Chinese to PinYin"},
 {"hash":63602373,"name":"tfrmcttableprop.actcamecaseltounderline.caption","sourcebytes":[67,97,109,101,108,45,67,97,115,101,32,116,111,32,85,110,100,101,114,108,105,110,101],"value":"Camel-Case to Underline"},
 {"hash":261161749,"name":"tfrmcttableprop.actunderlinetocamelcase.caption","sourcebytes":[85,110,100,101,114,108,105,110,101,32,116,111,32,67,97,109,101,108,45,67,97,115,101],"value":"Underline to Camel-Case"},
-{"hash":23097796,"name":"tfrmcttableprop.actcnwordsegment.caption","sourcebytes":[67,104,105,110,101,115,101,32,119,111,114,100,32,115,101,103,109,101,110,116],"value":"Chinese word segment"}
+{"hash":23097796,"name":"tfrmcttableprop.actcnwordsegment.caption","sourcebytes":[67,104,105,110,101,115,101,32,119,111,114,100,32,115,101,103,109,101,110,116],"value":"Chinese word segment"},
+{"hash":240251124,"name":"tfrmcttableprop.menuitem_ai.caption","sourcebytes":[65,73,32,65,115,115,105,115,116,97,110,116],"value":"AI Assistant"},
+{"hash":43756899,"name":"tfrmcttableprop.mnai_genfields.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,70,105,101,108,100,115],"value":"Add More Fields"},
+{"hash":251925971,"name":"tfrmcttableprop.mnai_gencomments.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,67,111,109,109,101,110,116,115],"value":"Generate Comments"},
+{"hash":63967907,"name":"tfrmcttableprop.mnai_gensamplevalues.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,83,97,109,112,108,101,32,86,97,108,117,101,115],"value":"Generate Sample Values"}
 ]}

@@ -128,6 +128,11 @@ msgctxt "dmlstrs.srchatgptgenrelations"
 msgid "Generate Foreign Keys"
 msgstr ""
 
+#: dmlstrs.srchatgptgensamplevalues
+msgctxt "dmlstrs.srchatgptgensamplevalues"
+msgid "Generate Sample Values"
+msgstr ""
+
 #: dmlstrs.srchatgptgentables
 msgctxt "dmlstrs.srchatgptgentables"
 msgid "Add More Tables"
@@ -1139,8 +1144,8 @@ msgstr ""
 msgid ""
 "All\n"
 "Grid\n"
-"Sheet\n"
 "Card\n"
+"Sheet\n"
 "Query\n"
 "Fast search\n"
 "Exportable\n"
@@ -1195,6 +1200,12 @@ msgstr ""
 msgid "Generate New Model: please specify the system name and requirement description, AI will generate the new model and add it to the list"
 msgstr ""
 
+#: ezdmlstrs.srezdmlchataitip_gensamplevalues
+msgid ""
+"Generate Sample Values: AI will generate some example data and candidate values for the selected fields based on the system description and existing tables/fields information.\n"
+"Existing tables/fields:\n"
+msgstr ""
+
 #: ezdmlstrs.srezdmlchataitip_gentables
 msgid ""
 "Add More Tables: AI will supplement and add new tables to the model based on the system description and existing table information.\n"
@@ -1218,7 +1229,7 @@ msgid "Warning: File %s can not be locked and may have been opened in another EZ
 msgstr ""
 
 #: ezdmlstrs.srezdmlconfirmclearonopen
-msgid "Current model will be cleared before opening the file. Are you sure to continue?"
+msgid "Please ensure your work has been saved before opening file. Are you sure to continue?"
 msgstr ""
 
 #: ezdmlstrs.srezdmlconfirmclosemodified
@@ -1411,6 +1422,10 @@ msgstr ""
 
 #: ezdmlstrs.srezdmlsaveingfilefmt
 msgid "Saving file %s..."
+msgstr ""
+
+#: ezdmlstrs.srezdmlsavetemporfile
+msgid "Save temporary file"
 msgstr ""
 
 #: ezdmlstrs.srezdmlsaving
@@ -2882,6 +2897,26 @@ msgstr ""
 msgid "curTable.describe"
 msgstr ""
 
+#: tframecttableprop.menuitem_ai.caption
+msgctxt "tframecttableprop.menuitem_ai.caption"
+msgid "AI Assistant"
+msgstr ""
+
+#: tframecttableprop.mnai_gencomments.caption
+msgctxt "tframecttableprop.mnai_gencomments.caption"
+msgid "Generate Comments"
+msgstr ""
+
+#: tframecttableprop.mnai_genfields.caption
+msgctxt "tframecttableprop.mnai_genfields.caption"
+msgid "Add More Fields"
+msgstr ""
+
+#: tframecttableprop.mnai_gensamplevalues.caption
+msgctxt "tframecttableprop.mnai_gensamplevalues.caption"
+msgid "Generate Sample Values"
+msgstr ""
+
 #: tframecttableprop.mngentab_customize.caption
 msgid "Customize"
 msgstr ""
@@ -3607,9 +3642,19 @@ msgctxt "tframedml.mnai_gennewmodel.caption"
 msgid "Generate New Model"
 msgstr ""
 
+#: tframedml.mnai_gensamplevalues.caption
+msgctxt "tframedml.mnai_gensamplevalues.caption"
+msgid "Generate Sample Values"
+msgstr ""
+
 #: tframedml.mnai_gentables.caption
 msgctxt "tframedml.mnai_gentables.caption"
 msgid "Add More Tables"
+msgstr ""
+
+#: tframedml.mnai_text2sql.caption
+msgctxt "tframedml.mnai_text2sql.caption"
+msgid "Text to SQL"
 msgstr ""
 
 #: tframedml.mnof_dbfile.caption
@@ -3688,9 +3733,24 @@ msgctxt "tframedml.pmnai_genfklinks.caption"
 msgid "Generate Foreign Keys"
 msgstr ""
 
+#: tframedml.pmnai_gensamplevalues.caption
+msgctxt "tframedml.pmnai_gensamplevalues.caption"
+msgid "Generate Sample Values"
+msgstr ""
+
 #: tframedml.pmnai_gentables.caption
 msgctxt "tframedml.pmnai_gentables.caption"
 msgid "Add More Tables"
+msgstr ""
+
+#: tframedml.pmnai_text2sql.caption
+msgctxt "tframedml.pmnai_text2sql.caption"
+msgid "Text to SQL"
+msgstr ""
+
+#: tframedml.ppmnai_text2sql.caption
+msgctxt "tframedml.ppmnai_text2sql.caption"
+msgid "Text to SQL"
 msgstr ""
 
 #: tframedml.spthide.hint
@@ -4200,6 +4260,11 @@ msgctxt "tfrmctgensql.ckbcreateforeignkeys.caption"
 msgid "Create foreign keys"
 msgstr ""
 
+#: tfrmctgensql.ckbgendbcomments.caption
+msgctxt "tfrmctgensql.ckbgendbcomments.caption"
+msgid "Generate comments"
+msgstr ""
+
 #: tfrmctgensql.ckbprocoracleseqs.caption
 msgctxt "tfrmctgensql.ckbprocoracleseqs.caption"
 msgid "Process Sequences"
@@ -4267,11 +4332,6 @@ msgstr ""
 
 #: tfrmctgensql.menuitem_virtualdbs.caption
 msgid "Virtual Database"
-msgstr ""
-
-#: tfrmctgensql.mnshowphyname.caption
-msgctxt "tfrmctgensql.mnshowphyname.caption"
-msgid "Show physical name"
 msgstr ""
 
 #: tfrmctgensql.mn_checkall.caption
@@ -4440,6 +4500,26 @@ msgstr ""
 #: tfrmcttableprop.label1.caption
 msgctxt "tfrmcttableprop.label1.caption"
 msgid " "
+msgstr ""
+
+#: tfrmcttableprop.menuitem_ai.caption
+msgctxt "tfrmcttableprop.menuitem_ai.caption"
+msgid "AI Assistant"
+msgstr ""
+
+#: tfrmcttableprop.mnai_gencomments.caption
+msgctxt "tfrmcttableprop.mnai_gencomments.caption"
+msgid "Generate Comments"
+msgstr ""
+
+#: tfrmcttableprop.mnai_genfields.caption
+msgctxt "tfrmcttableprop.mnai_genfields.caption"
+msgid "Add More Fields"
+msgstr ""
+
+#: tfrmcttableprop.mnai_gensamplevalues.caption
+msgctxt "tfrmcttableprop.mnai_gensamplevalues.caption"
+msgid "Generate Sample Values"
 msgstr ""
 
 #: tfrmdmlsearch.actviewprop.caption
@@ -5420,9 +5500,19 @@ msgctxt "tfrmmaindml.mnai_gennewmodel.caption"
 msgid "Generate New Model"
 msgstr ""
 
+#: tfrmmaindml.mnai_gensamplevalues.caption
+msgctxt "tfrmmaindml.mnai_gensamplevalues.caption"
+msgid "Generate Sample Values"
+msgstr ""
+
 #: tfrmmaindml.mnai_gentables.caption
 msgctxt "tfrmmaindml.mnai_gentables.caption"
 msgid "Add More Tables"
+msgstr ""
+
+#: tfrmmaindml.mnai_text2sql.caption
+msgctxt "tfrmmaindml.mnai_text2sql.caption"
+msgid "Text to SQL"
 msgstr ""
 
 #: tfrmmaindml.mnchatgpt1.caption
@@ -5790,6 +5880,11 @@ msgstr ""
 msgid "Show lines of Fields-Grid"
 msgstr ""
 
+#: tfrmsettings.ckbgendbcomments.caption
+msgctxt "tfrmsettings.ckbgendbcomments.caption"
+msgid "Generate comments"
+msgstr ""
+
 #: tfrmsettings.ckblogicnamesfortabledata.caption
 msgid "Use logic-names in select-SQL"
 msgstr ""
@@ -5841,6 +5936,10 @@ msgstr ""
 
 #: tfrmsettings.edtfdgenrule.hint
 msgid "for example: person_name"
+msgstr ""
+
+#: tfrmsettings.edtmaxcharsize.hint
+msgid "Will convert to clob/text if exceed. Default: 4000 for Oracle (clob), 65532 for MySQL (longtext), 8000 for SQLServer/PostgreSQL/SQLite (text)"
 msgstr ""
 
 #: tfrmsettings.edttpnreplacement.hint
@@ -6076,6 +6175,10 @@ msgstr ""
 
 #: tfrmsettings.lblanguagetip.caption
 msgid "(need restart, empty=auto)"
+msgstr ""
+
+#: tfrmsettings.lbmaxcharsize.caption
+msgid "Max char size:"
 msgstr ""
 
 #: tfrmsettings.lbmonofontname.caption

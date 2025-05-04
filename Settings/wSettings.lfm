@@ -14,14 +14,14 @@ object frmSettings: TfrmSettings
   LCLVersion = '2.0.12.0'
   object Panel1: TPanel
     Left = 0
-    Height = 36
-    Top = 651
+    Height = 35
+    Top = 652
     Width = 544
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     BorderWidth = 4
-    ClientHeight = 36
+    ClientHeight = 35
     ClientWidth = 544
     TabOrder = 0
     object btnOk: TButton
@@ -49,16 +49,16 @@ object frmSettings: TfrmSettings
     end
     object Label1: TLabel
       Left = 4
-      Height = 17
+      Height = 12
       Top = 15
-      Width = 4
+      Width = 6
       Caption = ' '
       ParentColor = False
     end
   end
   object PageControlMain: TPageControl
     Left = 0
-    Height = 651
+    Height = 652
     Top = 0
     Width = 544
     ActivePage = tabshtSQL
@@ -87,7 +87,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'User interface'
-          ClientHeight = 74
+          ClientHeight = 79
           ClientWidth = 516
           TabOrder = 0
           object lbLanguage: TLabel
@@ -140,7 +140,7 @@ object frmSettings: TfrmSettings
           Align = alTop
           AutoSize = True
           Caption = 'Auto save'
-          ClientHeight = 182
+          ClientHeight = 187
           ClientWidth = 516
           TabOrder = 1
           object edtAutoSaveMinutes: TEdit
@@ -209,7 +209,7 @@ object frmSettings: TfrmSettings
           Align = alTop
           AutoSize = True
           Caption = 'Huge mode'
-          ClientHeight = 99
+          ClientHeight = 104
           ClientWidth = 516
           TabOrder = 2
           object lbHugeModeTableCountTip: TLabel
@@ -261,7 +261,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Table properties pages'
-          ClientHeight = 80
+          ClientHeight = 85
           ClientWidth = 516
           TabOrder = 3
           object ckbEnableCustomPropUI: TCheckBox
@@ -351,7 +351,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Base font'
-          ClientHeight = 50
+          ClientHeight = 55
           ClientWidth = 516
           TabOrder = 0
           object lbBaseFontName: TLabel
@@ -402,7 +402,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Monospaced font (for SQL and code)'
-          ClientHeight = 48
+          ClientHeight = 53
           ClientWidth = 516
           TabOrder = 1
           object edtAppFixWidthFontSize: TEdit
@@ -453,7 +453,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'DML graph'
-          ClientHeight = 213
+          ClientHeight = 218
           ClientWidth = 516
           TabOrder = 2
           object lbDmlFontName: TLabel
@@ -590,17 +590,17 @@ object frmSettings: TfrmSettings
     end
     object tabshtSQL: TTabSheet
       Caption = 'SQL'
-      ClientHeight = 621
+      ClientHeight = 622
       ClientWidth = 536
       object PanelSQL: TPanel
         Left = 0
-        Height = 621
+        Height = 622
         Top = 0
         Width = 536
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 8
-        ClientHeight = 621
+        ClientHeight = 622
         ClientWidth = 536
         TabOrder = 0
         object Bevel3: TBevel
@@ -618,7 +618,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Preview table data'
-          ClientHeight = 144
+          ClientHeight = 149
           ClientWidth = 516
           TabOrder = 1
           object edtMaxRowCountForTableData: TEdit
@@ -630,9 +630,9 @@ object frmSettings: TfrmSettings
           end
           object lbTableDataPreviewRows: TLabel
             Left = 24
-            Height = 17
+            Height = 12
             Top = 44
-            Width = 163
+            Width = 162
             Caption = 'Rows limit in WHERE clause:'
             ParentColor = False
           end
@@ -653,9 +653,9 @@ object frmSettings: TfrmSettings
           end
           object lbTableDataPreviewRows2: TLabel
             Left = 24
-            Height = 17
+            Height = 12
             Top = 80
-            Width = 92
+            Width = 90
             Caption = 'Max fetch rows:'
             ParentColor = False
           end
@@ -678,7 +678,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'SQL Generate'
-          ClientHeight = 178
+          ClientHeight = 183
           ClientWidth = 516
           TabOrder = 0
           object ckbQuotReservedNames: TCheckBox
@@ -695,7 +695,7 @@ object frmSettings: TfrmSettings
             Top = 40
             Width = 292
             Caption = 'Generate backup SQL before altering columns'
-            TabOrder = 1
+            TabOrder = 2
           end
           object ckbAddColCommentToCreateTbSql: TCheckBox
             Left = 24
@@ -703,7 +703,7 @@ object frmSettings: TfrmSettings
             Top = 72
             Width = 269
             Caption = 'Add field-comments to table-creation-SQL'
-            TabOrder = 2
+            TabOrder = 3
           end
           object ckbQuotAllNames: TCheckBox
             Left = 232
@@ -711,7 +711,7 @@ object frmSettings: TfrmSettings
             Top = 8
             Width = 110
             Caption = 'Quot all names'
-            TabOrder = 3
+            TabOrder = 1
           end
           object ckbCreateIndexForForeignkey: TCheckBox
             Left = 232
@@ -719,7 +719,7 @@ object frmSettings: TfrmSettings
             Top = 136
             Width = 205
             Caption = 'Create indexes for foreign keys'
-            TabOrder = 5
+            TabOrder = 6
           end
           object ckbCreateForeignkeys: TCheckBox
             Left = 24
@@ -727,6 +727,14 @@ object frmSettings: TfrmSettings
             Top = 136
             Width = 136
             Caption = 'Create foreign keys'
+            TabOrder = 5
+          end
+          object ckbGenDBComments: TCheckBox
+            Left = 24
+            Height = 21
+            Top = 104
+            Width = 139
+            Caption = 'Generate comments'
             TabOrder = 4
           end
         end
@@ -737,14 +745,14 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Spetial'
-          ClientHeight = 119
+          ClientHeight = 124
           ClientWidth = 516
           TabOrder = 2
           object lbHiveVersion: TLabel
             Left = 24
-            Height = 17
+            Height = 12
             Top = 76
-            Width = 74
+            Width = 78
             Caption = 'Hive version:'
             ParentColor = False
           end
@@ -782,9 +790,9 @@ object frmSettings: TfrmSettings
           end
           object lbMysqlVersion: TLabel
             Left = 24
-            Height = 17
+            Height = 12
             Top = 40
-            Width = 90
+            Width = 84
             Caption = 'MySQL version:'
             ParentColor = False
           end
@@ -801,18 +809,18 @@ object frmSettings: TfrmSettings
     end
     object tabshtFieldTypes: TTabSheet
       Caption = 'Field Types'
-      ClientHeight = 621
+      ClientHeight = 622
       ClientWidth = 536
       object ScrollBoxFieldTypes: TScrollBox
         Left = 0
-        Height = 621
+        Height = 622
         Top = 0
         Width = 536
         HorzScrollBar.Page = 512
-        VertScrollBar.Page = 617
+        VertScrollBar.Page = 618
         VertScrollBar.Tracking = True
         Align = alClient
-        ClientHeight = 617
+        ClientHeight = 618
         ClientWidth = 515
         TabOrder = 0
         object PanelFieldTypes: TPanel
@@ -828,11 +836,11 @@ object frmSettings: TfrmSettings
           object GroupBoxCustomFldTypes: TGroupBox
             Left = 8
             Height = 280
-            Top = 375
+            Top = 410
             Width = 496
             Align = alTop
             Caption = 'Custom field types'
-            ClientHeight = 258
+            ClientHeight = 263
             ClientWidth = 492
             TabOrder = 0
             object ListBoxCustFldTps: TListBox
@@ -846,9 +854,9 @@ object frmSettings: TfrmSettings
             end
             object lbCustFldtpName: TLabel
               Left = 248
-              Height = 17
+              Height = 12
               Top = 8
-              Width = 38
+              Width = 30
               Caption = 'Name:'
               ParentColor = False
             end
@@ -876,9 +884,9 @@ object frmSettings: TfrmSettings
             end
             object lbCustFldtpPhyType: TLabel
               Left = 248
-              Height = 17
+              Height = 12
               Top = 48
-              Width = 137
+              Width = 150
               Caption = 'Physical type (optional):'
               ParentColor = False
             end
@@ -902,7 +910,7 @@ object frmSettings: TfrmSettings
             end
             object lbCustFldtpTip: TLabel
               Left = 19
-              Height = 51
+              Height = 36
               Top = 184
               Width = 453
               Anchors = [akTop, akLeft, akRight]
@@ -913,17 +921,17 @@ object frmSettings: TfrmSettings
           end
           object GroupBoxSysFldTypes: TGroupBox
             Left = 8
-            Height = 330
-            Top = 35
+            Height = 370
+            Top = 30
             Width = 496
             Align = alTop
             Caption = 'Custom physical types'
-            ClientHeight = 308
+            ClientHeight = 353
             ClientWidth = 492
             TabOrder = 1
             object lbCustPhyTpTip: TLabel
               Left = 16
-              Height = 34
+              Height = 24
               Top = 268
               Width = 453
               Anchors = [akTop, akLeft, akRight]
@@ -958,11 +966,30 @@ object frmSettings: TfrmSettings
               Caption = 'User BIGINT for integer PK/FK fields'
               TabOrder = 1
             end
+            object lbMaxCharSize: TLabel
+              Left = 16
+              Height = 12
+              Top = 312
+              Width = 84
+              Caption = 'Max char size:'
+              ParentColor = False
+            end
+            object edtMaxCharSize: TEdit
+              Left = 120
+              Height = 25
+              Hint = 'Will convert to clob/text if exceed. Default: 4000 for Oracle (clob), 65532 for MySQL (longtext), 8000 for SQLServer/PostgreSQL/SQLite (text)'
+              Top = 312
+              Width = 120
+              OnChange = edtCustFldtpNameChange
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 2
+            end
           end
           object Bevel10: TBevel
             Left = 8
             Height = 10
-            Top = 25
+            Top = 20
             Width = 496
             Align = alTop
             Shape = bsSpacer
@@ -970,7 +997,7 @@ object frmSettings: TfrmSettings
           object Bevel11: TBevel
             Left = 8
             Height = 10
-            Top = 921
+            Top = 956
             Width = 496
             Align = alTop
             Shape = bsSpacer
@@ -978,11 +1005,11 @@ object frmSettings: TfrmSettings
           object GroupBoxTpNameReplaces: TGroupBox
             Left = 8
             Height = 256
-            Top = 665
+            Top = 700
             Width = 496
             Align = alTop
             Caption = 'Type name replaces'
-            ClientHeight = 234
+            ClientHeight = 239
             ClientWidth = 492
             TabOrder = 2
             object ListBoxTpNameReplaces: TListBox
@@ -996,9 +1023,9 @@ object frmSettings: TfrmSettings
             end
             object lbTpnRepPattern: TLabel
               Left = 248
-              Height = 17
+              Height = 12
               Top = 8
-              Width = 44
+              Width = 48
               Caption = 'Pattern:'
               ParentColor = False
             end
@@ -1026,9 +1053,9 @@ object frmSettings: TfrmSettings
             end
             object lbTpnReplacement: TLabel
               Left = 248
-              Height = 17
+              Height = 12
               Top = 48
-              Width = 78
+              Width = 72
               Caption = 'Replacement:'
               ParentColor = False
             end
@@ -1052,7 +1079,7 @@ object frmSettings: TfrmSettings
             end
             object lbTpnReplaceTip: TLabel
               Left = 19
-              Height = 34
+              Height = 24
               Top = 184
               Width = 453
               Anchors = [akTop, akLeft, akRight]
@@ -1064,14 +1091,14 @@ object frmSettings: TfrmSettings
           object Bevel12: TBevel
             Left = 8
             Height = 10
-            Top = 365
+            Top = 400
             Width = 496
             Align = alTop
             Shape = bsSpacer
           end
           object lbDBConnNote1: TLabel
             Left = 8
-            Height = 17
+            Height = 12
             Top = 8
             Width = 496
             Align = alTop
@@ -1082,11 +1109,11 @@ object frmSettings: TfrmSettings
           object GroupBoxFieldDataGenRules: TGroupBox
             Left = 8
             Height = 256
-            Top = 931
+            Top = 966
             Width = 496
             Align = alTop
             Caption = 'Field data generate rules'
-            ClientHeight = 234
+            ClientHeight = 239
             ClientWidth = 492
             TabOrder = 3
             object ListBoxFDGenRules: TListBox
@@ -1100,9 +1127,9 @@ object frmSettings: TfrmSettings
             end
             object lbTpnRepPattern1: TLabel
               Left = 248
-              Height = 17
+              Height = 12
               Top = 8
-              Width = 28
+              Width = 30
               Caption = 'Rule:'
               ParentColor = False
             end
@@ -1130,7 +1157,7 @@ object frmSettings: TfrmSettings
             end
             object lbTpnReplacement1: TLabel
               Left = 248
-              Height = 17
+              Height = 12
               Top = 48
               Width = 72
               Caption = 'Field names:'
@@ -1156,7 +1183,7 @@ object frmSettings: TfrmSettings
             end
             object lbFDGenTip: TLabel
               Left = 19
-              Height = 17
+              Height = 12
               Top = 184
               Width = 453
               Anchors = [akTop, akLeft, akRight]
@@ -1168,7 +1195,7 @@ object frmSettings: TfrmSettings
           object Bevel18: TBevel
             Left = 8
             Height = 10
-            Top = 655
+            Top = 690
             Width = 496
             Align = alTop
             Shape = bsSpacer
@@ -1198,7 +1225,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Oracle'
-          ClientHeight = 86
+          ClientHeight = 91
           ClientWidth = 516
           TabOrder = 0
           object edtOCILIB: TComboBox
@@ -1265,7 +1292,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Mysql'
-          ClientHeight = 46
+          ClientHeight = 51
           ClientWidth = 516
           TabOrder = 1
           object edtMYSQLLIB: TComboBox
@@ -1318,7 +1345,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'SQLServer'
-          ClientHeight = 50
+          ClientHeight = 55
           ClientWidth = 516
           TabOrder = 2
           object edtSQLSERVERLIB: TComboBox
@@ -1363,7 +1390,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Sqlite'
-          ClientHeight = 47
+          ClientHeight = 52
           ClientWidth = 516
           TabOrder = 4
           object edtSQLITELIB: TComboBox
@@ -1426,7 +1453,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'PostgreSQL'
-          ClientHeight = 47
+          ClientHeight = 52
           ClientWidth = 516
           TabOrder = 3
           object edtPOSTGRESLIB: TComboBox
@@ -1471,7 +1498,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Others'
-          ClientHeight = 102
+          ClientHeight = 107
           ClientWidth = 516
           TabOrder = 5
           object lbOdbcCharset: TLabel
@@ -1554,7 +1581,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Table properties'
-          ClientHeight = 74
+          ClientHeight = 79
           ClientWidth = 516
           TabOrder = 0
           object ckbWriteConstraintToDescribeStr: TCheckBox
@@ -1590,7 +1617,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Known table prefix'
-          ClientHeight = 151
+          ClientHeight = 156
           ClientWidth = 516
           TabOrder = 1
           object lbKnownTbPrefixTip: TLabel
@@ -1636,7 +1663,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Custom dictionary'
-          ClientHeight = 208
+          ClientHeight = 213
           ClientWidth = 516
           TabOrder = 2
           object lbCustDictTip: TLabel
@@ -1674,7 +1701,7 @@ object frmSettings: TfrmSettings
           Width = 520
           Align = alTop
           Caption = 'Others'
-          ClientHeight = 50
+          ClientHeight = 55
           ClientWidth = 516
           TabOrder = 3
           object lbAIKey: TLabel
@@ -1698,7 +1725,7 @@ object frmSettings: TfrmSettings
   end
   object OpenDialogDbLib: TOpenDialog
     Options = [ofFileMustExist, ofEnableSizing, ofViewDetail]
-    left = 344
-    top = 484
+    Left = 344
+    Top = 484
   end
 end

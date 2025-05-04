@@ -65,6 +65,8 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MNAI_Text2SQL: TMenuItem;
+    MNAI_GenSampleValues: TMenuItem;
     MN_ImportDDLSql: TMenuItem;
     MNAI_GenFKLinks: TMenuItem;
     MNAI_GenComments: TMenuItem;
@@ -354,7 +356,7 @@ uses
   {$else}
   DmlGlobalPasScriptLite, DmlPasScriptLite,
   {$endif}  
-  {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf,{$endif}
+  {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf, uFormText2SQL,{$endif}
   CtMetaOdbcDb, NetUtil, PvtInput, AESCrypt, MD5, Base64,
   ocidyn, mysql57dyn,  sqlite3dyn, CtSysInfo, wShareFile, uFormOnlineFile,
   postgres3dyn,
@@ -1377,8 +1379,12 @@ begin
 
     G_CreateIndexForForeignkey :=
       ini.ReadBool('Options', 'CreateIndexForForeignkey', G_CreateIndexForForeignkey);    
+    G_GenDBComments :=
+      ini.ReadBool('Options', 'GenDBComments', G_GenDBComments);
     G_CreateForeignkeys :=
-      ini.ReadBool('Options', 'CreateForeignkeys', G_CreateForeignkeys);    
+      ini.ReadBool('Options', 'CreateForeignkeys', G_CreateForeignkeys);
+    G_MaxCharSize :=
+      ini.ReadInteger('Options', 'MaxCharSize', G_MaxCharSize);
     G_HiveVersion :=
       ini.ReadInteger('Options', 'HiveVersion', G_HiveVersion);  
     G_MysqlVersion :=
@@ -2025,6 +2031,7 @@ end;
 procedure TfrmMainDml.SaveToFile(fn: string);
 var
   fs: TCtObjSerialer;
+  S: String;
   //I: Integer;
 begin
   if FFileWorking then
@@ -2062,8 +2069,14 @@ begin
         FWaitWnd := TfrmWaitWnd.Create(Self);
       try
         if Assigned(FWaitWnd) then
-          FWaitWnd.Init(srEzdmlSaveFile + ' ' + ExtractFileName(fn), srEzdmlSaving,
+        begin
+          if IsTmpFile(fn) then
+            S := srEzdmlSaveTemporFile
+          else
+            S := srEzdmlSaveFile;
+          FWaitWnd.Init(S + ' ' + ExtractFileName(fn), srEzdmlSaving,
             srEzdmlAbortSaving);
+        end;
 
         {for I := 0 to FTableList.Count - 1 do
           FTableList[I].MetaFields.Pack;}
@@ -2820,9 +2833,41 @@ begin
 end;
 
 procedure TfrmMainDml.CallAI(Act: Integer);
+var
+  tbs: TCtMetaTableList;
 begin
   EzdmlMenuActExecuteEvt('Model_ChatGPT');
   {$ifdef EZDML_CHATGPT}
+  if Act=101 then
+  begin
+    if not Assigned(frmText2SQL) then
+      frmText2SQL := TfrmText2SQL.Create(Self)
+    else
+      frmText2SQL.Position:=poDesigned;
+    frmText2SQL.CtDataModelList := FCtDataModelList;
+
+    tbs := nil;
+    try
+      if FFrameCtTableDef.PanelDMLGraph.Visible then
+        if FFrameCtTableDef.FFrameDMLGraph.GetSelectedTable <> nil then
+        begin
+          tbs := TCtMetaTableList.Create;
+          tbs.AutoFree := False;
+          FFrameCtTableDef.FFrameDMLGraph.CountSelectedTables(tbs);
+          if tbs.Count > 0 then
+            frmText2SQL.MetaObjList := tbs;
+        end;
+      if frmText2SQL.ShowModal = mrOk then
+      begin
+      end;
+      frmText2SQL.CtDataModelList := FCtDataModelList;
+    finally
+      if tbs <> nil then
+        tbs.Free;
+    end;
+    Exit;
+  end;
+
   if Act>1 then
     if not FFrameCtTableDef.PanelDMLGraph.Visible then
       raise Exception.Create(srDmlGptGenShowGraphTip);
@@ -2835,7 +2880,7 @@ begin
   if not FCtDataModelList.IsHuge then
     SaveDmlToTmpFile;    
   FCtDataModelList.ModelFileConfig.LastModel := '';
-  if ShowChatGPTForm(Act) then
+  if ShowChatGPTForm(Act, nil, '') then
   begin
     if Act=1 then
     begin         
@@ -2861,21 +2906,30 @@ end;
 
 procedure TfrmMainDml._OnDMLObjProgress(Sender: TObject;
   const Prompt: string; Cur, All: integer; var bContinue: boolean);
+var
+  s: String;
 begin
   if Assigned(FWaitWnd) then
   begin
-    if (Prompt = '') and (Cur = 0) then
+    if (Prompt='') and (Cur = 0) and (All>0) then
+    begin
       if FProgressAll = 0 then
       begin
         FProgressCur := 0;
         FProgressAll := All;
+      end
+      else
+      begin
+        FProgressAll := FProgressAll + All;
       end;
+    end;
 
     if FProgressAll > 0 then
     begin
       if Sender is TCtMetaTableList then
         Inc(FProgressCur);
-      FWaitWnd.SetPercentMsg(FProgressCur * 100 / FProgressAll, Prompt, True);
+      S := IntToStr(FProgressCur) +'/'+IntToStr(FProgressAll)+' '+Prompt;
+      FWaitWnd.SetPercentMsg(FProgressCur * 100 / FProgressAll, S, True);
     end
     else
     begin
@@ -3008,6 +3062,12 @@ begin
 
     Exit;
   end;
+
+  if msg.wParam = 12 then  //当前操作中止
+  begin
+    StatusBar1.Panels[0].Text := StatusBar1.Panels[0].Text +' '+ srStrAborted;
+    Exit;
+  end;
 end;
 
 procedure TfrmMainDml.actEditMyDictExecute(Sender: TObject);
@@ -3126,7 +3186,6 @@ var
 begin
   {$ifndef EZDML_LITE}
   EzdmlMenuActExecuteEvt('Model_GenerateCode');
-  CheckCanEditMeta;
   if not Assigned(frmCtGenCode) then
     frmCtGenCode := TfrmCtGenCode.Create(Self);
   frmCtGenCode.CtDataModelList := FCtDataModelList;
@@ -4532,8 +4591,10 @@ initialization
   G_WriteConstraintToDescribeStr := True;
   G_FieldGridShowLines := True;
   G_AddColCommentToCreateTbSql := True;
+  G_GenDBComments := True;
   G_CreateForeignkeys := True;
   G_CreateIndexForForeignkey := False;
+  G_MaxCharSize := 0;
   G_HiveVersion := 2;                         
   G_MysqlVersion := 5;
   G_AutoCommit := True;

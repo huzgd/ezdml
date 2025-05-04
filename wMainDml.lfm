@@ -154,9 +154,19 @@ object frmMainDml: TfrmMainDml
           Caption = 'Generate Comments'
           OnClick = MNAI_GenNewModelClick
         end
+        object MNAI_GenSampleValues: TMenuItem
+          Tag = 6
+          Caption = 'Generate Sample Values'
+          OnClick = MNAI_GenNewModelClick
+        end
         object MNAI_GenFKLinks: TMenuItem
           Tag = 5
           Caption = 'Generate Foreign Keys'
+          OnClick = MNAI_GenNewModelClick
+        end
+        object MNAI_Text2SQL: TMenuItem
+          Tag = 101
+          Caption = 'Text to SQL'
           OnClick = MNAI_GenNewModelClick
         end
       end

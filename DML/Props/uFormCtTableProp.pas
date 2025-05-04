@@ -2,6 +2,7 @@ unit uFormCtTableProp;
 
 {$MODE Delphi}
 
+
 interface
 
 uses
@@ -23,6 +24,10 @@ type
     Label1: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
+    MNAI_GenSampleValues: TMenuItem;
+    MNAI_GenFields: TMenuItem;
+    MNAI_GenComments: TMenuItem;
+    MenuItem_AI: TMenuItem;
     MNCnWordSegment: TMenuItem;
     Panel1: TPanel;
     btnOk: TButton;
@@ -70,6 +75,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure actConvertChnToPyExecute(Sender: TObject);
+    procedure MNAI_GenFieldsClick(Sender: TObject);
     procedure TimerDelayCmdTimer(Sender: TObject);
   private
     { Private declarations }
@@ -655,6 +661,7 @@ begin
   FFrameCtTableProp.BorderSpacing.Around := 8;
   FOrginalCaption := Caption;
   FFrameCtTableProp.Proc_GridEscape := _DoGridEscape;
+  MenuItem_AI.Visible := FFrameCtTableProp.MenuItem_AI.Visible;
   CheckFormScaleDPI(Self);
 end;
 
@@ -833,6 +840,11 @@ end;
 procedure TfrmCtTableProp.actConvertChnToPyExecute(Sender: TObject);
 begin
   DoCapitalizeProc('ChnToPY');
+end;
+
+procedure TfrmCtTableProp.MNAI_GenFieldsClick(Sender: TObject);
+begin
+  FFrameCtTableProp.CallAI(TMenuItem(Sender).Tag, '');
 end;
 
 procedure TfrmCtTableProp.TimerDelayCmdTimer(Sender: TObject);

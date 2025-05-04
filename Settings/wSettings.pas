@@ -24,9 +24,11 @@ QuotAllNames                  Bool
 BackupBeforeAlterColumn       Bool
 WriteConstraintToDescribeStr  Bool
 FieldGridShowLines            Bool
-AddColCommentToCreateTbSql    Bool    
+AddColCommentToCreateTbSql    Bool
+GenDBComments                 Bool
 CreateForeignkeys             Bool
 CreateIndexForForeignkey      Bool
+MaxCharSize                   Integer
 HiveVersion                   Integer   
 MysqlVersion                  Integer
 AutoCommit                    Bool
@@ -98,6 +100,7 @@ type
     btnFDGenRemove: TButton;
     ckbAutoCommit: TCheckBox;
     ckbAddLimitToCursorSQL: TCheckBox;
+    ckbGenDBComments: TCheckBox;
     ckbShowJdbcConsole: TCheckBox;
     ckbBigIntForIntKeys: TCheckBox;
     ckbCheckForUpdates: TCheckBox;
@@ -126,6 +129,7 @@ type
     combHiveVersion: TComboBox;
     combOdbcCharset: TComboBox;
     edtCtSqlMaxFetchCount: TEdit;
+    edtMaxCharSize: TEdit;
     edtDmlGraphDefScale: TComboBox;
     edtCustFldtpName: TEdit;
     edtCustFldtpPhyType: TEdit;
@@ -177,6 +181,7 @@ type
     GroupBoxOthersTb: TGroupBox;
     GroupBoxBaseFont: TGroupBox;
     Label1: TLabel;
+    lbMaxCharSize: TLabel;
     lbGraphDefScale: TLabel;
     lbMysqlVersion: TLabel;
     lbNLSLang: TLabel;
@@ -291,8 +296,10 @@ type
     FWriteConstraintToDescribeStr: boolean;
     FFieldGridShowLines :Boolean;
     FAddColCommentToCreateTbSql: boolean;
+    FGenDBComments: boolean;
     FCreateForeignkeys: boolean;
     FCreateIndexForForeignkey: boolean;
+    FMaxCharSize: Integer;
     FHiveVersion: Integer;     
     FMysqlVersion: Integer;
     FDmlGraphDefScale: String;
@@ -779,10 +786,14 @@ begin
       True);
     FAddColCommentToCreateTbSql :=
       ini.ReadBool('Options', 'AddColCommentToCreateTbSql', True);    
+    FGenDBComments :=
+      ini.ReadBool('Options', 'GenDBComments', True);
     FCreateForeignkeys :=
       ini.ReadBool('Options', 'CreateForeignkeys', True);
     FCreateIndexForForeignkey :=
       ini.ReadBool('Options', 'CreateIndexForForeignkey', False);     
+    FMaxCharSize :=
+      ini.ReadInteger('Options', 'MaxCharSize', 0);
     FHiveVersion :=
       ini.ReadInteger('Options', 'HiveVersion', 2);
     FMysqlVersion :=
@@ -876,8 +887,13 @@ begin
   ckbQuotAllNames.Checked := FQuotAllNames;
   ckbBackupBeforeAlterColumn.Checked := FBackupBeforeAlterColumn;
   ckbAddColCommentToCreateTbSql.Checked := FAddColCommentToCreateTbSql;       
+  ckbGenDBComments.Checked := FGenDBComments;
   ckbCreateForeignkeys.Checked := FCreateForeignkeys;
-  combHiveVersion.Text := IntToStr(FHiveVersion);     
+  combHiveVersion.Text := IntToStr(FHiveVersion);
+  if FMaxCharSize>0 then
+    edtMaxCharSize.Text := IntToStr(FMaxCharSize)
+  else
+    edtMaxCharSize.Text := '';
   combMysqlVersion.Text := IntToStr(FMysqlVersion);
   ckbRetainAfterCommit.Checked := FRetainAfterCommit;     
   ckbAutoCommit.Checked := FAutoCommit;
@@ -993,8 +1009,10 @@ begin
   FBackupBeforeAlterColumn := ckbBackupBeforeAlterColumn.Checked;
   FAddColCommentToCreateTbSql := ckbAddColCommentToCreateTbSql.Checked;    
   FCreateIndexForForeignkey := ckbCreateIndexForForeignkey.Checked;
+  FGenDBComments := ckbGenDBComments.Checked;
   FCreateForeignkeys := ckbCreateForeignkeys.Checked;
-  FHiveVersion := StrToIntDef(combHiveVersion.Text, FHiveVersion);   
+  FMaxCharSize := StrToIntDef(edtMaxCharSize.Text, FMaxCharSize);
+  FHiveVersion := StrToIntDef(combHiveVersion.Text, FHiveVersion);
   FMysqlVersion := StrToIntDef(combMysqlVersion.Text, FMysqlVersion);  
   FRetainAfterCommit := ckbRetainAfterCommit.Checked;                    
   FAutoCommit := ckbAutoCommit.Checked;
@@ -1072,9 +1090,11 @@ begin
       FWriteConstraintToDescribeStr);                         
     ini.WriteBool('Options', 'FieldGridShowLines', FFieldGridShowLines);
     ini.WriteBool('Options', 'AddColCommentToCreateTbSql', FAddColCommentToCreateTbSql);     
+    ini.WriteBool('Options', 'GenDBComments', FGenDBComments);
     ini.WriteBool('Options', 'CreateForeignkeys', FCreateForeignkeys);
     ini.WriteBool('Options', 'CreateIndexForForeignkey', FCreateIndexForForeignkey);
     ini.WriteBool('Options', 'EnableCustomPropUI', FEnableCustomPropUI);               
+    ini.WriteInteger('Options', 'MaxCharSize', FMaxCharSize);
     ini.WriteInteger('Options', 'HiveVersion', FHiveVersion);
     ini.WriteInteger('Options', 'MysqlVersion', FMysqlVersion);
     ini.WriteBool('Options', 'RetainAfterCommit', FRetainAfterCommit);    

@@ -2,6 +2,16 @@ unit uFrameCtTableProp;
 
 {$MODE Delphi}
 {$WARN 4105 off : Implicit string type conversion with potential data loss from "$1" to "$2"}
+
+{$define EZDML_CHATGPT}
+
+{$ifdef WIN32}
+  {$undef EZDML_CHATGPT}
+{$endif}
+{$ifdef EZDML_LITE}
+  {$undef EZDML_CHATGPT}
+{$endif}
+
 interface
 
 uses
@@ -101,6 +111,10 @@ type
     MemoUILogic: TMemo;
     memoSQLWhereClause: TMemo;
     MenuItem1: TMenuItem;
+    MNAI_GenFields: TMenuItem;
+    MNAI_GenSampleValues: TMenuItem;
+    MNAI_GenComments: TMenuItem;
+    MenuItem_AI: TMenuItem;
     MN_FieldWeights: TMenuItem;
     MN_OpenTemplFolder: TMenuItem;
     MNTabs_Cust: TMenuItem;
@@ -265,6 +279,7 @@ type
     procedure MemoTextContentDblClick(Sender: TObject);
     procedure MemoTextContentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure MNAI_GenFieldsClick(Sender: TObject);
     procedure MNGenTab_CustomizeClick(Sender: TObject);
     procedure MNTabs_CloseClick(Sender: TObject);
     procedure MNTabs_CustClick(Sender: TObject);
@@ -448,6 +463,7 @@ type
     procedure Init(ATable: TCtMetaTable; bReadOnly: boolean);
     procedure HideProps;
     procedure FocusToField(cf: TCtMetaField);
+    procedure CallAI(actTp: Integer; selFields: string);
     property ShowAdvPage: boolean read FShowAdvPage write SetShowAdvPage;
     property CreatingNewTable: boolean read FCreatingNewTable write FCreatingNewTable;
   end;
@@ -458,7 +474,7 @@ type
 const
   DEF_clInfoBk = $E1FFFF;
   DEF_INNER_SQL_TABS: array[0..6] of
-    string = ('SQL', 'Oracle', 'MySql', 'SQLServer', 'SQLite', 'PostgreSQL', 'Hive');
+    string = ('SQL', 'Oracle', 'MySQL', 'SQLServer', 'SQLite', 'PostgreSQL', 'Hive');
 var
   G_TbPropTabInitTick: Integer = 0;
   G_LastTbDescInputDemo: string = '';
@@ -471,7 +487,8 @@ uses
   ClipBrd, WindowFuncs, uFormCtDbLogon, PvtInput, Toolwin,
   {$ifndef EZDML_LITE}DmlPasScript, ide_editor,uFrameUIPreview,DmlScriptControl,
   {$else}DmlPasScriptLite,
-  {$endif}
+  {$endif}      
+  {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf,{$endif}
   uFormSelectFields,  ezdmlstrs, uFormGenTabCust, CtObjJsonSerial, uFormCtDML;
 
 {$R *.lfm}
@@ -609,8 +626,17 @@ begin
 
   FCustDmlScControls := TDmlScriptControlList.Create;
   TDmlScriptControlList(FCustDmlScControls).OnCtrlValueExec :=
-    Self._OnCustDmlCtrlValueExec;
-  {$endif}       
+    Self._OnCustDmlCtrlValueExec;    
+  {$ifndef EZDML_CHATGPT}
+  MenuItem_AI.Visible:=False;
+  TFrameUIPreview(UIPreviewFrame).MenuItem_AI.Visible:=False;
+  TFrameUIPreview(UIPreviewFrame).GMenuItem_AI.Visible:=False;
+  {$endif}
+  {$else}
+  {$ifndef EZDML_CHATGPT}
+  MenuItem_AI.Visible:=False;
+  {$endif}  
+  {$endif}
   InitDmlScriptPages;
 end;
 
@@ -692,6 +718,31 @@ begin
       TimerAutoFocus.Enabled := True;
       Break;
     end;
+end;
+
+procedure TFrameCtTableProp.CallAI(actTp: Integer; selFields: string);
+var
+  I: Integer;
+begin                
+  {$ifdef EZDML_CHATGPT}
+  if selFields='' then
+  begin
+    GetSelectedFields;
+    if FSelFields.Count > 1 then
+      for I := 0 to FSelFields.Count - 1 do
+        if selFields='' then
+          selFields := FSelFields[I].Name
+        else
+          selFields := selFields+','+FSelFields[I].Name;
+  end;
+  if ShowChatGPTForm(actTp, FCtMetaTable, selFields) then
+  begin
+    DoTablePropsChanged(FCtMetaTable);
+    if Assigned(Proc_OnPropChange) then
+      Proc_OnPropChange(2, FCtMetaTable, nil, '');
+    ShowTableProp(FCtMetaTable);
+  end;
+  {$endif}
 end;
 
 procedure TFrameCtTableProp.InitDmlScriptPages;
@@ -920,6 +971,10 @@ begin
   MN_SpltA.Visible := not FReadOnlyMode;
   MN_FieldWeights.Visible := not FReadOnlyMode;
   MN_GenOption.Visible := not FReadOnlyMode;
+                  
+  {$ifdef EZDML_CHATGPT}
+  MenuItem_AI.Visible:=not FReadOnlyMode;
+  {$endif}
 
   bShowIcon := True;
   if FGlobeDataModelList <> nil then
@@ -2607,6 +2662,12 @@ begin
     Exit;
   end;
 
+  if prop = 'call_ai' then
+  begin
+    CallAI(StrToInt(Value), par1);
+    Exit;
+  end;
+
   if prop = 'selected' then
   begin
     if fd = nil then
@@ -3884,27 +3945,27 @@ begin
   {$endif}
   T := FGenCodeType;
   if T = 'Oracle' then
-    S := '/** Oracle Sql Generate **/'#13#10#13#10 +
+    S := '/** Oracle SQL Generate **/'#13#10#13#10 +
       FCtMetaTable.GenSql('ORACLE') + #13#10 + FCtMetaTable.GenDqlDmlSql('ORACLE')
-  else if T = 'MySql' then
-    S := '/** MySql Sql Generate **/'#13#10#13#10 +
+  else if T = 'MySQL' then
+    S := '/** MySQL SQL Generate **/'#13#10#13#10 +
       FCtMetaTable.GenSql('MYSQL') + #13#10 + FCtMetaTable.GenDqlDmlSql('MYSQL')
   else if T = 'SQLServer' then
-    S := '/** SQLServer Sql Generate **/'#13#10#13#10 +
+    S := '/** SQLServer SQL Generate **/'#13#10#13#10 +
       FCtMetaTable.GenSql('SQLSERVER') + #13#10 + FCtMetaTable.GenDqlDmlSql('SQLSERVER')
   else if T = 'SQLite' then
-    S := '/** SQLite Sql Generate **/'#13#10#13#10 +
+    S := '/** SQLite SQL Generate **/'#13#10#13#10 +
       FCtMetaTable.GenSql('SQLITE') + #13#10 + FCtMetaTable.GenDqlDmlSql('SQLITE')
   else if T = 'PostgreSQL' then
-    S := '/** PostgreSQL Sql Generate **/'#13#10#13#10 +
+    S := '/** PostgreSQL SQL Generate **/'#13#10#13#10 +
       FCtMetaTable.GenSql('POSTGRESQL') + #13#10 +
       FCtMetaTable.GenDqlDmlSql('POSTGRESQL')    
   else if T = 'Hive' then
-    S := '-- Hive Sql Generate '#13#10#13#10 +
+    S := '-- Hive SQL Generate '#13#10#13#10 +
       FCtMetaTable.GenSql('HIVE') + #13#10 +
       FCtMetaTable.GenDqlDmlSql('HIVE')
   else
-    S := '/** Sql Generate **/'#13#10#13#10 +
+    S := '/** SQL Generate **/'#13#10#13#10 +
       FCtMetaTable.GenSql + #13#10 + FCtMetaTable.GenDqlDmlSql;
   MemoCodeGen.Lines.Text := S;
   TabSheetCodeGen.Realign;
@@ -4834,6 +4895,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TFrameCtTableProp.MNAI_GenFieldsClick(Sender: TObject);
+begin
+  CallAI(TMenuItem(Sender).Tag, '');
 end;
 
 procedure TFrameCtTableProp.MNGenTab_CustomizeClick(Sender: TObject);

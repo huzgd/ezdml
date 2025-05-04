@@ -169,8 +169,8 @@ object frmCtTableProp: TfrmCtTableProp
     end
   end
   object PopupMenu1: TPopupMenu
-    left = 36
-    top = 88
+    left = 152
+    top = 96
     object AutoCapitalize1: TMenuItem
       Action = actAutoCapitalize
     end
@@ -194,6 +194,24 @@ object frmCtTableProp: TfrmCtTableProp
     end
     object CheckwithMyDicttxt1: TMenuItem
       Action = actCheckWithMyDict
+    end
+    object MenuItem_AI: TMenuItem
+      Caption = 'AI Assistant'
+      object MNAI_GenFields: TMenuItem
+        Tag = 3
+        Caption = 'Add More Fields'
+        OnClick = MNAI_GenFieldsClick
+      end
+      object MNAI_GenComments: TMenuItem
+        Tag = 4
+        Caption = 'Generate Comments'
+        OnClick = MNAI_GenFieldsClick
+      end
+      object MNAI_GenSampleValues: TMenuItem
+        Tag = 6
+        Caption = 'Generate Sample Values'
+        OnClick = MNAI_GenFieldsClick
+      end
     end
     object N1: TMenuItem
       Caption = '-'
