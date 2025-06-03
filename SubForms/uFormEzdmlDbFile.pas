@@ -2,12 +2,22 @@ unit uFormEzdmlDbFile;
 
 {$MODE Delphi}
 
+{.$define EZDML_DBSERIAL}
+
+{$ifdef EZDML_LITE}
+{$undef EZDML_DBSERIAL}
+{$endif}
+
 interface
 
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs, StdCtrls, ComCtrls, CheckLst, Menus, CtMetaTable,
-  ExtCtrls, Buttons, DB;
+  ExtCtrls, Buttons, DB, CtObjSerialer
+{$ifdef EZDML_DBSERIAL}
+  , CtObjMetaDbSerial
+{$endif}
+  ;
 
 type
 
@@ -88,13 +98,14 @@ type
     FHistoryFileFilter: string;
 
     procedure RefreshDbInfo;
-    procedure RefreshDbInfoEx;
+    procedure RefreshDbInfoEx(bRefreshList: Boolean=True);
     procedure RefreshObjList;
     procedure RefreshLVItemInfo;
        
     function GenDbFileSql(sels, where, orderby: string): string;
     procedure SetIsSaveMode(AValue: boolean);
     procedure SyncDML;
+    procedure SyncBuiltinDML;
     procedure ToogleHistoryView;          
     function GetDbFileModifier(fn: string): string;
     function DbFileExists(fn: string): boolean;
@@ -107,15 +118,25 @@ type
     function GetDbFileModifierInfo(fn: string; var modifier, fileMemo: string): boolean;
     procedure CheckLockAfterOpen;
 
+    function DbObjExists(tbn: string): Boolean;
+
     procedure LoadFromDbFile(AData: TStream; AFileId: string);
     function SaveDataToDbFile(AData: TStream; AFileName: string; bPromptMemo: Boolean): Boolean;
+
+    procedure CheckSelBuiltInDbModel;
+    function CreateBuiltinDbSerialer(mds: TCtDataModelGraphList; fn: string; bReadOnly: Boolean): TCtObjSerialer;
+    procedure DoBuiltinModelLoad(sr: TCtObjSerialer);
+    function DoBuiltinModelSave(sr: TCtObjSerialer; bPromptMemo: Boolean): string; 
+    function PublishFileToBuiltinHydb(Sender: TObject; md: TCtDataModelGraph; tb: TCtMetaTable;
+      const fileType, filePath, fileName, fileContent, opts: string): string;
 
     property IsSaveMode: boolean read FIsSaveMode write SetIsSaveMode;
     property ResultFileName: string read FResultFileName;
     property ResultFileID: string read FResultFileID;
   end;
 
-function ParseDbFileName(fn: string; out ptr, eng, usr, db, doc, fid: string): boolean;
+function ParseDbFileName(fn: string; out ptr, eng, usr, db, doc, fid: string): boolean; 
+function IsBuiltinDbModel(fn: string): Boolean;
 
 var
   frmEzdmlDbFile: TfrmEzdmlDbFile;
@@ -124,11 +145,35 @@ var
 implementation
 
 uses
-  uFormCtDbLogon, WindowFuncs, dmlstrs, AutoNameCapitalize,
+  uFormCtDbLogon, WindowFuncs, dmlstrs, AutoNameCapitalize, ezdmlstrs,
   CTMetaData, uFormGenSql, PvtInput, CtSysInfo, Md5, IniFiles;
 
 {$R *.lfm}
-            
+
+function IsBuiltinDbModel(fn: string): Boolean;
+var
+  po: Integer;
+begin         
+  {$ifdef EZDML_DBSERIAL}
+  Result := True;
+  while Pos('/', fn)>0 do
+  begin
+    po := Pos('/', fn);
+    fn := Copy(fn, po+1, Length(fn));
+  end;
+  fn := Trim(fn);
+  if fn=srBuiltInDbModel then
+    Exit;
+  if fn='Built_in_model' then
+    Exit;
+  if fn='内置模型' then
+    Exit;
+  Result := False;
+  {$else}
+  Result := False;
+  {$endif}
+end;
+
 function ParseDbFileName(fn: string; out ptr, eng, usr, db, doc, fid: string): boolean;
 var
   po: Integer;
@@ -255,7 +300,11 @@ procedure TfrmEzdmlDbFile.FormCreate(Sender: TObject);
 begin
   FLinkDbNo := -1;                   
   sKeepCurLock := rdbCurLock.Caption;
-  RefreshDbInfo;
+  RefreshDbInfo;   
+  {$ifdef EZDML_DBSERIAL}
+  if not Assigned(GProc_PublishFileToBuiltinHydb) then
+    GProc_PublishFileToBuiltinHydb := Self.PublishFileToBuiltinHydb;
+  {$endif}
 end;
 
 procedure TfrmEzdmlDbFile.btnDBLogonClick(Sender: TObject);
@@ -269,7 +318,7 @@ begin
 end;
 
 
-procedure TfrmEzdmlDbFile.RefreshDbInfoEx;
+procedure TfrmEzdmlDbFile.RefreshDbInfoEx(bRefreshList: Boolean=True);
 var
   I: Integer;
   dbus: String;
@@ -321,12 +370,14 @@ begin
       begin
         combDBUser.ItemIndex := I;
         FLastAutoSelDBUser := combDBUser.Text;
-        RefreshObjList;
+        if bRefreshList then
+          RefreshObjList;
         Exit;
       end;
   end;
 
-  RefreshObjList;
+  if bRefreshList then
+    RefreshObjList;
 end;
 
 procedure TfrmEzdmlDbFile.RefreshDbInfo;
@@ -356,11 +407,82 @@ procedure TfrmEzdmlDbFile.RefreshObjList;
       Exit;
     Result := False;
   end;
+  function AddBuiltInModel: Boolean;   
+  var
+    lv: TListItem;
+    ds: TDataSet;
+    S: string;
+  begin
+    Result := False;  
+{$ifdef EZDML_DBSERIAL}
+    if not Assigned(FCtMetaDatabase) then
+      Exit;
+    if not FCtMetaDatabase.Connected then
+      Exit;
+    S := srBuiltInDbModel;
+    if not KeyFilterMatch(combObjFilter.Text, S) then
+      Exit;
+    lv := ListViewFiles.Items.Insert(0);
+    lv.Caption := srBuiltInDbModel;
+    lv.ImageIndex:=2;
+    try
+      if DbObjExists('ezdml_meta_hyfile') then
+      begin
+        ds := FCtMetaDatabase.OpenTable('select fileGuid, fileSize, ModifyDate, ModifierName, fileMemo from ezdml_meta_hyfile', '');
+        if ds<>nil then
+        begin
+          if not ds.EOF then
+          begin
+            lv.SubItems.Add(ds.FieldByName('fileSize').AsString);
+            lv.SubItems.Add(ds.FieldByName('ModifyDate').AsString);
+            lv.SubItems.Add(ds.FieldByName('ModifierName').AsString);
+            lv.SubItems.Add(ds.FieldByName('fileMemo').AsString);        
+            lv.SubItems.Add(ds.FieldByName('fileGuid').AsString);
+            lv.SubItems.Add('1');
+          end
+          else
+          begin
+            lv.SubItems.Add('*'); 
+            lv.SubItems.Add('');
+            lv.SubItems.Add('');
+            lv.SubItems.Add('');
+            lv.SubItems.Add('');
+            lv.SubItems.Add('');
+          end;
+          ds.Free;
+        end;
+      end
+      else
+      begin
+        lv.SubItems.Add('+');
+        lv.SubItems.Add('');
+        lv.SubItems.Add('');
+        lv.SubItems.Add('');
+        lv.SubItems.Add('');
+        lv.SubItems.Add('');
+      end;
+    except
+      on E:Exception do
+      begin
+        lv.SubItems.Add('');
+        lv.SubItems.Add('');   
+        lv.SubItems.Add('');
+        lv.SubItems.Add('['+srEzdmlError+']'+E.Message);  
+        lv.SubItems.Add('');
+        lv.SubItems.Add('');
+      end;
+    end;
+    RefreshLVItemInfo;
+    Result := True;
+{$endif}
+  end;
   procedure ShowNoFileTip;
   var
     lv: TListItem;
-  begin       
+  begin        
     ListViewFiles.Items.Clear;
+    if AddBuiltInModel then
+      Exit;
     lv := ListViewFiles.Items.Add;
     lv.Caption := srNoFilePrompt;
     lv.ImageIndex:=1;
@@ -382,7 +504,9 @@ begin
     ShowNoFileTip;
     Exit;
   end;
-  if not FCtMetaDatabase.ObjectExists(combDBUser.Text, 'ezdml_meta_file') then
+  if combDBUser.Text <> '' then
+    FCtMetaDatabase.DbSchema:=combDBUser.Text;
+  if not DbObjExists('ezdml_meta_file') then
   begin
     ShowNoFileTip;
     Exit;
@@ -433,6 +557,7 @@ begin
     finally
       ds.Free;
     end;
+    AddBuiltInModel;
     if ListViewFiles.Items.Count = 0 then
       ShowNoFileTip;
   finally
@@ -463,10 +588,25 @@ procedure TfrmEzdmlDbFile.RefreshLVItemInfo;
       Result := Format(srLockByUserFmt, [GetLockerName(mstr)]);
     Result := ': '+ Result;
   end;
-begin          
+begin
+  edtFileName.ReadOnly:=False; 
+  edtFileName.Color:=clDefault;
+  rdbLock.Enabled:=True;
+  rdbUnlock.Enabled:=True;
+  rdbCurLock.Enabled:=True;
   if ListViewFiles.Selected = nil then
+    Exit;           
+  if IsBuiltinDbModel(ListViewFiles.Selected.Caption) then
+  begin
+    edtFileName.ReadOnly:=True;
+    edtFileName.ParentColor:=True;
+    edtFileName.Text := ListViewFiles.Selected.Caption;
+    if ListViewFiles.Selected.SubItems.Count >= 3 then  
+      rdbCurLock.Caption := sKeepCurLock + GetCurLockInfo(ListViewFiles.Selected.SubItems[2]);
     Exit;
-  if ListViewFiles.Selected.SubItems.Count = 0 then
+  end;
+
+  if ListViewFiles.Selected.SubItems.Count < 3 then
     Exit;
 
   edtFileName.Text := ListViewFiles.Selected.Caption;
@@ -508,6 +648,31 @@ begin
   frm := nil;
   try
     mds.CurDataModel.Tables.LoadFromDMLText(MemoDML.Text);
+    frm := TfrmCtGenSQL.Create(Self);
+    frm.CtDataModelList := mds;
+    frm.SetWorkMode(0);
+    if frm.ShowModal = mrOk then
+    begin
+    end;
+  finally
+    mds.Free;
+    if Assigned(frm) then
+      frm.Free;
+  end;
+end;
+
+procedure TfrmEzdmlDbFile.SyncBuiltinDML;
+var
+  mds: TCtDataModelGraphList;
+  frm: TfrmCtGenSQL;
+  fn: String;
+begin      
+  fn := GetFolderPathOfAppExe('Templates');
+  fn := FolderAddFileName(fn, 'ezdml_meta_model.dmj');
+  mds:= TCtDataModelGraphList.Create;
+  frm := nil;
+  try
+    mds.LoadFromFile(fn);
     frm := TfrmCtGenSQL.Create(Self);
     frm.CtDataModelList := mds;
     frm.SetWorkMode(0);
@@ -570,6 +735,7 @@ var
   ds: TDataSet;
   st: Integer;
 begin
+  //op: 0切换（我锁->解锁，他锁或无锁->我锁） 1锁定 2解锁
   //mode: 0提示并执行 1仅提示 2仅执行
   Result:=False;
   if mode<>2 then
@@ -645,9 +811,16 @@ begin
     end;
   end;
 
-  fid := ListViewFiles.Selected.SubItems[4];
-  sql := GenDbFileSql('fileGuid, modifierName, modifyDate, fileMemo', 'fileGuid='''+fid+'''', '');
-  ds := FCtMetaDatabase.OpenTable(sql, '');
+  fid := ListViewFiles.Selected.SubItems[4];    
+  if IsBuiltinDbModel(ListViewFiles.Selected.Caption) then
+  begin
+    sql := 'select fileGuid, modifierName, modifyDate, fileMemo from ezdml_meta_hyfile';
+    if fid<>'' then
+      sql := sql+' where fileGuid='''+fid+'''';
+  end
+  else
+    sql := GenDbFileSql('fileGuid, modifierName, modifyDate, fileMemo', 'fileGuid='''+fid+'''', '');
+  ds := FCtMetaDatabase.OpenTable(sql, '[PK=fileGuid]');
   if ds<>nil then
   try
     if not ds.Eof then
@@ -684,8 +857,8 @@ end;
 
 function TfrmEzdmlDbFile.PrepareToLoadFile(fn: string): boolean;
 var
-  ptr, eng, usr, db, doc, fid, sch, sql: string;
-  po: Integer;
+  S, ptr, eng, usr, db, doc, fid, sch, sql: string;
+  I, po: Integer;
   ds:TDataSet;     
   cr: TCursor;
 begin
@@ -695,7 +868,15 @@ begin
     Exit;
             
   if not Assigned(FCtMetaDatabase) then
-    MenuItemDbConnClick(nil);
+  begin
+    //MenuItemDbConnClick(nil);
+    I := ExecCtDbLogon;  
+    if I >= 0 then
+    begin
+      FLinkDbNo := I;
+      RefreshDbInfoEx(False);
+    end;
+  end;
 
   if FCtMetaDatabase=nil then
     Exit;
@@ -715,7 +896,13 @@ begin
 
   edtFileName.Text:=doc;
 
-  if fid <> '' then
+  if IsBuiltinDbModel(fn) then
+  begin
+    sql := 'select fileGuid from ezdml_meta_hyfile';    
+    if fid<>'' then
+      sql := sql+' where fileGuid='''+fid+'''';
+  end
+  else if fid <> '' then
     sql := GenDbFileSql('fileGuid', 'fileName='''+doc+''' and fileGuid='''+fid+'''', '')
   else
     sql := GenDbFileSql('fileGuid', 'fileName='''+doc+''' and fileStatus=0', '');
@@ -762,7 +949,13 @@ begin
       Exit;
 
     try
-      MenuItemDbConnClick(nil);
+      //MenuItemDbConnClick(nil);
+      idx := ExecCtDbLogon;
+      if idx >= 0 then
+      begin
+        FLinkDbNo := idx;
+        RefreshDbInfoEx(False);
+      end;
     except
       on E: Exception do
       begin
@@ -798,11 +991,20 @@ begin
     if sch <>'' then
     begin
       if FCtMetaDatabase.DbSchema <> sch then
+      begin
+        combDBUser.Text := sch;   
         FCtMetaDatabase.DbSchema:= sch;
+      end;
     end;
   end;
 
-  if fid <> '' then
+  if IsBuiltinDbModel(fn) then
+  begin
+    sql := 'select fileSize, modifyDate from ezdml_meta_hyfile';
+    if fid<>'' then
+      sql := sql+' where fileGuid='''+fid+'''';
+  end
+  else if fid <> '' then
     sql := GenDbFileSql('fileSize, modifyDate', 'fileName='''+doc+''' and fileGuid='''+fid+'''', '')
   else
     sql := GenDbFileSql('fileSize, modifyDate', 'fileName='''+doc+''' and fileStatus=0', '');
@@ -862,8 +1064,14 @@ begin
         FCtMetaDatabase.DbSchema:= sch;
     end;
   end;
-                              
-  if fid <> '' then                                   
+
+  if IsBuiltinDbModel(fn) then
+  begin
+    sql := 'select ModifierName, fileMemo from ezdml_meta_hyfile';
+    if fid<>'' then
+      sql := sql+' where fileGuid='''+fid+'''';
+  end
+  else if fid <> '' then
     sql := GenDbFileSql('modifierName, fileMemo', 'fileName='''+doc+''' and fileGuid='''+fid+'''', '')
   else
     sql := GenDbFileSql('modifierName, fileMemo', 'fileName='''+doc+''' and fileStatus=0', '');
@@ -907,6 +1115,11 @@ begin
     if PromptLockCurItem(2, 2) then
       rdbCurLock.Checked := True;
   end;
+end;
+
+function TfrmEzdmlDbFile.DbObjExists(tbn: string): Boolean;
+begin
+  Result := FCtMetaDatabase.ObjectExists('',tbn);
 end;
 
 
@@ -981,7 +1194,7 @@ begin
   fileHash := LowerCase(MD5Print(MD5String(buf)));
 
 
-  ds := FCtMetaDatabase.OpenTable(sql, '');
+  ds := FCtMetaDatabase.OpenTable(sql, '[PK=fileGuid]');
   fid := '';
   if ds<>nil then
   try
@@ -1059,7 +1272,7 @@ begin
     creatorName := GetMyComputerId;
 
   sql := GenDbFileSql('*', 'fileName='''+AFileName+''' and fileStatus=0', '');
-  ds := FCtMetaDatabase.OpenTable(sql, '');
+  ds := FCtMetaDatabase.OpenTable(sql, '[PK=fileGuid]');
   if ds<>nil then
   try
     ds.Append;
@@ -1093,6 +1306,222 @@ begin
   end;                  
   FCtMetaDatabase.ExecCmd('commit','','');
   Result:=True;
+end;
+
+procedure TfrmEzdmlDbFile.CheckSelBuiltInDbModel;
+
+  procedure CheckCanSaveDbMeta;
+  var
+    Sql, sGuid: String;
+    ds:TDataSet;
+    bCanSave: Boolean;
+  begin
+    bCanSave := False;
+    sGuid := FGlobeDataModelList.ModelFileConfig.CtGuid;
+    Sql := 'select fileGuid from ezdml_meta_hyfile';
+    ds := FCtMetaDatabase.OpenTable(sql, '');
+    if (ds<>nil) then
+    begin
+      if not ds.Eof then
+      begin
+        if sGuid<>'' then
+          if sGuid=ds.Fields[0].AsString then
+            bCanSave := True;
+      end
+      else
+        bCanSave := True;
+      ds.Free;
+    end;
+    if not bCanSave then
+      raise Exception.Create(srErrBuiltInModelExists);
+  end;
+begin
+  if not Assigned(FCtMetaDatabase) then
+    Exit;
+  if not FCtMetaDatabase.Connected then
+    Exit;
+  if not DbObjExists('ezdml_meta_hyfile') then
+  begin
+    if Application.MessageBox(PChar(srCreateDbFileSystemPrompt),
+      PChar(edtFileName.Text), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+      Exit;
+    SyncBuiltinDML;;
+    Exit;
+  end;
+
+  if IsSaveMode then
+    CheckCanSaveDbMeta;
+
+  FResultFileName := edtFileName.Text;
+  if Assigned(FCtMetaDatabase) and (combDBUser.Text <> '') then
+    if UpperCase(Trim(FCtMetaDatabase.User)) <> UpperCase(Trim(combDBUser.Text)) then
+      FResultFileName := combDBUser.Text + '/' + FResultFileName;
+  ModalResult := mrOk;
+end;
+
+function TfrmEzdmlDbFile.CreateBuiltinDbSerialer(mds: TCtDataModelGraphList;
+  fn: string; bReadOnly: Boolean): TCtObjSerialer;
+var
+  po: Integer;
+begin
+  po := Pos('/', fn);
+  if po>0 then
+    fn := Copy(fn, po+1, Length(fn));
+{$ifdef EZDML_DBSERIAL}
+  Result := TCtObjMetaDbSerial.Create(Self.FCtMetaDatabase, fn, bReadOnly);
+  TCtObjMetaDbSerial(Result).ModelList:=mds;                            
+  TCtObjMetaDbSerial(Result).OpUserInfo:=GetMyComputerId;
+{$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+{$endif}
+end;
+
+procedure TfrmEzdmlDbFile.DoBuiltinModelLoad(sr: TCtObjSerialer);
+begin          
+{$ifdef EZDML_DBSERIAL}
+  TCtObjMetaDbSerial(sr).DoLoadAll; 
+{$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+{$endif}
+end;
+
+function TfrmEzdmlDbFile.DoBuiltinModelSave(sr: TCtObjSerialer; bPromptMemo: Boolean): string;
+var
+  prmt,  opstr, modifierName, AMemo: string;
+  lk: Integer;
+  ds: TDataSet;
+begin          
+{$ifdef EZDML_DBSERIAL}  
+  lk := 0;
+  if ListViewFiles.Selected <> nil then
+    if IsBuiltinDbModel(ListViewFiles.Selected.Caption) then
+      lk := GetLockState(ListViewFiles.Selected.SubItems[2]);
+
+  Result := TCtObjMetaDbSerial(sr).DoSaveAll;
+  if  not bPromptMemo then
+    Exit;
+  if Result='' then
+  begin
+    Application.MessageBox(PChar(srBuiltinDbFileNotChangedPrompt),
+      PChar(Application.Title), MB_OK or MB_ICONINFORMATION);
+    Exit;
+  end;
+
+  prmt := Format(srBuiltinDbFileSavedResultFmt,[Result]);
+
+  opstr:=srDbFileEditSave;
+  if rdbLock.Checked then
+  begin
+    modifierName := GetMyNameWithLockId;
+    if lk<>1 then
+      opstr := opstr+'('+rdbLock.Caption+') ';
+  end
+  else if rdbUnlock.Checked then
+  begin
+    modifierName:=GetMyComputerId;
+    if lk=1 then
+      opstr := opstr+'('+rdbUnlock.Caption+') ';
+  end
+  else
+  begin
+    if lk=1 then
+    begin
+      modifierName := GetMyNameWithLockId;
+    end
+    else
+      modifierName:=GetMyComputerId;
+  end;
+
+  AMemo:='';
+  if bPromptMemo then
+  begin
+    AMemo := opstr+' by ' +GetMyComputerId+' '+ FormatDateTime('yyyy-mm-dd hh:nn:ss', Now);
+    if not PvtInput.PvtMemoQuery(Self.Caption, prmt, AMemo, False) then
+      Exit;
+  end;
+         
+  ds := FCtMetaDatabase.OpenTable('select * from ezdml_meta_hyfile', '[PK=fileGuid]');
+  if ds=nil then
+    Exit;
+  try   
+    if ds.EOF then
+      raise Exception.Create('Save built-in dbfile failed: ezdml_meta_hyfile is empty');
+    ds.Edit;
+    ds.FieldByName('fileMemo').AsString := AMemo; 
+    ds.FieldByName('modifierName').AsString := modifierName;
+    ds.Post;
+          
+  finally
+    ds.Free;
+  end; 
+  FCtMetaDatabase.ExecCmd('commit','','');
+{$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+{$endif}
+end;
+
+function TfrmEzdmlDbFile.PublishFileToBuiltinHydb(Sender: TObject;
+  md: TCtDataModelGraph; tb: TCtMetaTable; const fileType, filePath, fileName,
+  fileContent, opts: string): string;
+var
+  ds: TDataSet;
+  mdGuid, mdName, sql: string;
+begin
+  Result:=''; 
+  if fileType='static' then
+    Exit;
+  if tb=nil then
+    raise Exception.Create('PublishFileToBuiltinHydb: tb is null');
+  if tb.CtGuid='' then
+    raise Exception.Create('PublishFileToBuiltinHydb: tbGuid is empty');    
+  if filePath='' then
+    raise Exception.Create('PublishFileToBuiltinHydb: filePath is empty');
+  mdGuid := '';
+  mdName := '';
+  if md<>nil then
+  begin                
+    if md.CtGuid='' then
+      raise Exception.Create('PublishFileToBuiltinHydb: mdGuid is empty');
+    mdGuid := md.CtGuid;
+    mdName := md.Name;
+  end;
+  sql := 'select * from ezdml_meta_hypub where tableGuid='''
+    +tb.CtGuid+''' and modelGuid='''+mdGuid+''' and filePath='''+filePath+'''';
+  if fileType='' then
+    sql := sql+' and fileType is null'
+  else
+    sql := sql+' and fileType='''+fileType+'''';
+  ds := FCtMetaDatabase.OpenTable(sql, '[PK=CtGuid]');
+  if ds=nil then
+    Exit;
+  try
+    if ds.EOF then
+    begin
+      ds.Append;
+      ds.FieldByName('CtGuid').AsString := CtGenGuid; 
+      ds.FieldByName('modelGuid').AsString := md.CtGuid;
+      ds.FieldByName('tableGuid').AsString := tb.CtGuid;
+      ds.FieldByName('createDate').AsDateTime := Now;
+      ds.FieldByName('creatorName').AsString := GetMyComputerId;
+    end
+    else
+      ds.Edit;
+    ds.FieldByName('Name').AsString := tb.Name;
+    ds.FieldByName('ModelName').AsString := mdName;       
+    ds.FieldByName('fileType').AsString := fileType;
+    ds.FieldByName('filePath').AsString := filePath;
+    ds.FieldByName('fileName').AsString := fileName;
+    ds.FieldByName('Content').AsString := fileContent;
+    ds.FieldByName('ModifyDate').AsDateTime := Now;
+    ds.FieldByName('ModifierName').AsString := GetMyComputerId; 
+    ds.FieldByName('DataLevel').AsInteger := 0;
+    ds.Post;
+
+  finally
+    ds.Free;
+  end;
+  FCtMetaDatabase.ExecCmd('commit','','');
+  //
 end;
 
 
@@ -1148,12 +1577,6 @@ procedure TfrmEzdmlDbFile.MenuItemDbConnClick(Sender: TObject);
 var
   I: Integer;
 begin
-  if Sender = MenuItemDbConn then
-    if (GetKeyState(VK_SHIFT) and $80) <> 0 then
-    begin
-      Self.SyncDML;
-      Exit;
-    end;
   I := ExecCtDbLogon;
   if I >= 0 then
   begin
@@ -1167,6 +1590,8 @@ var
   uSql, fid, fn: String;
 begin
   if ListViewFiles.Selected = nil then
+    Exit;
+  if IsBuiltinDbModel(ListViewFiles.Selected.Caption) then
     Exit;
   if ListViewFiles.Selected.SubItems.Count = 0 then
     Exit;
@@ -1194,6 +1619,8 @@ var
   ds: TDataSet;
 begin
   if ListViewFiles.Selected = nil then
+    Exit;
+  if IsBuiltinDbModel(ListViewFiles.Selected.Caption) then
     Exit;
   if ListViewFiles.Selected.SubItems.Count = 0 then
     Exit;
@@ -1249,9 +1676,16 @@ begin
   if memo = ListViewFiles.Selected.SubItems[3] then
     Exit;
   fid := ListViewFiles.Selected.SubItems[4];
-
-  sql := GenDbFileSql('fileGuid, modifierName, modifyDate, fileMemo', 'fileGuid='''+fid+'''', '');
-  ds := FCtMetaDatabase.OpenTable(sql, '');
+                  
+  if IsBuiltinDbModel(ListViewFiles.Selected.Caption) then
+  begin
+    sql := 'select fileGuid, modifierName, modifyDate, fileMemo from ezdml_meta_hyfile';
+    if fid<>'' then
+      sql := sql+' where fileGuid='''+fid+'''';
+  end
+  else
+    sql := GenDbFileSql('fileGuid, modifierName, modifyDate, fileMemo', 'fileGuid='''+fid+'''', '');
+  ds := FCtMetaDatabase.OpenTable(sql, '[PK=fileGuid]');
   if ds<>nil then
   try
     if not ds.Eof then
@@ -1289,7 +1723,9 @@ var
   uSql, fid, fn: String;
 begin
   if ListViewFiles.Selected = nil then
-    Exit;      
+    Exit;
+  if IsBuiltinDbModel(ListViewFiles.Selected.Caption) then
+    Exit;
   if ListViewFiles.Selected.SubItems.Count = 0 then
     Exit;
   fn := ListViewFiles.Selected.Caption;
@@ -1335,7 +1771,12 @@ var
 begin
   edtFileName.Text := Trim(edtFileName.Text);
   if edtFileName.Text='' then
+    Exit;      
+  if IsBuiltinDbModel(edtFileName.Text) then
+  begin
+    CheckSelBuiltInDbModel;
     Exit;
+  end;
   if IsSymbolName(edtFileName.Text) then
     raise Exception.Create(Format(srInvalidTbNameError,[edtFileName.Text]));
   if IsSaveMode then
@@ -1344,10 +1785,10 @@ begin
       Exit;
     if not FCtMetaDatabase.Connected then
       Exit;
-    if not FCtMetaDatabase.ObjectExists(combDBUser.Text, 'ezdml_meta_file') then
+    if not DbObjExists('ezdml_meta_file') then
     begin         
       if Application.MessageBox(PChar(srCreateDbFileSystemPrompt),
-        PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
+        PChar(Self.Caption), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
         Exit;
       SyncDML;
       Exit;

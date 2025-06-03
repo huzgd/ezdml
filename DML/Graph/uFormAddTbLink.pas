@@ -296,7 +296,8 @@ end;
 procedure TfrmAddTbLink.ckbCreateNewFieldChange(Sender: TObject);
 var
   I: Integer;
-  S: String;
+  S, T, V: String;
+  f: TCtMetaField;
 begin
   edtNewFieldName.Visible:=ckbCreateNewField.Checked;            
   combRelateField.Visible:=not ckbCreateNewField.Checked;
@@ -306,12 +307,32 @@ begin
     if Ftb1.IsTable then
     begin
       S := Ftb1.Name+'_'+Ftb1.KeyFieldName;
+      T := '';
+      if (Ftb1.Caption <>'') and (Ftb1.Caption<>FTb1.Name) then
+      begin
+        T := Ftb1.Caption;
+        f := Ftb1.GetPrimaryKeyField;
+        if Assigned(f) and (f.DisplayName<>'') then
+        begin
+          V := T;
+          if Copy(V, Length(V)-2, 3)='表' then
+            V:=Copy(V,1,Length(V)-3);
+          if Pos(V, f.DisplayName)=1 then
+            T := f.DisplayName
+          else
+            T := T+'_'+f.DisplayName
+        end
+        else
+          T := T+'_ID';
+      end;
       I:=1;
       while Ftb2.MetaFields.FieldByName(S) <> nil do
       begin
         Inc(I);
         S := Ftb1.Name+'_'+Ftb1.KeyFieldName+IntToStr(I);
       end;
+      if T<>'' then
+        S := S+'('+T+')';
       edtNewFieldName.Text := S;
     end
     else
@@ -471,6 +492,30 @@ procedure TfrmAddTbLink.FormCloseQuery(Sender: TObject;
       Free;
     end;
   end;
+  procedure SetNewFieldNameCap(fd: TCtMetaField);
+  var
+    S, T: string;
+    L, po: Integer;
+  begin
+    S := Trim(edtNewFieldName.Text);
+    if S='' then
+      Exit;
+    T := '';
+    L := Length(S);
+    if S[L]=')' then
+    begin
+      po := Pos('(', S);
+      if po>1 then
+      begin
+        T := Copy(S, po+1, Length(S));
+        Delete(T,Length(T),1);
+        T := Trim(T);
+        S:=Trim(Copy(S,1,po-1));
+      end;
+    end;
+    fd.Name:=S;
+    fd.DisplayName:=T;
+  end;
 var
   mf, cf: TCtMetaField;
 begin
@@ -514,7 +559,7 @@ begin
     else
     begin
       cf := Ftb2.MetaFields.NewMetaField;
-      cf.Name := Trim(edtNewFieldName.Text);   
+      SetNewFieldNameCap(cf);
       if combLinkType.ItemIndex = 0 then
       begin        
         mf := TCtMetaField(combMasterField.Items.Objects[combMasterField.ItemIndex]);

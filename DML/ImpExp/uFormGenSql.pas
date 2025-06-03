@@ -1313,6 +1313,7 @@ begin
       btnBuildSQL.Enabled := True;
       btnCancel.Caption := srCapClose;
     end;
+    FCtMetaDatabase.ExecCmd('commit', '', '');
     if not FAborted then
       bFinish := True;
   finally

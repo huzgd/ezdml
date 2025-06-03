@@ -235,7 +235,7 @@ begin
     end;
     raise;
   end;
-  CheckDsUpdateMode(TSQLQuery(Result));
+  CheckDsUpdateMode(TSQLQuery(Result), op);
 end;
 
 function TCtMetaHttpDb.ExecCustomDbCmd(cmd, par1, par2, buf: string): string;

@@ -238,6 +238,8 @@ constructor TCtObjJsonSerialer.Create(const fn: string; fm: Word);
 begin
   inherited;
 
+  if Pos('_FULL_JSON.', fn)>0 then
+    FWriteEmptyVals := True;
   FInnerFileStream := TFileStream.Create(fn, fm);
   FStream := FInnerFileStream;
 

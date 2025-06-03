@@ -42,6 +42,7 @@ type
     FObjID: string;
     FGroupName: string;
     FRootName: string;
+    FSkipChildren: Boolean;
     FPreloadChildren: Boolean;
     FChildCountInvalid: Boolean;
     FEof: Boolean;
@@ -50,6 +51,7 @@ type
     FChildSeq: Integer;
     FObjPIDs: array of string;
     FObjGroupNames: array of string;
+    FGroupNamePath: string;
     FCheckCounter: Integer;
     procedure SetCurCtVer(const Value: Integer); virtual;
     procedure ValidCtVersion(const Value: Integer); virtual;
@@ -126,6 +128,8 @@ type
     //用户编号
     property UserID: Integer read FUserID write FUserID;
 
+    //是否忽略子对象内容
+    property SkipChildren: Boolean read FSkipChildren write FSkipChildren;
     //是否自动读入子对象内容（未实现）
     //如果是，设置OJBID后第一次从数据库读取时同时将其下所有子节点读入
     //否则，只在每次BeginChildren时临时创建新的读取器从数据库读取
@@ -177,8 +181,8 @@ type
   end;
    
 const
-  DEF_CURCTVER = 'CT38';
-  DEF_CURCTVER_VAL = 38;
+  DEF_CURCTVER = 'CT39';
+  DEF_CURCTVER_VAL = 39;
 var
   Proc_CheckDecDmlData: function(data: string): string;
 {$IFnDEF FPC}    
@@ -227,7 +231,10 @@ procedure TCtObjSerialer.CheckSectionName;
 var
   I: Integer;
   S, T: string;
-begin
+begin        
+  FGroupNamePath := RootName;
+  for I:=0 to FChildCounter-1 do
+    FGroupNamePath := FGroupNamePath+'/'+FObjGroupNames[I];
   S := RootName;
   for I := 1 to FChildCounter - 1 do
   begin

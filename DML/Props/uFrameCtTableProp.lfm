@@ -1,23 +1,23 @@
 object FrameCtTableProp: TFrameCtTableProp
   Left = 0
-  Height = 766
+  Height = 847
   Top = 0
   Width = 838
-  ClientHeight = 766
+  ClientHeight = 847
   ClientWidth = 838
   OnResize = FrameResize
   TabOrder = 0
   TabStop = True
-  DesignLeft = 248
-  DesignTop = 37
+  DesignLeft = 437
+  DesignTop = 24
   object PageControlTbProp: TPageControl
     Left = 0
-    Height = 766
+    Height = 847
     Top = 0
     Width = 838
-    ActivePage = TabSheetUI
+    ActivePage = TabSheetAdvanced
     Align = alClient
-    TabIndex = 2
+    TabIndex = 4
     TabOrder = 0
     OnChange = PageControlTbPropChange
     OnChanging = PageControlTbPropChanging
@@ -500,7 +500,7 @@ object FrameCtTableProp: TFrameCtTableProp
         object sbtnTbJson: TSpeedButton
           Left = 784
           Height = 20
-          Hint = 'Json'
+          Hint = 'Json (Hold SHIFT for full-mode)'
           Top = 0
           Width = 23
           Align = alRight
@@ -662,25 +662,25 @@ object FrameCtTableProp: TFrameCtTableProp
     end
     object TabSheetAdvanced: TTabSheet
       Caption = 'Advanced'
-      ClientHeight = 736
+      ClientHeight = 817
       ClientWidth = 830
       object ScrollBoxOperLogic: TScrollBox
         Left = 0
-        Height = 736
+        Height = 817
         Top = 0
         Width = 830
-        HorzScrollBar.Page = 696
-        VertScrollBar.Page = 732
+        HorzScrollBar.Page = 791
+        VertScrollBar.Page = 813
         VertScrollBar.Tracking = True
         Align = alClient
-        ClientHeight = 732
+        ClientHeight = 813
         ClientWidth = 809
         TabOrder = 0
         object lbExtraSQL: TLabel
           Left = 8
           Height = 17
           Hint = 'curTable.extraSQL'
-          Top = 562
+          Top = 598
           Width = 56
           Caption = 'Extra SQL'
           ParentColor = False
@@ -690,7 +690,7 @@ object FrameCtTableProp: TFrameCtTableProp
         object Bevel1: TBevel
           Left = 8
           Height = 5
-          Top = 484
+          Top = 520
           Width = 792
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
@@ -709,15 +709,15 @@ object FrameCtTableProp: TFrameCtTableProp
         object memoExtraSQL: TMemo
           Left = 120
           Height = 54
-          Top = 562
+          Top = 598
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 14
+          TabOrder = 17
         end
         object ckbGenDatabase: TCheckBox
-          Left = 120
+          Left = 519
           Height = 21
           Hint = 'curTable.genDatabase'
           Top = 144
@@ -726,7 +726,7 @@ object FrameCtTableProp: TFrameCtTableProp
           OnClick = MemoTableCommentExit
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 5
+          TabOrder = 6
         end
         object edtUIDisplayText: TEdit
           Left = 120
@@ -737,7 +737,7 @@ object FrameCtTableProp: TFrameCtTableProp
           TabOrder = 2
         end
         object ckbGenCode: TCheckBox
-          Left = 308
+          Left = 683
           Height = 21
           Hint = 'curTable.genCode'
           Top = 144
@@ -746,7 +746,7 @@ object FrameCtTableProp: TFrameCtTableProp
           OnClick = MemoTableCommentExit
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 6
+          TabOrder = 7
         end
         object Label41: TLabel
           Left = 121
@@ -760,7 +760,7 @@ object FrameCtTableProp: TFrameCtTableProp
           Left = 8
           Height = 17
           Hint = 'curTable.UILogic'
-          Top = 636
+          Top = 672
           Width = 45
           Caption = 'UI logic'
           ParentColor = False
@@ -770,28 +770,28 @@ object FrameCtTableProp: TFrameCtTableProp
         object MemoUILogic: TMemo
           Left = 120
           Height = 70
-          Top = 636
+          Top = 672
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 15
+          TabOrder = 18
         end
         object memoBusinessLogic: TMemo
           Left = 120
           Height = 66
-          Top = 714
+          Top = 750
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 16
+          TabOrder = 19
         end
         object lbBuzLogic: TLabel
           Left = 8
           Height = 17
           Hint = 'curTable.businessLogic'
-          Top = 712
+          Top = 748
           Width = 82
           Caption = 'Business logic'
           ParentColor = False
@@ -801,18 +801,18 @@ object FrameCtTableProp: TFrameCtTableProp
         object memoExtraProps: TMemo
           Left = 120
           Height = 66
-          Top = 788
+          Top = 824
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 17
+          TabOrder = 20
         end
         object lbExProps: TLabel
           Left = 8
           Height = 17
           Hint = 'curTable.extraProps'
-          Top = 789
+          Top = 825
           Width = 53
           Caption = 'Ex-props'
           ParentColor = False
@@ -822,18 +822,18 @@ object FrameCtTableProp: TFrameCtTableProp
         object memoScriptRules: TMemo
           Left = 120
           Height = 54
-          Top = 876
+          Top = 912
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 18
+          TabOrder = 21
         end
         object lbScriptRules: TLabel
           Left = 8
           Height = 17
           Hint = 'curTable.scriptRules'
-          Top = 876
+          Top = 912
           Width = 65
           Caption = 'Script rules'
           ParentColor = False
@@ -843,7 +843,7 @@ object FrameCtTableProp: TFrameCtTableProp
         object Bevel2: TBevel
           Left = 7
           Height = 5
-          Top = 624
+          Top = 660
           Width = 792
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
@@ -851,7 +851,7 @@ object FrameCtTableProp: TFrameCtTableProp
         object Bevel3: TBevel
           Left = 8
           Height = 5
-          Top = 864
+          Top = 900
           Width = 792
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
@@ -859,7 +859,7 @@ object FrameCtTableProp: TFrameCtTableProp
         object Bevel4: TBevel
           Left = 7
           Height = 5
-          Top = 214
+          Top = 250
           Width = 792
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
@@ -868,7 +868,7 @@ object FrameCtTableProp: TFrameCtTableProp
           Left = 8
           Height = 17
           Hint = 'curTable.listSQL'
-          Top = 224
+          Top = 260
           Width = 46
           Caption = 'List SQL'
           ParentColor = False
@@ -878,28 +878,28 @@ object FrameCtTableProp: TFrameCtTableProp
         object memoListSQL: TMemo
           Left = 120
           Height = 56
-          Top = 224
+          Top = 260
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 8
+          TabOrder = 11
         end
         object memoViewSQL: TMemo
           Left = 120
           Height = 60
-          Top = 316
+          Top = 352
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 10
+          TabOrder = 13
         end
         object lbViewSQL: TLabel
           Left = 8
           Height = 17
           Hint = 'curTable.viewSQL'
-          Top = 316
+          Top = 352
           Width = 54
           Caption = 'View SQL'
           ParentColor = False
@@ -929,20 +929,20 @@ object FrameCtTableProp: TFrameCtTableProp
         object colobBgColor: TColorBox
           Left = 120
           Height = 22
-          Top = 180
+          Top = 216
           Width = 153
           Style = [cbStandardColors, cbCustomColor, cbPrettyNames, cbCustomColors]
           OnGetColors = colobBgColorGetColors
           DropDownCount = 48
           ItemHeight = 16
           OnChange = MemoTableCommentExit
-          TabOrder = 7
+          TabOrder = 10
         end
         object Label25: TLabel
           Left = 8
           Height = 17
           Hint = 'curTable.bgColor'
-          Top = 180
+          Top = 216
           Width = 52
           Caption = 'Bg Color'
           ParentColor = False
@@ -964,7 +964,7 @@ object FrameCtTableProp: TFrameCtTableProp
           Left = 519
           Height = 25
           Top = 16
-          Width = 274
+          Width = 275
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           TabOrder = 1
@@ -984,7 +984,7 @@ object FrameCtTableProp: TFrameCtTableProp
           Left = 519
           Height = 25
           Top = 48
-          Width = 274
+          Width = 275
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           TabOrder = 3
@@ -992,18 +992,18 @@ object FrameCtTableProp: TFrameCtTableProp
         object memoSQLWhereClause: TMemo
           Left = 120
           Height = 52
-          Top = 380
+          Top = 416
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 11
+          TabOrder = 14
         end
         object lbSQLWhereClause: TLabel
           Left = 8
           Height = 17
           Hint = 'curTable.SQLWhereClause'
-          Top = 380
+          Top = 416
           Width = 62
           Caption = 'SQL where'
           ParentColor = False
@@ -1013,18 +1013,18 @@ object FrameCtTableProp: TFrameCtTableProp
         object memoSQLOrderByClause: TMemo
           Left = 120
           Height = 40
-          Top = 436
+          Top = 472
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 12
+          TabOrder = 15
         end
         object lbSQLOrderByClause: TLabel
           Left = 8
           Height = 17
           Hint = 'curTable.SQLOrderByClause'
-          Top = 436
+          Top = 472
           Width = 79
           Caption = 'SQL order-by'
           ParentColor = False
@@ -1055,18 +1055,18 @@ object FrameCtTableProp: TFrameCtTableProp
         object memoPartitionInfo: TMemo
           Left = 120
           Height = 58
-          Top = 498
+          Top = 534
           Width = 674
           Anchors = [akTop, akLeft, akRight]
           OnExit = MemoTableCommentExit
           ScrollBars = ssVertical
-          TabOrder = 13
+          TabOrder = 16
         end
         object lbPartitionInfo: TLabel
           Left = 8
           Height = 17
           Hint = 'curTable.partitionInfo'
-          Top = 496
+          Top = 532
           Width = 74
           Caption = 'Partition info'
           ParentColor = False
@@ -1077,7 +1077,7 @@ object FrameCtTableProp: TFrameCtTableProp
           Left = 8
           Height = 17
           Hint = 'curTable.SQLAlias'
-          Top = 284
+          Top = 320
           Width = 53
           Caption = 'SQL alias'
           ParentColor = False
@@ -1087,15 +1087,15 @@ object FrameCtTableProp: TFrameCtTableProp
         object edtSQLAlias: TEdit
           Left = 120
           Height = 25
-          Top = 284
+          Top = 320
           Width = 256
           OnExit = MemoTableCommentExit
-          TabOrder = 9
+          TabOrder = 12
         end
         object lbTbSize: TLabel
           Left = 411
           Height = 17
-          Top = 180
+          Top = 216
           Width = 26
           Caption = 'Size:'
           ParentColor = False
@@ -1104,15 +1104,15 @@ object FrameCtTableProp: TFrameCtTableProp
         object edtTbSizeW: TEdit
           Left = 519
           Height = 25
-          Top = 180
+          Top = 216
           Width = 80
-          TabOrder = 19
+          TabOrder = 22
           Visible = False
         end
         object lbTbSizeX: TLabel
           Left = 604
           Height = 17
-          Top = 180
+          Top = 216
           Width = 6
           Caption = 'x'
           ParentColor = False
@@ -1121,10 +1121,89 @@ object FrameCtTableProp: TFrameCtTableProp
         object edtTbSizeH: TEdit
           Left = 616
           Height = 25
-          Top = 180
+          Top = 216
           Width = 80
-          TabOrder = 20
+          TabOrder = 23
           Visible = False
+        end
+        object Label6: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curTable.publishType'
+          Top = 144
+          Width = 70
+          Caption = 'Publish type'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object combPublishType: TComboBox
+          Left = 120
+          Height = 25
+          Top = 144
+          Width = 152
+          ItemHeight = 17
+          OnChange = MemoTableCommentExit
+          Style = csDropDownList
+          TabOrder = 24
+        end
+        object lbPurviewRoles: TLabel
+          Left = 411
+          Height = 17
+          Hint = 'curTable.purviewRoles'
+          Top = 184
+          Width = 77
+          Caption = 'Purview roles'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object lbDataPurview: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curTable.dataPurview'
+          Top = 184
+          Width = 76
+          Caption = 'Data purview'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object edtPurviewRoles: TEdit
+          Left = 519
+          Height = 25
+          Top = 180
+          Width = 275
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = MemoTableCommentExit
+          TabOrder = 9
+        end
+        object edtDataPurview: TComboBox
+          Left = 120
+          Height = 25
+          Top = 180
+          Width = 256
+          ItemHeight = 17
+          Items.Strings = (
+            'dept'
+            'dept_branch'
+            'mine'
+            'custom(filter)'
+          )
+          OnChange = MemoTableCommentExit
+          TabOrder = 8
+        end
+        object ckbIsReadOnly: TCheckBox
+          Left = 316
+          Height = 21
+          Hint = 'curTable.isReadOnly'
+          Top = 144
+          Width = 80
+          Caption = 'Read only'
+          OnClick = MemoTableCommentExit
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 5
         end
       end
     end
@@ -1510,8 +1589,8 @@ object FrameCtTableProp: TFrameCtTableProp
     TabStop = False
   end
   object ActionList1: TActionList
-    Left = 304
-    Top = 160
+    left = 304
+    top = 160
     object actFieldAdd: TAction
       Category = 'Fields'
       Caption = 'Add'
@@ -1671,8 +1750,8 @@ object FrameCtTableProp: TFrameCtTableProp
   end
   object PopupMenuTbFields: TPopupMenu
     OnPopup = PopupMenuTbFieldsPopup
-    Left = 460
-    Top = 248
+    left = 460
+    top = 248
     object MN_ShowInGraph: TMenuItem
       Action = actShowInGraph
     end
@@ -1775,8 +1854,8 @@ object FrameCtTableProp: TFrameCtTableProp
     end
   end
   object ImageListCttb: TImageList
-    Left = 228
-    Top = 164
+    left = 228
+    top = 164
     Bitmap = {
       4C692900000010000000100000000000000000000000008484FF008484FF0084
       84FF008484FF008484FF000000FF000000000000000000000000000000000000
@@ -3095,8 +3174,8 @@ object FrameCtTableProp: TFrameCtTableProp
   end
   object PopupMenuGenMemo: TPopupMenu
     OnPopup = PopupMenuGenMemoPopup
-    Left = 228
-    Top = 248
+    left = 228
+    top = 248
     object pmUndo1: TMenuItem
       Action = actEditUndo
     end
@@ -3157,25 +3236,25 @@ object FrameCtTableProp: TFrameCtTableProp
     Enabled = False
     Interval = 300
     OnTimer = TimerShowDataTimer
-    Left = 344
-    Top = 224
+    left = 344
+    top = 224
   end
   object TimerGridEditingCheck: TTimer
     Enabled = False
     Interval = 300
     OnTimer = TimerGridEditingCheckTimer
-    Left = 340
-    Top = 304
+    left = 340
+    top = 304
   end
   object FindDialogTxt: TFindDialog
     Options = [frDown, frHideMatchCase, frHideWholeWord, frHideUpDown, frHideEntireScope, frHidePromptOnReplace]
     OnFind = FindDialogTxtFind
-    Left = 472
-    Top = 338
+    left = 472
+    top = 338
   end
   object PopupMenuGenTabs: TPopupMenu
-    Left = 453
-    Top = 492
+    left = 453
+    top = 492
     object MNGenTab_Customize: TMenuItem
       Caption = 'Customize'
       OnClick = MNGenTab_CustomizeClick
@@ -3186,28 +3265,20 @@ object FrameCtTableProp: TFrameCtTableProp
     end
   end
   object SaveDialogCode: TSaveDialog
-    Left = 328
-    Top = 384
+    left = 328
+    top = 384
   end
   object PopupMenuTabs: TPopupMenu
     OnPopup = PopupMenuTabsPopup
-    Left = 445
-    Top = 159
-    object MNTabs_Relations: TMenuItem
-      Caption = 'Relations'
-      OnClick = MNTabs_RelationsClick
-    end
-    object MNTabs_Gen: TMenuItem
-      Caption = 'Generate'
-      OnClick = MNTabs_GenClick
-    end
+    left = 445
+    top = 159
     object MNTabs_UIDesign: TMenuItem
       Caption = 'UI Design'
       OnClick = MNTabs_UIDesignClick
     end
-    object MNTabs_Data: TMenuItem
-      Caption = 'Data'
-      OnClick = MNTabs_DataClick
+    object MNTabs_Relations: TMenuItem
+      Caption = 'Relations'
+      OnClick = MNTabs_RelationsClick
     end
     object MNTabs_AdvPage: TMenuItem
       Caption = 'Advanced'
@@ -3216,6 +3287,14 @@ object FrameCtTableProp: TFrameCtTableProp
     object MNTabs_Cust: TMenuItem
       Caption = 'Custom'
       OnClick = MNTabs_CustClick
+    end
+    object MNTabs_Gen: TMenuItem
+      Caption = 'Generate'
+      OnClick = MNTabs_GenClick
+    end
+    object MNTabs_Data: TMenuItem
+      Caption = 'Data'
+      OnClick = MNTabs_DataClick
     end
     object MenuItem1: TMenuItem
       Caption = '-'
@@ -3233,7 +3312,7 @@ object FrameCtTableProp: TFrameCtTableProp
     Enabled = False
     Interval = 200
     OnTimer = TimerAutoFocusTimer
-    Left = 223
-    Top = 477
+    left = 223
+    top = 477
   end
 end

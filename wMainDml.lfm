@@ -209,6 +209,9 @@ object frmMainDml: TfrmMainDml
       object MN_ToggleTableView: TMenuItem
         Action = actToggleTableView
       end
+      object MN_ViewModelInNewWnd: TMenuItem
+        Action = actViewModelInNewWnd
+      end
       object MN_ColorStyles: TMenuItem
         Action = actModelOptions
       end
@@ -395,11 +398,13 @@ object frmMainDml: TfrmMainDml
       Category = 'Model'
       Caption = 'Generate Database'
       OnExecute = actGenerateDatabaseExecute
+      ShortCut = 16452
     end
     object actGenerateCode: TAction
       Category = 'Model'
       Caption = 'Generate Code'
       OnExecute = actGenerateCodeExecute
+      ShortCut = 16455
     end
     object actTogglePhyView: TAction
       Category = 'Model'
@@ -596,6 +601,11 @@ object frmMainDml: TfrmMainDml
       Category = 'Model'
       Caption = 'Import DDL SQL...'
       OnExecute = actImportDDLSqlExecute
+    end
+    object actViewModelInNewWnd: TAction
+      Category = 'Model'
+      Caption = 'View in new window'
+      OnExecute = actViewModelInNewWndExecute
     end
   end
   object TimerAutoSave: TTimer

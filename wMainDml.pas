@@ -49,6 +49,7 @@ type
     actImportExcel: TAction;
     actChatGPT: TAction;
     actImportDDLSql: TAction;
+    actViewModelInNewWnd: TAction;
     actOpenUrl: TAction;
     actShareFile: TAction;
     actNewAppWin: TAction;
@@ -65,6 +66,7 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MN_ViewModelInNewWnd: TMenuItem;
     MNAI_Text2SQL: TMenuItem;
     MNAI_GenSampleValues: TMenuItem;
     MN_ImportDDLSql: TMenuItem;
@@ -194,6 +196,7 @@ type
     procedure actShowDescTextExecute(Sender: TObject);
     procedure actShowHideListExecute(Sender: TObject);
     procedure actToggleTableViewExecute(Sender: TObject);
+    procedure actViewModelInNewWndExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure lbNewVerInfoClick(Sender: TObject);
@@ -1711,7 +1714,8 @@ end;
 
 procedure TfrmMainDml.LoadFromDbFile(fn: string);
 var
-  fs: TCtObjMemJsonSerialer;
+  fs: TCtObjSerialer;
+  bBuiltin: Boolean;
 begin
   CheckCanEditMeta;
   if FFileWorking then
@@ -1732,8 +1736,14 @@ begin
 
     FProgressAll := 0;
     FProgressCur := 0;
-    FWaitWnd := TfrmWaitWnd.Create(Self);
-    fs := TCtObjMemJsonSerialer.Create(True);
+    FWaitWnd := TfrmWaitWnd.Create(Self);     
+    bBuiltin := IsBuiltinDbModel(frmEzdmlDbFile.ResultFileName);
+    if bBuiltin then
+    begin
+      fs := frmEzdmlDbFile.CreateBuiltinDbSerialer(FCtDataModelList, fn, True);
+    end
+    else
+      fs := TCtObjMemJsonSerialer.Create(True);
     FFrameCtTableDef.IsInitLoading := False;
     try
       fs.RootName := 'DataModels';
@@ -1746,17 +1756,38 @@ begin
       begin
         GProc_OnEzdmlCmdEvent('MAINFORM', 'DB_FILE_LOAD', frmEzdmlDbFile.ResultFileName, Self, nil);
       end;
+              
+      if bBuiltin then
+      begin                   
+        try
+          FCtDataModelList.Clear;
+          FCurFileName := '';
+          FCurDmlFileName := '';
+          CheckCaption;
+          FFrameCtTableDef.Init(nil, True);
+        except
+        end;
+        FFrameCtTableDef.IsInitLoading := True;
 
-      frmEzdmlDbFile.LoadFromDbFile(fs.Stream, frmEzdmlDbFile.ResultFileID);
-      fs.Stream.Seek(0, soFromBeginning);
-      try
-        FFrameCtTableDef.Init(nil, True);
-      except
+        frmEzdmlDbFile.DoBuiltinModelLoad(fs);
+      end
+      else
+      begin
+        frmEzdmlDbFile.LoadFromDbFile(TCtObjMemJsonSerialer(fs).Stream, frmEzdmlDbFile.ResultFileID);
+
+        try
+          FCtDataModelList.Clear;
+          FCurFileName := '';      
+          FCurDmlFileName := '';
+          CheckCaption;
+          FFrameCtTableDef.Init(nil, True);
+        except
+        end;
+        FFrameCtTableDef.IsInitLoading := True;
+
+        TCtObjMemJsonSerialer(fs).Stream.Seek(0, soFromBeginning);
+        FCtDataModelList.LoadFromSerialer(fs);
       end;
-
-      FFrameCtTableDef.IsInitLoading := True;
-      FCtDataModelList.LoadFromSerialer(fs);
-      FCurDmlFileName := '';
       FFileDbConnectOk := True;
 
     finally
@@ -3404,9 +3435,10 @@ end;
 
 procedure TfrmMainDml.actSaveToDbExecute(Sender: TObject);  
 var
-  fs: TCtObjMemJsonSerialer;
+  fs: TCtObjSerialer;
   po: Integer;
-  fn, S: string;
+  fn, S, svRes: string;
+  bBuiltin: Boolean;
 begin
   EzdmlMenuActExecuteEvt('File_SaveToDb');
   CheckCanEditMeta;
@@ -3460,8 +3492,15 @@ begin
 
   FProgressAll := 0;
   FProgressCur := 0;
+  svRes := '';
   FWaitWnd := TfrmWaitWnd.Create(Self);
-  fs := TCtObjMemJsonSerialer.Create(False);
+  bBuiltin := IsBuiltinDbModel(frmEzdmlDbFile.ResultFileName);
+  if bBuiltin then
+  begin
+    fs := frmEzdmlDbFile.CreateBuiltinDbSerialer(FCtDataModelList, fn, False);
+  end
+  else
+    fs := TCtObjMemJsonSerialer.Create(False);
   try
     fs.RootName := 'DataModels';
 
@@ -3473,11 +3512,20 @@ begin
       GProc_OnEzdmlCmdEvent('MAINFORM', 'DB_FILE_SAVE', frmEzdmlDbFile.ResultFileName, Self, nil);
     end;
 
-    FCtDataModelList.SaveToSerialer(fs);
-    fs.EndJsonWrite;
-    fs.Stream.Seek(0, soFromBeginning);
-    if not frmEzdmlDbFile.SaveDataToDbFile(fs.Stream, frmEzdmlDbFile.ResultFileName, True) then
-      Exit;
+    if bBuiltin then
+    begin                         
+      svRes := frmEzdmlDbFile.DoBuiltinModelSave(fs, True);
+    end
+    else
+    with TCtObjMemJsonSerialer(fs) do
+    begin
+      FCtDataModelList.SaveToSerialer(fs);
+      EndJsonWrite;
+      Stream.Seek(0, soFromBeginning);
+      if not frmEzdmlDbFile.SaveDataToDbFile(Stream, frmEzdmlDbFile.ResultFileName, True) then
+        Exit;
+      svRes := 'ok';
+    end;
     frmEzdmlDbFile.ListViewFiles.Items.Clear;
 
     FCurFileName := 'db://'+GetLastCtDbIdentStr+'/'+frmEzdmlDbFile.ResultFileName;
@@ -3500,7 +3548,9 @@ begin
   begin
     GProc_OnEzdmlCmdEvent('MAINFORM', 'DB_FILE_SAVED', frmEzdmlDbFile.ResultFileName, Self, nil);
   end;
-                                          
+
+  if svRes='' then
+    Exit;
   if Application.MessageBox(PChar(S),
     PChar(Application.Title),
     MB_YESNOCANCEL or MB_ICONINFORMATION) <> idYes then
@@ -3571,6 +3621,11 @@ begin
     FFrameCtTableDef.FFrameCtTableList.actFindInGraph.Execute;
     FFrameCtTableDef.TryFocusGraph;
   end;
+end;
+
+procedure TfrmMainDml.actViewModelInNewWndExecute(Sender: TObject);
+begin
+  FFrameCtTableDef.ViewModelInNewWnd;
 end;
 
 procedure TfrmMainDml.actEditGlobalScriptExecute(Sender: TObject);
@@ -4175,12 +4230,17 @@ end;
 procedure TfrmMainDml.CheckCaption;
 begin
   if FCurFileName = '' then
-  begin
+  begin                          
+    G_BuiltinHydbMode := False;
     Caption := FOrginalCaption;
     Application.Title := srEzdmlAppTitle;
   end
   else
-  begin
+  begin              
+    if IsDbFile(FCurFileName) and FFileDbConnectOk then
+      G_BuiltinHydbMode := IsBuiltinDbModel(FCurFileName)
+    else
+      G_BuiltinHydbMode := False;
     Caption := FOrginalCaption + ' - ' + FCurFileName;
     if IsDbFile(FCurFileName) and not FFileDbConnectOk then
       Caption := Caption +' '+ srEzdmlDbOfflineTip;

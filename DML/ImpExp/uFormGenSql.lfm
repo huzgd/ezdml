@@ -124,17 +124,17 @@ object frmCtGenSQL: TfrmCtGenSQL
     TabOrder = 0
     object LabelProg: TLabel
       Left = 88
-      Height = 17
+      Height = 12
       Top = 40
-      Width = 19
+      Width = 18
       Caption = '0/0'
       ParentColor = False
     end
     object Label4: TLabel
       Left = 4
-      Height = 17
+      Height = 12
       Top = 9
-      Width = 52
+      Width = 48
       Caption = 'Progress'
       ParentColor = False
     end
@@ -247,17 +247,17 @@ object frmCtGenSQL: TfrmCtGenSQL
     end
     object Label1: TLabel
       Left = 20
-      Height = 17
+      Height = 12
       Top = 28
-      Width = 47
+      Width = 42
       Caption = 'Connect'
       ParentColor = False
     end
     object Label2: TLabel
       Left = 32
-      Height = 17
+      Height = 12
       Top = 68
-      Width = 27
+      Width = 24
       Caption = 'User'
       ParentColor = False
     end
@@ -395,8 +395,8 @@ object frmCtGenSQL: TfrmCtGenSQL
   end
   object PopupMenu1: TPopupMenu
     OnPopup = PopupMenu1Popup
-    left = 80
-    top = 144
+    Left = 80
+    Top = 144
     object MN_CheckSelected: TMenuItem
       AutoCheck = True
       Caption = 'Check/uncheck (selected)'
@@ -425,8 +425,8 @@ object frmCtGenSQL: TfrmCtGenSQL
     end
   end
   object ActionList1: TActionList
-    left = 112
-    top = 144
+    Left = 112
+    Top = 144
     object EditSelectAll1: TEditSelectAll
       Category = 'Edit'
       Caption = 'Select &All'
@@ -437,25 +437,25 @@ object frmCtGenSQL: TfrmCtGenSQL
   object TimerInit: TTimer
     Interval = 300
     OnTimer = TimerInitTimer
-    left = 144
-    top = 144
+    Left = 144
+    Top = 144
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '.dbk'
     Filter = 'Database backup files(*.dbk)|*.dbk'
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
-    left = 172
-    top = 144
+    Left = 172
+    Top = 144
   end
   object OpenDialogDml: TOpenDialog
     DefaultExt = '.dmj'
     Filter = 'All supported files(*.dmj;*.dmx;*.dmh)|*.dmj;*.dmx;*.dmh|Json files(*.dmj)|*.dmj|XML files(*.dmx)|*.dmx|Binary files(*.dmh)|*.dmh'
-    left = 168
-    top = 184
+    Left = 168
+    Top = 184
   end
   object PopupMenuDbConn: TPopupMenu
-    left = 616
-    top = 64
+    Left = 616
+    Top = 64
     object MenuItemDbConn: TMenuItem
       Caption = 'Connect'
       Default = True

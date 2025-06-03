@@ -123,10 +123,12 @@ resourcestring
   srNewTextNameFmt = 'Text%d';   
   srNewGroupNameFmt = 'Group%d';
   srNewFieldNameFmt = 'Field%d';
-  srNewDiagramNameFmt = 'Model%d';  
+  srNewDiagramNameFmt = 'Model%d';
+  srNewCatalogNameFmt = 'Catalog%d';
   srNewComplexIndexNameFmt = 'CpxIndex%d';
   srNewComplexIndexDispName = 'ComplexIndex';
-  srNewTableDesc = 'Id PKInteger'#13#10'Rid FKInteger'#13#10'Name S';
+  srNewTableDesc = 'Id PKInteger'#13#10'Rid FKInteger'#13#10'Name S';  
+  srErrorDeleteCatalogNotEmptyFmt = 'The catalog is not empty and cannot be deleted: %s';
   srConfirmDeleteSelectedNodeFmt = 'Are you sure to delete object %s ?';
   srConfirmDeleteSelectedNodesFmt = 'Are you sure to delete selected %d objects?';
   srCannotExportEmptySelection = 'Please choose objects to export';
@@ -150,6 +152,7 @@ resourcestring
   srStrAborted = 'Aborted';
   srStrFinished = 'Finished';         
   srNoFilePrompt = 'No file found';
+  srBuiltInDbModel = 'Built_in_model';
   srRefreshingPrompt = 'Refreshing, please wait..';
   srDays = 'Days';
   srHours = 'Hours';
@@ -159,12 +162,15 @@ resourcestring
   srCanInitWaitWnd =
     'Can not init waiting window, it may already be displayed or disabled.';
   srCreateDbFileSystemPrompt = 'The program will open the Generate Database window to create/sync the ezdml file system tables. Do you want to continue?';
+  srErrBuiltInModelExists = 'The built-in model of this database already exists. Only one built-in model is allowed to be saved in a database.';
   srDbFileComment = 'File comment:';
   srDbFileEditSave = 'edit and save';
   srDbFileRenamePrompt = 'Rename database file to:';
   srConfirmDeleteDbFileFmt = 'Are you sure to delete database file %s?';    
   srOverwriteDbFileWarning = 'Database file %s already exists, are you sure to OVERWRITE?';
-  srOverwriteSameDbFileWarning = 'Database file %s (%s) already exists and its contents are exactly the same as those to be saved. Continue saving anyway?';
+  srOverwriteSameDbFileWarning = 'Database file %s (%s) already exists and its contents are exactly the same as those to be saved. Continue saving anyway?';    
+  srBuiltinDbFileNotChangedPrompt = 'The built-in model is up to date. Nothing is changed.';
+  srBuiltinDbFileSavedResultFmt = 'Built-in model saved (%s). File comment:';
   srUnlockMyDbFilePromptFmt = 'Unlock database file %s?';
   srForceUnlockDbFilePromptFmt = 'Database file %s is currently locked by %s. Do you want to forcibly unlock it?';    
   srForceLockDbFilePromptFmt = 'Database file %s is currently locked by %s. Do you want to forcibly lock it?';
@@ -173,8 +179,6 @@ resourcestring
   srNoLock = 'Not locked';
   srLockByMe = 'Locked by me';
   srLockByUserFmt = 'Locked by %s';
-  srViewModelInNewWnd = 'View in new window';
-  srViewProperties = 'View properties';
   srConfirmAbort = 'Are you sure to abort current process?';
   srCapAbort = 'Abort';
   srInvalidTableNameWarningFmt = 'Warning: Table name may be invalid - %s';
@@ -250,7 +254,7 @@ resourcestring
     'Warning: The database is about to be modified, make sure you have backed up your data before continue. Do you still want to modify database now?';
   srRestoreDatabaseWarning =
     'Warning: The database is about to be restored, all data in selected tables will be lost. Do you still want to restore tables now?';
-  srInvalidTbNameError = 'Error: object name "%s" contains invalid characters';
+  srInvalidTbNameError = 'Error: object name "%s" contains invalid characters and may cause serious problems. Do you still want to use it?';
   srRenameToExistsError = 'Error: Objects "%s" already exists, please choose another name';
   srRenameToExistsFeildError = 'Error: Field "%s" already exists, please choose another name';
   //srRenameToDulObjleWarning =
@@ -478,6 +482,13 @@ resourcestring
     'RichText S(99999)' + #13#10 +
     'IsEnabled BO' + #13#10 +
     'Memo';
+         
+  srModulePublishTypes=
+    'Auto' + #13#10 +
+    'None' + #13#10 +
+    'Function' + #13#10 +
+    'Module' + #13#10 +
+    'Menu';
 
   srUIFieldCategory =
     'All' + #13#10 +

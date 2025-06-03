@@ -58,8 +58,12 @@ type
     btnToggleTabs: TBitBtn;
     ckbForeignKeysOnly: TCheckBox;
     ckbGenCode: TCheckBox;
+    ckbIsReadOnly: TCheckBox;
     ckbGenDatabase: TCheckBox;
     colobBgColor: TColorBox;
+    edtDataPurview: TComboBox;
+    combPublishType: TComboBox;
+    edtPurviewRoles: TEdit;
     edtTxtSizeH: TEdit;
     edtTbSizeW: TEdit;
     edtGenTxtFind: TEdit;
@@ -72,6 +76,8 @@ type
     edtSQLAlias: TEdit;
     FindDialogTxt: TFindDialog;
     Label25: TLabel;
+    Label6: TLabel;
+    lbDataPurview: TLabel;
     lbTxtSize: TLabel;
     lbTbSizeX: TLabel;
     lbTbSize: TLabel;
@@ -86,6 +92,7 @@ type
     lbGroupName: TLabel;
     lbSQLAlias: TLabel;
     lbTxtSizeX: TLabel;
+    lbPurviewRoles: TLabel;
     lbViewSQL: TLabel;
     lbGenTp: TLabel;
     lbExProps: TLabel;
@@ -600,6 +607,8 @@ begin
     memoDescHelp.Lines.Text := srTbDescInputDemo;
   if (G_LastTbDescHelpWidth > 0) and (G_LastTbDescHelpWidth < (Self.Width div 2)) then
     memoDescHelp.Width := G_LastTbDescHelpWidth;
+
+  combPublishType.Items.Text:=srModulePublishTypes;
 
   CreateFieldWeightMenus;
 
@@ -1621,7 +1630,9 @@ begin
 
       edtPhysicalName.Text := '';
       edtUIDisplayText.Text := '';
-      ckbGenDatabase.Checked := False;   
+      combPublishType.ItemIndex:=0;
+      ckbIsReadOnly.Checked := False;
+      ckbGenDatabase.Checked := False;
       ckbGenCode.Checked := False; 
       memoListSQL.Lines.Text := '';
       memoViewSQL.Lines.Text := '';
@@ -1731,7 +1742,9 @@ begin
       MemoDesc.Modified := False;
                    
       edtPhysicalName.Text := ATb.PhysicalName;
-      edtUIDisplayText.Text := ATb.UIDisplayText;
+      edtUIDisplayText.Text := ATb.UIDisplayText;     
+      combPublishType.ItemIndex:=Integer(ATb.PublishType);
+      ckbIsReadOnly.Checked := ATb.IsReadOnly;
       ckbGenDatabase.Checked := ATb.GenDatabase;
       ckbGenCode.Checked := ATb.GenCode;
       colobBgColor.Selected:= ATb.BgColor;
@@ -1747,7 +1760,10 @@ begin
       btnToggleTabs.Visible := True;
       MN_GenOption.Visible := not FReadOnlyMode;
       MN_FieldWeights.Visible := not FReadOnlyMode;
-                  
+                                        
+      edtDataPurview.Text := ATb.PurviewRoles;
+      edtPurviewRoles.Text := ATb.DataPurview;
+
       edtOwnerCategory.Text := ATb.OwnerCategory;
       edtGroupName.Text := ATb.GroupName;
       edtSQLAlias.Text := ATb.SQLAlias;
@@ -2938,7 +2954,38 @@ begin
       fd.TextAlign := TCtTextAlignment(i1);
       DoFieldChanged(fd);
     end;
+  end;          
+  if prop = 'LabelText' then
+  begin
+    if fd = nil then
+      Exit;
+    fd.LabelText := Value;
+    DoFieldChanged(fd);
   end;         
+  if prop = 'ColGroup' then
+  begin
+    if fd = nil then
+      Exit;
+    if par1='' then
+      fd.ColGroup := Value
+    else if par1='add_upper' then
+    begin
+      if fd.ColGroup='' then
+        fd.ColGroup := Value
+      else
+        fd.ColGroup := Value +'|'+fd.ColGroup;
+    end        
+    else if par1='add_lower' then
+    begin
+      if fd.ColGroup='' then
+        fd.ColGroup := Value
+      else
+        fd.ColGroup := fd.ColGroup +'|'+Value;
+    end
+    else
+      Exit;
+    DoFieldChanged(fd);
+  end;
   if prop = 'AggregateFun' then
   begin
     if fd = nil then
@@ -3178,6 +3225,10 @@ begin
   if FCtMetaTable.PartitionInfo <> '' then
     Exit;
   if FCtMetaTable.DesignNotes <> '' then
+    Exit;        
+  if FCtMetaTable.DataPurview <> '' then
+    Exit;
+  if FCtMetaTable.PurviewRoles <> '' then
     Exit;
 
   Result := False;
@@ -3469,14 +3520,28 @@ begin
     if FCtMetaTable.ScriptRules = memoScriptRules.Lines.Text then
       Exit;
     FCtMetaTable.ScriptRules := memoScriptRules.Lines.Text;
+  end;           
+  if Sender=combPublishType then
+  begin
+    if FCtMetaTable.PublishType = TCtModulePublishType(combPublishType.ItemIndex) then
+      Exit;
+    FCtMetaTable.PublishType := TCtModulePublishType(combPublishType.ItemIndex); 
+    if Assigned(Proc_OnPropChange) then
+      Proc_OnPropChange(0, FCtMetaTable, nil, '');
   end;
+  if Sender=ckbIsReadOnly then
+  begin
+    if FCtMetaTable.IsReadOnly = ckbIsReadOnly.Checked then
+      Exit;
+    FCtMetaTable.IsReadOnly := ckbIsReadOnly.Checked;
+  end;            
   if Sender=ckbGenDatabase then
   begin
     if FCtMetaTable.GenDatabase = ckbGenDatabase.Checked then
       Exit;
-    FCtMetaTable.GenDatabase := ckbGenDatabase.Checked;  
+    FCtMetaTable.GenDatabase := ckbGenDatabase.Checked;
     actTbGenDB.Checked := FCtMetaTable.GenDatabase;
-  end;   
+  end;
   if Sender=ckbGenCode then
   begin
     if FCtMetaTable.GenCode = ckbGenCode.Checked then
@@ -3540,7 +3605,19 @@ begin
     FCtMetaTable.DesignNotes := memoDesignNotes.Lines.Text; 
     RefreshUIPreview;
   end;
-
+    
+  if Sender=edtDataPurview then
+  begin
+    if FCtMetaTable.PurviewRoles = edtDataPurview.Text then
+      Exit;
+    FCtMetaTable.PurviewRoles := edtDataPurview.Text;
+  end;           
+  if Sender=edtPurviewRoles then
+  begin
+    if FCtMetaTable.DataPurview = edtPurviewRoles.Text then
+      Exit;
+    FCtMetaTable.DataPurview := edtPurviewRoles.Text;
+  end;
 
 
   DoTablePropsChanged(FCtMetaTable);
@@ -5278,7 +5355,10 @@ var
 begin   
   if not Assigned(FCtMetaTable) then
     Exit;
-  S:= FCtMetaTable.JsonStr;
+  if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+    S := Proc_CtObjToJsonStr(FCtMetaTable,True,False)
+  else
+    S:= FCtMetaTable.JsonStr;
   if Self.FReadOnlyMode then
   begin
     PvtInput.PvtMemoQuery(FCtMetaTable.NameCaption, 'JSON:', S, True);
@@ -5582,6 +5662,8 @@ begin
 
       edtPhysicalName.Text := FCtMetaTable.PhysicalName;
       edtUIDisplayText.Text := FCtMetaTable.UIDisplayText;
+      combPublishType.ItemIndex := Integer(FCtMetaTable.PublishType);
+      ckbIsReadOnly.Checked := FCtMetaTable.IsReadOnly;
       ckbGenDatabase.Checked := FCtMetaTable.GenDatabase;
       ckbGenCode.Checked := FCtMetaTable.GenCode;   
       memoListSQL.Lines.Text := FCtMetaTable.ListSQL;

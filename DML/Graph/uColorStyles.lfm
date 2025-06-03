@@ -1,12 +1,12 @@
 object frmColorStyles: TfrmColorStyles
   Left = 406
-  Height = 454
+  Height = 516
   Top = 163
   Width = 420
   BorderIcons = [biSystemMenu, biMaximize]
   BorderStyle = bsDialog
-  Caption = 'Model Options'
-  ClientHeight = 454
+  Caption = 'Model properties'
+  ClientHeight = 516
   ClientWidth = 420
   Color = clBtnFace
   OnCreate = FormCreate
@@ -16,17 +16,139 @@ object frmColorStyles: TfrmColorStyles
   LCLVersion = '2.0.12.0'
   object PageControl1: TPageControl
     Left = 4
-    Height = 411
+    Height = 461
     Top = 4
     Width = 412
-    ActivePage = TabSheet2
+    ActivePage = TabSheetMd
     Align = alClient
     BorderSpacing.Around = 4
     TabIndex = 0
     TabOrder = 0
-    object TabSheet2: TTabSheet
-      Caption = 'Objects'
-      ClientHeight = 381
+    object TabSheetMd: TTabSheet
+      Caption = 'General'
+      ClientHeight = 431
+      ClientWidth = 404
+      ImageIndex = 2
+      object Label27: TLabel
+        Left = 8
+        Height = 17
+        Hint = 'curModel.name'
+        Top = 24
+        Width = 38
+        Caption = 'Name:'
+        ParentColor = False
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object edtName: TEdit
+        Left = 104
+        Height = 25
+        Top = 24
+        Width = 262
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 0
+      end
+      object edtCaption: TEdit
+        Left = 104
+        Height = 25
+        Top = 64
+        Width = 262
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 1
+      end
+      object Label28: TLabel
+        Left = 8
+        Height = 17
+        Hint = 'curModel.caption'
+        Top = 64
+        Width = 48
+        Caption = 'Caption:'
+        ParentColor = False
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object Label29: TLabel
+        Left = 8
+        Height = 17
+        Hint = 'curModel.memo'
+        Top = 104
+        Width = 41
+        Caption = 'Memo:'
+        ParentColor = False
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object memoMemo: TMemo
+        Left = 104
+        Height = 70
+        Top = 104
+        Width = 262
+        Anchors = [akTop, akLeft, akRight]
+        ScrollBars = ssVertical
+        TabOrder = 2
+      end
+      object combPublishType: TComboBox
+        Left = 104
+        Height = 25
+        Top = 188
+        Width = 262
+        ItemHeight = 17
+        Style = csDropDownList
+        TabOrder = 3
+      end
+      object Label30: TLabel
+        Left = 8
+        Height = 17
+        Hint = 'curModel.publishType'
+        Top = 188
+        Width = 76
+        Caption = 'Publish Type:'
+        ParentColor = False
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object Label31: TLabel
+        Left = 8
+        Height = 17
+        Hint = 'curModel.extraProps'
+        Top = 268
+        Width = 55
+        Caption = 'Ex-Props:'
+        ParentColor = False
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object memoExtraProps: TMemo
+        Left = 104
+        Height = 106
+        Top = 268
+        Width = 262
+        Anchors = [akTop, akLeft, akRight]
+        ScrollBars = ssVertical
+        TabOrder = 5
+      end
+      object lbPurviewRoles: TLabel
+        Left = 8
+        Height = 17
+        Hint = 'curModel.purviewRoles'
+        Top = 228
+        Width = 83
+        Caption = 'Purview Roles:'
+        ParentColor = False
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object edtPurviewRoles: TEdit
+        Left = 104
+        Height = 25
+        Top = 228
+        Width = 262
+        TabOrder = 4
+      end
+    end
+    object TabSheetColors: TTabSheet
+      Caption = 'Object Style'
+      ClientHeight = 431
       ClientWidth = 404
       ImageIndex = 1
       object Label15: TLabel
@@ -331,9 +453,9 @@ object frmColorStyles: TfrmColorStyles
         TabOrder = 13
       end
     end
-    object TabSheet1: TTabSheet
+    object TabSheetWorkArea: TTabSheet
       Caption = 'Working Area'
-      ClientHeight = 357
+      ClientHeight = 431
       ClientWidth = 404
       ImageIndex = 1
       object Bevel2: TBevel
@@ -416,14 +538,14 @@ object frmColorStyles: TfrmColorStyles
       object Bevel8: TBevel
         Left = 101
         Height = 2
-        Top = 221
+        Top = 292
         Width = 276
         Shape = bsTopLine
       end
       object Label7: TLabel
         Left = 10
         Height = 17
-        Top = 213
+        Top = 284
         Width = 39
         Caption = 'Others'
         ParentColor = False
@@ -465,12 +587,12 @@ object frmColorStyles: TfrmColorStyles
         TabOrder = 5
       end
       object chlShowFieldType: TCheckBox
-        Left = 236
+        Left = 240
         Height = 21
-        Top = 237
+        Top = 307
         Width = 111
         Caption = 'Show field type'
-        TabOrder = 7
+        TabOrder = 8
       end
       object clbBackGround: TColorBox
         Left = 104
@@ -495,53 +617,39 @@ object frmColorStyles: TfrmColorStyles
       object chlShowFieldIcon: TCheckBox
         Left = 104
         Height = 21
-        Top = 236
+        Top = 307
         Width = 110
         Caption = 'Show field icon'
-        TabOrder = 6
+        TabOrder = 7
       end
       object ckbIndependPosForOverviewMode: TCheckBox
         Left = 103
         Height = 21
-        Top = 264
+        Top = 335
         Width = 262
         Caption = 'Independent position for overview-mode'
-        TabOrder = 8
+        TabOrder = 9
       end
-    end
-    object TabSheet3: TTabSheet
-      Caption = 'Database'
-      ClientHeight = 357
-      ClientWidth = 404
-      ImageIndex = 2
       object Label10: TLabel
         Left = 10
         Height = 17
-        Top = 11
+        Top = 220
         Width = 55
         Caption = 'Database'
         ParentColor = False
       end
       object Bevel9: TBevel
-        Left = 99
+        Left = 101
         Height = 2
-        Top = 18
+        Top = 227
         Width = 276
         Shape = bsTopLine
-      end
-      object Label8: TLabel
-        Left = 21
-        Height = 17
-        Top = 44
-        Width = 31
-        Caption = 'Type:'
-        ParentColor = False
       end
       object combDbEngine: TComboBox
         Left = 106
         Height = 26
-        Top = 44
-        Width = 227
+        Top = 244
+        Width = 224
         ItemHeight = 20
         Items.Strings = (
           'ORACLE'
@@ -552,20 +660,30 @@ object frmColorStyles: TfrmColorStyles
           'STANDARD'
         )
         Style = csOwnerDrawFixed
-        TabOrder = 0
+        TabOrder = 6
+      end
+      object Label8: TLabel
+        Left = 21
+        Height = 17
+        Hint = 'will affect field types in physical view (such as VARCHAR)'
+        Top = 244
+        Width = 52
+        Caption = 'DB Type:'
+        ParentColor = False
+        ParentShowHint = False
+        ShowHint = True
       end
     end
   end
   object Panel1: TPanel
     Left = 0
-    Height = 35
-    Top = 419
+    Height = 47
+    Top = 469
     Width = 420
     Align = alBottom
-    AutoSize = True
     BevelOuter = bvNone
     BorderWidth = 4
-    ClientHeight = 35
+    ClientHeight = 47
     ClientWidth = 420
     TabOrder = 1
     object btnOK: TButton

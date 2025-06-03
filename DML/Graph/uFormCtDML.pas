@@ -69,10 +69,13 @@ type
     function _OnObjAddOrRemove(Obj: TDMLObj; Act: integer): boolean;
     function _OnLinkObj(Obj1, Obj2: TDMLObj): integer;
     procedure _DoCapitalize(sType: string);
+    procedure _SetPubType(iType: Integer);
     procedure _DoBatCopy(sType: string);
     procedure _OnSelChanged;
     procedure _OnObjColorChanged(Obj: TDMLObj; cl: Integer);      
     function _GetObjPropVal(Obj: TDMLObj; prop, def: string): string;
+
+    function GetPubFlag(tb: TCtMetaTable): Integer;
 
     procedure CheckAllLinks;
     procedure ResortToolBtns;
@@ -95,6 +98,7 @@ type
     procedure CheckSelectedTb;
     procedure CheckActEnbs;
     procedure CheckSaveView;
+    procedure ShowModelProps(mdl: TCtDataModelGraph; bGraph: Boolean);
     function CountSelectedTables(tbs: TCtMetaTableList = nil): Integer;
     function GetSelectedTable: TCtMetaTable;
     function GetSelectedCtObj: TCtMetaObject;
@@ -285,7 +289,8 @@ begin
   FFrameCtDML.DMLGraph.OnMoveObj := _OnObjsMoved;
   FFrameCtDML.Proc_OnObjAddOrRemove := _OnObjAddOrRemove;
   FFrameCtDML.Proc_OnLinkObj := _OnLinkObj;
-  FFrameCtDML.Proc_DoCapitalize := _DoCapitalize;
+  FFrameCtDML.Proc_DoCapitalize := _DoCapitalize;   
+  FFrameCtDML.Proc_SetPubType := _SetPubType;
   FFrameCtDML.Proc_DoBatCopy := _DoBatCopy;     
   FFrameCtDML.Proc_OnObjColorChanged := _OnObjColorChanged;  
   FFrameCtDML.Proc_GetObjPropVal := _GetObjPropVal;
@@ -496,16 +501,7 @@ end;
 
 procedure TfrmCtDML.actColorStylesExecute(Sender: TObject);
 begin
-  CheckCanEditMeta;
-  EzdmlMenuActExecuteEvt('Model_ColorStyles');
-  FFrameCtDML.actColorStylesExecute(Sender);
-  if FReadOnlyMode then
-    Exit;
-  ResetCtFieldTextColor;
-  if FCurMetaTableModel <> nil then
-  begin
-    FCurMetaTableModel.ConfigStr := FFrameCtDML.DMLGraph.DMLDrawer.GetConfigStr;
-  end;
+  ShowModelProps(FCurMetaTableModel, True);
 end;
 
 procedure TfrmCtDML.actCopyDmlTextExecuteEx(Sender: TObject);
@@ -749,7 +745,7 @@ var
   I, J: integer;
   DMLObjList: TDMLObjList;
   tmpList: TList;
-  bRes, bViewMode: boolean;
+  bRes, bViewMode, cAb: boolean;
 begin
   if not FFrameCtDML.DMLGraph.CanFocus then
   begin
@@ -862,16 +858,19 @@ begin
       bRes := Proc_ShowCtTableOfField(tb, cf, bViewMode, False, False)
     else
       bRes := Proc_ShowCtTableProp(tb, bViewMode, False);     
-    tb.UserObject['SIZE_DMLENTITY'] := nil;
+    tb.UserObject['SIZE_DMLENTITY'] := nil;  
+    if FReadOnlyMode then
+      Exit;      
+    cAb := G_SkipCheckAbort;
     if bRes then
-    begin
-      if FReadOnlyMode then
-        Exit;
+    try       
+      G_SkipCheckAbort := True;
       _OnObjsMoved(nil);
       //SaveToTb(tb);
       //DoTablePropsChanged 表属性保存时会自动调用
       S := tb.Name;
-      TDMLTableObj(obj).Name := S;        
+      TDMLTableObj(obj).Name := S;
+      TDMLTableObj(obj).PubFlag:=GetPubFlag(tb);
       if tb.BgColor > 0 then
       begin
         obj.UserPars := AddOrModifyCompStr(obj.UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
@@ -940,6 +939,9 @@ begin
       begin
         FFrameCtDML.actRefresh.Execute;
       end;
+
+    finally 
+      G_SkipCheckAbort := cAb;
     end;
     Exit;
   end;
@@ -955,16 +957,22 @@ begin
     begin          
       tb.UserObject['SIZE_DMLENTITY'] := nil;
       if FReadOnlyMode then
-        Exit;        
-      _OnObjsMoved(nil);
-      //SaveToTb(tb);
-      TDMLTextObj(obj).Comment := tb.Memo;
-      TDMLTextObj(obj).CheckResize;
-      FFrameCtDML.DMLGraph.Refresh;   
-      FLastRefreshTick := GetTickCount;
+        Exit;
+      cAb := G_SkipCheckAbort;
+      try              
+        G_SkipCheckAbort := True;
+        _OnObjsMoved(nil);
+        //SaveToTb(tb);
+        TDMLTextObj(obj).Comment := tb.Memo;
+        TDMLTextObj(obj).CheckResize;
+        FFrameCtDML.DMLGraph.Refresh;
+        FLastRefreshTick := GetTickCount;    
+      finally  
+        G_SkipCheckAbort := cAb;
+      end;
       if Assigned(Proc_OnPropChange) then
         Proc_OnPropChange(2, tb, nil, '');
-    end;     
+    end;
     tb.UserObject['SIZE_DMLENTITY'] := nil;
     Exit;
   end;
@@ -1525,16 +1533,19 @@ begin
     actDBGenSql.Visible := Assigned(FCurMetaTableModel);
     actFindObject.Visible := Assigned(FCurMetaTableModel);
 
+    ToolButtonRun.Visible := Assigned(FCurMetaTableModel);
+
     actFileNew.Visible := not FBrowseMode;         
     actFileOpen.Visible := not FBrowseMode;
     actFileSave.Visible := not FBrowseMode;
 
-    actFindObject.Visible := not FBrowseMode;       
-    actExportXls.Visible := not FBrowseMode;
-    actBatchOps.Visible := not FBrowseMode;        
-    actDBGenSql.Visible := not FBrowseMode;
-    MN_Capitalize.Visible := not FBrowseMode;
-    actFullTableView.Visible := not FBrowseMode;
+    actFindObject.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);       
+    actExportXls.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
+    actBatchOps.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);        
+    actDBGenSql.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
+    MN_Capitalize.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);      
+    MN_PublishType.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
+    actFullTableView.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
     {$ifdef EZDML_LITE}
     actChatGPT.Visible := False;
     MNRun_GenData.Visible:=False;
@@ -1545,19 +1556,19 @@ begin
     {$ifdef WIN32} 
     actChatGPT.Visible := False;   
     {$else}
-    actChatGPT.Visible := not FBrowseMode;// and (actChatGPT.Tag=2);
+    actChatGPT.Visible := not FBrowseMode and not FReadOnlyMode;// and (actChatGPT.Tag=2);
     {$endif}
     {$endif}           
     ToolButtonAI.Visible := actChatGPT.Visible;        
     MenuItem_AI.Visible := actChatGPT.Visible;
-    actRun.Visible := not FBrowseMode;
-    actColorStyles.Visible := not FBrowseMode;
+    actRun.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
+    actColorStyles.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
     btnShowInGraph.Visible := not FBrowseMode;
                                      
-    actRearrange.Visible := not FBrowseMode;
+    actRearrange.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
 
-    actBatAddFields.Visible := not FBrowseMode;
-    actBatRemoveFields.Visible := not FBrowseMode;  
+    actBatAddFields.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
+    actBatRemoveFields.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);  
     actOpenURL.Visible := False;//not FBrowseMode;
     actShareFile.Visible := False;//not FBrowseMode;
 
@@ -1570,7 +1581,11 @@ begin
       ToolButtonRun.Visible := False;
       //ToolBar1.Align := alLeft;
       //ToolBar1.EdgeBorders:=[ebRight];
-    end;
+    end
+    else
+      ToolButtonDMLsp2.Visible := not FReadOnlyMode;
+
+    SortToolBtns;
   end;
 
 end;
@@ -1607,6 +1622,62 @@ begin
     S := S +',';
   end;
   FCurMetaTableModel.CustomAttr1 := S;
+end;
+
+procedure TfrmCtDML.ShowModelProps(mdl: TCtDataModelGraph; bGraph: Boolean);
+var
+  oName: string;
+  pt: Integer;
+begin
+  CheckCanEditMeta;
+  EzdmlMenuActExecuteEvt('Model_ColorStyles');
+
+  if mdl <> nil then
+  begin
+    with FFrameCtDML.DMLGraph.DMLDrawer do
+    begin
+      ModelName:=mdl.Name;
+      ModelCaption:=mdl.Caption;
+      ModelMemo:=mdl.Memo;
+      ModelExProps:=mdl.ExtraProps;
+      ModelPubType:=Integer(mdl.PublishType);
+      ModelPurviewRoles:=mdl.PurviewRoles;
+    end;
+  end
+  else
+    with FFrameCtDML.DMLGraph.DMLDrawer do
+    begin
+      ModelName:='';
+      ModelCaption:='';
+      ModelMemo:='';
+      ModelExProps:='';
+      ModelPubType:=0;
+      ModelPurviewRoles:='';
+    end;
+  pt := FFrameCtDML.DMLGraph.DMLDrawer.ModelPubType;
+
+
+  FFrameCtDML.ShowColorStyleProps(bGraph);
+  ResetCtFieldTextColor;
+  if mdl <> nil then
+  begin
+    oName := mdl.NameCaption;
+    with FFrameCtDML.DMLGraph.DMLDrawer do
+    begin
+      mdl.Name:=ModelName;
+      mdl.Caption:=ModelCaption;
+      mdl.Memo:=ModelMemo;
+      mdl.ExtraProps:=ModelExProps;
+      mdl.PublishType:=TCtModulePublishType(ModelPubType);
+      mdl.PurviewRoles:=ModelPurviewRoles;
+    end;
+    if bGraph then
+      mdl.ConfigStr := FFrameCtDML.DMLGraph.DMLDrawer.GetConfigStr;
+    if (oName <> mdl.NameCaption) or (pt <> FFrameCtDML.DMLGraph.DMLDrawer.ModelPubType) then
+    begin
+      FFrameCtDML.actRefresh.Execute;
+    end;
+  end;
 end;
 
 function TfrmCtDML.CountSelectedTables(tbs: TCtMetaTableList): Integer;
@@ -1912,7 +1983,8 @@ begin
             o.UserObject := tb;
             TDMLTableObj(o).Describe := tb.Describe;
             if not tb.GenDatabase then
-              TDMLTableObj(o).IsView := True;
+              TDMLTableObj(o).IsView := True;   
+            TDMLTableObj(o).PubFlag:=GetPubFlag(tb);
             CheckDmlTableFieldProps(tb, TDMLTableObj(o));
           end;
           o.CheckResize;
@@ -1963,7 +2035,8 @@ begin
           begin
             o := TDMLTableObj.Create;
             o.UserObject := tb;
-            TDMLTableObj(o).Describe := tb.Describe;
+            TDMLTableObj(o).Describe := tb.Describe;   
+            TDMLTableObj(o).PubFlag:=GetPubFlag(tb);
             CheckDmlTableFieldProps(tb, TDMLTableObj(o));
           end;
           o.CheckResize;  
@@ -2564,6 +2637,7 @@ var
   obj: TDMLTableObj;
   fd: TDMLField;
   rfn, S, desc1, relDesc: string;
+  cAb: Boolean;
 begin
   Result := -1;
   if Self.FReadOnlyMode then
@@ -2606,22 +2680,28 @@ begin
         Exit;
       end;
     end;
+          
+    cAb := G_SkipCheckAbort;
+    try
+      G_SkipCheckAbort := True;
+      Obj := TDMLTableObj(FFrameCtDML.DMLGraph.DMLObjs.CreateDMLObj(''));
+      Obj.Describe := tb.Describe;
+      CheckDmlTableFieldProps(tb, obj);
+      obj.CheckResize;
+      obj.FindFKLinks(FFrameCtDML.DMLGraph.DMLObjs);
+      Obj.UserObject := tb;
+      Obj.Left := (Obj1.Left + Obj2.Left) / 2;
+      Obj.Top := (Obj1.Top + Obj2.Top) / 2;
+      tb.GraphDesc := Self.GetLocationDesc(obj);
 
-    Obj := TDMLTableObj(FFrameCtDML.DMLGraph.DMLObjs.CreateDMLObj(''));
-    Obj.Describe := tb.Describe;
-    CheckDmlTableFieldProps(tb, obj);
-    obj.CheckResize;
-    obj.FindFKLinks(FFrameCtDML.DMLGraph.DMLObjs);   
-    Obj.UserObject := tb;
-    Obj.Left := (Obj1.Left + Obj2.Left) / 2;
-    Obj.Top := (Obj1.Top + Obj2.Top) / 2;
-    tb.GraphDesc := Self.GetLocationDesc(obj);
-
-    FFrameCtDML.DMLGraph.DMLObjs.ClearSelection;
-    Obj.Selected:=True;     
-    FFrameCtDML.DMLGraphSelectObj(nil);
-    FFrameCtDML.DMLGraph.Refresh;
-    FLastRefreshTick := GetTickCount;
+      FFrameCtDML.DMLGraph.DMLObjs.ClearSelection;
+      Obj.Selected:=True;
+      FFrameCtDML.DMLGraphSelectObj(nil);
+      FFrameCtDML.DMLGraph.Refresh;
+      FLastRefreshTick := GetTickCount; 
+    finally
+      G_SkipCheckAbort := cAb;
+    end;
     if Assigned(Proc_OnPropChange) then
       Proc_OnPropChange(0, tb, nil, '');
     Exit;
@@ -2713,6 +2793,42 @@ begin
             end;
           end;
 
+  finally
+    if bChg then
+      FFrameCtDML.actRefresh.Execute;
+  end;
+end;
+
+procedure TfrmCtDML._SetPubType(iType: Integer);
+var
+  I: integer;
+  o: TDMLEntityObj;
+  tb: TCtMetaTable;
+  bChg: boolean;
+begin
+  bChg := False;
+  try
+    with FFrameCtDML.DMLGraph.DMLObjs do
+      for I := 0 to Count - 1 do
+        if Items[I].Selected then
+          if Items[I] is TDMLEntityObj then
+          begin
+            o := TDMLEntityObj(Items[I]);
+            tb := TCtMetaTable(o.UserObject);
+            if tb = nil then
+              Continue;
+            if not tb.IsTable then
+              Continue;
+
+            if iType <> Integer(tb.PublishType) then
+            begin
+              tb.PublishType := TCtModulePublishType(iType);
+              DoTablePropsChanged(tb);
+              if Assigned(Proc_OnPropChange) then
+                Proc_OnPropChange(2, tb, nil, '');
+              bChg := True;
+            end;
+          end;
   finally
     if bChg then
       FFrameCtDML.actRefresh.Execute;
@@ -2815,7 +2931,9 @@ begin
         s := tb.ExcelText;
         ss.Add(s);
         ss.Add('');
-      end
+      end      
+      else if not tb.IsTable then
+        Continue
       else if sType = 'CreateSQL' then
       begin
         s := tb.GenSql(dbType);
@@ -2898,13 +3016,25 @@ begin
       end
       else if sType = 'InsertSQL' then
       begin
-        s := tb.GenDqlDmlSql(dbType, 'insert');
+        s := tb.GenDqlDmlSql(dbType, 'insert'); 
+        if SC>1 then
+          s:=Trim(s)+';'#13#10;
         ss.Add(s);
         ss.Add('');
       end
       else if sType = 'UpdateSQL' then
       begin
-        s := tb.GenDqlDmlSql(dbType, 'update');
+        s := tb.GenDqlDmlSql(dbType, 'update'); 
+        if SC>1 then
+          s:=Trim(s)+';'#13#10;
+        ss.Add(s);
+        ss.Add('');
+      end             
+      else if sType = 'DeleteSQL' then
+      begin
+        s := tb.GenDqlDmlSql(dbType, 'delete');
+        if SC>1 then
+          s:=Trim(s)+';'#13#10;
         ss.Add(s);
         ss.Add('');
       end
@@ -3038,11 +3168,39 @@ begin
   end;
 end;
 
+function TfrmCtDML.GetPubFlag(tb: TCtMetaTable): Integer;
+var
+  pt: TCtModulePublishType;
+begin        
+  //0=none 1=green 2=blue 3=red 4=g2 5=b2 6=r2 -1=auto
+  Result := 0;
+  pt := tb.PublishType;
+  if pt=cmptFunction then
+    Result := 1
+  else if pt=cmptModule then
+    Result := 2
+  else if pt=cmptMenu then
+    Result := 3
+  else if pt=cmptAuto then
+  begin
+    pt := tb.GetInhPublishType;
+    if pt=cmptFunction then
+      Result := 4
+    else if pt=cmptModule then
+      Result := 5
+    else if pt=cmptMenu then
+      Result := 6
+    else
+      Result := -1;
+  end;
+end;
+
 function TfrmCtDML._OnObjAddOrRemove(Obj: TDMLObj; Act: integer): boolean;
 var
   tb: TCtMetaTable;
   fdn: string;
-  df: TDMLField;
+  df: TDMLField; 
+  cAb: Boolean;
 begin
   Result := True;
   if Obj = nil then
@@ -3151,12 +3309,21 @@ begin
           Exit;
         end; 
         tb.UserObject['SIZE_DMLENTITY'] := nil;
+        if tb.BgColor>0 then
+          Obj.FillColor := tb.BgColor;
         if (Obj is TDMLTableObj) then
-        begin
-          TDMLTableObj(Obj).Describe := tb.Describe;
-          CheckDmlTableFieldProps(tb, TDMLTableObj(obj));
-          TDMLTableObj(obj).CheckResize;
-          TDMLTableObj(obj).FindFKLinks(FFrameCtDML.DMLGraph.DMLObjs);
+        begin   
+          cAb := G_SkipCheckAbort;
+          try
+            G_SkipCheckAbort := True;          
+            TDMLTableObj(obj).PubFlag:=GetPubFlag(tb);
+            TDMLTableObj(Obj).Describe := tb.Describe;
+            CheckDmlTableFieldProps(tb, TDMLTableObj(obj));
+            TDMLTableObj(obj).CheckResize;
+            TDMLTableObj(obj).FindFKLinks(FFrameCtDML.DMLGraph.DMLObjs); 
+          finally
+            G_SkipCheckAbort := cAb;
+          end;
         end
         else if (Obj is TDMLTextObj) then
         begin

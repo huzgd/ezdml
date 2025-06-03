@@ -14,14 +14,17 @@ uses
 
 type
 
+  { TCtObjDbSerial }
+
   TCtObjDbSerial = class(TCtObjSerialer)
   private
+  protected               
+    FDbFileName: string;
+    FDBEngine: TCtMetaDatabase;
     FInnerDataSet: TDataSet;
     FDataSet: TDataSet;
-    FWhereClause: string;
-    FOrderByClause: string;
-    FLoadCtoIconImage: Boolean;
-  protected
+    FCurDataSec: string;
+
     FCurDSObjID: string;
     FObjTableName: string;
     FObjPKField: string;
@@ -33,16 +36,19 @@ type
     FChildQueryReady: Integer; //0－未初始化；1－已初始化；2－已执行
   protected
     procedure SetObjID(const Value: string); override;
-    procedure SetPreloadChildren(const Value: Boolean); override;
   public
-    constructor Create(const ADBEngine: TCtMetaDatabase; fn: String; bReadOnly: Boolean); overload;
+    constructor Create(const ADBEngine: TCtMetaDatabase; fn: String; bReadOnly: Boolean); virtual; overload;
     destructor Destroy; override;
+               
+    //生成子数据查询
+    procedure NewChildQuery;
+    //释放子数据查询
+    procedure ReleaseChildQuery;
 
     procedure CheckSectionName; override;
     procedure ReloadCurDSObjID; virtual;
     function GenObjSql(incSubs: Boolean): string; virtual;
     function GenChildIDSql: string; virtual;
-    function GetAndWhereClause(op: string): string; virtual;
     procedure CheckObjPost; virtual;
     procedure CheckObjID; virtual;
     procedure CheckDsEdit; virtual;
@@ -60,21 +66,24 @@ type
 
     procedure ReadString(const PropName: string; var PropValue: string); override;
     procedure ReadBool(const PropName: string; var PropValue: Boolean); override;
+    procedure ReadNotBool(const PropName: string; var PropValue: Boolean); override;
     procedure ReadInteger(const PropName: string; var PropValue: Integer); override;
     procedure ReadFloat(const PropName: string; var PropValue: Double); override;
     procedure ReadDate(const PropName: string; var PropValue: TDateTime); override;
-    procedure ReadBuffer(const PropName: string; const Len: LongInt; var PropValue); override;
+    procedure ReadBuffer(const PropName: string; const Len: LongInt; var PropValue); override;  
+    procedure ReadStrings(const PropName: string; var PropValue: string); override;
+
     procedure WriteString(const PropName: string; const PropValue: string); override;
     procedure WriteBool(const PropName: string; const PropValue: Boolean); override;
+    procedure WriteNotBool(const PropName: string; const PropValue: Boolean); override;
     procedure WriteInteger(const PropName: string; const PropValue: Integer); override;
     procedure WriteFloat(const PropName: string; const PropValue: Double); override;
     procedure WriteDate(const PropName: string; const PropValue: TDateTime); override;
-    procedure WriteBuffer(const PropName: string; const Len: LongInt; const PropValue); override;
+    procedure WriteBuffer(const PropName: string; const Len: LongInt; const PropValue); override; 
+    procedure WriteStrings(const PropName: string; const PropValue: string); override;
 
     property DataSet: TDataSet read FDataSet write FDataSet;
-    property WhereClause: string read FWhereClause write FWhereClause;    
-    property OrderByClause: string read FOrderByClause write FOrderByClause;
-    property LoadCtoIconImage: Boolean read FLoadCtoIconImage write FLoadCtoIconImage;
+    property DbFileName: string read FDbFileName write FDbFileName;
   end;
 
 
@@ -84,6 +93,10 @@ implementation
 
 constructor TCtObjDbSerial.Create(const ADBEngine: TCtMetaDatabase; fn: String; bReadOnly: Boolean);
 begin
+  inherited Create(bReadOnly);
+
+  FDBEngine := ADBEngine;
+  FDbFileName := fn;
   FObjTableName := 'CTTREENODE';
   FObjPKField := 'ID';
   FObjPIDField := 'PID';
@@ -109,31 +122,22 @@ begin
   inherited;
 end;
 
-procedure TCtObjDbSerial.BeginChildren(AGroupName: string);
+procedure TCtObjDbSerial.NewChildQuery;
 var
   vPID: string;
   iPid, L: Integer;
 begin
-  vPID := ObjID;
-  inherited;
-
-  if PreloadChildren then
-  begin
-    if TryStrToInt(vPID, iPID) then
-      FDataSet.Filter := FObjPIDField + '=' + vPID
-    else
-      FDataSet.Filter := FObjPIDField + '=''' + vPID + '''';
-    FDataSet.Filtered := FDataSet.Filter <> '';
-    FDataSet.First;
-    FChildQueryReady := 1;
-    Exit;
-  end;
+  if FCurDataSec=FSection then
+    Exit;    
+  CheckObjPost;
+  FCurDataSec:=FSection;
+  DataSet := nil;
 
   L := Length(FObjChildQuerys);
   while L < FChildCounter do
   begin
     L := L + 1;
-    SetLength(FObjChildQuerys, L);           
+    SetLength(FObjChildQuerys, L);
   //rem2022
     //FObjChildQuerys[L - 1] := TDataSet.Create(nil);
     //FObjChildQuerys[L - 1].DBEngine := FDataSet.DBEngine;
@@ -142,7 +146,7 @@ begin
   FChildQueryReady := 0;
   if FChildCounter > 0 then
   begin
-    FCurChildQuery := FObjChildQuerys[FChildCounter - 1];    
+    FCurChildQuery := FObjChildQuerys[FChildCounter - 1];
   //rem2022
     //FCurChildQuery.Clear;
     //FCurChildQuery.SQL.Text := GenChildIDSql;
@@ -155,45 +159,11 @@ begin
     FCurChildQuery := nil;
 end;
 
-procedure TCtObjDbSerial.EndChildren(AGroupName: string);
-var
-  vPid, oPid: string;
-  iPid: Integer;
-begin
-  oPid := '';
-  if PreloadChildren then
-  begin
-    if FChildCounter > 1 then
-    begin
-      oPid := FObjPIDs[FChildCounter - 1];
-      vPid := FObjPIDs[FChildCounter - 2];
-      if TryStrToInt(vPID, iPID) then
-        FDataSet.Filter := FObjPIDField + '=' + vPID
-      else
-        FDataSet.Filter := FObjPIDField + '=''' + vPID + '''';
-    end
-    else
-      FDataSet.Filter := '';
-    FDataSet.Filtered := FDataSet.Filter <> '';
-    FDataSet.First;
-    FChildQueryReady := 1;
-  end;
-
-  inherited;
-  if PreloadChildren then
-  begin
-    if FChildCounter > 0 then
-    begin
-      //vPid := FObjPIDs[FChildCounter - 2];
-      if oPid <> '' then
-        if FDataSet.Locate(FObjPKField, oPID, []) then
-          FChildQueryReady := 2;
-    end;
-    Exit;
-  end;
-
+procedure TCtObjDbSerial.ReleaseChildQuery;
+begin       
+  CheckObjPost;
   if Assigned(FCurChildQuery) then
-  begin              
+  begin
   //rem2022
     //FCurChildQuery.Clear;
     FCurChildQuery := nil;
@@ -206,9 +176,22 @@ begin
   end;
 end;
 
+procedure TCtObjDbSerial.BeginChildren(AGroupName: string);
+begin
+  inherited;
+  NewChildQuery;
+end;
+
+procedure TCtObjDbSerial.EndChildren(AGroupName: string);
+begin
+  inherited;
+  ReleaseChildQuery;
+end;
+
 procedure TCtObjDbSerial.CheckDsEdit;
 begin
-  DataSet.Edit;
+  if not (DataSet.State in [dsInsert, dsEdit]) then
+    DataSet.Edit;
 end;
 
 procedure TCtObjDbSerial.CheckObjID;
@@ -224,7 +207,8 @@ procedure TCtObjDbSerial.CheckObjPost;
 begin
   if FCurObjModified then
   begin
-    DataSet.Post;
+    if DataSet <> nil then
+      DataSet.Post;
     FCurObjModified := False;
   end;
 end;
@@ -238,9 +222,7 @@ end;
 
 function TCtObjDbSerial.EOF: Boolean;
 begin
-  if PreloadChildren then
-    Result := FDataSet.Eof
-  else if not Assigned(FCurChildQuery) then
+  if not Assigned(FCurChildQuery) then
     Result := True
   else if FChildQueryReady <> 2 then
     Result := True
@@ -250,29 +232,18 @@ end;
 
 function TCtObjDbSerial.GenChildIDSql: string;
 begin
-  Result := 'select t.' + FObjPKField + ' from ' + FObjTableName + ' t where t.' + FObjPIDField + ' = :P_OBJID' + GetAndWhereClause('and');
-  if Trim(FOrderByClause)<>'' then
-    Result := Result+' order by '+FOrderByClause;
+  Result := 'select t.' + FObjPKField + ' from ' + FObjTableName + ' t where t.' + FObjPIDField + ' = :P_OBJID order by orderNo';
 end;
 
 function TCtObjDbSerial.GenObjSql(incSubs: Boolean): string;
 begin
-  if LoadCtoIconImage then
-    Result := 'select t.*,t.rowid,pkg_ctobjs.get_ctobj_icon(t.id, t.param) iconimg from ' + FObjTableName + ' t'
-  else
-    Result := 'select t.*,t.rowid from ' + FObjTableName + ' t';
-  if incSubs then
-    Result := Result + GetAndWhereClause('where')
-      + ' start with t.' + FObjPKField + ' = :P_OBJID connect by '
-      + FObjPIDField + ' = prior ' + FObjPKField
-  else
-    Result := Result + ' where t.' + FObjPKField + ' = :P_OBJID' + GetAndWhereClause('and');
-  if Trim(FOrderByClause)<>'' then
-    Result := Result+' order by '+FOrderByClause;
+  Result := 'select t.*,t.rowid from ' + FObjTableName + ' t order by orderno';
 end;
 
 function TCtObjDbSerial.GetPropField(const PropName: string): TField;
 begin
+  if FDataSet=nil then    
+    raise Exception.Create('DataSet not ready for '+FGroupNamePath+' section: '+FSection);
   Result := FDataSet.FindField(PropName);
   if Result = nil then
     Result := FDataSet.FindField('T_' + PropName);
@@ -280,15 +251,6 @@ begin
     raise Exception.Create('Field ' + PropName + ' not exists');
 end;
 
-function TCtObjDbSerial.GetAndWhereClause(op: string): string;
-begin
-  if Trim(WhereClause) = '' then
-    Result := ''
-  else if op = '' then
-    Result := '(' + WhereClause + ')'
-  else
-    Result := ' ' + op + ' (' + WhereClause + ')';
-end;
 
 function TCtObjDbSerial.NewObjToWrite(AID: Integer): Boolean;
 begin
@@ -303,37 +265,22 @@ function TCtObjDbSerial.NextChildObjToRead: Boolean;
 begin
   CheckObjPost;
   Result := False;
-  if PreloadChildren then
+  if FCurChildQuery = nil then
+    Exit;
+  if FChildQueryReady = 0 then
+    Exit;
+  if FChildQueryReady = 1 then
   begin
-    if FChildQueryReady = 1 then
-      FChildQueryReady := 2
-    else
-      FDataSet.Next;
-    Result := not Eof;
-    if Result then
-    begin
-      ObjID := GetPropField(FObjPKField).AsString;
-    end;
+//rem2022
+    //FCurChildQuery.Execute;
+    FChildQueryReady := 2;
   end
   else
+    FCurChildQuery.Next;
+  Result := not Eof;
+  if Result then
   begin
-    if FCurChildQuery = nil then
-      Exit;
-    if FChildQueryReady = 0 then
-      Exit;
-    if FChildQueryReady = 1 then
-    begin    
-  //rem2022
-      //FCurChildQuery.Execute;
-      FChildQueryReady := 2;
-    end
-    else
-      FCurChildQuery.Next;
-    Result := not Eof;
-    if Result then
-    begin
-      ObjID := FCurChildQuery.Fields[0].AsString;
-    end;
+    ObjID := FCurChildQuery.Fields[0].AsString;
   end;
 end;
 
@@ -344,7 +291,13 @@ begin
   PropValue := GetPropField(PropName).AsBoolean;
 end;
 
-procedure TCtObjDbSerial.ReadBuffer(const PropName: string; const Len: Integer;
+procedure TCtObjDbSerial.ReadNotBool(const PropName: string;
+  var PropValue: Boolean);
+begin
+  ReadBool(PropName, PropValue);
+end;
+
+procedure TCtObjDbSerial.ReadBuffer(const PropName: string; const Len: LongInt;
   var PropValue);
 var
   fd: TField;
@@ -353,6 +306,12 @@ var
   L: Integer;
 begin
   CheckObjID;
+  if PropName='CTVER' then
+  begin
+    S := 'CT'+IntToStr(Self.CurCtVer);
+    Move(PChar(S)^, PropValue, Length(S));
+    Exit;
+  end;
   fd := GetPropField(PropName);
   if fd is TBlobField then
   begin
@@ -372,6 +331,12 @@ begin
       L := Len;
     Move(Pointer(S)^, PropValue, L);
   end;
+end;
+
+procedure TCtObjDbSerial.ReadStrings(const PropName: string;
+  var PropValue: string);
+begin
+  ReadString(PropName, PropValue);
 end;
 
 procedure TCtObjDbSerial.ReadDate(const PropName: string;
@@ -416,39 +381,6 @@ begin
   CheckObjPost;
   with FDataSet do
   begin
-    if PreloadChildren then
-    begin
-      if not Active then
-      begin
-        Close;     
-  //rem2022
-        //DeleteVariables;
-        //SQL.Text := GenObjSql(True);
-        //DeclareVariable('P_OBJID', otString);
-        //SetVariable('P_OBJID', FCurDSObjID);
-        //if Pos('%USERID%', SQL.Text) > 0 then
-        //begin
-        //  SQL.Text := StringReplace(SQL.Text, '%USERID%', ':v_USERID', [rfReplaceAll]);
-        //  DeclareVariable('v_USERID', otInteger);
-        //  SetVariable('v_USERID', FUserID);
-        //end;
-        Open;
-      end;
-      if GetPropField(FObjPKField).AsString = ObjID then
-      begin
-        FChildQueryReady := 2;
-        Exit;
-      end
-      else
-      begin
-        First;
-        if Locate(FObjPKField, ObjID, []) then
-        begin
-          FChildQueryReady := 2;
-          Exit;
-        end;
-      end;
-    end;
     Close;  
   //rem2022
     //DeleteVariables;
@@ -462,7 +394,6 @@ begin
     //  SetVariable('v_USERID', FUserID);
     //end;
     Open;
-    PreloadChildren := False;
   end;
 end;
 
@@ -473,12 +404,6 @@ begin
   CheckObjID;
 end;
 
-procedure TCtObjDbSerial.SetPreloadChildren(const Value: Boolean);
-begin
-  inherited;
-  if not PreloadChildren then
-    Exit;
-end;
 
 procedure TCtObjDbSerial.SetPropModified;
 begin
@@ -494,14 +419,22 @@ begin
   SetPropModified;
 end;
 
+procedure TCtObjDbSerial.WriteNotBool(const PropName: string;
+  const PropValue: Boolean);
+begin
+  WriteBool(PropName, PropValue);
+end;
+
 procedure TCtObjDbSerial.WriteBuffer(const PropName: string;
-  const Len: Integer; const PropValue);
+  const Len: LongInt; const PropValue);
 var
   fd: TField;
   BlobStream: TStream;
   S: string;
 begin
   CheckObjID;
+  if PropName='CTVER' then
+    Exit;
   fd := GetPropField(PropName);
   if fd is TBlobField then
   begin
@@ -521,6 +454,12 @@ begin
     fd.AsString := S;
   end;
   SetPropModified;
+end;
+
+procedure TCtObjDbSerial.WriteStrings(const PropName: string;
+  const PropValue: string);
+begin
+  WriteString(PropName, PropValue);
 end;
 
 procedure TCtObjDbSerial.WriteDate(const PropName: string;
@@ -550,7 +489,8 @@ begin
   SetPropModified;
 end;
 
-procedure TCtObjDbSerial.WriteString(const PropName, PropValue: string);
+procedure TCtObjDbSerial.WriteString(const PropName: string;
+  const PropValue: string);
 begin
   CheckObjID;
   CheckDsEdit;

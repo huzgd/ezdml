@@ -76,6 +76,7 @@ function RemoveCompStr(const Strsrc: string; const sCompS, sCompE: string;
   bCaseInsensitive: Boolean = False): string;
 function TrimByStr(const src, trs: string): string;  
 function LastPos(SubStr, S: string): integer;
+function StrEndsWith(s, es: string): Boolean;
 
 procedure OleVariantToStream(const AVariant: olevariant; Stream: TStream);
 procedure StreamToOleVariant(Stream: TStream; var AVariant: olevariant);
@@ -182,6 +183,7 @@ var
   G_DmlGraphFontName: string = '';      
   G_DmlGraphDefScale: string = '';
   G_CheckAbortTk: Int64 = 0;
+  G_SkipCheckAbort: Boolean = False;
   GProc_Toast: procedure(const Msg: variant; closeTimeMs: integer);
 
 const
@@ -1393,6 +1395,18 @@ begin
     i := Length(S) - i - Length(SubStr) + 2;
   Result := i;
 end;
+         
+function StrEndsWith(s, es: string): Boolean;
+var
+  L1, L2: Integer;
+begin
+  L1 := Length(s);
+  L2 := Length(es);
+  if Copy(S, L1-L2+1, L2)=es then
+    Result := True
+  else
+    Result := False;
+end;
 
 procedure StreamToVariant(Stream: TStream; var AVariant: variant);
 var
@@ -1476,6 +1490,8 @@ var
   ks: Smallint;
   tk: Int64;
 begin
+  if G_SkipCheckAbort then
+    Exit;
   if Application.ModalLevel > 0 then
     Exit;
   tk :=GetTickCount64;

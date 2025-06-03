@@ -109,6 +109,13 @@ type
     GenFKIndexesSQL: Boolean;
 
     DrawSelectedOnly: Boolean;
+                 
+    ModelName: string;
+    ModelCaption: string;
+    ModelMemo: string;
+    ModelExProps: string;
+    ModelPubType: Integer;
+    ModelPurviewRoles: string;
 
 
     FLinkOptimizeLevel: Integer;
@@ -445,6 +452,7 @@ type
     FFields: TList;
     FPKColor: TColor;
     FFKColor: TColor;
+    FPubFlag: Integer;
     FTbnameColor: TColor;
     FSeqName: string;
     FIsView: Boolean;
@@ -513,7 +521,8 @@ type
     property Sql: string read FSql write FSql;
     property TBSQL: TStringList read GenTBSQL;
     property FKSQL: TStringList read GenFKSQL;
-    property PhyTbName: string read FPhyTbName write FPhyTbName;
+    property PhyTbName: string read FPhyTbName write FPhyTbName;  
+    property PubFlag: Integer read FPubFlag write FPubFlag;
 
     property Describe: string read GetDescribe write SetDescribe;
   end;
@@ -3706,7 +3715,42 @@ begin
   FFields.Add(Result);
 end;
 
-procedure TDMLTableObj.PaintTo(const ADrawer: TDMLDrawer);
+procedure TDMLTableObj.PaintTo(const ADrawer: TDMLDrawer);  
+  procedure DrawPubFlag();
+  var
+    cl: TColor;
+    p: TPoint;
+    rr: Integer;
+  begin
+    if PubFlag<=0 then
+      Exit;
+    //1=green 2=blue 3=red 4=g2 5=b2 6=r2
+    case PubFlag of
+      1: cl := clGreen;
+      2: cl := clBlue;
+      3: cl := clRed;
+      4: cl := RGB(92, 192, 92);
+      5: cl := RGB(96, 96, 255);
+      6: cl := RGB(255, 128, 128);
+    else
+      Exit;
+    end;
+
+    with ADrawer.Canvas do
+    begin
+      Brush.Color := cl;
+      Brush.Style := bsSolid;
+      Pen.Color := clWhite;
+      Pen.Style := psSolid;
+      Pen.Width := 1;
+      rr := 4;
+      //p.X := Round(Self.Left+4+rr);
+      p.X := Round(Self.Left+Self.Width-4-rr);
+      p.Y := Round(Self.Top+4+rr);
+      Ellipse(ADrawer.GetX(p.X - rr), ADrawer.GetY(p.Y - rr),
+        ADrawer.GetX(p.X + rr) + 1, ADrawer.GetY(p.Y + rr) + 1);
+    end;
+  end;
 var
   I, L, T, W, H, LT, TK, ExtraDY, drSelT: Integer;
   F: TDMLField;
@@ -4117,6 +4161,7 @@ begin
 
       end;
   end;
+  DrawPubFlag;
   DrawSelectedGrips(ADrawer);
 end;
 

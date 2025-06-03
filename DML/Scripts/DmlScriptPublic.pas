@@ -99,7 +99,7 @@ function ExecSql(sql, opts: string): TDataSet;
 function ExecAppCmd(Cmd, param1, param2: string): string;
 function GetEnv(const AName: string): string;
 function GetSelectedCtMetaObj: TCtMetaObject;
-function CtObjToJsonStr(ACtObj: TCtMetaObject): string;
+function CtObjToJsonStr(ACtObj: TCtMetaObject; bFullProps, bSkipChild: Boolean): string;
 function ReadCtObjFromJsonStr(ACtObj: TCtMetaObject; AJsonStr: string): boolean;
 function GetGParamValue(AName: string): string;
 function GetGParamObject(AName: string): TObject;
@@ -562,7 +562,7 @@ begin
     Result := Proc_GetSelectedCtMetaObj();
 end;
 
-function CtObjToJsonStr(ACtObj: TCtMetaObject): string;
+function CtObjToJsonStr(ACtObj: TCtMetaObject; bFullProps, bSkipChild: Boolean): string;
 var
   ose: TCtObjMemJsonSerialer;
 begin
@@ -571,7 +571,9 @@ begin
     Exit;
 
   ose := TCtObjMemJsonSerialer.Create(False);
-  try
+  try      
+    ose.WriteEmptyVals := bFullProps;
+    ose.SkipChildren:=bSkipChild;
     ose.RootName := ACtObj.ClassName;
     ACtObj.SaveToSerialer(ose);
     ose.EndJsonWrite;

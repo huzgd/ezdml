@@ -68,5 +68,6 @@
 {"hash":58038295,"name":"tfrmmaindml.actnewappwin.caption","sourcebytes":[78,101,119,32,69,90,68,77,76,32,119,105,110,100,111,119],"value":"New EZDML window"},
 {"hash":227304142,"name":"tfrmmaindml.actsharefile.caption","sourcebytes":[79,110,108,105,110,101,32,115,104,97,114,101,46,46,46],"value":"Online share..."},
 {"hash":56382238,"name":"tfrmmaindml.actopenurl.caption","sourcebytes":[79,110,108,105,110,101,32,111,112,101,110,46,46,46],"value":"Online open..."},
-{"hash":212942990,"name":"tfrmmaindml.actimportddlsql.caption","sourcebytes":[73,109,112,111,114,116,32,68,68,76,32,83,81,76,46,46,46],"value":"Import DDL SQL..."}
+{"hash":212942990,"name":"tfrmmaindml.actimportddlsql.caption","sourcebytes":[73,109,112,111,114,116,32,68,68,76,32,83,81,76,46,46,46],"value":"Import DDL SQL..."},
+{"hash":202821783,"name":"tfrmmaindml.actviewmodelinnewwnd.caption","sourcebytes":[86,105,101,119,32,105,110,32,110,101,119,32,119,105,110,100,111,119],"value":"View in new window"}
 ]}

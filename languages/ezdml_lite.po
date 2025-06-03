@@ -43,6 +43,18 @@ msgstr ""
 msgid "yes"
 msgstr ""
 
+#: dmlstrs.srbuiltindbfilenotchangedprompt
+msgid "The built-in model is up to date. Nothing is changed."
+msgstr ""
+
+#: dmlstrs.srbuiltindbfilesavedresultfmt
+msgid "Built-in model saved (%s). File comment:"
+msgstr ""
+
+#: dmlstrs.srbuiltindbmodel
+msgid "Built_in_model"
+msgstr ""
+
 #: dmlstrs.srcaninitwaitwnd
 msgid "Can not init waiting window, it may already be displayed or disabled."
 msgstr ""
@@ -537,8 +549,16 @@ msgstr ""
 msgid "Enter password:"
 msgstr ""
 
+#: dmlstrs.srerrbuiltinmodelexists
+msgid "The built-in model of this database already exists. Only one built-in model is allowed to be saved in a database."
+msgstr ""
+
 #: dmlstrs.srerrcanonlylinktwoentities
 msgid "You can only add link between two entities"
+msgstr ""
+
+#: dmlstrs.srerrordeletecatalognotemptyfmt
+msgid "The catalog is not empty and cannot be deleted: %s"
 msgstr ""
 
 #: dmlstrs.srestimating
@@ -846,7 +866,7 @@ msgid "Warning: Table name may be invalid - %s"
 msgstr ""
 
 #: dmlstrs.srinvalidtbnameerror
-msgid "Error: object name \"%s\" contains invalid characters"
+msgid "Error: object name \"%s\" contains invalid characters and may cause serious problems. Do you still want to use it?"
 msgstr ""
 
 #: dmlstrs.srjdbccheckprompt
@@ -899,12 +919,25 @@ msgstr ""
 msgid "Warning: The database is about to be modified, make sure you have backed up your data before continue. Do you still want to modify database now?"
 msgstr ""
 
+#: dmlstrs.srmodulepublishtypes
+msgid ""
+"Auto\n"
+"None\n"
+"Function\n"
+"Module\n"
+"Menu\n"
+msgstr ""
+
 #: dmlstrs.srneedenginetype
 msgid "Please select an DB-Engine-Type first"
 msgstr ""
 
 #: dmlstrs.srneedunlockdbfilepromptfmt
 msgid "Database file %s is currently locked by %s. Please unlock it before continue"
+msgstr ""
+
+#: dmlstrs.srnewcatalognamefmt
+msgid "Catalog%d"
 msgstr ""
 
 #: dmlstrs.srnewcomplexindexdispname
@@ -1155,15 +1188,6 @@ msgstr ""
 
 #: dmlstrs.srunlockmydbfilepromptfmt
 msgid "Unlock database file %s?"
-msgstr ""
-
-#: dmlstrs.srviewmodelinnewwnd
-msgid "View in new window"
-msgstr ""
-
-#: dmlstrs.srviewproperties
-msgctxt "dmlstrs.srviewproperties"
-msgid "View properties"
 msgstr ""
 
 #: dmlstrs.srwritingdatafmt
@@ -2334,6 +2358,10 @@ msgstr ""
 msgid "Find in graph"
 msgstr ""
 
+#: tframecttablelist.actnewcatalog.caption
+msgid "New catalog"
+msgstr ""
+
 #: tframecttablelist.actnewfield.caption
 msgctxt "tframecttablelist.actnewfield.caption"
 msgid "Add field"
@@ -2409,6 +2437,32 @@ msgstr ""
 #: tframecttablelist.mn_capitalize.caption
 msgctxt "tframecttablelist.mn_capitalize.caption"
 msgid "Capitalize"
+msgstr ""
+
+#: tframecttablelist.mn_publishtype.caption
+msgctxt "tframecttablelist.mn_publishtype.caption"
+msgid "Publish type"
+msgstr ""
+
+#: tframecttablelist.mn_pubtype_0.caption
+msgctxt "tframecttablelist.mn_pubtype_0.caption"
+msgid "Auto"
+msgstr ""
+
+#: tframecttablelist.mn_pubtype_1.caption
+msgid "None"
+msgstr ""
+
+#: tframecttablelist.mn_pubtype_2.caption
+msgid "Function"
+msgstr ""
+
+#: tframecttablelist.mn_pubtype_3.caption
+msgid "Module"
+msgstr ""
+
+#: tframecttablelist.mn_pubtype_4.caption
+msgid "Menu"
 msgstr ""
 
 #: tframecttablelist.mn_reserved1.caption
@@ -2664,6 +2718,14 @@ msgstr ""
 msgid "curTable.genDatabase"
 msgstr ""
 
+#: tframecttableprop.ckbisreadonly.caption
+msgid "Read only"
+msgstr ""
+
+#: tframecttableprop.ckbisreadonly.hint
+msgid "curTable.isReadOnly"
+msgstr ""
+
 #: tframecttableprop.ckbissqltext.caption
 msgid "Is SQL"
 msgstr ""
@@ -2724,6 +2786,15 @@ msgctxt "tframecttableprop.label5.caption"
 msgid "Name:"
 msgstr ""
 
+#: tframecttableprop.label6.caption
+msgctxt "tframecttableprop.label6.caption"
+msgid "Publish type"
+msgstr ""
+
+#: tframecttableprop.label6.hint
+msgid "curTable.publishType"
+msgstr ""
+
 #: tframecttableprop.lbbuzlogic.caption
 msgctxt "tframecttableprop.lbbuzlogic.caption"
 msgid "Business logic"
@@ -2731,6 +2802,14 @@ msgstr ""
 
 #: tframecttableprop.lbbuzlogic.hint
 msgid "curTable.businessLogic"
+msgstr ""
+
+#: tframecttableprop.lbdatapurview.caption
+msgid "Data purview"
+msgstr ""
+
+#: tframecttableprop.lbdatapurview.hint
+msgid "curTable.dataPurview"
 msgstr ""
 
 #: tframecttableprop.lbdesignnotes.caption
@@ -2793,6 +2872,14 @@ msgstr ""
 
 #: tframecttableprop.lbpartitioninfo.hint
 msgid "curTable.partitionInfo"
+msgstr ""
+
+#: tframecttableprop.lbpurviewroles.caption
+msgid "Purview roles"
+msgstr ""
+
+#: tframecttableprop.lbpurviewroles.hint
+msgid "curTable.purviewRoles"
 msgstr ""
 
 #: tframecttableprop.lbreltbinfo.caption
@@ -3024,7 +3111,7 @@ msgid "Find"
 msgstr ""
 
 #: tframecttableprop.sbtntbjson.hint
-msgid "Json"
+msgid "Json (Hold SHIFT for full-mode)"
 msgstr ""
 
 #: tframecttableprop.speedbutton_fieldadd.hint
@@ -3141,6 +3228,10 @@ msgstr ""
 
 #: tframedml.actbatcopycreatesql.caption
 msgid "Create SQL"
+msgstr ""
+
+#: tframedml.actbatcopydeletesql.caption
+msgid "Delete SQL"
 msgstr ""
 
 #: tframedml.actbatcopydesctext.caption
@@ -3987,7 +4078,7 @@ msgstr ""
 
 #: tfrmcolorstyles.caption
 msgctxt "tfrmcolorstyles.caption"
-msgid "Model Options"
+msgid "Model properties"
 msgstr ""
 
 #: tfrmcolorstyles.chlshowfieldicon.caption
@@ -4083,9 +4174,50 @@ msgstr ""
 msgid "Edge color:"
 msgstr ""
 
+#: tfrmcolorstyles.label27.caption
+msgctxt "tfrmcolorstyles.label27.caption"
+msgid "Name:"
+msgstr ""
+
+#: tfrmcolorstyles.label27.hint
+msgid "curModel.name"
+msgstr ""
+
+#: tfrmcolorstyles.label28.caption
+msgid "Caption:"
+msgstr ""
+
+#: tfrmcolorstyles.label28.hint
+msgid "curModel.caption"
+msgstr ""
+
+#: tfrmcolorstyles.label29.caption
+msgid "Memo:"
+msgstr ""
+
+#: tfrmcolorstyles.label29.hint
+msgid "curModel.memo"
+msgstr ""
+
 #: tfrmcolorstyles.label3.caption
 msgctxt "tfrmcolorstyles.label3.caption"
 msgid "Color:"
+msgstr ""
+
+#: tfrmcolorstyles.label30.caption
+msgid "Publish Type:"
+msgstr ""
+
+#: tfrmcolorstyles.label30.hint
+msgid "curModel.publishType"
+msgstr ""
+
+#: tfrmcolorstyles.label31.caption
+msgid "Ex-Props:"
+msgstr ""
+
+#: tfrmcolorstyles.label31.hint
+msgid "curModel.extraProps"
 msgstr ""
 
 #: tfrmcolorstyles.label4.caption
@@ -4108,7 +4240,11 @@ msgid "Others"
 msgstr ""
 
 #: tfrmcolorstyles.label8.caption
-msgid "Type:"
+msgid "DB Type:"
+msgstr ""
+
+#: tfrmcolorstyles.label8.hint
+msgid "will affect field types in physical view (such as VARCHAR)"
 msgstr ""
 
 #: tfrmcolorstyles.label9.caption
@@ -4116,17 +4252,27 @@ msgctxt "tfrmcolorstyles.label9.caption"
 msgid "Caption"
 msgstr ""
 
-#: tfrmcolorstyles.tabsheet1.caption
+#: tfrmcolorstyles.lbpurviewroles.caption
+msgid "Purview Roles:"
+msgstr ""
+
+#: tfrmcolorstyles.lbpurviewroles.hint
+msgid "curModel.purviewRoles"
+msgstr ""
+
+#: tfrmcolorstyles.tabsheetcolors.caption
+msgctxt "tfrmcolorstyles.tabsheetcolors.caption"
+msgid "Object Style"
+msgstr ""
+
+#: tfrmcolorstyles.tabsheetmd.caption
+msgctxt "tfrmcolorstyles.tabsheetmd.caption"
+msgid "General"
+msgstr ""
+
+#: tfrmcolorstyles.tabsheetworkarea.caption
+msgctxt "tfrmcolorstyles.tabsheetworkarea.caption"
 msgid "Working Area"
-msgstr ""
-
-#: tfrmcolorstyles.tabsheet2.caption
-msgid "Objects"
-msgstr ""
-
-#: tfrmcolorstyles.tabsheet3.caption
-msgctxt "tfrmcolorstyles.tabsheet3.caption"
-msgid "Database"
 msgstr ""
 
 #: tfrmcommdbconfig.btnbrowsedsn.caption
@@ -5462,6 +5608,11 @@ msgstr ""
 msgid "Toggle Table View"
 msgstr ""
 
+#: tfrmmaindml.actviewmodelinnewwnd.caption
+msgctxt "tfrmmaindml.actviewmodelinnewwnd.caption"
+msgid "View in new window"
+msgstr ""
+
 #: tfrmmaindml.caption
 msgid "EZDML"
 msgstr ""
@@ -6272,6 +6423,7 @@ msgid "Field Types"
 msgstr ""
 
 #: tfrmsettings.tabshtgeneral.caption
+msgctxt "tfrmsettings.tabshtgeneral.caption"
 msgid "General"
 msgstr ""
 

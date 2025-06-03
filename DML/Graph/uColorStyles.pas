@@ -12,19 +12,36 @@ type
 
   { TfrmColorStyles }
 
+
   TfrmColorStyles = class(TForm)
     Bevel12: TBevel;
+    Bevel9: TBevel;
     btnCancel: TButton;
     btnGroupEdge: TButton;
     btnOK: TButton;
     ckbIndependPosForOverviewMode: TCheckBox;
     clbGroupEdgeColor: TColorBox;
+    combDbEngine: TComboBox;
+    combPublishType: TComboBox;
+    edtCaption: TEdit;
+    edtName: TEdit;
+    edtPurviewRoles: TEdit;
+    Label10: TLabel;
     Label23: TLabel;
     Label24: TLabel;
     Label25: TLabel;
+    Label27: TLabel;
+    Label28: TLabel;
+    Label29: TLabel;
+    Label30: TLabel;
+    Label31: TLabel;
+    Label8: TLabel;
+    lbPurviewRoles: TLabel;
+    memoMemo: TMemo;
+    memoExtraProps: TMemo;
     PageControl1: TPageControl;
     Panel1: TPanel;
-    TabSheet2: TTabSheet;
+    TabSheetColors: TTabSheet;
     Label15: TLabel;
     clbExKey: TColorBox;
     btnExKey: TButton;
@@ -40,7 +57,7 @@ type
     btnFill: TButton;
     Label12: TLabel;
     Label18: TLabel;
-    TabSheet1: TTabSheet;
+    TabSheetWorkArea: TTabSheet;
     Label1: TLabel;
     Label2: TLabel;
     Label11: TLabel;
@@ -66,11 +83,7 @@ type
     Bevel8: TBevel;
     Label7: TLabel;
     chlShowFieldIcon: TCheckBox;
-    TabSheet3: TTabSheet;
-    Label10: TLabel;
-    Bevel9: TBevel;
-    combDbEngine: TComboBox;
-    Label8: TLabel;
+    TabSheetMd: TTabSheet;
     Label19: TLabel;
     Label20: TLabel;
     Bevel10: TBevel;
@@ -121,9 +134,13 @@ implementation
 
 {$R *.lfm}
 
+uses
+  dmlstrs;
+
 procedure TfrmColorStyles.FormCreate(Sender: TObject);
 begin
-  PageControl1.ActivePageIndex := 0;
+  PageControl1.ActivePageIndex := 0;         
+  combPublishType.Items.Text:=srModulePublishTypes;
   clbTitle.AddItem('clCustom', TObject(clWhite));
   clbFill.AddItem('clCustom', TObject(clWhite));
   clbBackGround.AddItem('clCustom', TObject(clWhite));

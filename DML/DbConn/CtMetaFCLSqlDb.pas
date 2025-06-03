@@ -72,7 +72,7 @@ type
     procedure ExecSQL; override;
   end;
               
-procedure CheckDsUpdateMode(ds: TSQLQuery);
+procedure CheckDsUpdateMode(ds: TSQLQuery; op: string);
 
 var
   G_SqlLogEnalbed: Boolean;
@@ -97,7 +97,7 @@ begin
   G_SqlLogs.Add(S);
 end;
              
-procedure CheckDsUpdateMode(ds: TSQLQuery);
+procedure CheckDsUpdateMode(ds: TSQLQuery; op: string);
 var
   I: Integer;
   fd: TField;
@@ -120,6 +120,16 @@ begin
       //fd.ReadOnly:=True;
     end;
   end;
+  S:=ExtractCompStr(op,'[PK=',']');
+  if S<>'' then
+  begin
+    fd := ds.FindField(S);
+    if fd=nil then
+      raise Exception.Create('PK field not found: '+S);
+    fd.ProviderFlags:=fd.ProviderFlags+[pfInKey];
+    ds.UpdateMode:=upWhereKeyOnly;
+    Exit;
+  end;
   for I:=0 to ds.FieldCount - 1 do
   begin
     fd := ds.Fields[I];
@@ -138,6 +148,19 @@ begin
     fd := ds.Fields[I];
     S := UpperCase(fd.FieldName);
     if (S='ID') or (S='GUID') or (S='UUID') or (S='CTGUID') then
+    begin
+      fd.ProviderFlags:=fd.ProviderFlags+[pfInKey];
+      //fd.ReadOnly := True;
+      ds.UpdateMode:=upWhereKeyOnly;
+      Exit;
+    end;
+  end;
+
+  for I:=0 to ds.FieldCount - 1 do
+  begin
+    fd := ds.Fields[I];
+    S := UpperCase(fd.FieldName);
+    if StrEndsWith(S,'_ID') or StrEndsWith(S,'GUID') or StrEndsWith(S,'UUID') then
     begin
       fd.ProviderFlags:=fd.ProviderFlags+[pfInKey];
       //fd.ReadOnly := True;
@@ -599,7 +622,7 @@ begin
     end;
     raise;
   end;
-  CheckDsUpdateMode(TSQLQuery(Result));
+  CheckDsUpdateMode(TSQLQuery(Result), op);
 end;
 
 

@@ -6,7 +6,6 @@
 CtMetaTable[CT数据表]
 -----------------------------
 ID[编号]              PK
-CellTreeId[CT编号]    FK
 Name[名称]            String
 CreateDate[创建日期]  Date
 CreatorName[创建人]   String
@@ -103,6 +102,9 @@ GraphHeight(图形区高度)    Integer
 DefDbEngine(缺省数据连接)  String
 DbConnectStr(数据连接名)   String
 ConfigStr(选项设置串)      String
+ModelPath(路径)            String
+PublishType(发布类型)      Enum //不发布 普通 菜单
+ExtraProps(扩展属性)       String(99999)
 Tables(数据表)             List
   
 CtModelFileConfig(模型文件配置)
@@ -219,6 +221,8 @@ type
     cftaCenter
     );
 
+  TCtModulePublishType =(cmptAuto, cmptNone, cmptFunction, cmptModule, cmptMenu );
+
   TCtFieldDataTypeNames = array[TCtFieldDataType] of string;
 
 
@@ -283,7 +287,7 @@ type
   protected               
     FBgColor: integer;
     FPhysicalName: string;
-    FCellTreeId: integer;
+    FCustomModId: integer;
     FGraphDesc: string;
     FCustomConfigs: string;
     FScriptRules: string;  
@@ -294,7 +298,8 @@ type
     FListSQL: string;
     FViewSQL: string;
     FGenCode: boolean;
-    FGenDatabase: boolean;
+    FGenDatabase: boolean; 
+    FPublishType : TCtModulePublishType;
     FMetaFields: TCTMetaFieldList;
     FOwnerList: TCtMetaTableList;
     FUILogic: string;      
@@ -304,7 +309,10 @@ type
     FPartitionInfo: string;
     FSQLAlias: string;
     FSQLOrderByClause: string;
-    FSQLWhereClause: string;
+    FSQLWhereClause: string;   
+    FPurviewRoles : String;
+    FDataPurview  : String;    
+    FIsReadOnly : Boolean;
     function GetExcelText: string;
     function GetMetaFields: TCTMetaFieldList;
     function GetDescribe: string;    
@@ -373,12 +381,14 @@ type
                         
     function HasUIDesignProps: Boolean;
 
+    function GetInhPublishType: TCtModulePublishType;
+
     property OwnerList: TCtMetaTableList read FOwnerList;
 
     //编号
     property ID;
-    //CT编号
-    property CellTreeId: integer read FCellTreeId write FCellTreeId;
+    //外部模块编号
+    property CustomModId: integer read FCustomModId write FCustomModId;
     //名称
     property Name;
     //物理表名
@@ -415,7 +425,9 @@ type
     //是否生成数据库
     property GenDatabase: boolean read FGenDatabase write FGenDatabase;
     //是否生成代码
-    property GenCode: boolean read FGenCode write FGenCode; 
+    property GenCode: boolean read FGenCode write FGenCode;
+    //发布类型 0不发布 1普通 2菜单
+    property PublishType: TCtModulePublishType read FPublishType write FPublishType;
     //视图SQL
     property ViewSQL: string read FViewSQL write FViewSQL;  
     //列表SQL
@@ -448,6 +460,13 @@ type
     property PartitionInfo: string read FPartitionInfo write FPartitionInfo;    
     //设计说明
     property DesignNotes: string read FDesignNotes write FDesignNotes;
+
+    //权限角色
+    property PurviewRoles: String        read FPurviewRoles write FPurviewRoles;
+    //数据权限
+    property DataPurview : String        read FDataPurview  write FDataPurview ; 
+    //表是否只读
+    property IsReadOnly: Boolean       read FIsReadOnly write FIsReadOnly;
   end;
 
 
@@ -861,7 +880,11 @@ type
     FGraphHeight: integer;
     FDefDbEngine: string;
     FDbConnectStr: string;
-    FConfigStr: string;
+    FConfigStr: string;    
+    FModelPath        : String;   
+    FPurviewRoles : String;
+    FPublishType : TCtModulePublishType;
+    FExtraProps  : String;
     FTables: TCtMetaTableList;
   public
     CtDMGOptions: TCtDMGOptions;
@@ -877,8 +900,13 @@ type
     procedure LoadFromSerialer(ASerialer: TCtObjSerialer); override;
     procedure SaveToSerialer(ASerialer: TCtObjSerialer); override;
 
-    function IsHuge: boolean;    
+    function IsHuge: boolean;
+    function IsCatalog: boolean;
+    function IsModel: boolean;
     function CheckCanRenameTo(ANewName: string): Boolean;
+
+    function GetParentModelGraph: TCtDataModelGraph;
+    function GetInhPublishType: TCtModulePublishType;
 
     property ID; //       : Integer       read FID           write FID          ;
     property Name; //     : String        read FName         write FName        ;
@@ -893,7 +921,15 @@ type
     //数据连接名
     property DbConnectStr: string read FDbConnectStr write FDbConnectStr;
     //选项设置串
-    property ConfigStr: string read FConfigStr write SetConfigStr;
+    property ConfigStr: string read FConfigStr write SetConfigStr;  
+    //路径
+    property ModelPath       : String        read FModelPath        write FModelPath       ;    
+    //权限角色
+    property PurviewRoles: String        read FPurviewRoles write FPurviewRoles;
+    //发布类型 0不发布 1普通 2菜单
+    property PublishType: TCtModulePublishType read FPublishType write FPublishType;
+    //扩展属性
+    property ExtraProps : String        read FExtraProps  write FExtraProps ;
     //数据表
     property Tables: TCtMetaTableList read FTables write FTables;
 
@@ -970,6 +1006,7 @@ type
     procedure Pack; override;      
     procedure Clear; override;
     function TableCount: integer;
+    function NewCatalogItem: TCtDataModelGraph;
     function NewModelItem: TCtDataModelGraph;
     //property CurDataModal: TCtDataModelGraph read GetCurDataModel;
     property CurDataModel: TCtDataModelGraph read GetCurDataModel write FCurDataModel;
@@ -1117,7 +1154,7 @@ var
   bSavePwd, bAutoLogin, bShowDialog: boolean; opt: string): string;
   Proc_ExecSql: function(sql, opts: string): TDataSet;
   Proc_JsonPropProc: function(AJsonStr, AName, AValue: string; bRead: boolean): string;
-  Proc_CtObjToJsonStr: function(ACtObj: TCtMetaObject): string; //added by huz 20210214
+  Proc_CtObjToJsonStr: function(ACtObj: TCtMetaObject; bFullProps, bSkipChild: Boolean): string; //added by huz 20210214
   Proc_ReadCtObjFromJsonStr: function(ACtObj: TCtMetaObject; AJsonStr: string): boolean; 
   Proc_GetTableDemoDataJson: function(ATb: TCtMetaTable; ARowIndex: Integer; AOpt, AFields: string): string;
   Proc_GenDemoData: function(AField: TCtMetaField; ARule, ADef: string;
@@ -1173,6 +1210,10 @@ var
   CtFieldTextColor_Lowest: TColor = clSilver;
   G_FieldItemListKeys: TStrings;
   G_BigIntForIntKeys: boolean = true;
+
+  G_BuiltinHydbMode: boolean = False;
+  GProc_PublishFileToBuiltinHydb: function(Sender: TObject; md: TCtDataModelGraph; tb: TCtMetaTable;
+    const fileType, filePath, fileName, fileContent, opts: string): string of object;
 
   GProc_OnEzdmlGenTbSqlEvent: TOnEzdmlGenTbSqlEvent;
   GProc_OnEzdmlGenDbSqlEvent: TOnEzdmlGenDbSqlEvent;
@@ -1754,8 +1795,11 @@ begin
   begin
     S := Format(srInvalidTbNameError, [AName]);
     if bPrompt then
-      Application.MessageBox(PChar(S), PChar(Application.Title),
-        MB_OK or MB_ICONERROR);
+    begin
+      if Application.MessageBox(PChar(S), PChar(Application.Title),
+        MB_YESNO or MB_ICONERROR or MB_DEFBUTTON2)=IDYES then
+        Exit;
+    end;
     Result := False;
   end;
 end;
@@ -2823,7 +2867,9 @@ begin
   FCustFieldTypes := cobj.FCustFieldTypes;
 end;
 
-procedure TCtModelFileConfig.LoadFromSerialer(ASerialer: TCtObjSerialer);
+procedure TCtModelFileConfig.LoadFromSerialer(ASerialer: TCtObjSerialer); 
+var
+  S: String;
 begin
   if ASerialer.CurCtVer<=37 then
   begin
@@ -2840,25 +2886,48 @@ begin
 
   ASerialer.ReadString('LastModel', FLastModel);
   ASerialer.ReadString('CustFieldTypes', FCustFieldTypes);
+
+  if ASerialer.CurCtVer >= 39 then
+  begin
+    ASerialer.ReadString('Name', FName);
+    ASerialer.ReadString('CtGuid', FCtGuid);
+    ASerialer.ReadString('TypeName', FTypeName);
+    ASerialer.ReadString('Memo', FMemo);
+    ASerialer.ReadDate('ModifyDate', FModifyDate);
+    S := '';
+    ASerialer.ReadStrings('Params', S);
+    if HasParams then
+      ParamList.Text := S
+    else if S <> '' then
+      ParamList.Text := S;
+  end;
 end;
 
 procedure TCtModelFileConfig.SaveToSerialer(ASerialer: TCtObjSerialer);
-begin          
-  if ASerialer.CurCtVer<=37 then
-  begin
-    BeginSerial(ASerialer, True);
-    try
-      inherited LoadFromSerialer(ASerialer);
-      ASerialer.ReadString('LastModel', FLastModel);
-      ASerialer.ReadString('CustFieldTypes', FCustFieldTypes);
-    finally
-      EndSerial(ASerialer, True);
-    end;
-    Exit;
-  end;
-
+var
+  S: String;
+begin
   ASerialer.WriteString('LastModel', FLastModel);
   ASerialer.WriteString('CustFieldTypes', FCustFieldTypes);
+
+  if ASerialer.CurCtVer >= 39 then
+  begin
+    ASerialer.WriteString('Name', FName);
+    ASerialer.WriteString('CtGuid', FCtGuid);  
+    ASerialer.WriteString('TypeName', FTypeName);
+    ASerialer.WriteString('Memo', FMemo);
+    ASerialer.WriteDate('ModifyDate', FModifyDate);  
+    S := '';
+    if HasParams then
+    begin
+      S := ParamList.Text;
+      while Copy(S, Length(S) - 1, 2) = #13#10 do
+        S := Copy(S, 1, Length(S) - 2);
+      while Copy(S, Length(S) - 1, 1) = #10 do
+        S := Copy(S, 1, Length(S) - 1);
+    end;
+    ASerialer.WriteStrings('Params', S);
+  end;
 end;
 
 
@@ -2882,7 +2951,7 @@ begin
   inherited;
   FPhysicalName := '';
 
-  FCellTreeId := 0;
+  FCustomModId := 0;
   FGraphDesc := '';
   FScriptRules := '';
   FUIDisplayText := '';
@@ -2890,7 +2959,8 @@ begin
 
   FBgColor := 0;
   FGenDatabase := True;   
-  FGenCode := True;
+  FGenCode := True;  
+  FPublishType := cmptNone;
   FViewSQL := '';
   FListSQL := '';
   FExtraSQL := '';
@@ -2905,6 +2975,10 @@ begin
   FSQLAlias         := '';
   FSQLOrderByClause := '';
   FSQLWhereClause   := '';
+
+  FPurviewRoles := '';
+  FDataPurview  := '';  
+  FIsReadOnly := False;
 
   if Assigned(FMetaFields) then
     FMetaFields.Clear;
@@ -2945,8 +3019,11 @@ var
 begin
   BeginSerial(ASerialer, True);
   try
-    inherited;
-    ASerialer.ReadInteger('CellTreeId', FCellTreeId);
+    inherited;                
+    if ASerialer.CurCtVer >= 39 then
+      ASerialer.ReadInteger('CustomModId', FCustomModId)
+    else
+      ASerialer.ReadInteger('CellTreeId', FCustomModId);
     ASerialer.ReadStrings('GraphDesc', FGraphDesc);
     if ASerialer.CurCtVer >= 22 then
     begin
@@ -2994,13 +3071,20 @@ begin
       ASerialer.ReadString('SQLAlias', FSQLAlias);
       ASerialer.ReadStrings('SQLOrderByClause', FSQLOrderByClause);
       ASerialer.ReadStrings('SQLWhereClause', FSQLWhereClause);
+    end;   
+    if ASerialer.CurCtVer >= 39 then
+    begin
+      FPublishType := TCtModulePublishType(ASerialer.ReadInt('PublishType'));   
+      ASerialer.ReadString('PurviewRoles', FPurviewRoles);
+      ASerialer.ReadString('DataPurview', FDataPurview); 
+      ASerialer.ReadBool('IsReadOnly', FIsReadOnly);
     end;
 
-    ASerialer.BeginChildren('MetaFields');
-    try
+    if not ASerialer.SkipChildren then
+    begin
+      ASerialer.BeginChildren('MetaFields');
       MetaFields.LoadFromSerialer(ASerialer);
       ASerialer.EndChildren('MetaFields');
-    finally
     end;
     if ASerialer.CurCtVer < 27 then
       CheckEditorUIProp;
@@ -3018,7 +3102,7 @@ begin
     if Assigned(FMetaFields) then
       FMetaFields.SaveCurrentOrder;
     inherited;
-    ASerialer.WriteInteger('CellTreeId', FCellTreeId);
+    ASerialer.WriteInteger('CustomModId', FCustomModId);
     ASerialer.WriteStrings('GraphDesc', FGraphDesc);
     ASerialer.WriteStrings('ScriptRules', FScriptRules);
     ASerialer.WriteStrings('CustomConfigs', FCustomConfigs);
@@ -3044,6 +3128,11 @@ begin
     ASerialer.WriteString('SQLAlias', FSQLAlias);
     ASerialer.WriteStrings('SQLOrderByClause', FSQLOrderByClause);
     ASerialer.WriteStrings('SQLWhereClause', FSQLWhereClause);
+                                             
+    ASerialer.WriteInteger('PublishType', Integer(FPublishType));  
+    ASerialer.WriteString('PurviewRoles', FPurviewRoles);
+    ASerialer.WriteString('DataPurview', FDataPurview);
+    ASerialer.WriteBool('IsReadOnly', FIsReadOnly);
 
     if Assigned(MetaFields) then
     begin
@@ -3051,12 +3140,12 @@ begin
       for I := 0 to FMetaFields.Count - 1 do
         if Abs(FMetaFields[I].CreateDate - Self.CreateDate) < 15 / 24 / 60 then
           FMetaFields[I].CreateDate := 0;
-
-      ASerialer.BeginChildren('MetaFields');
-      try
+            
+      if not ASerialer.SkipChildren then
+      begin
+        ASerialer.BeginChildren('MetaFields');
         FMetaFields.SaveToSerialer(ASerialer);
         ASerialer.EndChildren('MetaFields');
-      finally
       end;
     end;
     EndSerial(ASerialer, False);
@@ -3106,7 +3195,7 @@ begin
     Exit;
 
   FPhysicalName := tb.FPhysicalName;
-  FCellTreeId := tb.FCellTreeId;
+  FCustomModId := tb.FCustomModId;
   FGraphDesc := tb.FGraphDesc;
   FScriptRules := tb.FScriptRules;
   FUIDisplayText := tb.FUIDisplayText;
@@ -3114,7 +3203,8 @@ begin
 
   FBgColor := tb.FBgColor;
   FGenDatabase := tb.FGenDatabase;
-  FGenCode := tb.FGenCode;
+  FGenCode := tb.FGenCode;  
+  FPublishType := tb.FPublishType;
   FViewSQL := tb.FViewSQL;
   FListSQL := tb.FListSQL;
   FExtraSQL := tb.FExtraSQL;
@@ -3129,7 +3219,10 @@ begin
   FSQLAlias := tb.FSQLAlias;
   FSQLOrderByClause := tb.FSQLOrderByClause;
   FSQLWhereClause := tb.FSQLWhereClause;
-
+         
+  FPurviewRoles := tb.FPurviewRoles;
+  FDataPurview  := tb.FDataPurview; 
+  FIsReadOnly := tb.FIsReadOnly;
 end;
 
 function TCtMetaTable.GetSketchyDescribe: string;
@@ -4413,6 +4506,23 @@ begin
       end;
 end;
 
+function TCtMetaTable.GetInhPublishType: TCtModulePublishType;
+var
+  pn: TCtDataModelGraph;
+begin
+  Result := PublishType;
+  if PublishType=cmptAuto then
+  begin
+    Result := cmptNone;
+    if Assigned(Self.OwnerList) then
+    begin
+      pn := Self.OwnerList.OwnerModel;
+      if pn<>nil then
+        Result := pn.GetInhPublishType;
+    end;
+  end;
+end;
+
 function TCtMetaTable.GenSql(dbType: string): string;
 begin
   Result := GenSqlEx(True, True, dbType);
@@ -4986,7 +5096,7 @@ begin
     inherited AssignFrom(ACtTable);
     AssignTbPropsFrom(ACtTable);
     Self.GraphDesc := S;
-    FCellTreeId := ACtTable.FCellTreeId;
+    FCustomModId := ACtTable.FCustomModId;
 
     if Assigned(ACtTable.FMetaFields) then
       MetaFields.SyncFieldsFrom(ACtTable.FMetaFields, tmpList);
@@ -5221,9 +5331,11 @@ begin
     end;
 
     if (sqlType = '') or (Pos('delete', sqlType) > 0) then
-    begin
-      Infos.Add('delete from ' + vTbn);
-      Infos.Add('where ' + S + ' = :v_' + S + sEnd);
+    begin                              
+      S := Self.KeyFieldName;
+      if S <>'' then
+        S := ' /* where '+S+' = :v_' + S + '*/';
+      Infos.Add('delete from ' + vTbn+ S + sEnd);
     end;
 
 
@@ -5383,7 +5495,12 @@ begin
         Continue;
     Inc(C);
     if (C > 1) then
-      S := S + ', ';
+    begin
+      if (C mod 21)=0 then
+      S := S + ','#13#10'  '
+      else
+        S := S + ', ';
+    end;
     vFdn := GetQuotName(f.Name);
     S := S + vFdn;
   end;
@@ -5447,9 +5564,14 @@ begin
         vFdn := f.GetSqlQuotValue(vFdn, dbType, dbEngine);
       end;
     end;
-
+                 
     if (C > 1) then
-      S := S + ', ';
+    begin
+      if (C mod 21)=0 then
+      S := S + ','#13#10'  '
+      else
+        S := S + ', ';
+    end;
     S := S + vFdn;
   end;
   S := S+ ');';
@@ -8716,7 +8838,7 @@ function TCtMetaObject.GetJsonStr: string;
 begin
   Result := '';
   if Assigned(Proc_CtObjToJsonStr) then
-    Result := Proc_CtObjToJsonStr(Self);
+    Result := Proc_CtObjToJsonStr(Self, False, False);
 end;
 
 procedure TCtMetaObject.SetJsonStr(AValue: string);
@@ -8766,6 +8888,22 @@ begin
   Result := Self.Tables.Count >= G_HugeModeTableCount;
 end;
 
+function TCtDataModelGraph.IsCatalog: boolean;
+begin
+  if TypeName='CATALOG' then
+    Result := True
+  else
+    Result := False;
+end;
+
+function TCtDataModelGraph.IsModel: boolean;
+begin
+  if (TypeName='') or (TypeName='MODEL') then
+    Result := True
+  else
+    Result := False;
+end;
+
 function TCtDataModelGraph.CheckCanRenameTo(ANewName: string): Boolean;
 var
   I: Integer;
@@ -8792,6 +8930,30 @@ begin
   end;
 end;
 
+function TCtDataModelGraph.GetParentModelGraph: TCtDataModelGraph;
+begin
+  Result := nil;
+  if PID>0 then
+    if Self.OwnerList<>nil then
+    begin
+      Result := TCtDataModelGraph(Self.OwnerList.ItemByID(PID));
+    end;
+end;
+
+function TCtDataModelGraph.GetInhPublishType: TCtModulePublishType;
+var
+  pn: TCtDataModelGraph;
+begin
+  Result := PublishType;
+  if PublishType=cmptAuto then
+  begin        
+    Result := cmptNone;
+    pn := GetParentModelGraph;
+    if pn<>nil then
+      Result := pn.GetInhPublishType;
+  end;
+end;
+
 procedure TCtDataModelGraph.Reset;
 begin
   inherited;
@@ -8801,7 +8963,11 @@ begin
   FGraphHeight := 0;
   FDefDbEngine := '';
   FDbConnectStr := '';
-  FConfigStr := '';
+  FConfigStr := '';   
+  FModelPath   := '';        
+  FPurviewRoles := '';
+  FPublishType := cmptNone;
+  FExtraProps  := '';
   FTables.Clear;
 end;
 
@@ -8819,7 +8985,11 @@ begin
   FGraphHeight := cobj.FGraphHeight;
   FDefDbEngine := cobj.FDefDbEngine;
   FDbConnectStr := cobj.FDbConnectStr;
-  FConfigStr := cobj.FConfigStr;
+  FConfigStr := cobj.FConfigStr;  
+  FModelPath   := cobj.FModelPath; 
+  FPurviewRoles := cobj.FPurviewRoles;
+  FPublishType := cobj.FPublishType;
+  FExtraProps  := cobj.FExtraProps;
   FTables.AssignFrom(cobj.FTables);
 end;
 
@@ -8835,12 +9005,20 @@ begin
     ASerialer.ReadString('DefDbEngine', FDefDbEngine);
     ASerialer.ReadString('DbConnectStr', FDbConnectStr);
     ASerialer.ReadString('ConfigStr', FConfigStr);
-    CheckDMGOptions;
-    ASerialer.BeginChildren('Tables');
-    try
+
+    if ASerialer.CurCtVer >= 39 then
+    begin
+      ASerialer.ReadString('ModelPath', FModelPath);
+      ASerialer.ReadString('PurviewRoles', FPurviewRoles);
+      FPublishType := TCtModulePublishType(ASerialer.ReadInt('PublishType'));
+      ASerialer.ReadString('ExtraProps', FExtraProps);
+    end;
+    CheckDMGOptions;  
+    if not ASerialer.SkipChildren then
+    begin
+      ASerialer.BeginChildren('Tables');
       FTables.LoadFromSerialer(ASerialer);
       ASerialer.EndChildren('Tables');
-    finally
     end;
     EndSerial(ASerialer, True);
   finally
@@ -8859,11 +9037,17 @@ begin
     ASerialer.WriteString('DefDbEngine', FDefDbEngine);
     ASerialer.WriteString('DbConnectStr', FDbConnectStr);
     ASerialer.WriteString('ConfigStr', FConfigStr);
-    ASerialer.BeginChildren('Tables');
-    try
+
+    ASerialer.WriteString('ModelPath', FModelPath);
+    ASerialer.WriteString('PurviewRoles', FPurviewRoles);
+    ASerialer.WriteInteger('PublishType', Integer(FPublishType));
+    ASerialer.WriteString('ExtraProps', FExtraProps);
+            
+    if not ASerialer.SkipChildren then
+    begin
+      ASerialer.BeginChildren('Tables');
       FTables.SaveToSerialer(ASerialer);
       ASerialer.EndChildren('Tables');
-    finally
     end;
     EndSerial(ASerialer, False);
   finally
@@ -8943,11 +9127,12 @@ begin
   if FCurDataModel = nil then
   begin
     for I := 0 to Count - 1 do
-      if Items[I].DataLevel <> ctdlDeleted then
-      begin
-        FCurDataModel := Items[I];
-        Break;
-      end;
+      if Items[I].IsModel then
+        if Items[I].DataLevel <> ctdlDeleted then
+        begin
+          FCurDataModel := Items[I];
+          Break;
+        end;
 
     if FCurDataModel = nil then
       FCurDataModel := NewModelItem;
@@ -9142,32 +9327,18 @@ begin
   end;        
   if ASerialer.CurCtVer >= 37 then
     Self.ModelFileConfig.LoadFromSerialer(ASerialer);
-
-  ASerialer.ReadInteger('Count', C);
-  ASerialer.BeginChildren('');
-  if ASerialer.ChildCountInvalid then
+                 
+  if not ASerialer.SkipChildren then
   begin
-    I := 0;
-    while ASerialer.NextChildObjToRead do
+    ASerialer.ReadInteger('Count', C);
+    ASerialer.BeginChildren('');
+    if ASerialer.ChildCountInvalid then
     begin
-      obj := NewObj;
-      Inc(I);
-      obj.LoadFromSerialer(ASerialer);
-      if Assigned(FOnObjProgress) then
-      begin
-        bCont := True;
-        FOnObjProgress(Self, obj.NameCaption, 0, 0, bCont);
-        if not bCont then
-          Break;
-      end;
-    end;
-  end
-  else
-    for I := 0 to C - 1 do
-    begin
-      if ASerialer.NextChildObjToRead then
+      I := 0;
+      while ASerialer.NextChildObjToRead do
       begin
         obj := NewObj;
+        Inc(I);
         obj.LoadFromSerialer(ASerialer);
         if Assigned(FOnObjProgress) then
         begin
@@ -9177,8 +9348,25 @@ begin
             Break;
         end;
       end;
-    end;
-  ASerialer.EndChildren('');
+    end
+    else
+      for I := 0 to C - 1 do
+      begin
+        if ASerialer.NextChildObjToRead then
+        begin
+          obj := NewObj;
+          obj.LoadFromSerialer(ASerialer);
+          if Assigned(FOnObjProgress) then
+          begin
+            bCont := True;
+            FOnObjProgress(Self, obj.NameCaption, 0, 0, bCont);
+            if not bCont then
+              Break;
+          end;
+        end;
+      end;
+    ASerialer.EndChildren('');
+  end;
 
 end;
 
@@ -9312,25 +9500,27 @@ begin
   ASerialer.WriteInteger('TableCount', C);
   ModelFileConfig.LastModel:='';
   if Self.FCurDataModel <> nil then
-    if FCurDataModel <> Self.Items[0] then
-      ModelFileConfig.LastModel:=FCurDataModel.Name;
+    ModelFileConfig.LastModel:=FCurDataModel.Name;
   Self.ModelFileConfig.SaveToSerialer(ASerialer);
-
-  C := Count;
-  ASerialer.WriteInteger('Count', C);
-  ASerialer.BeginChildren('');
-  for I := 0 to C - 1 do
+           
+  if not ASerialer.SkipChildren then
   begin
-    Items[I].SaveToSerialer(ASerialer);
-    if Assigned(FOnObjProgress) then
+    C := Count;
+    ASerialer.WriteInteger('Count', C);
+    ASerialer.BeginChildren('');
+    for I := 0 to C - 1 do
     begin
-      bCont := True;
-      FOnObjProgress(Self, Items[I].NameCaption, 0, 0, bCont);
-      if not bCont then
-        Break;
+      Items[I].SaveToSerialer(ASerialer);
+      if Assigned(FOnObjProgress) then
+      begin
+        bCont := True;
+        FOnObjProgress(Self, Items[I].NameCaption, 0, 0, bCont);
+        if not bCont then
+          Break;
+      end;
     end;
+    ASerialer.EndChildren('');
   end;
-  ASerialer.EndChildren('');
 
 end;
 
@@ -9419,6 +9609,28 @@ begin
   Result := 0;
   for I := 0 to Count - 1 do
     Result := Result + Items[I].Tables.Count;
+end;
+
+function TCtDataModelGraphList.NewCatalogItem: TCtDataModelGraph;
+var
+  S: String;
+begin
+  Result := TCtDataModelGraph(NewObj);
+  Result.TypeName := 'CATALOG';
+  Result.CreateDate := Now;
+  while True do
+  begin
+    S := Format(srNewCatalogNameFmt, [Result.ID]);
+    if Self.ItemByName(S) = nil then
+    begin
+      Result.Name := S;
+      Break;
+    end
+    else
+      Result.ID := Self.GlobeList.GenNewItemID;
+  end;
+  if GlobeList.SeqCounter<Result.ID then
+    GlobeList.SeqCounter := Result.ID;
 end;
 
 function TCtDataModelGraphList.CreateObj: TCtObject;

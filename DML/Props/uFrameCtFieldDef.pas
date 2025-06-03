@@ -437,7 +437,9 @@ begin
     edtName.Text := '';
     stFieldName.Caption := '';
     edtDisplayName.Text := '';
-    edtHint.Text := '';
+    edtHint.Text := '';       
+    edtLabelText.Text := '';
+    edtLabelText.TextHint := '';
     memoMemo.Lines.Text := '';   
     memoDBCheck.Lines.Text := '';  
     memoDesignNotes.Lines.Text := '';
@@ -506,7 +508,8 @@ begin
 
   combEditorType.Text := GetCtDropDownTextOfValue(FMetaField.EditorType,
     srFieldEditorTypes);
-  edtLabelText.Text := FMetaField.LabelText;
+  edtLabelText.Text := FMetaField.LabelText;   
+  edtLabelText.TextHint := FMetaField.GetLabelText;
   edtExplainText.Text := FMetaField.ExplainText;
   combMeasureUnit.Text := FMetaField.MeasureUnit;
 

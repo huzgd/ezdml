@@ -17,8 +17,16 @@ type
   TFrameCtTableList = class(TFrame)
     actCamelCaseToUnderline: TAction;
     actCnWordSegment: TAction;
+    actNewCatalog: TAction;
     actPasteAsCopy: TAction;
     actUnderlineToCamelCase: TAction;
+    MN_PubType_4: TMenuItem;
+    MN_PubType_3: TMenuItem;
+    MN_PubType_2: TMenuItem;
+    MN_PubType_1: TMenuItem;
+    MN_PubType_0: TMenuItem;
+    MN_PublishType: TMenuItem;
+    MN_NewCatalog: TMenuItem;
     MN_RESERVED5: TMenuItem;
     MNPasteAsCopy: TMenuItem;
     MN_CamelCasetoUnderline1: TMenuItem;
@@ -84,8 +92,10 @@ type
     MN_FindInGraph: TMenuItem;
     procedure actCamelCaseToUnderlineExecute(Sender: TObject);
     procedure actCnWordSegmentExecute(Sender: TObject);
+    procedure actNewCatalogExecute(Sender: TObject);
     procedure actPasteAsCopyExecute(Sender: TObject);
     procedure actUnderlineToCamelCaseExecute(Sender: TObject);
+    procedure MN_PubType_Click(Sender: TObject);
     procedure TimerTbFilterTimer(Sender: TObject);
     procedure btnClearFilterClick(Sender: TObject);
     procedure actCheckWithMyDictExecute(Sender: TObject);
@@ -154,6 +164,7 @@ type
     function GetSelectedCtNode: TCtMetaObject;
     procedure SetOnShowNodeProp(const Value: TNotifyEvent);
     function GetImageIndexOfCtNode(Nd: TCtObject; bSelected: boolean = False): integer;
+    function GetOverlayIndexOfCtNode(Nd: TCtObject): integer;
     procedure SetSelectedCtNode(const Value: TCtMetaObject);
 
     procedure DoCapitalizeProc(sType: string);
@@ -186,7 +197,8 @@ type
     procedure FocusToModel(AModelName: string);
     procedure FocusToTable(ATbName: string);
     procedure FocusSibling(bUp: Boolean);
-
+                             
+    procedure NewCtCatalogNode;
     procedure NewCtModelNode;
     procedure NewCtTableNode;
     procedure NewCtFieldNode;
@@ -268,8 +280,9 @@ begin
       if TreeViewCttbs.Items[I].Data <> nil then
       begin
         if TObject(TreeViewCttbs.Items[I].Data) is TCtDataModelGraph then
-        begin
-          Inc(mdc);
+        begin 
+          if TCtDataModelGraph(TreeViewCttbs.Items[I].Data).IsModel then
+            Inc(mdc);
         end
         else if TObject(TreeViewCttbs.Items[I].Data) is TCtMetaTable then
         begin
@@ -291,11 +304,12 @@ begin
       for I := 0 to TreeViewCttbs.Items.Count - 1 do
         if TreeViewCttbs.Items[I].Selected then
           if TreeViewCttbs.Items[I].Data <> nil then
-            if TObject(TreeViewCttbs.Items[I].Data) is TCtDataModelGraph then
-            begin
-              vMd := vTempMds.NewModelItem;
-              vMd.AssignFrom(TCtDataModelGraph(TreeViewCttbs.Items[I].Data));
-            end;
+            if TObject(TreeViewCttbs.Items[I].Data) is TCtDataModelGraph then 
+              if TCtDataModelGraph(TreeViewCttbs.Items[I].Data).IsModel then
+              begin
+                vMd := vTempMds.NewModelItem;
+                vMd.AssignFrom(TCtDataModelGraph(TreeViewCttbs.Items[I].Data));
+              end;
       fs.RootName := 'DataModels';
       vTempMds.SaveToSerialer(fs);
       fs.EndJsonWrite;
@@ -461,16 +475,17 @@ var
 begin
   vNode := CurTreeNode;
   if Assigned(vNode) and Assigned(vNode.Data) and
-    (TObject(vNode.Data) is TCtMetaField) then
+    ((TObject(vNode.Data) is TCtMetaTable) or (TObject(vNode.Data) is TCtMetaField)) then
   begin
     vNode := vNode.Parent;
-    if vNode <> nil then
-    begin
-      TreeViewCttbs.ClearSelection();
-      for I := 0 to vNode.Count - 1 do
-        TreeViewCttbs.Select(vNode.Items[I], [ssCtrl]);
-      Exit;
-    end;
+  end;
+
+  if vNode <> nil then
+  begin
+    TreeViewCttbs.ClearSelection();
+    for I := 0 to vNode.Count - 1 do
+      TreeViewCttbs.Select(vNode.Items[I], [ssCtrl]);
+    Exit;
   end;
 
   vNode := TreeViewCttbs.Items.GetFirstNode;
@@ -501,8 +516,8 @@ end;
 function TFrameCtTableList.AddNodeToTree(PNode: TTreeNode;
   ACtNode: TCtMetaObject): TTreeNode;
 var
-  I: integer;
-  VNode: TTreeNode;
+  I, VPID: integer;
+  VNode, nd: TTreeNode;
   S: string;
 begin
   Result := nil;
@@ -514,26 +529,43 @@ begin
   with vNode do
   begin
     ImageIndex := GetImageIndexOfCtNode(ACtNode);
-    SelectedIndex := GetImageIndexOfCtNode(ACtNode, True);
+    SelectedIndex := GetImageIndexOfCtNode(ACtNode, True);  
+    OverlayIndex := GetOverlayIndexOfCtNode(ACtNode);
     Data := ACtNode;
   end;
   if ACtNode is TCtDataModelGraph then
   begin
-    if FTbFilter <> '' then
+    if TCtDataModelGraph(ACtNode).IsCatalog then
     begin
-      FFilterMode := 1;
-      with TCtDataModelGraph(ACtNode).Tables do
-        for I := 0 to Count - 1 do
-          AddNodeToTree(VNode, Items[I]);
-      FFilterMode := 2;
-      with TCtDataModelGraph(ACtNode).Tables do
-        for I := 0 to Count - 1 do
-          AddNodeToTree(VNode, Items[I]);
+      VPID := ACtNode.ID;
+      for I := 0 to CtDataModelList.Count - 1 do
+        if CtDataModelList.Items[I].PID = VPID then
+        begin
+          nd := AddNodeToTree(VNode, CtDataModelList.Items[I]);
+          if nd <> nil then
+            if Self.FTbFilter <> '' then
+              if nd.Count = 0 then
+                nd.Delete;
+        end;
     end
     else
-      with TCtDataModelGraph(ACtNode).Tables do
-        for I := 0 to Count - 1 do
-          AddNodeToTree(VNode, Items[I]);
+    begin
+      if FTbFilter <> '' then
+      begin
+        FFilterMode := 1;
+        with TCtDataModelGraph(ACtNode).Tables do
+          for I := 0 to Count - 1 do
+            AddNodeToTree(VNode, Items[I]);
+        FFilterMode := 2;
+        with TCtDataModelGraph(ACtNode).Tables do
+          for I := 0 to Count - 1 do
+            AddNodeToTree(VNode, Items[I]);
+      end
+      else
+        with TCtDataModelGraph(ACtNode).Tables do
+          for I := 0 to Count - 1 do
+            AddNodeToTree(VNode, Items[I]);
+    end;
   end;
 
   if ACtNode is TCtMetaTable then
@@ -604,7 +636,12 @@ begin
         S := vNode.Text;
         if vNode.Data <> nil then
           if TObject(vNode.Data) is TCtDataModelGraph then
-            Inc(mdc)
+          begin
+            if TCtDataModelGraph(vNode.Data).IsCatalog then
+              if vNode.HasChildren then
+                raise Exception.CreateFmt(srErrorDeleteCatalogNotEmptyFmt, [vNode.Text]);
+            Inc(mdc);
+          end
           else if TObject(vNode.Data) is TCtMetaTable then
             Inc(tbc)
           else if TObject(vNode.Data) is TCtMetaField then
@@ -816,6 +853,16 @@ begin
   if FReadOnlyMode then
     Exit;
   CheckCanEditMeta;
+
+  vNode := TreeViewCttbs.Selected;
+  if vNode = nil then
+    vNode := TreeViewCttbs.Items.GetFirstNode
+  else
+    while (vNode.Parent <> nil) and (vNode.ImageIndex<>0) do
+      vNode := vNode.Parent;
+  if (vNode=nil) or (vNode.ImageIndex<>0) then
+    Exit;
+
   ctnode := CtTableList.NewTableItem;
   if Assigned(Proc_ShowCtTableProp) then
   begin
@@ -825,12 +872,6 @@ begin
       Exit;
     end;
   end;
-  vNode := TreeViewCttbs.Selected;
-  if vNode = nil then
-    vNode := TreeViewCttbs.Items.GetFirstNode
-  else
-    while vNode.Parent <> nil do
-      vNode := vNode.Parent;
   {vNode := } AddNodeToTree(vNode, ctnode);
 end;
 
@@ -922,13 +963,14 @@ begin
     CtDataModelList.SortByOrderNo;
 
     for I := 0 to CtDataModelList.Count - 1 do
-    begin
-      nd := AddNodeToTree(rNode, CtDataModelList.Items[I]);
-      if nd <> nil then
-        if Self.FTbFilter <> '' then
-          if nd.Count = 0 then
-            nd.Delete;
-    end;
+      if CtDataModelList.Items[I].PID = 0 then
+      begin
+        nd := AddNodeToTree(rNode, CtDataModelList.Items[I]);
+        if nd <> nil then
+          if Self.FTbFilter <> '' then
+            if nd.Count = 0 then
+              nd.Delete;
+      end;
 
     psNode := nil;
     if Assigned(cto2) then
@@ -974,7 +1016,7 @@ begin
       if TreeViewCttbs.Items.GetFirstNode <> nil then
         TreeViewCttbs.Items.GetFirstNode.Expand(False);
     end
-    else if TreeViewCttbs.Selected.Parent = nil then
+    else if TreeViewCttbs.Selected.ImageIndex in [0, 42] then
       TreeViewCttbs.Selected.Expand(False);
 
     if ctl.Count > 0 then
@@ -1012,6 +1054,11 @@ begin
   DoCapitalizeProc('CnWordSegment');
 end;
 
+procedure TFrameCtTableList.actNewCatalogExecute(Sender: TObject);
+begin
+  NewCtCatalogNode;
+end;
+
 procedure TFrameCtTableList.actPasteAsCopyExecute(Sender: TObject);
 begin
   actPasteTbExecute(nil);
@@ -1020,6 +1067,63 @@ end;
 procedure TFrameCtTableList.actUnderlineToCamelCaseExecute(Sender: TObject);
 begin
   DoCapitalizeProc('UnderlineToCamelCase');
+end;
+
+procedure TFrameCtTableList.MN_PubType_Click(Sender: TObject);
+var      
+  tg: Integer;
+  I, C: Integer;
+  tb: TCtMetaTable;
+  md: TCtDataModelGraph;
+  ts: TStringList;
+begin
+  CheckCanEditMeta; 
+  tg := TMenuItem(Sender).Tag;
+
+  C := 0;
+  ts:= TStringList.Create;
+  try
+    for I := 0 to TreeViewCttbs.Items.Count - 1 do
+      if TreeViewCttbs.Items[I].Selected then
+        if TreeViewCttbs.Items[I].Data <> nil then
+        begin
+          if TObject(TreeViewCttbs.Items[I].Data) is TCtDataModelGraph then
+          begin
+            md := TCtDataModelGraph(TreeViewCttbs.Items[I].Data);
+            md.PublishType:=TCtModulePublishType(tg);
+            Inc(C);
+          end
+          else if TObject(TreeViewCttbs.Items[I].Data) is TCtMetaTable then
+          begin
+            tb := TCtMetaTable(TreeViewCttbs.Items[I].Data);
+            if ts.IndexOf(tb.Name)>=0 then
+              Continue;
+            ts.AddObject(tb.Name, tb);
+            tb.PublishType:=TCtModulePublishType(tg);
+          end;
+        end;
+
+  finally
+    for I := 0 to ts.Count - 1 do
+    begin
+      tb := TCtMetaTable(ts.Objects[I]);
+      if tb<>nil then
+        DoTablePropsChanged(tb);
+    end;
+    if C>0 then    
+      RefreshTheTree
+    else if ts.Count>0 then
+    begin
+      if (TreeViewCttbs.SelectionCount > 1) or (ts.Count>1) then
+        RefreshTheTree
+      else
+      begin
+        RefreshSelected;
+        RefreshObj(TCtMetaObject(ts.Objects[0]));
+      end;
+    end;
+    ts.Free;
+  end;
 end;
 
 procedure TFrameCtTableList.TreeViewCttbsChange(Sender: TObject; Node: TTreeNode);
@@ -1031,12 +1135,13 @@ begin
   vNode := TreeViewCttbs.Selected;
   if Assigned(vNode) then
   begin
-    if vNode.Parent = nil then
+    if vNode.ImageIndex=0 then
+    begin
       if Abs(GetTickCount64 - FLastMouseDownTick) < 500 then
       begin
         iExp := 0;
         for I:=0 to TreeViewCttbs.Items.Count - 1 do
-          if TreeViewCttbs.Items[I].Parent = nil then
+          if TreeViewCttbs.Items[I].ImageIndex=0 then
           begin
             if TreeViewCttbs.Items[I].Expanded then
             begin
@@ -1046,7 +1151,7 @@ begin
 
         if iExp = 1 then
           for I:=0 to TreeViewCttbs.Items.Count - 1 do
-            if TreeViewCttbs.Items[I].Parent = nil then
+            if TreeViewCttbs.Items[I].ImageIndex=0 then
             begin
               if TreeViewCttbs.Items[I].Expanded then
               begin
@@ -1059,10 +1164,18 @@ begin
               end;
             end;
       end;
-    while vNode.Parent <> nil do
+    end
+    else if vNode.ImageIndex=42 then
+    begin             
+      if Abs(GetTickCount64 - FLastMouseDownTick) < 500 then
+        if not vNode.Expanded then
+          vNode.Expand(False);
+    end;
+    while (vNode.ImageIndex<>0) and (vNode.Parent <> nil) do
       vNode := vNode.Parent;
-    if TObject(vNode.Data) is TCtDataModelGraph then
-      FCtDataModelList.CurDataModel := TCtDataModelGraph(vNode.Data);
+    if TObject(vNode.Data) is TCtDataModelGraph then      
+      if TCtDataModelGraph(vNode.Data).IsModel then
+        FCtDataModelList.CurDataModel := TCtDataModelGraph(vNode.Data);
   end;
   CheckActions;
   if Assigned(FOnSelectedChange) and not FTreeRefreshing then
@@ -1281,18 +1394,31 @@ end;
 
 procedure TFrameCtTableList.NewCtModelNode;
 var
+  vPID: Integer;
   ctnode: TCtDataModelGraph;
   vNode: TTreeNode;
 begin
   if FReadOnlyMode then
     Exit;
   CheckCanEditMeta;
-  ctnode := FCtDataModelList.NewModelItem;
+
+  vNode := TreeViewCttbs.Selected;
+  if vNode <> nil then
+    while (vNode.Parent <> nil) and (vNode.ImageIndex<>42) do
+      vNode := vNode.Parent;
+  if (vNode<>nil) and (vNode.ImageIndex<>42) then
+    vNode := nil;
+  vPID := 0;
+  if vNode<>nil then
+    vPID := TCtDataModelGraph(vNode.Data).ID;
+
+  ctnode := FCtDataModelList.NewModelItem; 
+  ctnode.PID := vPID;
   if Assigned(GProc_OnEzdmlCmdEvent) then
   begin
     GProc_OnEzdmlCmdEvent('NEW_MODEL', '', '', ctnode, nil);
   end;
-  vNode := AddNodeToTree(nil, ctnode);
+  vNode := AddNodeToTree(vNode, ctnode);
   if FCtDataModelList.Count > 1 then
     TreeViewCttbs.ShowRoot := True
   else
@@ -1441,7 +1567,8 @@ begin
     begin
       Text := ACtNode.NameCaption;
       ImageIndex := GetImageIndexOfCtNode(ACtNode);
-      SelectedIndex := GetImageIndexOfCtNode(ACtNode, True);
+      SelectedIndex := GetImageIndexOfCtNode(ACtNode, True);  
+      OverlayIndex := GetOverlayIndexOfCtNode(ACtNode);
       Data := ACtNode;
     end;
 end;
@@ -1470,11 +1597,20 @@ var
     ctNodeP, ctNodeC, ctNodeD: TCtMetaObject;
     i1, i2, I: integer;
     oList: TCtObjectList;
+    xNode: TTreeNode;
   begin
     if SrcNode = nil then
       Exit;
     if SrcNode.Data = nil then
       Exit;
+
+    //检查是否会死循环（挂到自己的子节点下）
+    xNode := TgNode;
+    while xNode.Parent <> nil do
+      if xNode=SrcNode then
+        Exit
+      else
+        xNode := xNode.Parent;
 
     if TgNode = nil then
       Exit;
@@ -1486,32 +1622,165 @@ var
     ctNodeP := GetCtNodeOfTreeNode(TgNode);
     ctNodeC := GetCtNodeOfTreeNode(SrcNode);
     if ctNodeC is TCtDataModelGraph then
-    begin
-      if not (ctNodeP is TCtDataModelGraph) or not Assigned(TgNode) then
-        Exit;
-      i1 := FCtDataModelList.IndexOf(ctNodeC);
-      i2 := FCtDataModelList.IndexOf(ctNodeP);
-      if i1 = -1 then
-        Exit;
-      if i1 > i2 then
+    begin                 
+      if TCtDataModelGraph(ctNodeC).IsModel then
       begin
-        FCtDataModelList.Move(i1, i2);
-        SrcNode.MoveTo(TgNode, naInsert);
+        if not (ctNodeP is TCtDataModelGraph) or not Assigned(TgNode) then
+          Exit;
+        if TCtDataModelGraph(ctNodeP).IsModel then //模型到模型
+        begin             
+          ctNodeC.PID := ctNodeP.PID;
+          i1 := FCtDataModelList.IndexOf(ctNodeC);
+          i2 := FCtDataModelList.IndexOf(ctNodeP);
+          if i1 = -1 then
+            Exit;
+          if i1 > i2 then
+          begin
+            FCtDataModelList.Move(i1, i2);
+            SrcNode.MoveTo(TgNode, naInsert);
+          end
+          else
+          begin
+            FCtDataModelList.Move(i1, i2);
+            if TgNode.getNextSibling = nil then
+              SrcNode.MoveTo(TgNode, naAdd)
+            else
+              SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
+          end;
+          FCtDataModelList.SaveCurrentOrder;
+        end
+        else if TCtDataModelGraph(ctNodeP).IsCatalog then //模型到目录
+        begin                
+          // 默认移到目录下
+          if (GetKeyState(VK_SHIFT) and $80) = 0 then
+          begin
+            ctNodeC.PID := ctNodeP.ID;
+            i1 := FCtDataModelList.IndexOf(ctNodeC);
+            i2 := FCtDataModelList.IndexOf(ctNodeP);
+            if TgNode.HasChildren then
+            begin
+              xNode := TgNode.GetLastChild;
+              if xNode <> nil then
+                i2 := FCtDataModelList.IndexOf(GetCtNodeOfTreeNode(xNode));
+            end;
+            FCtDataModelList.Move(i1, i2);
+            SrcNode.MoveTo(TgNode, naAddChild);
+            FCtDataModelList.SaveCurrentOrder;
+          end
+          else //按住SHIFT键则挂到旁边
+          begin
+            ctNodeC.PID := ctNodeP.PID;
+            i1 := FCtDataModelList.IndexOf(ctNodeC);
+            i2 := FCtDataModelList.IndexOf(ctNodeP);
+            if i1 = -1 then
+              Exit;
+            if i1 > i2 then
+            begin
+              FCtDataModelList.Move(i1, i2);
+              SrcNode.MoveTo(TgNode, naInsert);
+            end
+            else
+            begin
+              FCtDataModelList.Move(i1, i2);
+              if TgNode.getNextSibling = nil then
+                SrcNode.MoveTo(TgNode, naAdd)
+              else
+                SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
+            end;
+            FCtDataModelList.SaveCurrentOrder;
+          end;
+        end
+        else
+          Exit;
+      end
+      else if TCtDataModelGraph(ctNodeC).IsCatalog then
+      begin
+        if not (ctNodeP is TCtDataModelGraph) or not Assigned(TgNode) then
+          Exit;
+        if TCtDataModelGraph(ctNodeP).IsModel then //目录到模型
+        begin
+          // 要求模型没有上级，或上级为目录
+          if ctNodeP.PID<>0 then
+          begin
+            ctNodeD := TCtMetaObject(FCtDataModelList.ItemByID(ctNodeP.PID));
+            if ctNodeD = nil then
+              Exit;
+            if not TCtDataModelGraph(ctNodeD).IsCatalog then
+              Exit;
+          end;
+          ctNodeC.PID := ctNodeP.PID;
+          i1 := FCtDataModelList.IndexOf(ctNodeC);
+          i2 := FCtDataModelList.IndexOf(ctNodeP);
+          if i1 = -1 then
+            Exit;
+          if i1 > i2 then
+          begin
+            FCtDataModelList.Move(i1, i2);
+            SrcNode.MoveTo(TgNode, naInsert);
+          end
+          else
+          begin
+            FCtDataModelList.Move(i1, i2);
+            if TgNode.getNextSibling = nil then
+              SrcNode.MoveTo(TgNode, naAdd)
+            else
+              SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
+          end;
+          FCtDataModelList.SaveCurrentOrder;
+        end
+        else if TCtDataModelGraph(ctNodeP).IsCatalog then //目录到目录
+        begin
+          // 默认移到目录下
+          if (GetKeyState(VK_SHIFT) and $80) = 0 then
+          begin
+            ctNodeC.PID := ctNodeP.ID;
+            i1 := FCtDataModelList.IndexOf(ctNodeC);
+            i2 := FCtDataModelList.IndexOf(ctNodeP);
+            if TgNode.HasChildren then
+            begin
+              xNode := TgNode.GetLastChild;
+              if xNode <> nil then
+                i2 := FCtDataModelList.IndexOf(GetCtNodeOfTreeNode(xNode));
+            end;
+            FCtDataModelList.Move(i1, i2);
+            SrcNode.MoveTo(TgNode, naAddChild);
+            FCtDataModelList.SaveCurrentOrder;
+          end
+          else //按住SHIFT键则挂到旁边
+          begin
+            ctNodeC.PID := ctNodeP.PID;
+            i1 := FCtDataModelList.IndexOf(ctNodeC);
+            i2 := FCtDataModelList.IndexOf(ctNodeP);
+            if i1 = -1 then
+              Exit;
+            if i1 > i2 then
+            begin
+              FCtDataModelList.Move(i1, i2);
+              SrcNode.MoveTo(TgNode, naInsert);
+            end
+            else
+            begin
+              FCtDataModelList.Move(i1, i2);
+              if TgNode.getNextSibling = nil then
+                SrcNode.MoveTo(TgNode, naAdd)
+              else
+                SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
+            end;
+            FCtDataModelList.SaveCurrentOrder;
+          end;
+        end
+        else
+          Exit;
       end
       else
-      begin
-        FCtDataModelList.Move(i1, i2);
-        if TgNode.getNextSibling = nil then
-          SrcNode.MoveTo(TgNode, naAdd)
-        else
-          SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
-      end;
-      FCtDataModelList.SaveCurrentOrder;
+        Exit;
     end
     else if ctNodeC is TCtMetaTable then
     begin
       if (ctNodeP is TCtDataModelGraph) then
       begin
+        if not TCtDataModelGraph(ctNodeP).IsModel then
+          Exit;
         if (TCtDataModelGraph(ctNodeP).Tables <> TCtMetaTable(ctNodeC).OwnerList) then
         begin
           oList := TCtDataModelGraph(ctNodeP).Tables;
@@ -1862,6 +2131,45 @@ begin
   TreeViewCttbs.Selected := fNode;
 end;
 
+procedure TFrameCtTableList.NewCtCatalogNode;
+var
+  vPID: Integer;
+  ctnode: TCtDataModelGraph;
+  vNode: TTreeNode;
+begin
+  if FReadOnlyMode then
+    Exit;
+  CheckCanEditMeta;
+
+  vNode := TreeViewCttbs.Selected;
+  if vNode <> nil then
+    while (vNode.Parent <> nil) and (vNode.ImageIndex<>42) do
+      vNode := vNode.Parent;
+  if (vNode<>nil) and (vNode.ImageIndex<>42) then
+    vNode := nil;
+  vPID := 0;
+  if vNode<>nil then
+    vPID := TCtDataModelGraph(vNode.Data).ID;
+
+  ctnode := FCtDataModelList.NewCatalogItem;
+  ctnode.PID := vPID;
+  if Assigned(GProc_OnEzdmlCmdEvent) then
+  begin
+    GProc_OnEzdmlCmdEvent('NEW_CATALOG', '', '', ctnode, nil);
+  end;
+  vNode := AddNodeToTree(vNode, ctnode);
+  if FCtDataModelList.Count > 1 then
+    TreeViewCttbs.ShowRoot := True
+  else
+    TreeViewCttbs.ShowRoot := False;
+  if Assigned(vNode) then
+  begin
+    TreeViewCttbs.ClearSelection;
+    TreeViewCttbs.Selected := vNode;
+    vNode.EditText;
+  end;
+end;
+
 procedure TFrameCtTableList.SetOnShowNodeProp(const Value: TNotifyEvent);
 begin
   FOnShowNodeProp := Value;
@@ -2054,7 +2362,7 @@ procedure TFrameCtTableList.actPasteTbExecute(Sender: TObject);
   end;
 
 
-  procedure RenameTbIfExists(tb: TCtMetaTable);
+  procedure RenameTbIfExists(tb: TCtMetaTable; bNewModel: Boolean);
   var
     n: integer;
   begin
@@ -2062,7 +2370,7 @@ procedure TFrameCtTableList.actPasteTbExecute(Sender: TObject);
       Exit;
 
     if tb.IsTable then
-      if CtTableList.ItemByName(tb.Name) = nil then
+      if bNewModel or (CtTableList.ItemByName(tb.Name) = nil) then
       begin
         CheckHasDiffTb(tb);
         Exit;
@@ -2110,7 +2418,7 @@ procedure TFrameCtTableList.actPasteTbExecute(Sender: TObject);
   end;
 
 var
-  I, J, idx: integer;
+  I, J, idx, vPID: integer;
   vTempMds: TCtDataModelGraphList;
   vTempTbs: TCtMetaTableList;
   vTempFlds: TCtMetaFieldList;
@@ -2145,7 +2453,13 @@ begin
       vTempMds.LoadFromSerialer(fs);  
       for I := 0 to vTempMds.Count - 1 do
       begin
-        vTempMds[I].Name := FCtDataModelList.GetUnusedName(vTempMds[I].Name);
+        md := vTempMds[I];
+        md.Name := FCtDataModelList.GetUnusedName(md.Name);
+        for J := 0 to md.Tables.Count - 1 do
+        begin
+          tb := md.Tables[J];
+          RenameTbIfExists(tb, True);
+        end;
       end;
 
       idx := -1;
@@ -2158,13 +2472,21 @@ begin
           Break;
         rNode := rNode.Parent;
       end;
+      vPID := 0;
       if cto <> nil then
+      begin
         idx := FCtDataModelList.IndexOf(cto);
+        if TCtDataModelGraph(cto).IsCatalog then
+          vPID := cto.ID
+        else
+          vPID := cto.PID;
+      end;
 
       for I := 0 to vTempMds.Count - 1 do
       begin
         md := FCtDataModelList.NewModelItem;
-        md.AssignFrom(vTempMds[I]);  
+        md.AssignFrom(vTempMds[I]);
+        md.PID := vPID;
         if (idx >= 0) and (idx < FCtDataModelList.Count - 1) then
         begin
           Inc(idx);
@@ -2186,7 +2508,11 @@ begin
   if I=0 then
     I := Pos('"RootName":"Tables"', S);
   if (I > 0) and (I < 100) then
-  begin
+  begin                 
+    if SelectedCtNode=nil then
+      Exit;
+    if (SelectedCtNode is TCtDataModelGraph) and not TCtDataModelGraph(SelectedCtNode).IsModel then
+      Exit;
     vTempTbs := TCtMetaTableList.Create;
     fs := TCtObjMemJsonSerialer.Create(True);
     ss := TStringList.Create;
@@ -2215,7 +2541,7 @@ begin
         RenameAllTbs(vTempTbs);
       for I := 0 to vTempTbs.Count - 1 do
       begin                  
-        RenameTbIfExists(vTempTbs[I]);
+        RenameTbIfExists(vTempTbs[I], False);
         tb := CtTableList.NewTableItem;
         tb.AssignFrom(vTempTbs[I]);
         tb.GraphDesc := '';
@@ -2322,7 +2648,11 @@ begin
   if Button = mbRight then
   begin
     nd := TreeViewCttbs.GetNodeAt(X, Y);
-    if Assigned(nd) and not nd.Selected then
+    if not Assigned(nd) then
+    begin
+      TreeViewCttbs.ClearSelection();
+    end
+    else if not nd.Selected then
     begin
       TreeViewCttbs.ClearSelection();
       TreeViewCttbs.Selected := nd;
@@ -2352,25 +2682,48 @@ end;
 
 procedure TFrameCtTableList.CheckActions;
 var
-  bSelObj, bMultiSel: boolean;
+  bSelCat, bSelObj, bMultiSel: boolean;
   S: string;
   obj: TCtMetaObject;
-  I: Integer;
+  I, pt: Integer;
 begin
   obj := CurCtNode;
-  bSelObj := obj <> nil;
+  bSelCat := (obj<>nil) and (obj is TCtDataModelGraph) and TCtDataModelGraph(obj).IsCatalog;
+  bSelObj := (obj <> nil) and not bSelCat;
   bMultiSel := Self.TreeViewCttbs.SelectionCount > 1;
-  actNewTable.Enabled := not FReadOnlyMode;
-  actNewField.Enabled := (bSelObj or bMultiSel) and not FReadOnlyMode;
-  actDelete.Enabled := (bSelObj or bMultiSel) and not FReadOnlyMode;
-  actRename.Enabled := bSelObj and not FReadOnlyMode;
+  actNewTable.Enabled := bSelObj and not FReadOnlyMode and not bSelCat;
+  actNewField.Enabled := (bSelObj or bMultiSel) and not FReadOnlyMode and not bSelCat;
+  actDelete.Enabled := ((obj<>nil) or bMultiSel) and not FReadOnlyMode;
+  actRename.Enabled := (obj<>nil) and not FReadOnlyMode;
   actExpand.Enabled := CurTreeNode <> nil;
-  actProperty.Enabled := bSelObj and not bMultiSel;
+  actProperty.Enabled := (obj <> nil) and not bMultiSel;
+  actCopyText.Enabled := bSelObj;
+  MN_Capitalize.Enabled := bSelObj or bMultiSel;
+  actSortTablesByName.Enabled := bSelObj and not bSelCat;
+  MN_PublishType.Enabled := ((obj<>nil) or bMultiSel) and not FReadOnlyMode;    
+  pt := 0;
+  if obj<>nil then
+  begin
+    if obj is TCtMetaTable then
+      pt := Integer(TCtMetaTable(obj).PublishType)
+    else if obj is TCtDataModelGraph then
+      pt := Integer(TCtDataModelGraph(obj).PublishType);
+  end;  
+  if pt=0 then
+    MN_PubType_0.Checked := True
+  else if pt=1 then
+    MN_PubType_1.Checked := True
+  else if pt=2 then
+    MN_PubType_2.Checked := True
+  else if pt=3 then
+    MN_PubType_3.Checked := True
+  else if pt=4 then
+    MN_PubType_4.Checked := True;
                               
   if (obj=nil) and (TreeViewCttbs.SelectionCount > 0) then
     obj := GetCtNodeOfTreeNode(TreeViewCttbs.Selections[0]);
   actCopyTb.Enabled := (obj<>nil) and ((obj is TCtDataModelGraph) or (obj is TCtMetaTable) or
-    (obj is TCtMetaField));
+    (obj is TCtMetaField)) and not bSelCat;
   actFindInGraph.Enabled:=(obj<>nil) and ((obj is TCtMetaTable) or
     (obj is TCtMetaField));
 
@@ -2397,12 +2750,18 @@ begin
       end
       else
       begin
-        actPasteTb.Enabled := True;
         I := Pos('"RootName": "Tables"', S);
         if (I > 0) and (I < 100) then
-          actPasteAsCopy.Enabled := True
+        begin
+          actPasteAsCopy.Enabled := (obj<>nil) and ((obj is TCtMetaTable) or ((obj is TCtDataModelGraph) and TCtDataModelGraph(obj).IsModel));
+          actPasteTb.Enabled := actPasteAsCopy.Enabled;
+        end
         else
+        begin
           actPasteAsCopy.Enabled := False;
+          actPasteTb.Enabled := True;
+        end;
+
       end;
     end;
   end;
@@ -2519,9 +2878,14 @@ end;
 function TFrameCtTableList.GetImageIndexOfCtNode(Nd: TCtObject;
   bSelected: boolean): integer;
 begin
-  Result := 0;
-  if (Nd is TCtMetaTable) then
-  begin               
+  Result := 0;       
+  if (Nd is TCtDataModelGraph) then
+  begin
+    if TCtDataModelGraph(Nd).IsCatalog then
+      Result := 42;
+  end
+  else if (Nd is TCtMetaTable) then
+  begin
     if TCtMetaTable(Nd).IsGroup then
       Result := 41
     else if TCtMetaTable(Nd).IsText then
@@ -2536,6 +2900,60 @@ begin
     else
     begin
       Result := 2 + integer(TCtMetaField(Nd).DataType);
+    end;
+  end;
+end;
+
+function TFrameCtTableList.GetOverlayIndexOfCtNode(Nd: TCtObject): integer;
+var
+  pt: TCtModulePublishType;
+begin
+  Result := -1;
+  if (Nd is TCtDataModelGraph) then
+  begin
+    pt := TCtDataModelGraph(Nd).PublishType;
+    if pt=cmptFunction then
+      Result := 43
+    else if pt=cmptModule then
+      Result := 44              
+    else if pt=cmptMenu then
+      Result := 45
+    else if pt=cmptAuto then
+    begin     
+      pt := TCtDataModelGraph(Nd).GetInhPublishType;  
+      if pt=cmptFunction then
+        Result := 46
+      else if pt=cmptModule then
+        Result := 47
+      else if pt=cmptMenu then
+        Result := 48;
+    end;
+  end
+  else if (Nd is TCtMetaTable) then
+  begin
+    if TCtMetaTable(Nd).IsGroup then
+      Exit
+    else if TCtMetaTable(Nd).IsText then
+      Exit
+    else
+    begin
+      pt := TCtMetaTable(Nd).PublishType;  
+      if pt=cmptFunction then
+        Result := 43
+      else if pt=cmptModule then
+        Result := 44
+      else if pt=cmptMenu then
+        Result := 45
+      else if pt=cmptAuto then
+      begin
+        pt := TCtMetaTable(Nd).GetInhPublishType;      
+        if pt=cmptFunction then
+          Result := 46
+        else if pt=cmptModule then
+          Result := 47
+        else if pt=cmptMenu then
+          Result := 48;
+      end;
     end;
   end;
 end;

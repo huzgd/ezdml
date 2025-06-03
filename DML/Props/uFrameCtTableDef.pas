@@ -29,6 +29,7 @@ type
     { Private declarations }
     FCtDataModelList: TCtDataModelGraphList;
     FIsInitLoading: Boolean;
+    FIsRefreshing: Boolean;
     FReadOnlyMode: boolean;
     FCurrentObject: TCtMetaObject;
     FShouldFocusUITick: Int64;
@@ -74,6 +75,7 @@ type
       param: string);
     procedure Init(ACtDataModelList: TCtDataModelGraphList; bReadOnly: boolean);
 
+    procedure ViewModelInNewWnd;
 
     property FrameModified: boolean read FFrameModified;        
     property ShouldFocusUITick: Int64 read FShouldFocusUITick write FShouldFocusUITick;
@@ -135,7 +137,8 @@ begin
 
   //FFrameCtTableList.MN_NewField.Action := FFrameCtTableProp.actAddSysFields;
   FFrameCtTableList.actNewField.OnExecute := _OnBatchAddFields;
-  FFrameCtTableList.actNewField.Caption := srBatchAddFields;
+  FFrameCtTableList.actNewField.Caption := srBatchAddFields;   
+  FFrameCtTableList.actNewField.OnExecute := _OnBatchAddFields;
 
   FFrameCtTableList.MN_RESERVED1.Caption := srBatchRemoveFields;
   FFrameCtTableList.MN_RESERVED1.Visible := True;
@@ -261,6 +264,23 @@ begin
   FFrameModified := not bReadOnly;
 end;
 
+procedure TFrameCtTableDef.ViewModelInNewWnd;
+var
+  vFrmDMLGraph: TfrmCtDML;
+begin
+  if FCtDataModelList = nil then
+    Exit;
+  if FCtDataModelList.CurDataModel = nil then
+    Exit;
+  vFrmDMLGraph := TfrmCtDML.Create(Application);
+  vFrmDMLGraph.Position := poDefault;
+  vFrmDMLGraph.BrowseMode := True;
+  vFrmDMLGraph.ShowInTaskBar := stAlways;
+  vFrmDMLGraph.Caption := vFrmDMLGraph.Caption + ' - ' + FCtDataModelList.CurDataModel.NameCaption;
+  vFrmDMLGraph.Show;
+  vFrmDMLGraph.Init(FCtDataModelList.CurDataModel, True, True);
+end;
+
 procedure TFrameCtTableDef._OnCtMetaNodeChange(Sender: TObject);
 begin
   if FFramePropRefreshing then
@@ -318,41 +338,70 @@ procedure TFrameCtTableDef.RefreshProp;
 begin
   if IsInitLoading then
     Exit;
-  if FFrameCtTableList = nil then
-    FCurrentObject := nil
-  else
-    FCurrentObject := FFrameCtTableList.CurCtNode;
+  if FIsRefreshing then
+    Exit;
+  FIsRefreshing := True;
+  try
 
-  FFrameDMLGraph.FFrameCtDML.SetStatusBarMsg('', 1);
-  FFrameDMLGraph.FFrameCtDML.SetStatusBarMsg('', 2);
+    if FFrameCtTableList = nil then
+      FCurrentObject := nil
+    else
+      FCurrentObject := FFrameCtTableList.CurCtNode;
 
-  if not Assigned(FCurrentObject) then
-    //ShowTableProp(nil)
-    ShowDMLGraph(nil)
-  else if FCurrentObject is TCtDataModelGraph then
-  begin
-    FFrameCtTableList.actProperty.Caption := srViewModelInNewWnd;
-    //FFrameCtTableProp.actAddSysFields.Visible := False;
-    FFrameCtTableList.actNewField.Visible := False;
-    FFrameCtTableList.MN_RESERVED1.Visible := False;
-    ShowDMLGraph(TCtDataModelGraph(FCurrentObject));
-  end
-  else
-  begin
-    FFrameCtTableList.actProperty.Caption := srViewProperties;
-    if FCurrentObject is TCtMetaTable then
+    FFrameDMLGraph.FFrameCtDML.SetStatusBarMsg('', 1);
+    FFrameDMLGraph.FFrameCtDML.SetStatusBarMsg('', 2);
+
+    if not Assigned(FCurrentObject) then
     begin
-      FFrameCtTableList.actNewField.Visible := True;
-      FFrameCtTableList.MN_RESERVED1.Visible := True;
-      ShowTableProp(TCtMetaTable(FCurrentObject));
-    end
-    else if FCurrentObject is TCtMetaField then
-    begin
-      //FFrameCtTableProp.actAddSysFields.Visible := False;
+      //ShowTableProp(nil)
       FFrameCtTableList.actNewField.Visible := False;
       FFrameCtTableList.MN_RESERVED1.Visible := False;
-      ShowFieldProp(TCtMetaField(FCurrentObject));
-    end;
+      FFrameCtTableList.MN_RESERVED2.Visible := False;
+      FFrameCtTableList.MN_RESERVED3.Visible := False;
+      ShowDMLGraph(nil);
+    end
+    else if FCurrentObject is TCtDataModelGraph then
+    begin
+      if TCtDataModelGraph(FCurrentObject).IsCatalog then
+      begin
+        FFrameCtTableList.actNewField.Visible := False;
+        FFrameCtTableList.MN_RESERVED1.Visible := False;
+        FFrameCtTableList.MN_RESERVED2.Visible := False;
+        FFrameCtTableList.MN_RESERVED3.Visible := False;
+        ShowDMLGraph(nil);
+      end
+      else
+      begin
+        //FFrameCtTableProp.actAddSysFields.Visible := False;
+        FFrameCtTableList.actNewField.Visible := False;
+        FFrameCtTableList.MN_RESERVED1.Visible := False;
+        FFrameCtTableList.MN_RESERVED2.Visible := True;
+        FFrameCtTableList.MN_RESERVED3.Visible := True;
+        ShowDMLGraph(TCtDataModelGraph(FCurrentObject));
+      end;
+    end
+    else
+    begin
+      if FCurrentObject is TCtMetaTable then
+      begin
+        FFrameCtTableList.actNewField.Visible := True;
+        FFrameCtTableList.MN_RESERVED1.Visible := True;
+        FFrameCtTableList.MN_RESERVED2.Visible := True;
+        FFrameCtTableList.MN_RESERVED3.Visible := True;
+        ShowTableProp(TCtMetaTable(FCurrentObject));
+      end
+      else if FCurrentObject is TCtMetaField then
+      begin
+        //FFrameCtTableProp.actAddSysFields.Visible := False;
+        FFrameCtTableList.actNewField.Visible := False;
+        FFrameCtTableList.MN_RESERVED1.Visible := False;
+        FFrameCtTableList.MN_RESERVED2.Visible := False;
+        FFrameCtTableList.MN_RESERVED3.Visible := False;
+        ShowFieldProp(TCtMetaField(FCurrentObject));
+      end;
+    end; 
+  finally
+    FIsRefreshing := False;
   end;
 end;
 
@@ -525,8 +574,7 @@ end;
 procedure TFrameCtTableDef._OnCtObjShowProp(Sender: TObject);
 var
   tb: TCtMetaTable;
-  AField: TCtMetaField;    
-  vFrmDMLGraph: TfrmCtDML;
+  AField: TCtMetaField;
 begin
   CheckSelectedObjects;
   if FCurrentObject is TCtMetaTable then
@@ -557,16 +605,14 @@ begin
   end;
                
   if FCtDataModelList = nil then
-    Exit;                     
-  if FCtDataModelList.CurDataModel = nil then
     Exit;
-  vFrmDMLGraph := TfrmCtDML.Create(Application);
-  vFrmDMLGraph.Position := poDefault;
-  vFrmDMLGraph.BrowseMode := True;
-  vFrmDMLGraph.ShowInTaskBar := stAlways;
-  vFrmDMLGraph.Caption := vFrmDMLGraph.Caption + ' - ' + FCtDataModelList.CurDataModel.NameCaption;
-  vFrmDMLGraph.Show;     
-  vFrmDMLGraph.Init(FCtDataModelList.CurDataModel, True, True);
+  if FFrameDMLGraph.MetaTableModel=nil then
+  begin
+    if FCurrentObject is TCtDataModelGraph then
+      FFrameDMLGraph.ShowModelProps(TCtDataModelGraph(FCurrentObject), False);
+  end
+  else
+    FFrameDMLGraph.FFrameCtDML.actColorStyles.Execute;
 end;
 
 procedure TFrameCtTableDef._OnCtTablePropChange(Tp: integer;

@@ -39,6 +39,7 @@ type
     actExecSql: TAction;
     actBatAddFields: TAction;
     actBatRemoveFields: TAction;
+    actBatCopyDeleteSQL: TAction;
     actOpenURL: TAction;
     actShareFile: TAction;
     actNewGroupBox: TAction;
@@ -56,7 +57,13 @@ type
     MenuItem15: TMenuItem;
     MenuItem16: TMenuItem;
     MenuItem17: TMenuItem;
-    PPMNAI_Text2SQL: TMenuItem;
+    MenuItem18: TMenuItem;
+    MN_PubType_4: TMenuItem;
+    MN_PubType_3: TMenuItem;
+    MN_PubType_2: TMenuItem;
+    MN_PubType_1: TMenuItem;
+    MN_PubType_0: TMenuItem;
+    MN_PublishType: TMenuItem;
     PMNAI_Text2SQL: TMenuItem;
     MNAI_Text2SQL: TMenuItem;
     PMNAI_GenSampleValues: TMenuItem;
@@ -232,6 +239,7 @@ type
     actConvertChnToPy: TAction;  
     procedure actAutoCapitalizeExecute(Sender: TObject);
     procedure actBatCopyCreateSQLExecute(Sender: TObject);
+    procedure actBatCopyDeleteSQLExecute(Sender: TObject);
     procedure actBatCopyDescTextExecute(Sender: TObject);
     procedure actBatCopyDropSQLExecute(Sender: TObject);
     procedure actBatCopyExcelTextExecute(Sender: TObject);
@@ -280,6 +288,7 @@ type
     procedure MNRun_GenDataClick(Sender: TObject);
     procedure MNRun_GenSQLClick(Sender: TObject);
     procedure MNRun_SqlToolClick(Sender: TObject);
+    procedure MN_PubType_Click(Sender: TObject);
     procedure PopupMenu1Popup(Sender: TObject);
     procedure actSelectAllExecute(Sender: TObject);
     procedure actExportXlsExecute(Sender: TObject);
@@ -343,6 +352,7 @@ type
     Validate: Integer; //是否为有效值
     validateOld: string; //原始值
     DMLProperty: TObject; //记录属性
+    FToolBtns: TList;
     procedure SetDMLModified;
     procedure SetPropertyObj(vObj: TObject);
     procedure InitProperty();  
@@ -369,6 +379,7 @@ type
     Proc_OnLinkObj: function(Obj1, Obj2: TDMLObj): Integer of object; //-1无 0line 1FK one2many 2FK_one2one 3ArrowLine 4Line
     Porc_OnStatusMsg: procedure(Msg: string; tp: Integer) of object;      
     Proc_DoCapitalize: procedure(sType: string) of object;
+    Proc_SetPubType: procedure(iType: Integer) of object;
     Proc_DoBatCopy: procedure(sType: string) of object;       
     Proc_OnObjColorChanged: procedure(Obj: TDMLObj; cl: Integer) of object;   
     Proc_GetObjPropVal: function(Obj: TDMLObj; prop, def: string): string of object; 
@@ -378,6 +389,7 @@ type
     procedure ShowTbProp(obj: TDMLTableObj);
     procedure ShowObjProp(obj: TDMLObj);
     procedure Checkacts;
+    procedure SortToolBtns;
     procedure CheckLinkLines; //当表的大小有变化时，检查连线是否需要延长或缩短
     //function SaveWmfImage(fn: String): String; //fn为空时保存到剪贴板，为(BASE64TEXT)时返回base64编码
     function SaveDmlImage(fn: string): string; //fn可为bmp jpg png wmf文件，去掉扩展名后为空时保存png到剪贴板，为(BASE64TEXT)时返回png的base64编码
@@ -388,6 +400,7 @@ type
     procedure LoadFromStream(AStream: TStream);
     procedure SaveToStream(AStream: TStream);
 
+    procedure ShowColorStyleProps(bGraph: Boolean);
     procedure SetStatusBarMsg(msg: string; tp: Integer = -1);
     procedure ShowDMLInfoStatusMsg;
 
@@ -448,6 +461,8 @@ end;
 
 destructor TFrameDML.Destroy;
 begin
+  if Assigned(FToolBtns) then
+    FreeAndNil(FToolBtns);
   inherited;
 end;
 
@@ -774,6 +789,15 @@ begin
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  3, 4);
 end;
 
+procedure TFrameDML.MN_PubType_Click(Sender: TObject);
+var
+  tg: Integer;
+begin
+  tg := TMenuItem(Sender).Tag;
+  if Assigned(Proc_SetPubType) then
+    Proc_SetPubType(tg);
+end;
+
 procedure TFrameDML.actResetObjLinksExecute(Sender: TObject);
 var
   C, I, J, oLV: Integer;
@@ -964,6 +988,11 @@ end;
 procedure TFrameDML.actBatCopyCreateSQLExecute(Sender: TObject);
 begin
   DoBatCopyProc('CreateSQL');
+end;
+
+procedure TFrameDML.actBatCopyDeleteSQLExecute(Sender: TObject);
+begin
+  DoBatCopyProc('DeleteSQL');
 end;
 
 procedure TFrameDML.actBatCopyDescTextExecute(Sender: TObject);
@@ -1548,7 +1577,8 @@ begin
   actExchangeNameDisp.Enabled := (C > 0) and bSelTb;
   actCheckWithMyDict.Enabled := (C > 0) and bSelTb;
   actConvertChnToPy.Enabled := (C > 0) and bSelTb;
-  MN_Capitalize.Enabled := (C > 0) and bSelTb;
+  MN_Capitalize.Enabled := (C > 0) and bSelTb;  
+  MN_PublishType.Enabled := (C > 0) and bSelTb;
 
   MNAI_GenFields.Enabled := (C = 1) and bSelTb;
   MNAI_GenComments.Enabled := (C = 1) and bSelTb;   
@@ -1572,9 +1602,90 @@ begin
   actBatCopySelectSQL.Enabled := (C > 0) and bSelTb;       
   actBatCopyExplicitJoinSQL.Enabled := (C > 0) and bSelTb;
   actBatCopyInsertSQL.Enabled := (C > 0) and bSelTb;
-  actBatCopyUpdateSQL.Enabled := (C > 0) and bSelTb;
+  actBatCopyUpdateSQL.Enabled := (C > 0) and bSelTb;     
+  actBatCopyDeleteSQL.Enabled := (C > 0) and bSelTb;
   actBatCopyFieldNameComma.Enabled := (C > 0) and bSelTb;
   MN_BatchCopy.Enabled := (C > 0) and bSelTb;
+end;
+
+procedure TFrameDML.SortToolBtns;
+var
+  I, po: Integer;
+  btn: TToolButton;
+  bSpliting: Boolean;
+begin
+  if FToolBtns=nil then
+  begin
+    FToolBtns := TList.Create;
+    FToolBtns.Add(ToolButtonSHideList);
+    FToolBtns.Add(ToolButtonDMLSp0);
+    FToolBtns.Add(ToolButtonDML01);
+    FToolBtns.Add(ToolButtonDML02);
+    FToolBtns.Add(ToolButtonDmlOpenURL);
+    FToolBtns.Add(ToolButtonDML03);
+    FToolBtns.Add(ToolButtonDMLShare);
+    FToolBtns.Add(ToolButtonDMLSp1);
+    FToolBtns.Add(ToolButtonDML04);
+    FToolBtns.Add(ToolButtonDML05);
+    FToolBtns.Add(ToolButtonDML06);
+    FToolBtns.Add(ToolButtonDML07);
+    FToolBtns.Add(ToolButtonFindObjs);
+    FToolBtns.Add(ToolButtonDML09);
+    FToolBtns.Add(ToolButtonDML10);
+    FToolBtns.Add(ToolButtonDMLsp2);
+    FToolBtns.Add(ToolButtonDML11);
+    FToolBtns.Add(ToolButtonDML12);
+    FToolBtns.Add(ToolButtonDMLsp3);
+    FToolBtns.Add(ToolButtonDML14);
+    FToolBtns.Add(ToolButtonDML15);
+    FToolBtns.Add(ToolButtonDML16);
+    FToolBtns.Add(ToolButtonDML13);
+    FToolBtns.Add(ToolButtonDMLsp4);
+    FToolBtns.Add(ToolButtonRun);
+    FToolBtns.Add(ToolButtonDML17);
+    FToolBtns.Add(ToolButtonDML18);
+    FToolBtns.Add(ToolButtonDML19);
+    FToolBtns.Add(ToolButtonDML20);
+    FToolBtns.Add(ToolButtonDML21);
+    FToolBtns.Add(ToolButtonDMLsp5);
+    FToolBtns.Add(ToolButtonDML22);
+    FToolBtns.Add(ToolButtonDML23);
+    FToolBtns.Add(ToolButtonDML24);
+    FToolBtns.Add(ToolButtonDMLsp6);
+    FToolBtns.Add(ToolButtonDML25);
+    FToolBtns.Add(ToolButtonDML26);
+    FToolBtns.Add(ToolButtonFullScrn);
+    FToolBtns.Add(ToolButtonAI);  
+  end;
+
+  bSpliting := False;
+  po := ToolButtonSHideList.Left;
+  for I:=0 to FToolBtns.Count - 1 do
+  begin
+    btn := TToolButton(FToolBtns[I]);
+    if not btn.Visible then
+      Continue;
+    if Assigned(btn.Action) and (btn.Action is TCustomAction) then
+      if not TCustomAction(btn.Action).Visible then
+        Continue;
+    if btn.Style=tbsDivider then
+    begin
+      if bSpliting then
+      begin
+        //btn.Visible := False;
+        Continue;
+      end
+      else
+      begin
+        btn.Visible := True;
+        bSpliting := True;
+      end;
+    end
+    else
+      bSpliting := False;
+    btn.Left := po;
+    po := po+btn.Width;
+  end;
 end;
 
 procedure TFrameDML.CheckLinkLines;
@@ -1991,59 +2102,8 @@ begin
 end;
 
 procedure TFrameDML.actColorStylesExecute(Sender: TObject);
-var
-  i: integer;
 begin
-  if not Assigned(FfrmColorStyles) then
-    FfrmColorStyles := TfrmColorStyles.Create(Self);
-  FfrmColorStyles.SetColor(5, DMLGraph.Color); //设置原背景色
-  FfrmColorStyles.SetColor(8, DMLGraph.DMLDrawer.DefaultPKColor); //
-  FfrmColorStyles.SetColor(7, DMLGraph.DMLDrawer.DefaultFKColor); //
-  FfrmColorStyles.SetColor(6, DMLGraph.DMLDrawer.SelectedColor);
-  FfrmColorStyles.SetColor(1, DMLGraph.DMLDrawer.DefaultTitleColor);
-  FfrmColorStyles.SetWorkSpaceWidth(DMLGraph.GraphWidth);
-  FfrmColorStyles.SetWorkSpaceHeight(DMLGraph.GraphHeight);
-  FfrmColorStyles.SetShowFieldIcon(DMLGraph.DMLDrawer.ShowFieldIcon);
-  FfrmColorStyles.SetShowFieldType(DMLGraph.DMLDrawer.ShowFieldType);
-  FfrmColorStyles.SetColor(3, DMLGraph.DMLDrawer.DefaultObjectColor);
-  FfrmColorStyles.SetColor(4, DMLGraph.DMLDrawer.DefaultBorderColor);
-  FfrmColorStyles.SetColor(9, DMLGraph.DMLDrawer.DefaultLineColor); //    
-  FfrmColorStyles.SetColor(10, DMLGraph.DMLDrawer.DefaultGroupEdgeColor);
-  FfrmColorStyles.SetDbEngine(DMLGraph.DMLDrawer.DatabaseEngine);  
-  FfrmColorStyles.ckbIndependPosForOverviewMode.Checked := DMLGraph.DMLDrawer.IndependPosForOverviewMode;
-
-  if FfrmColorStyles.ShowModal = mrCancel then
-    Exit;
-  SetDMLModified;
-
-  //全局属性
-  DMLGraph.Color := FfrmColorStyles.GetColor(5); //设置背景色
-  DMLGraph.DMLDrawer.WorkAreaColor := DMLGraph.Color;
-  DMLGraph.DMLDrawer.DefaultPKColor := FfrmColorStyles.GetColor(8); //主键色
-  DMLGraph.DMLDrawer.DefaultFKColor := FfrmColorStyles.GetColor(7); //外键色
-  DMLGraph.DMLDrawer.SelectedColor := FfrmColorStyles.GetColor(6); //选择色
-  DMLGraph.DMLDrawer.DefaultTitleColor := FfrmColorstyles.GetColor(1);
-  DMLGraph.DMLDrawer.DrawerWidth := FfrmColorStyles.GetWorkSpaceWidth;
-  DMLGraph.DMLDrawer.DrawerHeight := FfrmColorStyles.GetWorkSpaceHeight;
-  DMLGraph.DMLDrawer.ShowFieldIcon := FfrmColorStyles.GetShowFieldIcon;
-  DMLGraph.DMLDrawer.ShowFieldType := FfrmColorStyles.GetShowFieldType;
-  DMLGraph.DMLDrawer.DefaultObjectColor := FfrmColorStyles.GetColor(3);
-  DMLGraph.DMLDrawer.DefaultBorderColor := FfrmColorStyles.GetColor(4);
-  DMLGraph.DMLDrawer.DefaultLineColor := FfrmColorStyles.GetColor(9);    
-  DMLGraph.DMLDrawer.DefaultGroupEdgeColor := FfrmColorStyles.GetColor(10);
-  DMLGraph.DMLDrawer.DatabaseEngine := FfrmColorStyles.GetDbEngine;    
-  DMLGraph.DMLDrawer.IndependPosForOverviewMode := FfrmColorStyles.ckbIndependPosForOverviewMode.Checked;
-
-  actShowFieldType.Checked := DMLGraph.DMLDrawer.ShowFieldType;
-
-  for i := 0 to DMLGraph.DMLObjs.Count - 1 do
-  begin
-    DMLGraph.DMLDrawer.SetDefaultProps(DMLGraph.DMLObjs[I]);
-  end;
-  CurrentDmlDbEngine := DMLGraph.DMLDrawer.DatabaseEngine;
-
-  DMLGraph.Refresh;
-
+  ShowColorStyleProps(True);
 end;
 
 procedure TFrameDML.actCopyDmlTextExecute(Sender: TObject);
@@ -2131,9 +2191,25 @@ begin
 end;
 
 procedure TFrameDML.PopupMenu1Popup(Sender: TObject);
+var
+  obj: TDMLObj;
+  pt: Integer;
 begin
   if DMLGraph.SelectLinkingObj then
     DMLGraph.SelectLinkingObj := False;
+  obj := DMLGraph.DMLObjs.SelectedObj;
+  if obj is TDmlTableObj then
+  begin
+    pt := TDmlTableObj(obj).PubFlag;
+    case pt of
+      0: MN_PubType_1.Checked := True;
+      1: MN_PubType_2.Checked := True;
+      2: MN_PubType_3.Checked := True;
+      3: MN_PubType_4.Checked := True;
+    else
+      MN_PubType_0.Checked := True;
+    end;
+  end;
 end;
 
 procedure TFrameDML.SaveToStream(AStream: TStream);
@@ -2142,6 +2218,84 @@ begin
     DMLGraph.SaveToStream(AStream);
   finally
   end;
+end;
+
+procedure TFrameDML.ShowColorStyleProps(bGraph: Boolean);
+var
+  i: integer;
+begin
+  if not Assigned(FfrmColorStyles) then
+    FfrmColorStyles := TfrmColorStyles.Create(Self)
+  else
+    FfrmColorStyles.Position:=poDesigned;
+
+  FfrmColorStyles.edtName.Text := DMLGraph.DMLDrawer.ModelName;
+  FfrmColorStyles.edtCaption.Text := DMLGraph.DMLDrawer.ModelCaption;
+  FfrmColorStyles.memoMemo.Lines.Text := DMLGraph.DMLDrawer.ModelMemo;
+  FfrmColorStyles.memoExtraProps.Lines.Text := DMLGraph.DMLDrawer.ModelExProps;
+  FfrmColorStyles.combPublishType.ItemIndex := DMLGraph.DMLDrawer.ModelPubType;
+  FfrmColorStyles.edtPurviewRoles.Text := DMLGraph.DMLDrawer.ModelPurviewRoles;
+
+  FfrmColorStyles.SetColor(5, DMLGraph.Color); //设置原背景色
+  FfrmColorStyles.SetColor(8, DMLGraph.DMLDrawer.DefaultPKColor); //
+  FfrmColorStyles.SetColor(7, DMLGraph.DMLDrawer.DefaultFKColor); //
+  FfrmColorStyles.SetColor(6, DMLGraph.DMLDrawer.SelectedColor);
+  FfrmColorStyles.SetColor(1, DMLGraph.DMLDrawer.DefaultTitleColor);
+  FfrmColorStyles.SetWorkSpaceWidth(DMLGraph.GraphWidth);
+  FfrmColorStyles.SetWorkSpaceHeight(DMLGraph.GraphHeight);
+  FfrmColorStyles.SetShowFieldIcon(DMLGraph.DMLDrawer.ShowFieldIcon);
+  FfrmColorStyles.SetShowFieldType(DMLGraph.DMLDrawer.ShowFieldType);
+  FfrmColorStyles.SetColor(3, DMLGraph.DMLDrawer.DefaultObjectColor);
+  FfrmColorStyles.SetColor(4, DMLGraph.DMLDrawer.DefaultBorderColor);
+  FfrmColorStyles.SetColor(9, DMLGraph.DMLDrawer.DefaultLineColor); //
+  FfrmColorStyles.SetColor(10, DMLGraph.DMLDrawer.DefaultGroupEdgeColor);
+  FfrmColorStyles.SetDbEngine(DMLGraph.DMLDrawer.DatabaseEngine);
+  FfrmColorStyles.ckbIndependPosForOverviewMode.Checked := DMLGraph.DMLDrawer.IndependPosForOverviewMode;
+               
+  FfrmColorStyles.TabSheetWorkArea.TabVisible := bGraph;
+  FfrmColorStyles.TabSheetColors.TabVisible := bGraph;
+  if not bGraph then
+    FfrmColorStyles.PageControl1.ActivePageIndex:=0;
+  if FfrmColorStyles.ShowModal = mrCancel then
+    Exit;
+  SetDMLModified;
+
+
+  DMLGraph.DMLDrawer.ModelName:=FfrmColorStyles.edtName.Text ;
+  DMLGraph.DMLDrawer.ModelCaption:=FfrmColorStyles.edtCaption.Text ;
+  DMLGraph.DMLDrawer.ModelMemo:=FfrmColorStyles.memoMemo.Lines.Text ;
+  DMLGraph.DMLDrawer.ModelExProps:=FfrmColorStyles.memoExtraProps.Lines.Text ;
+  DMLGraph.DMLDrawer.ModelPubType:=FfrmColorStyles.combPublishType.ItemIndex ;
+  DMLGraph.DMLDrawer.ModelPurviewRoles := FfrmColorStyles.edtPurviewRoles.Text;
+
+
+  //全局属性
+  DMLGraph.Color := FfrmColorStyles.GetColor(5); //设置背景色
+  DMLGraph.DMLDrawer.WorkAreaColor := DMLGraph.Color;
+  DMLGraph.DMLDrawer.DefaultPKColor := FfrmColorStyles.GetColor(8); //主键色
+  DMLGraph.DMLDrawer.DefaultFKColor := FfrmColorStyles.GetColor(7); //外键色
+  DMLGraph.DMLDrawer.SelectedColor := FfrmColorStyles.GetColor(6); //选择色
+  DMLGraph.DMLDrawer.DefaultTitleColor := FfrmColorstyles.GetColor(1);
+  DMLGraph.DMLDrawer.DrawerWidth := FfrmColorStyles.GetWorkSpaceWidth;
+  DMLGraph.DMLDrawer.DrawerHeight := FfrmColorStyles.GetWorkSpaceHeight;
+  DMLGraph.DMLDrawer.ShowFieldIcon := FfrmColorStyles.GetShowFieldIcon;
+  DMLGraph.DMLDrawer.ShowFieldType := FfrmColorStyles.GetShowFieldType;
+  DMLGraph.DMLDrawer.DefaultObjectColor := FfrmColorStyles.GetColor(3);
+  DMLGraph.DMLDrawer.DefaultBorderColor := FfrmColorStyles.GetColor(4);
+  DMLGraph.DMLDrawer.DefaultLineColor := FfrmColorStyles.GetColor(9);
+  DMLGraph.DMLDrawer.DefaultGroupEdgeColor := FfrmColorStyles.GetColor(10);
+  DMLGraph.DMLDrawer.DatabaseEngine := FfrmColorStyles.GetDbEngine;
+  DMLGraph.DMLDrawer.IndependPosForOverviewMode := FfrmColorStyles.ckbIndependPosForOverviewMode.Checked;
+
+  actShowFieldType.Checked := DMLGraph.DMLDrawer.ShowFieldType;
+
+  for i := 0 to DMLGraph.DMLObjs.Count - 1 do
+  begin
+    DMLGraph.DMLDrawer.SetDefaultProps(DMLGraph.DMLObjs[I]);
+  end;
+  CurrentDmlDbEngine := DMLGraph.DMLDrawer.DatabaseEngine;
+
+  DMLGraph.Refresh;
 end;
 
 

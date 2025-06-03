@@ -16,17 +16,17 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   LCLVersion = '2.0.12.0'
   object Label1: TLabel
     Left = 22
-    Height = 17
+    Height = 12
     Top = 105
-    Width = 47
+    Width = 42
     Caption = 'Connect'
     ParentColor = False
   end
   object Label2: TLabel
-    Left = 596
-    Height = 17
+    Left = 611
+    Height = 12
     Top = 104
-    Width = 93
+    Width = 78
     Alignment = taRightJustify
     Anchors = [akTop, akRight]
     Caption = 'Choose Schema'
@@ -34,17 +34,17 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   end
   object Label3: TLabel
     Left = 22
-    Height = 17
+    Height = 12
     Top = 140
-    Width = 25
+    Width = 30
     Caption = 'Files'
     ParentColor = False
   end
   object Label5: TLabel
-    Left = 661
-    Height = 17
-    Top = 500
-    Width = 28
+    Left = 653
+    Height = 12
+    Top = 505
+    Width = 36
     Alignment = taRightJustify
     Anchors = [akRight, akBottom]
     Caption = 'Filter'
@@ -118,9 +118,9 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   end
   object Label4: TLabel
     Left = 22
-    Height = 17
-    Top = 500
-    Width = 55
+    Height = 12
+    Top = 505
+    Width = 54
     Anchors = [akLeft, akBottom]
     Caption = 'File name'
     ParentColor = False
@@ -180,10 +180,10 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
     OnDblClick = ListViewFilesDblClick
   end
   object MemoDML: TMemo
-    Left = 580
-    Height = 186
-    Top = 220
-    Width = 199
+    Left = 544
+    Height = 362
+    Top = 208
+    Width = 268
     Lines.Strings = (
       'ezdml_meta_file(EZDML文件)'
       '---------------------------------------------------'
@@ -211,7 +211,7 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   end
   object Label6: TLabel
     Left = 100
-    Height = 68
+    Height = 48
     Top = 16
     Width = 750
     Anchors = [akTop, akLeft, akRight]
@@ -379,9 +379,9 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
   end
   object Label8: TLabel
     Left = 22
-    Height = 17
-    Top = 540
-    Width = 91
+    Height = 12
+    Top = 545
+    Width = 90
     Anchors = [akLeft, akBottom]
     Caption = 'Lock operation:'
     ParentColor = False
@@ -390,20 +390,20 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
     Enabled = False
     Interval = 500
     OnTimer = TimerInitTimer
-    left = 44
-    top = 304
+    Left = 44
+    Top = 304
   end
   object TimerFilter: TTimer
     Enabled = False
     Interval = 700
     OnTimer = TimerFilterTimer
-    left = 116
-    top = 308
+    Left = 116
+    Top = 308
   end
   object PopupMenuFiles: TPopupMenu
     OnPopup = PopupMenuFilesPopup
-    left = 220
-    top = 311
+    Left = 220
+    Top = 311
     object MN_ShowHist: TMenuItem
       Caption = 'Show history files'
       OnClick = MN_ShowHistClick
@@ -437,8 +437,8 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
     end
   end
   object ImageList1: TImageList
-    left = 184
-    top = 224
+    Left = 184
+    Top = 224
     Bitmap = {
       4C69030000001000000010000000FF80FF00FF80FF00FF80FF00FF80FF00FF80
       FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80FF00FF80
@@ -540,8 +540,8 @@ object frmEzdmlDbFile: TfrmEzdmlDbFile
     }
   end
   object PopupMenuDbConn: TPopupMenu
-    left = 412
-    top = 200
+    Left = 412
+    Top = 200
     object MenuItemDbConn: TMenuItem
       Caption = 'Connect'
       Default = True
