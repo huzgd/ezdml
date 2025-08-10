@@ -57,6 +57,7 @@ type
     procedure DateEdit_ExpiredChange(Sender: TObject);
   private
     FFileName: string;
+    FPrevData: string;
     function SaveCheckedModels: string;
   public
     procedure InitDml(dms: TCtDataModelGraphList);
@@ -230,6 +231,7 @@ begin
     end; 
     btnEncHelp.Visible := True;
   end;
+  FPrevData := S;
   MemoPrev.Lines.Text :=S;
 
   Panel1.Hide;
@@ -240,7 +242,15 @@ procedure TfrmShareFile.btnSaveToFileClick(Sender: TObject);
 begin
   SaveDialog1.FileName:=edtTitle.Text;
   if SaveDialog1.Execute then
-    MemoPrev.Lines.SaveToFile(SaveDialog1.FileName);
+  begin
+    with TStringList.Create do
+    try
+      Text := FPrevData;
+      SaveToFile(SaveDialog1.FileName);
+    finally
+      Free;
+    end;
+  end;
 end;
 
 procedure TfrmShareFile.btnBackClick(Sender: TObject);
@@ -288,7 +298,15 @@ begin
     ForceDirectories(fn);
   fn := FolderAddFileName(fn, FFileName+'.dmj');
   fn := GetUnusedFileName(fn);
-  MemoPrev.Lines.SaveToFile(fn); 
+
+  with TStringList.Create do
+  try
+    Text := FPrevData;
+    SaveToFile(fn);
+  finally
+    Free;
+  end;
+
   jMap := nil;
   try
     S := GetUrlData_Net(url, '[POST_LOCAL_FILE]' + fn + '[/POST_LOCAL_FILE]', '[SHOW_PROGRESS]');
@@ -318,7 +336,7 @@ begin
         if jMap.optInt('resultCode') <> 0 then   
           raise Exception.Create(srEzdmlCommitShareError+' - '+jMap.optString('errorMsg'));
         edtUrl.Text := jMap.optString('SHARE_URL');
-        AddOnlineHistoryFile(jMap.optString('SHARE_GUID'),edtUrl.Text,srEzdmlSharedByMe,Length(MemoPrev.Lines.Text));
+        AddOnlineHistoryFile(jMap.optString('SHARE_GUID'),edtUrl.Text,srEzdmlSharedByMe,Length(FPrevData));
         LabelUrl.Visible := True;
         edtUrl.Visible := True;        
         btnCopyUrl.Visible := True;

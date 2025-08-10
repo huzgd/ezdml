@@ -48,12 +48,15 @@ type
     Bevel3: TBevel;
     Bevel4: TBevel;
     Bevel5: TBevel;
+    Bevel6: TBevel;
     BevelGridFrame: TBevel;
     actEditCut: TEditCut;
     actEditCopy: TEditCopy;
     actEditDelete: TEditDelete;
     actEditPaste: TEditPaste;
     actEditUndo: TEditUndo;
+    btnEditRules: TBitBtn;
+    btnRunGenCode: TBitBtn;
     btnShowInGraph: TBitBtn;
     btnToggleTabs: TBitBtn;
     ckbForeignKeysOnly: TCheckBox;
@@ -63,6 +66,7 @@ type
     colobBgColor: TColorBox;
     edtDataPurview: TComboBox;
     combPublishType: TComboBox;
+    edtIdentifyCode: TEdit;
     edtPurviewRoles: TEdit;
     edtTxtSizeH: TEdit;
     edtTbSizeW: TEdit;
@@ -78,6 +82,7 @@ type
     Label25: TLabel;
     Label6: TLabel;
     lbDataPurview: TLabel;
+    lbIdentifyCode: TLabel;
     lbTxtSize: TLabel;
     lbTbSizeX: TLabel;
     lbTbSize: TLabel;
@@ -103,6 +108,7 @@ type
     Label41: TLabel;
     lbExtraSQL: TLabel;
     lbSQLWhereClause: TLabel;
+    lbParams: TLabel;
     ListBoxRelTbs: TListBox;
     listboxGenTypes: TListBox;
     memoDescHelp: TMemo;
@@ -117,7 +123,13 @@ type
     memoExtraSQL: TMemo;
     MemoUILogic: TMemo;
     memoSQLWhereClause: TMemo;
+    memoParams: TMemo;
     MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    MNTabs_ViewSQL: TMenuItem;
+    MNTabs_ListSQL: TMenuItem;
+    MNTabs_ScRules: TMenuItem;
     MNAI_GenFields: TMenuItem;
     MNAI_GenSampleValues: TMenuItem;
     MNAI_GenComments: TMenuItem;
@@ -175,9 +187,12 @@ type
     SaveDialogCode: TSaveDialog;
     sbtnFind: TSpeedButton;
     PanelFieldProps: TPanel;
+    sbtnListSqlEditor: TSpeedButton;
+    sbtnViewSqlEditor: TSpeedButton;
     sbtnTbJson: TSpeedButton;
     ScrollBoxCustomScriptDef: TScrollBox;
     ScrollBoxOperLogic: TScrollBox;
+    sbtnScRuleEditor: TSpeedButton;
     SpeedButton_FieldAdd: TSpeedButton;
     SpeedButton_FieldDel: TSpeedButton;
     SpeedButton_FIeldMoveDown: TSpeedButton;
@@ -188,6 +203,7 @@ type
     SplitterDescHelp: TSplitter;
     SplitterFsProp: TSplitter;
     StringGridTableFields: TStringGrid;
+    TabSheetScRules: TTabSheet;
     TabSheetRelations: TTabSheet;
     TabSheetUI: TTabSheet;
     TabSheetAdvanced: TTabSheet;
@@ -266,6 +282,7 @@ type
     procedure actShowInGraphExecute(Sender: TObject);
     procedure actTbGenCodeExecute(Sender: TObject);
     procedure actTbGenDBExecute(Sender: TObject);
+    procedure btnRunGenCodeClick(Sender: TObject);
     procedure btnShowInGraphClick(Sender: TObject);
     procedure btnToggleTabsClick(Sender: TObject);
     procedure ckbForeignKeysOnlyChange(Sender: TObject);
@@ -292,9 +309,12 @@ type
     procedure MNTabs_CustClick(Sender: TObject);
     procedure MNTabs_DataClick(Sender: TObject);
     procedure MNTabs_GenClick(Sender: TObject);
+    procedure MNTabs_ListSQLClick(Sender: TObject);
     procedure MNTabs_RelationsClick(Sender: TObject);
+    procedure MNTabs_ScRulesClick(Sender: TObject);
     procedure MNTabs_SettingsClick(Sender: TObject);
     procedure MNTabs_UIDesignClick(Sender: TObject);
+    procedure MNTabs_ViewSQLClick(Sender: TObject);
     procedure MN_OpenTemplFolderClick(Sender: TObject);
     procedure PageControlTbPropChange(Sender: TObject);
     procedure PageControlTbPropContextPopup(Sender: TObject; MousePos: TPoint;
@@ -308,7 +328,10 @@ type
     procedure PopupMenuTabsPopup(Sender: TObject);
     procedure PopupMenuTbFieldsPopup(Sender: TObject);
     procedure sbtnFindClick(Sender: TObject);
+    procedure sbtnListSqlEditorClick(Sender: TObject);
+    procedure sbtnScRuleEditorClick(Sender: TObject);
     procedure sbtnTbJsonClick(Sender: TObject);
+    procedure sbtnViewSqlEditorClick(Sender: TObject);
     procedure ScrollBoxCustomScriptDefResize(Sender: TObject);
     procedure SplitterFsPropMoved(Sender: TObject);
     procedure SplitterGenTpsMoved(Sender: TObject);
@@ -365,6 +388,7 @@ type
     procedure PopupMenuGenMemoPopup(Sender: TObject);
     procedure SpeedButton_FieldAddClick(Sender: TObject);
     procedure TabSheetDataShow(Sender: TObject);
+    procedure TabSheetScRulesShow(Sender: TObject);
     procedure TimerAutoFocusTimer(Sender: TObject);
     procedure TimerGridEditingCheckTimer(Sender: TObject);
     procedure TimerShowDataTimer(Sender: TObject);
@@ -380,12 +404,12 @@ type
     FGenCodeType: string; //Sql, Oracle, Pascal...
     FDmlScControls: TObject; //TDmlScriptControlList
     FLastActiveTabSheet: TTabSheet;
+    FDefActivePageIndex: Integer;
     FLastPanelTbH_Width: integer;
 
     FSCInited: boolean;
     FCustDmlScControls: TObject; //TDmlScriptControlList
     FFieldPropSplitPercent: double;
-    FShowAdvPage: boolean;
 
     FGridDragFocusingRow: integer;
 
@@ -396,7 +420,8 @@ type
     FLastTabClickTick: Int64;
     FAutoFocusRow: Integer;
 
-    procedure SetShowAdvPage(AValue: boolean);
+    FScRuleEditor: TWinControl;
+
     procedure _OnCustDmlCtrlValueExec(Sender: TObject);
     procedure RunCustomScriptDef(bReInitSettings: boolean);
 
@@ -414,6 +439,7 @@ type
     procedure _OnCellXYValSet(aCol, aRow: integer; var NewValue: string;
       bEvents: boolean);
     procedure _OnUIPropChanged(Field, prop, Value, par1, par2, opt: string);
+    procedure _OnAddSqlResFields(Sender: TObject);
     function IsInnerSqlTab(tab: string): boolean;
     function GetSelectedFields: TCTMetaFieldList;
     procedure RestoreSelectionFeilds;
@@ -471,7 +497,6 @@ type
     procedure HideProps;
     procedure FocusToField(cf: TCtMetaField);
     procedure CallAI(actTp: Integer; selFields: string);
-    property ShowAdvPage: boolean read FShowAdvPage write SetShowAdvPage;
     property CreatingNewTable: boolean read FCreatingNewTable write FCreatingNewTable;
   end;
 
@@ -491,8 +516,9 @@ implementation
 
 uses
   dmlstrs, DmlScriptPublic,  uDMLSqlEditor, IniFiles, uFrameCtFieldDef,
-  ClipBrd, WindowFuncs, uFormCtDbLogon, PvtInput, Toolwin,
-  {$ifndef EZDML_LITE}DmlPasScript, ide_editor,uFrameUIPreview,DmlScriptControl,
+  ClipBrd, WindowFuncs, uFormCtDbLogon, PvtInput, Toolwin, DB,
+  {$ifndef EZDML_LITE}
+  DmlPasScript, ide_editor,uFrameUIPreview,DmlScriptControl,wFrameScRuleIDE,
   {$else}DmlPasScriptLite,
   {$endif}      
   {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf,{$endif}
@@ -517,6 +543,7 @@ begin
 end;
 
 constructor TFrameCtTableProp.Create(AOwner: TComponent);
+
   procedure CreateFieldWeightMenus;
   var
     I: Integer; 
@@ -647,6 +674,7 @@ begin
   {$endif}  
   {$endif}
   InitDmlScriptPages;
+
 end;
 
 destructor TFrameCtTableProp.Destroy;
@@ -663,7 +691,11 @@ var
   t: TCtFieldDataType;
   ss: TStrings;
   I: integer;
-begin       
+begin
+  if G_TbPropDataSqlType='ListSQL' then
+    TabSheetData.Caption := lbListSql.Caption
+  else if G_TbPropDataSqlType='ViewSQL' then
+    TabSheetData.Caption := lbViewSQL.Caption;
   if FTabInitTick <> G_TbPropTabInitTick then
     InitDmlScriptPages;
   if G_CustomPropUICaption <> '' then
@@ -699,10 +731,6 @@ begin
   lbCustomSCTip.Caption := '';
   lbCustomSCTip.Visible := False;
 
-  if Self.PageControlTbProp.ActivePage = TabSheetCust then
-  begin
-    Self.TabSheetCustShow(TabSheetCust);
-  end;
 end;
 
 procedure TFrameCtTableProp.HideProps;
@@ -872,19 +900,19 @@ begin
       end;
       if memoDescHelp.Visible <> ini.ReadBool(S, 'ShowDescHelp', memoDescHelp.Visible) then
         lb_DescrbTipsClick(nil);
-      ShowAdvPage := G_EnableAdvTbProp or CurTbHasAdvProps;
-      if ShowAdvPage and (TabSheetAdvanced.Tag = 1) then
-        TabSheetAdvanced.TabVisible := ShowAdvPage;
+      TabSheetAdvanced.TabVisible := (G_EnableAdvTbProp or CurTbHasAdvProps) and (TabSheetAdvanced.Tag = 1)  and not CreatingNewTable;
+      TabSheetScRules.TabVisible := TabSheetAdvanced.TabVisible and G_EnableScRulesProp;
 
-      I := ini.ReadInteger(S, 'ActivePageIndex', -1);
-      if (I >= 0) and (I < PageControlTbProp.PageCount) then
-        if PageControlTbProp.Pages[I].TabVisible then
+      FDefActivePageIndex := ini.ReadInteger(S, 'ActivePageIndex', -1);
+      if (FDefActivePageIndex >= 0) and (FDefActivePageIndex < PageControlTbProp.PageCount) then
+        if PageControlTbProp.Pages[FDefActivePageIndex].TabVisible then
         begin
-          if PageControlTbProp.ActivePageIndex <> I then
+          if PageControlTbProp.ActivePageIndex <> FDefActivePageIndex then
           begin
-            PageControlTbProp.ActivePageIndex:=I;
+            PageControlTbProp.ActivePageIndex:=FDefActivePageIndex;
             PageControlTbPropChange(nil);
-          end;
+          end;    
+          FDefActivePageIndex := -1;
         end;
     finally
       ini.Free;
@@ -1109,14 +1137,52 @@ begin
     fr.BorderStyle := bsNone;
     fr.Parent := TabSheetData;
     fr.Align := alClient;
-    fr.SplitPercent := 65;
+    fr.SplitPercent := 40;
     {$ifndef EZDML_LITE}
     fr.actShowSqlTbProp.Visible:=False;
+    fr.actAddResFields.Visible := True;
+    fr.actAddResFields.OnExecute:=_OnAddSqlResFields;
     {$endif}
   end
   else
     fr := TfrmDmlSqlEditorN(TbDataSqlForm);
 
+  if G_TbPropDataSqlType<>'' then  //xx SQL mode
+  begin
+    sql := '';
+    if G_TbPropDataSqlType='ListSQL' then  //list SQL mode
+    begin
+      sql := FCtMetaTable.GenListSQL();
+      TabSheetData.Caption := lbListSql.Caption;   
+      fr.SQLSyncEdit := memoListSQL;
+    end
+    else if G_TbPropDataSqlType='ViewSQL' then  //view SQL mode
+    begin
+      sql := FCtMetaTable.GenViewSQL();
+      TabSheetData.Caption := lbViewSql.Caption;   
+      fr.SQLSyncEdit := memoViewSQL;
+    end
+    else
+    begin
+      TabSheetData.Caption := MNTabs_Data.Caption;
+      fr.SQLSyncEdit := nil;
+    end;
+    fr.DefTableName := FCtMetaTable.Name;
+    if fr.AutoExecSql <> sql then
+    begin
+      if Assigned(fr.ResultDataSet) then
+        fr.ClearSql;
+      fr.AutoExecSql := sql;
+      fr.MemoSql.Lines.Text := sql;
+    end;
+    fr.ReadOnlyMode := Self.FReadOnlyMode;
+    if not fr.Showing then
+      fr.Show;
+    Exit;
+  end;
+
+  fr.ReadOnlyMode := False;
+  TabSheetData.Caption := MNTabs_Data.Caption;
   sql := Trim(fr.MemoSql.Lines.Text); //sql被手工修改过则不处理
   if (sql <> '') and (sql <> Trim(fr.AutoExecSql)) and (Trim(fr.AutoExecSql) <> '') then
     Exit;
@@ -1135,9 +1201,8 @@ begin
         fr.FCtMetaDatabase := CtMetaDBRegs[Idx].DbImpl;
     end;
   end;
-  {$ifndef EZDML_LITE}
   fr.DefTableName := FCtMetaTable.Name;
-  {$endif}                     
+  fr.SQLSyncEdit := nil;
   if G_LogicNamesForTableData then
     sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, fr.FCtMetaDatabase)
   else
@@ -1473,6 +1538,51 @@ begin
   if TbDataSqlForm <> nil then
     with TfrmDmlSqlEditorN(TbDataSqlForm) do
     begin
+      if G_TbPropDataSqlType<>'' then
+      begin
+        sql := '';
+        if FCtMetaTable <> nil then
+        begin
+          if G_TbPropDataSqlType='ListSQL' then
+          begin
+            sql := FCtMetaTable.GenListSQL();
+            TabSheetData.Caption := lbListSql.Caption;    
+            SQLSyncEdit := memoListSQL;
+          end
+          else if G_TbPropDataSqlType='ViewSQL' then
+          begin
+            sql := FCtMetaTable.GenViewSQL();
+            TabSheetData.Caption := lbViewSql.Caption;  
+            SQLSyncEdit := memoViewSQL;
+          end
+          else
+          begin
+            TabSheetData.Caption := MNTabs_Data.Caption;
+            SQLSyncEdit := nil;
+          end;
+        end
+        else
+        begin
+          TabSheetData.Caption := MNTabs_Data.Caption;
+          SQLSyncEdit := nil;
+        end;
+
+        if AutoExecSql <> sql then
+        begin
+          ClearSql;
+          AutoExecSql := sql;
+          MemoSql.Lines.Text := sql;
+        end;
+        if FCtMetaTable <> nil then
+          DefTableName := FCtMetaTable.Name
+        else
+          DefTableName := '';
+        TimerShowData.Enabled := True;
+        ReadOnlyMode := Self.FReadOnlyMode;
+        Exit;
+      end;
+      ReadOnlyMode:=False;
+      TabSheetData.Caption := MNTabs_Data.Caption;
       sql := Trim(MemoSql.Lines.Text); //sql没被手工修改过才处理
       if (sql = '') or (sql = Trim(AutoExecSql)) or (Trim(AutoExecSql) = '') then
       begin
@@ -1488,9 +1598,8 @@ begin
               dbType := CtMetaDBRegs[Idx].DbImpl.EngineType;
             end;
           end;
-          {$ifndef EZDML_LITE}
           DefTableName := FCtMetaTable.Name;
-          {$endif}
+          SQLSyncEdit := nil;
           if G_LogicNamesForTableData then                                                                       
             sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, FCtMetaDatabase)
           else
@@ -1554,6 +1663,7 @@ begin
       SetControlReadOnly(Panel_TbB.Controls[I]);  
     for I := 0 to ScrollBoxOperLogic.ControlCount - 1 do
       SetControlReadOnly(ScrollBoxOperLogic.Controls[I]);
+    sbtnScRuleEditor.Enabled:=True;
 
 
     bReadOnly := FReadOnlyMode or (ATb = nil);  
@@ -1635,7 +1745,8 @@ begin
       ckbGenDatabase.Checked := False;
       ckbGenCode.Checked := False; 
       memoListSQL.Lines.Text := '';
-      memoViewSQL.Lines.Text := '';
+      memoViewSQL.Lines.Text := '';    
+      memoParams.Lines.Text := '';
       memoExtraSQL.Lines.Text := '';   
       MemoUILogic.Lines.Text := '';
       memoBusinessLogic.Lines.Text := '';
@@ -1646,7 +1757,8 @@ begin
       btnToggleTabs.Visible := False;
       MN_GenOption.Visible := False;   
       MN_FieldWeights.Visible := False;
-
+                                   
+      edtIdentifyCode.Text := '';
       edtOwnerCategory.Text := '';      
       edtGroupName.Text := '';
       edtSQLAlias.Text := '';
@@ -1665,8 +1777,9 @@ begin
       TabSheetUI.TabVisible := False;
   {$endif}
       TabSheetRelations.TabVisible := True;
-      TabSheetAdvanced.TabVisible := ShowAdvPage;
-      TabSheetAdvanced.Tag := 1;
+      TabSheetAdvanced.TabVisible := G_EnableAdvTbProp;
+      TabSheetAdvanced.Tag := 1;   
+      TabSheetScRules.TabVisible := TabSheetAdvanced.TabVisible and G_EnableScRulesProp;
 
       TabSheetCodeGen.TabVisible := True;
       TabSheetData.TabVisible := True;
@@ -1697,6 +1810,7 @@ begin
       TabSheetRelations.TabVisible := False;
       TabSheetAdvanced.TabVisible := False;
       TabSheetAdvanced.Tag := 0;
+      TabSheetScRules.TabVisible := False;
       TabSheetCodeGen.TabVisible := False;
       TabSheetData.TabVisible := False;
       TabSheetCust.TabVisible := False;
@@ -1750,6 +1864,10 @@ begin
       colobBgColor.Selected:= ATb.BgColor;
       memoListSQL.Lines.Text := ATb.ListSQL;
       memoViewSQL.Lines.Text := ATb.ViewSQL;
+      if ATb.HasParams then
+        memoParams.Lines.Text := ATb.ParamList.Text
+      else 
+        memoParams.Lines.Text := '';
       memoExtraSQL.Lines.Text := ATb.ExtraSQL;
       MemoUILogic.Lines.Text := ATb.UILogic;
       memoBusinessLogic.Lines.Text := ATb.BusinessLogic;
@@ -1763,7 +1881,8 @@ begin
                                         
       edtDataPurview.Text := ATb.PurviewRoles;
       edtPurviewRoles.Text := ATb.DataPurview;
-
+                                         
+      edtIdentifyCode.Text := ATb.IdentifyCode;
       edtOwnerCategory.Text := ATb.OwnerCategory;
       edtGroupName.Text := ATb.GroupName;
       edtSQLAlias.Text := ATb.SQLAlias;
@@ -1783,8 +1902,9 @@ begin
       TabSheetCust.TabVisible := False;
   {$endif}
       TabSheetRelations.TabVisible := not CreatingNewTable and G_EnableTbPropRelations;
-      TabSheetAdvanced.TabVisible := (ShowAdvPage or CurTbHasAdvProps) and not CreatingNewTable;
+      TabSheetAdvanced.TabVisible := (G_EnableAdvTbProp or CurTbHasAdvProps) and not CreatingNewTable;
       TabSheetAdvanced.Tag := 1;
+      TabSheetScRules.TabVisible := TabSheetAdvanced.TabVisible and G_EnableScRulesProp;
       TabSheetCodeGen.TabVisible := G_EnableTbPropGenerate and not CreatingNewTable;
       TabSheetData.TabVisible := G_EnableTbPropData and not CreatingNewTable;
 
@@ -1793,9 +1913,27 @@ begin
           PageControlTbProp.ActivePage := FLastActiveTabSheet;
     end;
 
+    if (FDefActivePageIndex >= 0) and (FDefActivePageIndex < PageControlTbProp.PageCount) then
+      if PageControlTbProp.Pages[FDefActivePageIndex].TabVisible then
+      begin
+        if PageControlTbProp.ActivePageIndex <> FDefActivePageIndex then
+        begin
+          PageControlTbProp.ActivePageIndex:=FDefActivePageIndex;
+          PageControlTbPropChange(nil);
+        end; 
+        FDefActivePageIndex := -1;
+      end;
+
     RefreshFieldProps;
     RefreshUIPreview;
     RefreshRelationMap;
+                   
+  {$ifndef EZDML_LITE}
+    if FScRuleEditor<>nil then
+    begin
+      FScRuleEditor.Tag := 1;
+    end;
+  {$endif}
   finally
     FIniting := False;
   end;
@@ -1803,7 +1941,11 @@ begin
   if PageControlTbProp.ActivePage = TabSheetData then
   begin
     ShowTableDataDelay;
-  end;
+  end;       
+  if PageControlTbProp.ActivePage=TabSheetScRules then
+    TabSheetScRulesShow(nil);  
+  if Self.PageControlTbProp.ActivePage = TabSheetCust then
+    TabSheetCustShow(TabSheetCust);
 end;
 
 procedure TFrameCtTableProp.SpeedButton_FieldAddClick(Sender: TObject);
@@ -2667,6 +2809,16 @@ var
 begin
   if FCtMetaTable = nil then
     Exit;
+  if prop = 'table_script_rules' then
+  begin
+    if Trim(memoScriptRules.Lines.Text) <> Trim(Value) then
+    begin
+      memoScriptRules.Lines.Text := Value;    
+      FCtMetaTable.ScriptRules := Value;
+      DoTablePropsChanged(FCtMetaTable);
+    end;
+    Exit;
+  end;
   fd := FCtMetaTable.MetaFields.FieldByName(Field);
   if fd = nil then
     fd := FCtMetaTable.MetaFields.FieldByLabelName(Field);
@@ -3062,6 +3214,110 @@ begin
   end;
 end;
 
+procedure TFrameCtTableProp._OnAddSqlResFields(Sender: TObject);
+
+  function GetFtName(ft: TFieldType): string;
+  begin
+    Result := 'String';
+    case ft of
+      ftAutoInc,
+      ftSmallint,
+      ftInteger,
+      ftLargeint,
+      ftWord:
+        Result := 'Integer';
+      ftFloat,
+      ftCurrency,
+      ftBCD,
+      ftFMTBcd:
+        Result := 'Float';
+      ftDate,
+      ftTime,
+      ftDateTime,
+      ftTimeStamp:
+        Result := 'Date';
+      ftBytes,
+      ftVarBytes,
+      ftBlob,
+      ftGraphic,
+      ftOraBlob,
+      ftTypedBinary:
+        Result := 'Blob';
+    end;
+  end;
+
+  function GetFieldPosiDataType(fdName: string; ds: TDataSet): TCtFieldDataType;
+  var
+    S: string;
+  begin
+    S:=GetFtName(ds.FieldByName(fdName).DataType);
+    Result := GetCtFieldDataTypeOfName(S);
+  end;
+
+var
+  ds: TDataSet;
+  S, T, V: string;
+  ss: TStringList;
+  I, C: Integer;
+  fd: TCtMetaField;
+begin
+  if FIniting then
+    Exit;
+  if FCtMetaTable = nil then
+    Exit; 
+  if TbDataSqlForm = nil then  
+    Exit;
+
+  ds := TfrmDmlSqlEditorN(TbDataSqlForm).ResultDataSet;
+  if ds=nil then
+    Exit;
+  if not ds.Active then
+    Exit;
+  S := 'TableSql'#13#10'---------'#13#10;
+  T :='';
+  for I:=0 to ds.Fields.Count-1 do
+  begin
+    S:=S+ds.Fields[I].FieldName+' '+GetFtName(ds.Fields[I].DataType)+#13#10;
+    if FCtMetaTable.MetaFields.FieldByName(ds.Fields[I].FieldName)=nil then
+    begin
+      if T<>'' then
+        T:=T+',';
+      T := T+ ds.Fields[I].FieldName;
+    end;
+  end;
+  V := CtSelectFields(S, T, '[CAN_SELECT_ALL]');
+  if V='' then
+    Exit;
+  C:=0;
+  ss:= TStringList.Create;
+  try
+    ss.CommaText:=V;
+    for I:=0 to ss.Count-1 do
+    begin
+      S:=ss.Strings[I];
+      if S='' then
+        Continue;
+      if FCtMetaTable.MetaFields.FieldByName(S)<>nil then
+        Continue;
+      fd := FCtMetaTable.MetaFields.NewMetaField;
+      fd.Name:=S;
+      fd.DataType:=GetFieldPosiDataType(S,ds);
+      Inc(C);
+    end;
+  finally
+    ss.Free;
+  end;
+
+  if C>0 then
+  begin
+    DoTablePropsChanged(FCtMetaTable);
+    if Assigned(Proc_OnPropChange) then
+      Proc_OnPropChange(2, FCtMetaTable, nil, '');
+    ShowTableProp(FCtMetaTable);
+    PageControlTbProp.ActivePage := TabSheetTable;
+  end;
+end;
+
 function TFrameCtTableProp.IsInnerSqlTab(tab: string): boolean;
 var
   I: integer;
@@ -3211,7 +3467,9 @@ begin
     Exit;       
   if FCtMetaTable.ScriptRules <> '' then
     Exit;
-
+             
+  if FCtMetaTable.IdentifyCode <> '' then
+    Exit;
   if FCtMetaTable.SQLWhereClause <> '' then
     Exit;
   if FCtMetaTable.SQLOrderByClause <> '' then
@@ -3255,6 +3513,8 @@ begin
   PageControlTbPropChange(nil);  
   if tab = TabSheetAdvanced then
     G_EnableAdvTbProp := True
+  else if tab = TabSheetScRules then
+    G_EnableScRulesProp := True
   else if tab = TabSheetUI then
     G_EnableTbPropUIDesign := True
   else if tab = TabSheetCodeGen then
@@ -3279,6 +3539,8 @@ var
 begin
   if PageControlTbProp.ActivePage = TabSheetAdvanced then
     G_EnableAdvTbProp := False
+  else if PageControlTbProp.ActivePage = TabSheetScRules then
+    G_EnableScRulesProp := False
   else if PageControlTbProp.ActivePage = TabSheetUI then
     G_EnableTbPropUIDesign := False
   else if PageControlTbProp.ActivePage = TabSheetCodeGen then
@@ -3312,10 +3574,12 @@ begin
   ini := TIniFile.Create(GetConfFileOfApp);
   try
     ini.WriteBool('Options', 'EnableCustomPropUI', G_EnableCustomPropUI);
-    ini.WriteBool('Options', 'EnableAdvTbProp', G_EnableAdvTbProp);
+    ini.WriteBool('Options', 'EnableAdvTbProp', G_EnableAdvTbProp);        
+    ini.WriteBool('Options', 'EnableScRulesProp', G_EnableScRulesProp);
     ini.WriteBool('Options', 'EnableTbPropGenerate', G_EnableTbPropGenerate);
     ini.WriteBool('Options', 'EnableTbPropRelations', G_EnableTbPropRelations);
-    ini.WriteBool('Options', 'EnableTbPropData', G_EnableTbPropData);
+    ini.WriteBool('Options', 'EnableTbPropData', G_EnableTbPropData);      
+    ini.WriteString('Options', 'TbPropDataSqlType', G_TbPropDataSqlType);
     ini.WriteBool('Options', 'EnableTbPropUIDesign', G_EnableTbPropUIDesign);
   finally
     ini.Free;
@@ -3496,6 +3760,17 @@ begin
     if FCtMetaTable.ExtraSQL = memoExtraSQL.Lines.Text then
       Exit;
     FCtMetaTable.ExtraSQL := memoExtraSQL.Lines.Text;
+  end;          
+  if Sender=memoParams then
+  begin
+    if Trim(memoParams.Lines.Text) = '' then
+    begin
+      if not FCtMetaTable.HasParams then
+        Exit;
+    end
+    else if FCtMetaTable.ParamList.Text = memoParams.Lines.Text then
+      Exit;
+    FCtMetaTable.ParamList.Text := memoParams.Lines.Text;
   end;
   if Sender=MemoUILogic then
   begin
@@ -3562,7 +3837,13 @@ begin
       Exit;
     FCtMetaTable.SQLAlias := edtSQLAlias.Text;
   end;
-
+             
+  if Sender=edtIdentifyCode then
+  begin
+    if FCtMetaTable.IdentifyCode = edtIdentifyCode.Text then
+      Exit;
+    FCtMetaTable.IdentifyCode := edtIdentifyCode.Text;
+  end;
   if Sender=edtOwnerCategory then
   begin
     if FCtMetaTable.OwnerCategory = edtOwnerCategory.Text then
@@ -4054,6 +4335,28 @@ begin
   ShowTableDataDelay;
 end;
 
+procedure TFrameCtTableProp.TabSheetScRulesShow(Sender: TObject);
+begin          
+  {$ifndef EZDML_LITE}
+  if FScRuleEditor=nil then
+  begin
+    FScRuleEditor := TFrameScRuleIDE.Create(Self);
+    FScRuleEditor.Parent := TabSheetScRules;
+    FScRuleEditor.Align := alClient;     
+    TFrameScRuleIDE(FScRuleEditor).Proc_OnUIPropChanged := _OnUIPropChanged;
+
+    TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, Self.FReadOnlyMode);
+  end
+  else if FScRuleEditor.Tag=1 then
+  begin
+    FScRuleEditor.Tag := 0;
+    TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, Self.FReadOnlyMode);
+  end;
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
+end;
+
 procedure TFrameCtTableProp.TimerAutoFocusTimer(Sender: TObject);
 begin
   TimerAutoFocus.Enabled := False;
@@ -4239,6 +4542,11 @@ begin
   actTbGenDB.Checked := FCtMetaTable.GenDatabase;
   ckbGenDatabase.Checked := FCtMetaTable.GenDatabase;
   DoTablePropsChanged(FCtMetaTable);
+end;
+
+procedure TFrameCtTableProp.btnRunGenCodeClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD}, 3, 2);
 end;
 
 
@@ -4620,9 +4928,8 @@ end;
 
 procedure TFrameCtTableProp.actShowAdvPageExecute(Sender: TObject);
 begin
-  ShowAdvPage := True;       
   G_EnableAdvTbProp := True;
-  TabSheetAdvanced.TabVisible := ShowAdvPage;
+  TabSheetAdvanced.TabVisible := True;
   PageControlTbProp.ActivePage := TabSheetAdvanced;
   PageControlTbPropChange(nil);
 end;
@@ -5047,6 +5354,12 @@ end;
 
 procedure TFrameCtTableProp.MNTabs_DataClick(Sender: TObject);
 begin
+  G_TbPropDataSqlType := '';
+  if TabSheetData=PageControlTbProp.ActivePage then
+  begin
+    TabSheetData.OnShow(nil);
+    Exit;
+  end;
   GotoTab(TabSheetData);
 end;
 
@@ -5055,9 +5368,25 @@ begin
   GotoTab(TabSheetCodeGen);
 end;
 
+procedure TFrameCtTableProp.MNTabs_ListSQLClick(Sender: TObject);
+begin
+  G_TbPropDataSqlType := 'ListSQL';   
+  if TabSheetData=PageControlTbProp.ActivePage then
+  begin
+    TabSheetData.OnShow(nil);
+    Exit;
+  end;
+  GotoTab(TabSheetData);
+end;
+
 procedure TFrameCtTableProp.MNTabs_RelationsClick(Sender: TObject);
 begin
   GotoTab(TabSheetRelations);
+end;
+
+procedure TFrameCtTableProp.MNTabs_ScRulesClick(Sender: TObject);
+begin
+  GotoTab(TabSheetScRules);
 end;
 
 procedure TFrameCtTableProp.MNTabs_SettingsClick(Sender: TObject);
@@ -5072,6 +5401,17 @@ begin
   {$else}
   raise Exception.Create(srEzdmlLiteNotSupportFun);
   {$endif}
+end;
+
+procedure TFrameCtTableProp.MNTabs_ViewSQLClick(Sender: TObject);
+begin
+  G_TbPropDataSqlType := 'ViewSQL';
+  if TabSheetData=PageControlTbProp.ActivePage then
+  begin
+    TabSheetData.OnShow(nil);
+    Exit;
+  end;
+  GotoTab(TabSheetData);
 end;
 
 procedure TFrameCtTableProp.MN_OpenTemplFolderClick(Sender: TObject);
@@ -5320,6 +5660,8 @@ begin
   bEnb := False;
   if PageControlTbProp.ActivePage = TabSheetAdvanced then
     bEnb := True
+  else if PageControlTbProp.ActivePage = TabSheetScRules then
+    bEnb := True
   else if PageControlTbProp.ActivePage = TabSheetUI then
     bEnb := True
   else if PageControlTbProp.ActivePage = TabSheetRelations then
@@ -5346,6 +5688,22 @@ end;
 procedure TFrameCtTableProp.sbtnFindClick(Sender: TObject);
 begin
   FindDialogTxt.Execute;
+end;
+
+procedure TFrameCtTableProp.sbtnListSqlEditorClick(Sender: TObject);
+begin
+  G_TbPropDataSqlType := 'ListSQL';  
+  if TabSheetData=PageControlTbProp.ActivePage then
+  begin
+    TabSheetData.OnShow(nil);
+    Exit;
+  end;
+  GotoTab(TabSheetData);
+end;
+
+procedure TFrameCtTableProp.sbtnScRuleEditorClick(Sender: TObject);
+begin
+  GotoTab(TabSheetScRules);
 end;
 
 procedure TFrameCtTableProp.sbtnTbJsonClick(Sender: TObject);
@@ -5389,6 +5747,17 @@ begin
   if Assigned(Proc_OnPropChange) then
     Proc_OnPropChange(2, FCtMetaTable, nil, '');
   ShowTableProp(FCtMetaTable);
+end;
+
+procedure TFrameCtTableProp.sbtnViewSqlEditorClick(Sender: TObject);
+begin
+  G_TbPropDataSqlType := 'ViewSQL';
+  if TabSheetData=PageControlTbProp.ActivePage then
+  begin
+    TabSheetData.OnShow(nil);
+    Exit;
+  end;
+  GotoTab(TabSheetData);
 end;
 
 procedure TFrameCtTableProp.ScrollBoxCustomScriptDefResize(Sender: TObject);
@@ -5668,12 +6037,17 @@ begin
       ckbGenCode.Checked := FCtMetaTable.GenCode;   
       memoListSQL.Lines.Text := FCtMetaTable.ListSQL;
       memoViewSQL.Lines.Text := FCtMetaTable.ViewSQL;
+      if FCtMetaTable.HasParams then
+        memoParams.Lines.Text := FCtMetaTable.ParamList.Text
+      else
+        memoParams.Lines.Text := '';
       memoExtraSQL.Lines.Text := FCtMetaTable.ExtraSQL;
       MemoUILogic.Lines.Text := FCtMetaTable.UILogic;
       memoBusinessLogic.Lines.Text := FCtMetaTable.BusinessLogic;
       memoExtraProps.Lines.Text := FCtMetaTable.ExtraProps;
       memoScriptRules.Lines.Text := FCtMetaTable.ScriptRules;
-                        
+                                         
+      edtIdentifyCode.Text := FCtMetaTable.IdentifyCode;
       edtOwnerCategory.Text := FCtMetaTable.OwnerCategory;
       edtGroupName.Text := FCtMetaTable.GroupName;
       edtSQLAlias.Text := FCtMetaTable.SQLAlias;
@@ -5700,10 +6074,5 @@ begin
   RunCustomScriptDef(False);
 end;
 
-procedure TFrameCtTableProp.SetShowAdvPage(AValue: boolean);
-begin
-  if FShowAdvPage=AValue then Exit;
-  FShowAdvPage:=AValue;
-end;
 
 end.

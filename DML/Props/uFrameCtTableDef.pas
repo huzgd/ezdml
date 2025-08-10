@@ -128,6 +128,7 @@ begin
   FFrameCtTableProp.PanelUIPreview.Visible := True;
   FFrameCtTableProp.actShowInGraph.Visible := True;     
   FFrameCtTableProp.btnShowInGraph.Visible := True;
+  FFrameCtTableProp.btnRunGenCode.Visible := True;
   FFrameCtTableProp.Parent := Self.PanelTableProp;
   PanelTableProp.Caption := '';
   FFrameCtTableProp.Align := alClient;

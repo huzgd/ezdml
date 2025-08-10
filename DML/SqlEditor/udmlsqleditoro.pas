@@ -138,7 +138,9 @@ type
     FCloneMetaDb: TCtMetaDatabase;
     ResultDataSet: TDataSet;
     MemoSql: TMemo;
-    AutoExecSql: string;
+    AutoExecSql: string;  
+    DefTableName: string;
+    SQLSyncEdit: TObject;
     Proc_CheckSpecValue:
     function(const Value: string): string of object;
     procedure ClearSql;

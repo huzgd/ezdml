@@ -385,3 +385,6 @@ Gen comment option, Text2SQL, Huge file & UI optimization. Bugs fixed.
 
 2025-06-04 V3.67
 Support categories, publishing types (red/green/blue flags), multi header grid UI design. Bugs fixed.
+
+2025-08-10 V3.68
+Generate Ruoyi multi-module code, support script editing. Bugs fixed.

@@ -110,7 +110,7 @@ var
   ADataSet: TCtMemDataSet;
   jCols, jRows: TJSONArray;
   mapA, mapR: TJSONObject;
-  I, J: Integer;
+  I, J, sz: Integer;
   T: String;
 begin
   Result := nil;
@@ -141,10 +141,18 @@ begin
       mapA := jCols.getMap(I);
       Name := mapA.getString('Name');
       DataType := GetDataTypeOfName(mapA.getString('DataType'));
-      if mapA.optInt('Size') > 0 then
-        Size := mapA.optInt('Size')
-      else if DataType = ftString then
-        Size := 4000;
+      if DataType=ftString then
+      begin
+        sz := mapA.optInt('Size');
+        if sz>65536 then
+          DataType := ftMemo
+        else if sz > 0 then
+        begin
+          Size := sz;
+        end
+        else if DataType = ftString then
+          Size := 4000;
+      end;
     end;
   ADataSet.CreateTable;
   if not ADataSet.Active then

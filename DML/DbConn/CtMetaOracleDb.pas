@@ -315,7 +315,7 @@ end;
 function TCtMetaOracleDb.GetDbNames: string;
 begin
   Result := 'ORCL'#13#10'127.0.0.1:1521/ORCL';
-  Result := Result + #10'JDBC:jdbc:oracle:thin:@192.168.1.5:1521:orcl'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=Oracle in instantclient_11_2;Server=My Db Server;UID=UserName;';
+  Result := Result + #10'JDBC:jdbc:oracle:thin:@192.168.1.5:1521:orcl'#10'JDBC:http://localhost/ruoyi/ezjdbc/'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=Oracle in instantclient_11_2;Server=My Db Server;UID=UserName;';
 end;
 
 function TCtMetaOracleDb.GetDbObjs(ADbUser: string): TStrings;

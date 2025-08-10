@@ -102,7 +102,25 @@ begin
     end
     else
     begin
-      S := ExecCustomDbCmdEx('connect', User, Password, DbSchema);
+      //S := ExecCustomDbCmdEx('connect', User, Password, DbSchema);
+      //changed by huz 202506: 普通http也转用CtJdbcConn
+      if not Assigned(FCtJdbcConn) then
+      begin
+        FCtJdbcConn:=TEzHttpJdbcConnection.Create(nil);
+        FreeAndNil(FTrans);
+        FTrans := TCtSQLTransaction.Create(nil);
+        FCtJdbcConn.Transaction := FTrans;
+      end
+      else
+        FCtJdbcConn.Connected:=False;
+      FCtJdbcConn.HostName:=Self.Database;
+      FCtJdbcConn.DatabaseName := Self.Database;
+      FCtJdbcConn.UserName:=Self.User;
+      FCtJdbcConn.Password:=Self.Password;
+      FCtJdbcConn.Connected:=True;
+      FAccessToken := FCtJdbcConn.FAccessToken;
+      FEngineType := FCtJdbcConn.EzDbType;
+      S := FCtJdbcConn.FConnectResponse;
     end;
     if S = '' then
       RaiseError('no_data_result', 'connect');
@@ -284,7 +302,7 @@ end;
 
 function TCtMetaHttpDb.GetDbNames: string;
 begin
-  Result := 'http://localhost:8083/ezdml/'#13#10'http://192.168.1.11:8083/ezdml/'#10'JDBC:jdbc:mysql://192.168.1.1:3306/dbname';
+  Result := 'http://localhost:8083/ezdml/'#13#10'http://192.168.1.11:8083/ezdml/'#10'http://localhost/ruoyi/ezjdbc/'#10'JDBC:jdbc:mysql://192.168.1.1:3306/dbname';
 end;
 
 initialization

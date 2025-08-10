@@ -21,6 +21,8 @@ interface
   {$WARN 5057 off : Local variable "$1" does not seem to be initialized}
 {$ENDIF}
 
+{.$DEFINE USE_GCTOLIST}
+
 uses
 
 {$IFnDEF FPC}
@@ -151,7 +153,8 @@ type
     procedure SetCaption(const Value: string); virtual;
     function GetNameCaption: string; virtual;
 
-    function GetParamList: TStrings; virtual;
+    function GetParamList: TStrings; virtual;  
+    function GetParamCount: Integer; virtual;
     function GetParam(Name: string): string; virtual;
     procedure SetParam(Name: string; const Value: string); virtual;
 
@@ -238,6 +241,7 @@ type
     property UserObject[Index: string]: TObject read GetUserObject write SetUserObject;
     //参数TSTRINGS
     property ParamList: TStrings read GetParamList;
+    property ParamCount: Integer read GetParamCount;
     property Param[Name: string]: string read GetParam write SetParam;
     //自定义属性
     property CustomAttr1: string read FCustomAttr1 write FCustomAttr1;
@@ -456,7 +460,9 @@ function CtoListNameSortCompare(Item1, Item2: Pointer): Integer;
 var
   FGlobeCtobjCounter: Integer;
   FGlobeCtlstCounter: Integer;
-  FGlobeCtoList: TStringList;       
+{$IFDEF USE_GCTOLIST}
+  FGlobeCtoList: TStringList;
+{$ENDIF}
   Proc_CreateCtObjSerialer: function(fn: string; bWriteMode: boolean): TCtObjSerialer;
 
 implementation
@@ -595,7 +601,9 @@ constructor TCtObject.Create;
 begin
   Self.SetCtObjModified(True);
   Inc(FGlobeCtobjCounter);
+  {$IFDEF USE_GCTOLIST}
   FGlobeCtoList.AddObject(IntToStr(PtrInt(Pointer(Self))), Self);
+  {$ENDIF}
 end;
 
 function TCtObject.CreateDefSubitems: TCtObjectList;
@@ -627,6 +635,7 @@ var
   idx: Integer;
   S: string;
 begin
+  {$IFDEF USE_GCTOLIST}
   idx := FGlobeCtoList.IndexOf(IntToStr(PtrInt(Pointer(Self))));
   if idx = -1 then
   begin
@@ -647,6 +656,7 @@ begin
   end
   else
     FGlobeCtoList.Delete(idx);
+  {$ENDIF}
 
   Dec(FGlobeCtobjCounter);
   //发布销毁通知
@@ -768,6 +778,8 @@ var
   S, LS: string;
 begin
   Result := '';
+  if not HasParams then
+    Exit;
   if not Assigned(ParamList) then
     Exit;
   with ParamList do
@@ -1099,6 +1111,14 @@ begin
   FGlobeList := Value;
   if Assigned(FGlobeList) and Assigned(FSubitems) and not Assigned(FSubitems.GlobeList) then
     FSubitems.GlobeList := Self.FGlobeList;
+end;
+
+function TCtObject.GetParamCount: Integer;
+begin
+  if HasParams then
+    Result := ParamList.Count
+  else
+    Result := 0;
 end;
 
 procedure TCtObject.SetName(const Value: string);
@@ -1884,8 +1904,10 @@ begin
 end;
 
 initialization
+  {$IFDEF USE_GCTOLIST}
   FGlobeCtoList := TStringList.Create;
   FGlobeCtoList.Sorted := True;
+  {$ENDIF}
   GlobeCtFactories.FindOrCreateFactory('CtObject', '基本CT对象', '{E8D33D36-66DF-4568-8537-F24A1EDE0588}', TCtObject);
 finalization
   if Assigned(FGlobeCtFactories) then
@@ -1894,6 +1916,8 @@ finalization
   //if (FGlobeCtobjCounter <> 0) or (FGlobeCtlstCounter <> 0) then
     //Windows.MessageBox(0, PChar('CtObject Count: ' + IntToStr(FGlobeCtobjCounter) +
       //'  CtList Count: ' + IntToStr(FGlobeCtlstCounter)), 'Memory leak check info', MB_OK or MB_ICONWARNING);
+{$ENDIF}
+{$IFDEF USE_GCTOLIST}
   FGlobeCtoList.Free;
 {$ENDIF}
 

@@ -180,7 +180,7 @@ end;
 function TCtMetaPostgreSqlDb.GetDbNames: string;
 begin
   Result := 'localhost:5432@test';
-  Result := Result + #10'JDBC:jdbc:postgresql://localhost:5432/dbname'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=PostgreSQL Unicode;Server=MyDbServer;Port=3306;Database={database_name};';
+  Result := Result + #10'JDBC:jdbc:postgresql://localhost:5432/dbname'#10'JDBC:http://localhost/ruoyi/ezjdbc/'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=PostgreSQL Unicode;Server=MyDbServer;Port=3306;Database={database_name};';
 end;
 
 function TCtMetaPostgreSqlDb.GetDbObjs(ADbUser: string): TStrings;

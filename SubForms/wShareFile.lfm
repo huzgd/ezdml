@@ -1,11 +1,11 @@
 object frmShareFile: TfrmShareFile
   Left = 612
-  Height = 480
+  Height = 514
   Top = 320
   Width = 601
   BorderStyle = bsDialog
   Caption = 'Share'
-  ClientHeight = 480
+  ClientHeight = 514
   ClientWidth = 601
   LCLVersion = '2.0.12.0'
   object Panel1: TPanel

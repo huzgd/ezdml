@@ -126,7 +126,8 @@ resourcestring
   srNewDiagramNameFmt = 'Model%d';
   srNewCatalogNameFmt = 'Catalog%d';
   srNewComplexIndexNameFmt = 'CpxIndex%d';
-  srNewComplexIndexDispName = 'ComplexIndex';
+  srNewComplexIndexDispName = 'ComplexIndex';   
+  srNewScRuleNameFmt = 'Rule%d';
   srNewTableDesc = 'Id PKInteger'#13#10'Rid FKInteger'#13#10'Name S';  
   srErrorDeleteCatalogNotEmptyFmt = 'The catalog is not empty and cannot be deleted: %s';
   srConfirmDeleteSelectedNodeFmt = 'Are you sure to delete object %s ?';
@@ -191,7 +192,8 @@ resourcestring
   srListNameFmt = '%sList';
   srListName2Fmt = 'List class %s';
   srRearrangeObjs = 'Re-arrange objects';
-  srProcessing = 'Processing...';
+  srProcessing = 'Processing...';  
+  srRendering = 'Rendering...';
   srModel = 'Model';
   srTable = 'Table';
   srText = 'Text';
@@ -533,6 +535,11 @@ resourcestring
     'H2=driver=org.h2.Driver;url=jdbc:h2:{file}' + #13#10 +
     'DAMENG=driver=dm.jdbc.driver.DmDriver;url=jdbc:dm://127.0.0.1:5236' + #13#10 +
     'HIVE=driver=org.apache.hive.jdbc.HiveDriver;url=jdbc:hive2://127.0.0.1:10000/default';
+
+  srScriptRuleEditors = 'Editor' + #13#10 +
+    'Code' + #13#10 +
+    'All' + #13#10 +
+    'Json';
 
 
 implementation

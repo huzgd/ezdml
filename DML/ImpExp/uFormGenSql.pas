@@ -300,6 +300,7 @@ end;
 
 procedure TfrmCtGenSQL.MN_DBTableInfoClick(Sender: TObject);
 var
+  tb: TCtMetaTable;
   o: TCtMetaObject;
   I, po: Integer;
   S, db, obj: string;
@@ -313,7 +314,8 @@ begin
   if (FCtMetaDatabase = nil) or not FCtMetaDatabase.Connected then
     Exit;
 
-  obj := cklbDbObjs.Items[I];
+  tb := TCtMetaTable(cklbDbObjs.Items.Objects[I]);
+  obj := tb.Name;
   db := combDBUser.Text;
 
   S := '';

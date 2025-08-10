@@ -992,6 +992,10 @@ msgstr ""
 msgid "Group%d"
 msgstr ""
 
+#: dmlstrs.srnewscrulenamefmt
+msgid "Rule%d"
+msgstr ""
+
 #: dmlstrs.srnewtabledesc
 msgid ""
 "Id PKInteger\n"
@@ -1073,12 +1077,24 @@ msgstr ""
 msgid "Error: Field \"%s\" already exists, please choose another name"
 msgstr ""
 
+#: dmlstrs.srrendering
+msgid "Rendering..."
+msgstr ""
+
 #: dmlstrs.srrestoredatabase
 msgid "Restore database"
 msgstr ""
 
 #: dmlstrs.srrestoredatabasewarning
 msgid "Warning: The database is about to be restored, all data in selected tables will be lost. Do you still want to restore tables now?"
+msgstr ""
+
+#: dmlstrs.srscriptruleeditors
+msgid ""
+"Editor\n"
+"Code\n"
+"All\n"
+"Json\n"
 msgstr ""
 
 #: dmlstrs.srseconds
@@ -2450,18 +2466,22 @@ msgid "Auto"
 msgstr ""
 
 #: tframecttablelist.mn_pubtype_1.caption
+msgctxt "tframecttablelist.mn_pubtype_1.caption"
 msgid "None"
 msgstr ""
 
 #: tframecttablelist.mn_pubtype_2.caption
+msgctxt "tframecttablelist.mn_pubtype_2.caption"
 msgid "Function"
 msgstr ""
 
 #: tframecttablelist.mn_pubtype_3.caption
+msgctxt "tframecttablelist.mn_pubtype_3.caption"
 msgid "Module"
 msgstr ""
 
 #: tframecttablelist.mn_pubtype_4.caption
+msgctxt "tframecttablelist.mn_pubtype_4.caption"
 msgid "Menu"
 msgstr ""
 
@@ -2676,6 +2696,11 @@ msgstr ""
 msgid "Edit Script"
 msgstr ""
 
+#: tframecttableprop.btnrungencode.hint
+msgctxt "tframecttableprop.btnrungencode.hint"
+msgid "Generate Code"
+msgstr ""
+
 #: tframecttableprop.btnsavesettings.caption
 msgid "Save Settings"
 msgstr ""
@@ -2850,7 +2875,16 @@ msgstr ""
 msgid "curTable.groupName"
 msgstr ""
 
+#: tframecttableprop.lbidentifycode.caption
+msgid "Identify code"
+msgstr ""
+
+#: tframecttableprop.lbidentifycode.hint
+msgid "curTable.identifyCode"
+msgstr ""
+
 #: tframecttableprop.lblistsql.caption
+msgctxt "tframecttableprop.lblistsql.caption"
 msgid "List SQL"
 msgstr ""
 
@@ -2864,6 +2898,14 @@ msgstr ""
 
 #: tframecttableprop.lbownercategory.hint
 msgid "curTable.ownerCategory"
+msgstr ""
+
+#: tframecttableprop.lbparams.caption
+msgid "Params"
+msgstr ""
+
+#: tframecttableprop.lbparams.hint
+msgid "curTable.param"
 msgstr ""
 
 #: tframecttableprop.lbpartitioninfo.caption
@@ -2969,6 +3011,7 @@ msgid "curTable.UILogic"
 msgstr ""
 
 #: tframecttableprop.lbviewsql.caption
+msgctxt "tframecttableprop.lbviewsql.caption"
 msgid "View SQL"
 msgstr ""
 
@@ -3025,7 +3068,7 @@ msgstr ""
 
 #: tframecttableprop.mntabs_data.caption
 msgctxt "tframecttableprop.mntabs_data.caption"
-msgid "Data"
+msgid "Data SQL"
 msgstr ""
 
 #: tframecttableprop.mntabs_gen.caption
@@ -3033,9 +3076,19 @@ msgctxt "tframecttableprop.mntabs_gen.caption"
 msgid "Generate"
 msgstr ""
 
+#: tframecttableprop.mntabs_listsql.caption
+msgctxt "tframecttableprop.mntabs_listsql.caption"
+msgid "List SQL"
+msgstr ""
+
 #: tframecttableprop.mntabs_relations.caption
 msgctxt "tframecttableprop.mntabs_relations.caption"
 msgid "Relations"
+msgstr ""
+
+#: tframecttableprop.mntabs_scrules.caption
+msgctxt "tframecttableprop.mntabs_scrules.caption"
+msgid "Script Rules"
 msgstr ""
 
 #: tframecttableprop.mntabs_settings.caption
@@ -3046,6 +3099,11 @@ msgstr ""
 #: tframecttableprop.mntabs_uidesign.caption
 msgctxt "tframecttableprop.mntabs_uidesign.caption"
 msgid "UI Design"
+msgstr ""
+
+#: tframecttableprop.mntabs_viewsql.caption
+msgctxt "tframecttableprop.mntabs_viewsql.caption"
+msgid "View SQL"
 msgstr ""
 
 #: tframecttableprop.mn_fieldweights.caption
@@ -3110,8 +3168,23 @@ msgctxt "tframecttableprop.sbtnfind.hint"
 msgid "Find"
 msgstr ""
 
+#: tframecttableprop.sbtnlistsqleditor.caption
+msgctxt "tframecttableprop.sbtnlistsqleditor.caption"
+msgid ">>"
+msgstr ""
+
+#: tframecttableprop.sbtnscruleeditor.caption
+msgctxt "tframecttableprop.sbtnscruleeditor.caption"
+msgid ">>"
+msgstr ""
+
 #: tframecttableprop.sbtntbjson.hint
 msgid "Json (Hold SHIFT for full-mode)"
+msgstr ""
+
+#: tframecttableprop.sbtnviewsqleditor.caption
+msgctxt "tframecttableprop.sbtnviewsqleditor.caption"
+msgid ">>"
 msgstr ""
 
 #: tframecttableprop.speedbutton_fieldadd.hint
@@ -3166,7 +3239,7 @@ msgstr ""
 
 #: tframecttableprop.tabsheetdata.caption
 msgctxt "tframecttableprop.tabsheetdata.caption"
-msgid "Data"
+msgid "Data SQL"
 msgstr ""
 
 #: tframecttableprop.tabsheetdesc.caption
@@ -3176,6 +3249,11 @@ msgstr ""
 #: tframecttableprop.tabsheetrelations.caption
 msgctxt "tframecttableprop.tabsheetrelations.caption"
 msgid "Relations"
+msgstr ""
+
+#: tframecttableprop.tabsheetscrules.caption
+msgctxt "tframecttableprop.tabsheetscrules.caption"
+msgid "Script Rules"
 msgstr ""
 
 #: tframecttableprop.tabsheettable.caption
@@ -3809,6 +3887,36 @@ msgctxt "tframedml.mn_capitalize.caption"
 msgid "Capitalize"
 msgstr ""
 
+#: tframedml.mn_publishtype.caption
+msgctxt "tframedml.mn_publishtype.caption"
+msgid "Publish type"
+msgstr ""
+
+#: tframedml.mn_pubtype_0.caption
+msgctxt "tframedml.mn_pubtype_0.caption"
+msgid "Auto"
+msgstr ""
+
+#: tframedml.mn_pubtype_1.caption
+msgctxt "tframedml.mn_pubtype_1.caption"
+msgid "None"
+msgstr ""
+
+#: tframedml.mn_pubtype_2.caption
+msgctxt "tframedml.mn_pubtype_2.caption"
+msgid "Function"
+msgstr ""
+
+#: tframedml.mn_pubtype_3.caption
+msgctxt "tframedml.mn_pubtype_3.caption"
+msgid "Module"
+msgstr ""
+
+#: tframedml.mn_pubtype_4.caption
+msgctxt "tframedml.mn_pubtype_4.caption"
+msgid "Menu"
+msgstr ""
+
 #: tframedml.pmnai_gencomments.caption
 msgctxt "tframedml.pmnai_gencomments.caption"
 msgid "Generate Comments"
@@ -3836,11 +3944,6 @@ msgstr ""
 
 #: tframedml.pmnai_text2sql.caption
 msgctxt "tframedml.pmnai_text2sql.caption"
-msgid "Text to SQL"
-msgstr ""
-
-#: tframedml.ppmnai_text2sql.caption
-msgctxt "tframedml.ppmnai_text2sql.caption"
 msgid "Text to SQL"
 msgstr ""
 
@@ -6009,7 +6112,7 @@ msgstr ""
 
 #: tfrmsettings.ckbenabletbpropdata.caption
 msgctxt "tfrmsettings.ckbenabletbpropdata.caption"
-msgid "Data"
+msgid "Data SQL"
 msgstr ""
 
 #: tfrmsettings.ckbenabletbpropgenerate.caption

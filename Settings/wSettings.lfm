@@ -295,8 +295,8 @@ object frmSettings: TfrmSettings
             Left = 388
             Height = 21
             Top = 8
-            Width = 49
-            Caption = 'Data'
+            Width = 76
+            Caption = 'Data SQL'
             OnChange = ckbEnableCustomPropUIChange
             TabOrder = 3
           end

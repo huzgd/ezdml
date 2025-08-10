@@ -55,7 +55,7 @@ object frmMainDml: TfrmMainDml
     object lbNewVerInfo: TLabel
       Cursor = crHandPoint
       Left = 8
-      Height = 17
+      Height = 12
       Top = 8
       Width = 224
       Anchors = [akTop, akLeft, akRight]
@@ -67,8 +67,8 @@ object frmMainDml: TfrmMainDml
     end
   end
   object MainMenu1: TMainMenu
-    left = 344
-    top = 80
+    Left = 344
+    Top = 80
     object Mn_File: TMenuItem
       Caption = '&File'
       object MnNewFile: TMenuItem
@@ -299,25 +299,25 @@ object frmMainDml: TfrmMainDml
     Enabled = False
     Interval = 300
     OnTimer = TimerInitTimer
-    left = 44
-    top = 80
+    Left = 44
+    Top = 80
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '.xml'
     Filter = 'All supported files(*.dmj;*.dmx;*.dmh)|*.dmj;*.dmx;*.dmh|Json files(*.dmj)|*.dmj|XML files(*.dmx)|*.dmx|Binary files(*.dmh)|*.dmh'
-    left = 200
-    top = 80
+    Left = 200
+    Top = 80
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = '.dmj'
     Filter = 'Json files(*.dmj)|*.dmj|XML files(*.dmx)|*.dmx|Binary files(*.dmh)|*.dmh'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    left = 48
-    top = 184
+    Left = 48
+    Top = 184
   end
   object ActionList1: TActionList
-    left = 192
-    top = 184
+    Left = 192
+    Top = 184
     object EditSelectAll1: TEditSelectAll
       Category = 'Edit'
       Caption = 'Select &All'
@@ -404,7 +404,7 @@ object frmMainDml: TfrmMainDml
       Category = 'Model'
       Caption = 'Generate Code'
       OnExecute = actGenerateCodeExecute
-      ShortCut = 16455
+      ShortCut = 16464
     end
     object actTogglePhyView: TAction
       Category = 'Model'
@@ -611,20 +611,20 @@ object frmMainDml: TfrmMainDml
   object TimerAutoSave: TTimer
     Interval = 10000
     OnTimer = TimerAutoSaveTimer
-    left = 48
-    top = 264
+    Left = 48
+    Top = 264
   end
   object OpenDialogImp: TOpenDialog
     DefaultExt = '.xml'
     Filter = 'PDM xml files(*.pdm)|*.pdm'
-    left = 192
-    top = 264
+    Left = 192
+    Top = 264
   end
   object ImageListSwitchOnOff: TImageList
     Height = 18
     Width = 32
-    left = 328
-    top = 192
+    Left = 328
+    Top = 192
     Bitmap = {
       4C69020000002000000012000000FCFCFC00FFFFFF00F4F4F400C1C1C100B3B3
       B3008C8C8C54464646D7232323FF242424FF2F2F2FFF2D2D2DFF2D2D2DFF2D2D
@@ -777,7 +777,7 @@ object frmMainDml: TfrmMainDml
     Enabled = False
     Interval = 100
     OnTimer = TimerDelayCmdTimer
-    left = 344
-    top = 272
+    Left = 344
+    Top = 272
   end
 end

@@ -307,6 +307,7 @@ type
     FGroupName: string;
     FOwnerCategory: string;
     FPartitionInfo: string;
+    FIdentifyCode: string;
     FSQLAlias: string;
     FSQLOrderByClause: string;
     FSQLWhereClause: string;   
@@ -370,7 +371,9 @@ type
     function GenSelectSql(maxRowCount: integer; dbType: string = ''; dbEngine: TCtMetaDatabase = nil): string; virtual;
    function GenSelectSqlEx(maxRowCount: integer; selFields, whereCls, groupBy, orderBy, dbType: string;
       dbEngine: TCtMetaDatabase = nil): string; virtual;   
-    function GenJoinSqlWhere(bTable: TCtMetaTable; aAlias, bAlias: string; bFKsOnly: Boolean): string; virtual;
+    function GenJoinSqlWhere(bTable: TCtMetaTable; aAlias, bAlias: string; bFKsOnly: Boolean): string; virtual;   
+    function GenListSQL(): string; virtual;
+    function GenViewSQL(): string; virtual;
 
     function GetCustomConfigValue(AName: string): string; virtual;
     procedure SetCustomConfigValue(AName, AValue: string); virtual;
@@ -459,7 +462,9 @@ type
     //分区信息
     property PartitionInfo: string read FPartitionInfo write FPartitionInfo;    
     //设计说明
-    property DesignNotes: string read FDesignNotes write FDesignNotes;
+    property DesignNotes: string read FDesignNotes write FDesignNotes;    
+    //识别码
+    property IdentifyCode: string read FIdentifyCode write FIdentifyCode;
 
     //权限角色
     property PurviewRoles: String        read FPurviewRoles write FPurviewRoles;
@@ -1198,9 +1203,11 @@ var
   G_EnableCustomPropUI: boolean;
   G_CustomPropUICaption: string;  
   G_EnableAdvTbProp: boolean;
+  G_EnableScRulesProp: boolean;
   G_EnableTbPropGenerate: boolean;
   G_EnableTbPropRelations: boolean;
   G_EnableTbPropData: boolean;
+  G_TbPropDataSqlType: String;
   G_EnableTbPropUIDesign: boolean;
   G_Reserved_Keywords: TStrings;
   G_TableDialogViewModeByDefault: boolean;
@@ -2455,7 +2462,9 @@ begin
       for I := G_Reserved_Keywords.Count - 1 downto 0 do
         if Trim(G_Reserved_Keywords[I]) = '' then
           G_Reserved_Keywords.Delete(I);
-    end;
+    end
+    else
+      G_Reserved_Keywords.CommaText:=DEF_RESERVED_KEYWORDS;
   end;
   if G_Reserved_Keywords.Count > 0 then
     Result := G_Reserved_Keywords.IndexOf(str) >= 0
@@ -2979,6 +2988,8 @@ begin
   FPurviewRoles := '';
   FDataPurview  := '';  
   FIsReadOnly := False;
+                  
+  FIdentifyCode     := '';
 
   if Assigned(FMetaFields) then
     FMetaFields.Clear;
@@ -3080,6 +3091,9 @@ begin
       ASerialer.ReadBool('IsReadOnly', FIsReadOnly);
     end;
 
+    if ASerialer.CurCtVer >= 40 then  
+      ASerialer.ReadString('IdentifyCode', FIdentifyCode);
+
     if not ASerialer.SkipChildren then
     begin
       ASerialer.BeginChildren('MetaFields');
@@ -3133,6 +3147,8 @@ begin
     ASerialer.WriteString('PurviewRoles', FPurviewRoles);
     ASerialer.WriteString('DataPurview', FDataPurview);
     ASerialer.WriteBool('IsReadOnly', FIsReadOnly);
+                                  
+    ASerialer.WriteString('IdentifyCode', FIdentifyCode);
 
     if Assigned(MetaFields) then
     begin
@@ -3223,6 +3239,8 @@ begin
   FPurviewRoles := tb.FPurviewRoles;
   FDataPurview  := tb.FDataPurview; 
   FIsReadOnly := tb.FIsReadOnly;
+
+  FIdentifyCode := tb.FIdentifyCode;
 end;
 
 function TCtMetaTable.GetSketchyDescribe: string;
@@ -3878,7 +3896,13 @@ begin
           if Pos('[GSQL_FIELD_NULL]', dbEngine.ExtraOpt) > 0 then
             sNull := ' null';
       if dbType<>'LLM' then
-        S := S + sNull;
+      begin
+        if (dbType = 'H2') and (F.KeyFieldType=cfktId) and (Trim(F.DefaultValue) = DEF_VAL_auto_increment) then
+        begin
+        end
+        else
+          S := S + sNull;
+      end;
 
       T := F.GetFieldComments;
       if T <> '' then
@@ -4349,7 +4373,12 @@ begin
         Infos.Add('where 1=1/*_SQL_WHERE*/')
     end
     else
-      Infos.Add('where ('+whereCls+')');
+    begin
+      if maxRowCount<=0 then            
+        Infos.Add('where '+whereCls)
+      else
+        Infos.Add('where ('+whereCls+')');
+    end;
 
     if maxRowCount > 0 then
     begin
@@ -4466,6 +4495,35 @@ begin
       Result :=  Result + S;
     end;
   end;
+end;
+
+function TCtMetaTable.GenListSQL(): string;
+begin
+  Result := ListSQL;
+  if Trim(Result)<>'' then
+    Exit;          
+  Result := GenSelectSqlEx(0, '', '', '', '', '', nil);
+end;
+
+function TCtMetaTable.GenViewSQL(): string;
+var
+  wh, S: string;
+  pk: TCtMetaField;
+begin
+  Result := ViewSQL;
+  if Trim(Result)<>'' then
+    Exit;
+  wh := 'id = :id';
+  pk := Self.GetPrimaryKeyField;
+  if pk=nil then
+  begin
+    S := Self.GetPossibleKeyName(cfktId);
+    if S<>'' then
+      pk := Self.MetaFields.FieldByName(S);
+  end;
+  if pk<>nil then
+    wh := pk.Name+' = :'+pk.Name;
+  Result := GenSelectSqlEx(0, '', wh, '', ' ', '', nil);
 end;
 
 function TCtMetaTable.GetCustomConfigValue(AName: string): string;
@@ -8657,6 +8715,10 @@ begin
     else if dbType = 'SQLITE' then
     begin
       Result := ' autoincrement';
+    end                 
+    else if dbType = 'H2' then
+    begin
+      Result := ' auto_increment';
     end
     else
       Result := ' /*auto_increment*/';
@@ -9350,6 +9412,7 @@ begin
       end;
     end
     else
+    begin
       for I := 0 to C - 1 do
       begin
         if ASerialer.NextChildObjToRead then
@@ -9365,6 +9428,7 @@ begin
           end;
         end;
       end;
+    end;
     ASerialer.EndChildren('');
   end;
 
@@ -10931,6 +10995,8 @@ function TCtMetaDatabase.IsDiffField(Fd1, Fd2: TCtMetaField): boolean;
     end;
   end;
 
+var
+  T1, T2: string;
 begin
   Result := False;
   if (Fd1 = nil) or (Fd2 = nil) then
@@ -10947,9 +11013,23 @@ begin
       if Fd2.DataType in [cfdtInteger] then
         Exit;
   end;
-  if UpperCase(Fd1.GetFieldTypeDesc(True, EngineType)) =
-    UpperCase(Fd2.GetFieldTypeDesc(True, EngineType)) then
+  T1 :=Fd1.GetFieldTypeDesc(True, EngineType);
+  T2 :=Fd2.GetFieldTypeDesc(True, EngineType);
+  if UpperCase(T1) = UpperCase(T2) then
     Exit;
+  if G_BigIntForIntKeys then
+    if (fd1.DataType=cfdtInteger) and (fd2.DataType=cfdtInteger) then
+    begin
+      G_BigIntForIntKeys := False;
+      try
+        T1 :=Fd1.GetFieldTypeDesc(True, EngineType);
+        T2 :=Fd2.GetFieldTypeDesc(True, EngineType);
+        if UpperCase(T1) = UpperCase(T2) then
+          Exit;
+      finally
+        G_BigIntForIntKeys := True;
+      end;
+    end;
   if IsBigField(Fd1) and IsBigField(Fd2) then
     Exit;
   Result := True;

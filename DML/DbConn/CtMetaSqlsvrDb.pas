@@ -211,7 +211,7 @@ end;
 function TCtMetaSqlsvrDb.GetDbNames: string;
 begin
   Result := 'localhost\MSSQLSERVER@master'#10'192.168.1.123:1433\MSSQLSERVER@master';
-  Result := Result + #10'JDBC:jdbc:sqlserver://localhost:1433#59#databaseName=DbName'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;';
+  Result := Result + #10'JDBC:jdbc:sqlserver://localhost:1433#59#databaseName=DbName'#10'JDBC:http://localhost/ruoyi/ezjdbc/'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=SQL Server;Server=MyDbServer,Port\SID;Database=pubs;Integrated Security=SSPI;';
 end;
 
 function TCtMetaSqlsvrDb.GetDbObjs(ADbUser: string): TStrings;

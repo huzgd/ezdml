@@ -118,7 +118,7 @@ uses
   CTMetaData, uFormAddTbLink, dmlstrs, ezdmlstrs, CtObjJsonSerial, ClipBrd,
   DmlScriptPublic, ImgView, uDMLSqlEditor, uFormDmlSearch,
   {$ifndef EZDML_LITE} ide_editor, {$else} DmlPasScriptLite, {$endif}
-  AutoNameCapitalize, uFormGenSql, Toolwin;
+  AutoNameCapitalize, uFormGenSql, Toolwin, uWaitWnd;
 
 {$R *.lfm}
 
@@ -1908,10 +1908,11 @@ var
   FLastObjX, FLastObjY, dv, vCenterX, vCenterY, vScale: double;
   DMLObjList: TDMLObjList;
   obj: TDMLObj;
-  I, po, idx: integer;
+  I, po, idx, prcI, prcAll: integer;
   tbs: TCtMetaTableList;
   bfMode: boolean;
   selStr, S, T: string;
+  frWait: TfrmWaitWnd;
 begin
   FLastObjX := 0;
   FLastObjY := 0;
@@ -1950,12 +1951,20 @@ begin
   end;
   if Assigned(mdl) and mdl.IsHuge then
   begin
-    Screen.Cursor := crAppStart;
+    frWait := TfrmWaitWnd.Create(Self);
     DMLObjList.DMLDrawer.FIsHugeMode := True;
   end
   else
+  begin
+    frWait := nil;     
+    Screen.Cursor := crAppStart;
     DMLObjList.DMLDrawer.FIsHugeMode := False;
-  try
+  end;
+  try   
+    if Assigned(frWait) then
+      frWait.Init(srRendering+' '+mdl.NameCaption, srProcessing, srConfirmAbort);
+    prcI := 0;
+    prcAll := tbs.Count;
 
     //先输出有位置信息的
     for I := 0 to tbs.Count - 1 do
@@ -1997,6 +2006,10 @@ begin
             o.UserPars := AddOrModifyCompStr(o.UserPars, '1', '[CUSTOM_BKCOLOR=', ']');
             o.FillColor := tb.BgColor;
           end;
+
+          Inc(prcI);
+          if Assigned(frWait) and ((prcI mod 50)=0) then
+            frWait.SetPercentMsg(prcI * 100 / prcAll, Format('%d/%d ', [prcI, prcAll])+tb.Name, True);
 
           dv := o.Top + o.Height + 100;
           if FLastObjY < dv then
@@ -2052,6 +2065,10 @@ begin
           //tb.GraphDesc := GetLocationDesc(o);
           FLastObjX := o.Left;
           FLastObjY := o.Top;
+
+          Inc(prcI);
+          if Assigned(frWait) and ((prcI mod 50)=0) then
+            frWait.SetPercentMsg(prcI * 100 / prcAll, Format('%d/%d ', [prcI, prcAll])+tb.Name, True);
         end;
 
     for I := 0 to DMLObjList.Count - 1 do
@@ -2060,7 +2077,9 @@ begin
     CheckAllLinks;
 
   finally
-    DMLObjList.FindNewSpace := True;
+    DMLObjList.FindNewSpace := True; 
+    if Assigned(frWait) then
+      frWait.Release;
     Screen.Cursor := crDefault;
   end;
   if bfMode then

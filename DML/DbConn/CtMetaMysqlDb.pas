@@ -203,7 +203,7 @@ end;
 function TCtMetaMysqlDb.GetDbNames: string;
 begin
   Result := 'localhost:3306@test'; 
-  Result := Result + #10'JDBC:jdbc:mysql://192.168.1.1:3306/dbname'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=MySQL ODBC 8.0 Driver;Server=MyDbServer;Port=3306;Database={database_name};';
+  Result := Result + #10'JDBC:jdbc:mysql://192.168.1.1:3306/dbname'#10'JDBC:http://localhost/ruoyi/ezjdbc/'#10'DSN:User_or_System_DSN_Name'#10'ODBC:Driver=MySQL ODBC 8.0 Driver;Server=MyDbServer;Port=3306;Database={database_name};';
 end;
 
 function TCtMetaMysqlDb.GetDbObjs(ADbUser: string): TStrings;

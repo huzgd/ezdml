@@ -22,7 +22,7 @@
 {"hash":78424925,"name":"tfrmsettings.ckbenablecustompropui.caption","sourcebytes":[67,117,115,116,111,109],"value":"Custom"},
 {"hash":78431854,"name":"tfrmsettings.ckbenabletbpropuidesign.caption","sourcebytes":[85,73,32,68,101,115,105,103,110],"value":"UI Design"},
 {"hash":197676484,"name":"tfrmsettings.ckbenableadvtbprop.caption","sourcebytes":[65,100,118,97,110,99,101,100],"value":"Advanced"},
-{"hash":305313,"name":"tfrmsettings.ckbenabletbpropdata.caption","sourcebytes":[68,97,116,97],"value":"Data"},
+{"hash":144923900,"name":"tfrmsettings.ckbenabletbpropdata.caption","sourcebytes":[68,97,116,97,32,83,81,76],"value":"Data SQL"},
 {"hash":206343285,"name":"tfrmsettings.ckbenabletbpropgenerate.caption","sourcebytes":[71,101,110,101,114,97,116,101],"value":"Generate"},
 {"hash":46704709,"name":"tfrmsettings.edtcustompropuicaption.texthint","sourcebytes":[67,117,115,116,111,109,32,112,97,103,101,32,116,105,116,108,101],"value":"Custom page title"},
 {"hash":42647187,"name":"tfrmsettings.ckbenabletbproprelations.caption","sourcebytes":[82,101,108,97,116,105,111,110,115],"value":"Relations"},

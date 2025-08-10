@@ -287,7 +287,7 @@ type
     procedure RememberFileDateSize;
     procedure ImportFromFile(fn: string); //导入文件
     procedure SaveToFile(fn: string);
-    procedure PromptSaveFile;
+    function PromptSaveFile: Boolean;
     procedure CheckCaption;
                       
     procedure LoadFromDbFile(fn: string);
@@ -355,7 +355,7 @@ uses
   {$ifndef EZDML_LITE}
   CtMetaPdmImporter, DmlPasScript, DmlGlobalPasScript, ide_editor, uFormGenCode,
   uFormHttpSvr, FindHexDlg, wExcelImp, DmlScriptControl, uFormGenData, CtTestDataGen,
-  wDDLSqlImp,
+  wDDLSqlImp, CtSQLFormat,
   {$else}
   DmlGlobalPasScriptLite, DmlPasScriptLite,
   {$endif}  
@@ -508,6 +508,51 @@ function EzdmlExecAppCmd(Cmd, param1, param2: string): string;
       end;
   end;
 
+  function SqlProc(AProc, ASql, AParam: string): string;
+  var
+    ss:TStringList;
+  begin
+    Result := '';
+    {$ifndef EZDML_LITE}
+    if AProc='GetSpacedSql' then
+      Result := GetSpacedSql(ASQL, True)
+    else if AProc='GetSpacedSql_KeepBrackets' then
+      Result := GetSpacedSql(ASQL, False)
+    else if AProc='SkipBracketsInSql' then
+      Result := SkipBracketsInSql(ASQL)
+    else if AProc='SkipQuotsInSql' then
+      Result := SkipQuotsInSql(ASQL)
+    else if AProc='RemoveSqlComments' then
+      Result := RemoveSqlComments(ASQL)      
+    else if AProc='TableNameOfSql' then
+      Result := TableNameOfSql(ASQL)
+    else if AProc='ReplaceSQLParams' then
+    begin
+      ss:=TStringList.Create;
+      try
+        ss.Text:=AParam;
+        Result := ReplaceSQLParams(ASQL,ss);
+      finally
+        ss.Free;
+      end;
+    end
+    else if AProc='ScanSQLParams' then
+    begin
+      ss:=TStringList.Create;
+      try             
+        if ScanMyBatisParams(ASQL, ss) = 0 then
+          ScanSQLParams(ASQL,ss);
+        Result := ss.Text;
+      finally
+        ss.Free;
+      end;
+    end
+    ;
+    {$else}
+    raise Exception.Create(srEzdmlLiteNotSupportFun);
+    {$endif}
+  end;
+
 begin
   Result := '';
   if cmd = 'GET_DML_GRAPH_BASE64TEXT' then
@@ -541,6 +586,8 @@ begin
     else
       Result := '1';
   end;
+  if Pos('SQL_PROC:',cmd)=1 then
+    Result := SqlProc(Copy(cmd,Length('SQL_PROC:')+1,Length(cmd)), param1, param2);
 end;
 
 function EzdmlCreateCtObjSerialer(fn: string; bWriteMode: boolean): TCtObjSerialer;
@@ -857,8 +904,8 @@ begin
     end
     else if bHuge then
     begin
-      PromptSaveFile;  
-      SaveDmlFastTmpFile(True);
+      if PromptSaveFile then
+        SaveDmlFastTmpFile(True);
     end
     else if not FSaveTempFileOnExit then
     begin
@@ -1402,13 +1449,16 @@ begin
       G_EnableCustomPropUI); 
     G_CustomPropUICaption := ini.ReadString('Options', 'CustomPropUICaption', '');   
     G_EnableAdvTbProp := ini.ReadBool('Options', 'EnableAdvTbProp',
-      G_EnableAdvTbProp);     
+      G_EnableAdvTbProp);                    
+    G_EnableScRulesProp := ini.ReadBool('Options', 'EnableScRulesProp',
+      G_EnableScRulesProp);
     G_EnableTbPropGenerate := ini.ReadBool('Options', 'EnableTbPropGenerate',
       G_EnableTbPropGenerate);     
     G_EnableTbPropRelations := ini.ReadBool('Options', 'EnableTbPropRelations',
       G_EnableTbPropRelations);
     G_EnableTbPropData := ini.ReadBool('Options', 'EnableTbPropData',
       G_EnableTbPropData);
+    G_TbPropDataSqlType := ini.ReadString('Options', 'TbPropDataSqlType', '');
     G_EnableTbPropUIDesign := ini.ReadBool('Options', 'EnableTbPropUIDesign',
       G_EnableTbPropUIDesign);
     G_BackupBeforeAlterColumn :=
@@ -3214,6 +3264,7 @@ end;
 procedure TfrmMainDml.actGenerateCodeExecute(Sender: TObject);  
 var
   tbs: TCtMetaTableList;
+  cto: TCtMetaObject;
 begin
   {$ifndef EZDML_LITE}
   EzdmlMenuActExecuteEvt('Model_GenerateCode');
@@ -3224,6 +3275,7 @@ begin
   tbs := nil;
   try             
     if FFrameCtTableDef.PanelDMLGraph.Visible then
+    begin
       if FFrameCtTableDef.FFrameDMLGraph.GetSelectedTable <> nil then
       begin
         tbs := TCtMetaTableList.Create;
@@ -3232,6 +3284,18 @@ begin
         if tbs.Count > 0 then
           frmCtGenCode.MetaObjList := tbs;
       end;
+    end
+    else
+    begin
+      cto := FFrameCtTableDef.FFrameCtTableList.SelectedCtNode;
+      if (cto <>nil) and (cto is TCtMetaTable) then
+      begin
+        tbs := TCtMetaTableList.Create;
+        tbs.AutoFree := False;
+        tbs.Add(cto);
+        frmCtGenCode.MetaObjList := tbs;
+      end;
+    end;
     if frmCtGenCode.ShowModal = mrOk then
     begin
     end;
@@ -3333,9 +3397,10 @@ begin
     Exit;
   if FCurFileName <> '' then
   begin
-    if not FSaveTempFileOnExit then
+    if not FSaveTempFileOnExit or FCtDataModelList.IsHuge then
     begin
-      PromptSaveFile;
+      if PromptSaveFile then
+        SaveDMLFastTmpFile(True);
     end
     else
       SaveDMLFastTmpFile(True);
@@ -3755,7 +3820,6 @@ procedure TfrmMainDml.actGenerateLastCodeExecute(Sender: TObject);
 begin
   {$ifndef EZDML_LITE}
   EzdmlMenuActExecuteEvt('Model_GenerateLastCode');
-  CheckCanEditMeta;
   if not Assigned(frmCtGenCode) then
     frmCtGenCode := TfrmCtGenCode.Create(Self);
   frmCtGenCode.CtDataModelList := FCtDataModelList;
@@ -3986,9 +4050,10 @@ begin
       idOk:
         if FCurFileName <> '' then
         begin
-          if not FSaveTempFileOnExit then
+          if not FSaveTempFileOnExit or FCtDataModelList.IsHuge then
           begin
-            PromptSaveFile;
+            if PromptSaveFile then
+              SaveDMLFastTmpFile(True);
           end
           else
             SaveDMLFastTmpFile(True);
@@ -4373,9 +4438,10 @@ begin
       idOk:
         if FCurFileName <> '' then
         begin
-          if not FSaveTempFileOnExit then
+          if not FSaveTempFileOnExit or FCtDataModelList.IsHuge then
           begin
-            PromptSaveFile;
+            if PromptSaveFile then
+              SaveDMLFastTmpFile(True);
           end
           else
             SaveDMLFastTmpFile(True);
@@ -4467,8 +4533,9 @@ begin
   end;
 end;
 
-procedure TfrmMainDml.PromptSaveFile;
+function TfrmMainDml.PromptSaveFile: Boolean;
 begin
+  Result := False;
   case Application.MessageBox(PChar(srEzdmlPromptSaveFile), PChar(Application.Title),
       MB_YESNOCANCEL or MB_ICONWARNING) of
     idYes: ;
@@ -4488,6 +4555,7 @@ begin
   end
   else
     SaveToFile(FCurFileName);
+  Result := True;
 end;
 
 procedure TfrmMainDml.ReCreateCustomToolsMenu;
@@ -4661,10 +4729,12 @@ initialization
   G_RetainAfterCommit := False;    
   G_ShowJdbcConsole := False;
   G_EnableCustomPropUI := False;       
-  G_EnableAdvTbProp := False;
+  G_EnableAdvTbProp := False; 
+  G_EnableScRulesProp := False;
   G_EnableTbPropGenerate := True;
   G_EnableTbPropRelations := True;
   G_EnableTbPropData := False;
+  G_TbPropDataSqlType := '';
   G_EnableTbPropUIDesign := False;
   G_TableDialogViewModeByDefault := False;
   G_CheckForUpdates := True;
