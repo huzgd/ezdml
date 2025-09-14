@@ -1530,7 +1530,6 @@ begin
     actCopyDmlText.Visible := Assigned(FCurMetaTableModel);
     actSelectAll.Visible := Assigned(FCurMetaTableModel);
     actExportXls.Visible := Assigned(FCurMetaTableModel);
-    actDBGenSql.Visible := Assigned(FCurMetaTableModel);
     actFindObject.Visible := Assigned(FCurMetaTableModel);
 
     ToolButtonRun.Visible := Assigned(FCurMetaTableModel);
@@ -1543,13 +1542,15 @@ begin
     actExportXls.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
     actBatchOps.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);        
     actDBGenSql.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
+    MN_GenCode.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
     MN_Capitalize.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);      
     MN_PublishType.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
     actFullTableView.Visible := not FBrowseMode and Assigned(FCurMetaTableModel);
     {$ifdef EZDML_LITE}
     actChatGPT.Visible := False;
     MNRun_GenData.Visible:=False;
-    MNRun_GenCode.Visible:=False;
+    MNRun_GenCode.Visible:=False;     
+    MN_GenCode.Visible:=False;
     actBatchOps.Visible:=False;
     actCnWordSegment.Visible:=False;
     {$else}          

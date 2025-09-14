@@ -250,6 +250,9 @@ resourcestring
   srRestoreDatabase = 'Restore database';
   srWritingDataFmt = '%d/%d Backing up data...%s';
   srReadingDataFmt = '%d/%d Restoring data...%s';
+  srManualInitGenCodeGit = 'Please manually exec shell command to pull templates from GIT repo:';
+  srAutoInitGenCodeGit = 'Auto pull the template files from GIT repo? Or you can exec shell command manually:';
+  srPullingGitRepo = 'Pulling code/template from GIT repo...';
   srConfirmOpenAfterGenCode = 'Generate-code success. Open output folder now?';  
   srConfirmOpenFileLocation = 'Operation success. Open target folder now?';
   srModifyDatabaseWarning =
@@ -527,6 +530,8 @@ resourcestring
   srChatGPTRecoFailed = 'The content returned by AI service is not recognized. Please modify the text or try again later';
   srChatGPTGenNothing = 'AI did not return new content, please try modifying or adding prompts and descriptive information';
   srSqlLogEnabled = 'SQL log enabled';
+  srSqlDeleteAllWarning = 'Warning: about to DELETE ALL records. Are you sure?';
+  srScEditorDataLostWarning = 'Warning: editor content changed, do you want to save content before editor close?';
 
   srEzJdbcDriverList = 'ORACLE=driver=oracle.jdbc.OracleDriver;url=jdbc:oracle:thin:@127.0.0.1:1521:{database}' + #13#10 +
     'MYSQL=driver=com.mysql.jdbc.Driver;url=jdbc:mysql://127.0.0.1:3306/{database}' + #13#10 +

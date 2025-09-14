@@ -4360,7 +4360,6 @@ var
     if Trim(vMem) <> '' then
       Mem := vMem;
     DeleteMemo(Des);
-    Des := StringReplace(Des, ':', ' ', [rfReplaceAll]);
     Des := StringReplace(Des, ';', '', [rfReplaceAll]);
 
     vTemp := Des;
@@ -4378,6 +4377,7 @@ var
         end;
       end;
     end;
+    Des := StringReplace(Des, ':', ' ', [rfReplaceAll]);
 
     Tp := Trim(ExtractCompStr(Des + '//', ' ', '//'));
     if Pos(' ', Des) = 0 then

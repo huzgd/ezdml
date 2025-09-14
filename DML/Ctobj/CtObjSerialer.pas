@@ -181,8 +181,8 @@ type
   end;
    
 const
-  DEF_CURCTVER = 'CT40';
-  DEF_CURCTVER_VAL = 40;
+  DEF_CURCTVER = 'CT41';
+  DEF_CURCTVER_VAL = 41;
 var
   Proc_CheckDecDmlData: function(data: string): string;
 {$IFnDEF FPC}    

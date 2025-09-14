@@ -58,6 +58,7 @@ type
     MenuItem16: TMenuItem;
     MenuItem17: TMenuItem;
     MenuItem18: TMenuItem;
+    MN_GenCode: TMenuItem;
     MN_PubType_4: TMenuItem;
     MN_PubType_3: TMenuItem;
     MN_PubType_2: TMenuItem;
@@ -770,8 +771,12 @@ end;
 
 
 procedure TFrameDML.MNRun_GenCodeClick(Sender: TObject);
-begin
+begin                        
+{$ifdef EZDML_LITE}                   
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  3, 1);
+{$else}
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  3, 2);
+{$endif}
 end;
 
 procedure TFrameDML.MNRun_GenDataClick(Sender: TObject);

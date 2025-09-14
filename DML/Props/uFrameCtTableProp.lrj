@@ -96,6 +96,8 @@
 {"hash":1054,"name":"tframecttableprop.sbtnviewsqleditor.caption","sourcebytes":[62,62],"value":">>"},
 {"hash":209770693,"name":"tframecttableprop.lbidentifycode.hint","sourcebytes":[99,117,114,84,97,98,108,101,46,105,100,101,110,116,105,102,121,67,111,100,101],"value":"curTable.identifyCode"},
 {"hash":35315477,"name":"tframecttableprop.lbidentifycode.caption","sourcebytes":[73,100,101,110,116,105,102,121,32,99,111,100,101],"value":"Identify code"},
+{"hash":1054,"name":"tframecttableprop.sbtnuilogiceditor.caption","sourcebytes":[62,62],"value":">>"},
+{"hash":1054,"name":"tframecttableprop.sbtnbuzlogiceditor.caption","sourcebytes":[62,62],"value":">>"},
 {"hash":78431854,"name":"tframecttableprop.tabsheetui.caption","sourcebytes":[85,73,32,68,101,115,105,103,110],"value":"UI Design"},
 {"hash":144923900,"name":"tframecttableprop.tabsheetdata.caption","sourcebytes":[68,97,116,97,32,83,81,76],"value":"Data SQL"},
 {"hash":63124147,"name":"tframecttableprop.tabsheetscrules.caption","sourcebytes":[83,99,114,105,112,116,32,82,117,108,101,115],"value":"Script Rules"},

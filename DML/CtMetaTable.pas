@@ -41,6 +41,8 @@ DataLength[最大长度]                       Integer
 FieldWeight[字段权重]                      Integer
 Url[链接]                                  String
 ResType[资源类型]                          String
+ResSQL[资源SQL]                            String
+ResSQLWhere[资源过滤条件]                  String
 Formula[公式]                              String
 FormulaCondition[公式条件]                 String
 AggregateFun[汇总函数]                     String
@@ -582,7 +584,9 @@ type
     FDataLength: integer;
     FDataScale: integer;
     FUrl: string;
-    FResType: string;
+    FResType: string;    
+    FResSQL: string;
+    FResSQLWhere: string;
     FFormula: string;
     FFormulaCondition: string;
     FAggregateFun: string;
@@ -718,6 +722,10 @@ type
     property Url: string read FUrl write FUrl;
     //资源类型
     property ResType: string read FResType write FResType;
+    //资源SQL
+    property ResSQL: string read FResSQL write FResSQL;
+    //资源过滤条件
+    property ResSQLWhere: string read FResSQLWhere write FResSQLWhere;
     //公式
     property Formula: string read FFormula write FFormula;
     //公式条件
@@ -6268,6 +6276,7 @@ function TCtMetaField.CanDisplay(tp: string): boolean;
 
 var
   kf: TCtKeyFieldType;
+  et: String;
 begin
   //tp显示类型:all title subtitle describ card grid sheet
   Result := True;
@@ -6382,6 +6391,19 @@ begin
         Result := False;
         Exit;
       end;
+  end;
+
+  if HasTp('card') or HasTp('grid') then
+  begin
+    et := Self.PossibleEditorType;
+    if (et='Memo')  or(et='RichText') or(et='Password') or(et='DataGrid') or
+      (et='KeyValueList') or(et='FileNameEdit') or(et='ImageFile') or(et='UploadFile') or
+      (et='LocationMap') or(et='Button') or(et='HyperLink') or(et='Picture') or
+      (et='BarCode') or(et='QRCode') or(et='Chart') then
+    begin
+      Result := False;
+      Exit;
+    end;
   end;
 
   Result := True;
@@ -6801,7 +6823,9 @@ begin
   FDataLength := 0;
   FDataScale := 0;
   FUrl := '';
-  FResType := '';
+  FResType := '';       
+  FResSQL := '';
+  FResSQLWhere := '';
   FFormula := '';
   FFormulaCondition := '';
   FAggregateFun := '';
@@ -6890,6 +6914,8 @@ begin
     FDataScale := TCtMetaField(ACtObj).FDataScale;
     FUrl := TCtMetaField(ACtObj).FUrl;
     FResType := TCtMetaField(ACtObj).FResType;
+    FResSQL := TCtMetaField(ACtObj).FResSQL;
+    FResSQLWhere := TCtMetaField(ACtObj).FResSQLWhere;
     FFormula := TCtMetaField(ACtObj).FFormula;
     FFormulaCondition := TCtMetaField(ACtObj).FFormulaCondition;
     FAggregateFun := TCtMetaField(ACtObj).FAggregateFun;
@@ -6991,7 +7017,12 @@ begin
     ASerialer.ReadInteger('DataScale', FDataScale);
 
     ASerialer.ReadString('Url', FUrl);
-    ASerialer.ReadString('ResType', FResType);
+    ASerialer.ReadString('ResType', FResType);    
+    if ASerialer.CurCtVer >= 41 then
+    begin                                          
+      ASerialer.ReadString('ResSQL', FResSQL);
+      ASerialer.ReadString('ResSQLWhere', FResSQLWhere);
+    end;
     ASerialer.ReadString('Formula', FFormula);
     ASerialer.ReadString('FormulaCondition', FFormulaCondition);
     ASerialer.ReadString('AggregateFun', FAggregateFun);
@@ -7104,6 +7135,8 @@ begin
 
     ASerialer.WriteString('Url', FUrl);
     ASerialer.WriteString('ResType', FResType);
+    ASerialer.WriteString('ResSQL', FResSQL);
+    ASerialer.WriteString('ResSQLWhere', FResSQLWhere);
     ASerialer.WriteString('Formula', FFormula);
     ASerialer.WriteString('FormulaCondition', FFormulaCondition);
     ASerialer.WriteString('AggregateFun', FAggregateFun);
@@ -8335,6 +8368,96 @@ begin
 end;
 
 function TCtMetaField.ExtractDropDownItemsFromMemo: string;
+  function RepDivs(str: string): string;
+  begin
+    Result := str;   
+    if Pos(#10, Result) = 0 then
+    begin
+      if Pos('; ', Result) > 0 then
+        Result := StringReplace(Result, '; ', #13#10, [rfReplaceAll])
+      else if Pos(', ', Result) > 0 then
+        Result := StringReplace(Result, ', ', #13#10, [rfReplaceAll])
+      else if Pos(';', Result) > 0 then
+        Result := StringReplace(Result, ';', #13#10, [rfReplaceAll])
+      else if Pos(',', Result) > 0 then
+        Result := StringReplace(Result, ',', #13#10, [rfReplaceAll])
+      else if Pos(' ', Result) > 0 then
+        Result := StringReplace(Result, ' ', #13#10, [rfReplaceAll]);
+    end;
+  end;
+  function ProcNumVal(str: string): string;
+  var
+    s: string;
+    i, len: integer;
+    foundDigit: boolean;
+  begin
+    //前面是数字，后面是字符串
+    Result := '';
+    s := str;
+    len := length(s);
+    i := 1;
+
+    // 处理负号（如果存在）
+    if (i <= len) and (s[i] = '-') then
+      i := i + 1;
+
+    // 查找数字部分
+    foundDigit := false;
+    while (i <= len) and (s[i] in ['0'..'9']) do
+    begin
+      i := i + 1;
+      foundDigit := true; // 标记已找到至少一个数字
+    end;
+
+    // 验证整数部分是否有效（负号后必须有数字）
+    if (len > 0) and (s[1] = '-') and not foundDigit then
+    begin
+      exit;
+    end;
+
+    // 插入等号
+    if i <= len then
+      s := copy(s, 1, i-1) + '=' + copy(s, i, len - i + 1);
+
+    Result := s;
+  end;
+
+  function TryExtractDDItems(tx: string): string;
+  var
+    S: string;
+    ss: TStringList;
+    I: Integer;
+  begin
+    Result := '';
+    tx := Trim(tx);
+    if tx='' then
+      Exit;
+    S:=RepDivs(tx);
+    if Pos(#10, S)=0 then
+      Exit;
+    ss:= TStringList.Create;
+    try
+      ss.Text := S;
+      for I:=ss.Count-1 downto 0 do
+      begin
+        S := ss[I];
+        if Trim(S)='' then
+          ss.Delete(I)
+        else if Pos('=', S)=0 then
+        begin
+          S := ProcNumVal(S);
+          if S='' then
+            Exit;
+          ss[I] := S;
+        end;
+      end;
+      if ss.Count<2 then
+        Exit;
+      Result:=Trim(ss.Text);
+    finally
+      ss.Free;
+    end;
+  end;
 var
   I, po: integer;
   S, M, T: string;
@@ -8365,22 +8488,56 @@ begin
     if po > 0 then
     begin
       Result := Trim(Copy(M, po + Length(S), Length(M)));
-      if Pos(#10, Result) = 0 then
-      begin
-        if Pos('; ', Result) > 0 then
-          Result := StringReplace(Result, '; ', #13#10, [rfReplaceAll])
-        else if Pos(', ', Result) > 0 then
-          Result := StringReplace(Result, ', ', #13#10, [rfReplaceAll])
-        else if Pos(';', Result) > 0 then
-          Result := StringReplace(Result, ';', #13#10, [rfReplaceAll])
-        else if Pos(',', Result) > 0 then
-          Result := StringReplace(Result, ',', #13#10, [rfReplaceAll])
-        else if Pos(' ', Result) > 0 then
-          Result := StringReplace(Result, ' ', #13#10, [rfReplaceAll]);
-      end;
+      Result := RepDivs(Result);
       Exit;
     end;
   end;
+
+  if (DataType<> cfdtInteger) and (DataType<>cfdtEnum) and (DataType<>cfdtBool) then
+    Exit;
+  //支持 XX（0XX 1XX 2XX）
+  T := Trim(Memo);
+  if StrEndsWith(T, '）') then
+  begin
+    S := '（';
+    po := Pos(S, T);
+    T := Copy(T, po + Length(S), Length(T));
+    T := Copy(T, 1, Length(T)-Length(S));
+    Result := TryExtractDDItems(T);
+    if Result <>'' then
+      Exit;
+  end;
+
+  //支持 XX(0XX 1XX 2XX)
+  T := Trim(Memo);
+  if StrEndsWith(T, ')') then
+  begin           
+    S := '(';
+    po := Pos('(', T);
+    T := Copy(T, po + 1, Length(T));  
+    T := Copy(T, 1, Length(T)-Length(S));
+    Result := TryExtractDDItems(T);
+    if Result <>'' then
+      Exit;
+  end;
+
+  //支持 XX：0XX 1XX 2XX
+  T := Trim(Memo);
+    S := '：';
+  po := Pos(S, T);
+  if po=0 then
+  begin
+    S:=':';
+    po := Pos(S, T);
+  end;
+  if po>0 then
+  begin
+    T := Copy(T, po + Length(S), Length(T));
+    Result := TryExtractDDItems(T);
+    if Result <>'' then
+      Exit;
+  end;
+
 end;
 
 function TCtMetaField.CheckMaxMinDemoInt(val: integer): integer;
@@ -8517,7 +8674,9 @@ begin
 
   if FHint <> '' then Exit;
   if FUrl <> '' then Exit;
-  if FResType <> '' then Exit;
+  if FResType <> '' then Exit;       
+  if FResSQL <> '' then Exit;
+  if FResSQLWhere <> '' then Exit;
   if FFormula <> '' then Exit;
   if FFormulaCondition <> '' then Exit;
   if FAggregateFun <> '' then Exit;

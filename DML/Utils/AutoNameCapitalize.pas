@@ -172,8 +172,45 @@ function AutoCapProc(AName, sType: string): string;
             Result := str[1] + LowerCase(Copy(str, 2, Length(str)));
       end;
   end;
+  function CanUnCap(str: string): Boolean;
+  var
+    L: Integer;
+  begin
+    Result := False;
+    L := Length(str);
+    if L=0 then
+      Exit;
+    if (str[1] >='A') and (str[1] <='Z') then
+    begin
+      if L=2 then
+        if (str[2] >='A') and (str[2] <='Z') then
+          Exit;
+      if L>=3 then
+        if (str[2] >='A') and (str[2] <='Z') then
+          if (str[3] >='A') and (str[3] <='Z') then
+            Exit;
+      Result := True;
+    end;
+  end;
+
+  function GetTbNamePref: String;
+  var
+    I: Integer;
+  begin
+    Result := '';
+    for I := 0 to High(CtTbNamePrefixDefs) do
+      if Pos(CtTbNamePrefixDefs[i], AName) = 1 then
+      begin
+        Result :=CtTbNamePrefixDefs[i];
+        Break;
+      end;
+  end;
+
+var
+  prfH: string;
 begin
   Result := AName;
+  prfH := GetTbNamePref;
 
   sType := LowerCase(sType);
   if sType = LowerCase('AutoCapitalize') then
@@ -195,7 +232,7 @@ begin
   end     
   else if sType = LowerCase('UnCapitalize') then
   begin
-    if (Result[1] >='A') and (Result[1] <='Z') then
+    if CanUnCap(Result) then
       Result := LowerCase(Result[1])+Copy(Result,2,Length(Result));
   end
   else if sType = LowerCase('CamelCaseToUnderline') then
@@ -246,20 +283,28 @@ begin
     Result := AutoCapProc(Result,'LowerCase');
   end
   else if sType = LowerCase('FieldName') then
-  begin                           
+  begin
+    if prfH<>'' then
+      Result := Copy(Result, Length(prfH)+1, Length(result));
     Result := CheckAllUpper(Result);
     Result := AutoCapProc(Result,'ChnToPY');
     Result := AutoCapProc(Result,'UnderlineToCamelCase');
     Result := AutoCapProc(Result,'UnCapitalize');
+    if prfH<>'' then
+      Result := prfH + Result;
   end
   else if sType = LowerCase('FieldNameSafe') then
-  begin                
+  begin
+    if prfH<>'' then
+      Result := Copy(Result, Length(prfH)+1, Length(result));
     Result := CheckAllUpper(Result);
     Result := AutoCapProc(Result,'ChnToPY');    
     if IsReservedKeyworkd(Result) then
       Result := 'Ez_'+Result;
     Result := AutoCapProc(Result,'UnderlineToCamelCase');
-    Result := AutoCapProc(Result,'UnCapitalize');
+    Result := AutoCapProc(Result,'UnCapitalize'); 
+    if prfH<>'' then
+      Result := prfH + Result;
   end;
 end;
 

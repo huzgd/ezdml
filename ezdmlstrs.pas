@@ -17,8 +17,8 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.68';
-  srEzdmlVersionDate = '2025-08-10';
+  srEzdmlVersionNum = '3.69';
+  srEzdmlVersionDate = '2025-09-14';
 
 {$ifdef EZDML_LITE}
 
@@ -37,6 +37,22 @@ const
 {$endif}
 
 {$endif}
+
+
+{$ifdef WINDOWS}  
+{$ifdef WIN32}
+  srEzdmlOSType = 'win32';
+{$else}
+  srEzdmlOSType = 'win64';
+{$endif}
+{$else}
+{$IFDEF DARWIN}    
+  srEzdmlOSType = 'mac64';
+{$else}     
+  srEzdmlOSType = 'linux64';
+{$ENDIF}
+{$endif}
+
   //srEzdmlAppTitle = 'EZDML';
   srEzdmlAppTitle = srEzdmlAppTitleOS;
 

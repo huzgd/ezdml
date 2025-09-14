@@ -55,6 +55,9 @@ type
     Label58: TLabel;
     Label59: TLabel;
     Label60: TLabel;
+    Label61: TLabel;
+    lbResSQL: TLabel;
+    lbParams: TLabel;
     lbDemoData: TLabel;
     Label40: TLabel;
     Label41: TLabel;
@@ -66,17 +69,20 @@ type
     Label47: TLabel;
     Label48: TLabel;
     Label49: TLabel;
-    Label50: TLabel;
+    lbDropdownSQL: TLabel;
     Label51: TLabel;
     Label52: TLabel;
     Label53: TLabel;
-    Label54: TLabel;
-    Label55: TLabel;
+    lbUILogic: TLabel;
+    lbBuzLogic: TLabel;
     memoDropDownItems: TMemo;
     memoDropDownSql: TMemo;
     memoEditorProps: TMemo;
     memoDBCheck: TMemo;
     memoDesignNotes: TMemo;
+    memoResSQLWhere: TMemo;
+    memoParams: TMemo;
+    memoResSQL: TMemo;
     MemoUILogic: TMemo;
     memoTestDataRules: TMemo;
     memoBusinessLogic: TMemo;
@@ -88,9 +94,13 @@ type
     PageControl1: TPageControl;
     PanelCustomScriptDef: TPanel;
     PopupMenuTabs: TPopupMenu;
+    sbtnDropdownSqlEditor: TSpeedButton;
+    sbtnUILogicEditor: TSpeedButton;
     sbtnSelIndexFields: TSpeedButton;
     sbtnSelRelateFields: TSpeedButton;
     sbtnShowRelTbInfo: TSpeedButton;
+    sbtnResSqlEditor: TSpeedButton;
+    sbtnBuzLogicEditor: TSpeedButton;
     ScrollBoxOperLogic: TScrollBox;
     ScrollBoxEditorUI: TScrollBox;
     ScrollBoxFieldDef: TScrollBox;
@@ -191,9 +201,13 @@ type
     procedure PageControl1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure PanelCustomScriptDefResize(Sender: TObject);
+    procedure sbtnBuzLogicEditorClick(Sender: TObject);
+    procedure sbtnDropdownSqlEditorClick(Sender: TObject);
+    procedure sbtnResSqlEditorClick(Sender: TObject);
     procedure sbtnSelIndexFieldsClick(Sender: TObject);
     procedure sbtnSelRelateFieldsClick(Sender: TObject);
     procedure sbtnShowRelTbInfoClick(Sender: TObject);
+    procedure sbtnUILogicEditorClick(Sender: TObject);
     procedure ScrollBoxCustomScriptDefResize(Sender: TObject);
     procedure TabSheetCustShow(Sender: TObject);
     procedure ckbAutoIncrementClick(Sender: TObject);
@@ -237,9 +251,10 @@ type
 implementation
 
 uses
-  dmlstrs, CtObjXmlSerial, DmlScriptPublic,
-  WindowFuncs, uFormSelectFields
-  {$ifndef EZDML_LITE}, CtTestDataGen, DmlScriptControl,  uFormDBDataRule{$endif};
+  dmlstrs, ezdmlstrs, CtObjXmlSerial, DmlScriptPublic,
+  WindowFuncs, uFormSelectFields, uDMLSqlEditor
+  {$ifndef EZDML_LITE}, CtTestDataGen, DmlScriptControl,  uFormDBDataRule,
+  wFormScRuleEdit{$endif};
 
 {$R *.lfm}
 
@@ -550,7 +565,9 @@ begin
   colobBackColor.Selected := FMetaField.BackColor;
 
   edtURL.Text := FMetaField.Url;
-  edtResType.Text := FMetaField.ResType;
+  edtResType.Text := FMetaField.ResType; 
+  memoResSQL.Lines.Text := FMetaField.ResSQL;
+  memoResSQLWhere.Lines.Text := FMetaField.ResSQLWhere;
   edtFormula.Text := FMetaField.Formula;
   memoFormulaCondition.Lines.Text := FMetaField.FormulaCondition;
   combAggregateFun.Text := GetCtDropDownTextOfValue(FMetaField.AggregateFun,
@@ -574,6 +591,10 @@ begin
   ckbAutoTrim.Checked := FMetaField.AutoTrim;
   ckbRequired.Checked := FMetaField.Required;
   memoEditorProps.Text := FMetaField.EditorProps;
+  if FMetaField.HasParams then
+    memoParams.Lines.Text := FMetaField.ParamList.Text
+  else
+    memoParams.Lines.Text := '';
   memoTestDataRules.Text := FMetaField.TestDataRules;
   if FMetaField.TestDataNullPercent=0 then
     edtTestDataNullPercent.Text := ''
@@ -913,7 +934,11 @@ begin
     if Sender = edtURL then
       FMetaField.Url := edtURL.Text;
     if Sender = edtResType then
-      FMetaField.ResType := edtResType.Text;
+      FMetaField.ResType := edtResType.Text;        
+    if Sender = memoResSQL then
+      FMetaField.ResSQL := memoResSQL.Lines.Text;
+    if Sender = memoResSQLWhere then
+      FMetaField.ResSQLWhere := memoResSQLWhere.Lines.Text;
     if Sender = edtFormula then
       FMetaField.Formula := edtFormula.Text;
     if Sender = memoFormulaCondition then
@@ -960,6 +985,13 @@ begin
       FMetaField.Required := ckbRequired.Checked;
     if Sender = memoEditorProps then
       FMetaField.EditorProps := memoEditorProps.Text;
+    if Trim(memoParams.Lines.Text) = '' then
+    begin
+      if FMetaField.HasParams then
+        FMetaField.ParamList.Text := memoParams.Lines.Text;
+    end
+    else
+      FMetaField.ParamList.Text := memoParams.Lines.Text;
     if Sender = edtTestDataNullPercent then
       FMetaField.TestDataNullPercent := StrToIntDef(edtTestDataNullPercent.Text, 0);
     if Sender = combTestDataType then
@@ -1151,6 +1183,23 @@ begin
   Proc_ShowCtTableProp(tb, True, False);
 end;
 
+procedure TFrameCtFieldDef.sbtnUILogicEditorClick(Sender: TObject);
+var
+  S: String;
+begin
+  {$ifndef EZDML_LITE}
+  S := ScRuleEdit(FSelTable, lbUILogic.Caption, 'Field.UILogic', MemoUILogic.Lines.Text,'', Self.FReadOnlyMode);
+  if not FReadOnlyMode then
+    if Trim(S) <> Trim(MemoUILogic.Lines.Text) then
+    begin
+      MemoUILogic.Lines.Text := S;
+      edtNameExit(MemoUILogic);
+    end;
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
+end;
+
 procedure TFrameCtFieldDef.ScrollBoxCustomScriptDefResize(Sender: TObject);
 begin
   PanelCustomScriptDef.Width := ScrollBoxCustomScriptDef.ClientWidth - 2;
@@ -1161,6 +1210,49 @@ begin
   {$ifndef EZDML_LITE}
   TDmlScriptControlList(FCustDmlScControls).RealignControls; 
   {$endif}
+end;
+
+procedure TFrameCtFieldDef.sbtnBuzLogicEditorClick(Sender: TObject);
+var
+  S: String;
+begin
+  {$ifndef EZDML_LITE}
+  S := ScRuleEdit(FSelTable, lbBuzLogic.Caption, 'Field.BusinessLogic', memoBusinessLogic.Lines.Text,'', Self.FReadOnlyMode);
+  if not FReadOnlyMode then
+    if Trim(S) <> Trim(memoBusinessLogic.Lines.Text) then
+    begin
+      memoBusinessLogic.Lines.Text := S;
+      edtNameExit(memoBusinessLogic);
+    end;
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
+end;
+
+procedure TFrameCtFieldDef.sbtnDropdownSqlEditorClick(Sender: TObject);
+var
+  S, V: String;
+begin
+  S := memoDropDownSql.Lines.Text;
+  V := EditSQL(S, lbDropdownSQL.Caption);
+  if V<>S then
+  begin
+    memoDropDownSql.Lines.Text := V;
+    edtNameExit(memoDropDownSql);
+  end;
+end;
+
+procedure TFrameCtFieldDef.sbtnResSqlEditorClick(Sender: TObject);
+var
+  S, V: String;
+begin
+  S := memoResSQL.Lines.Text;
+  V := EditSQL(S, lbResSQL.Caption);
+  if V<>S then
+  begin
+    memoResSQL.Lines.Text := V;
+    edtNameExit(memoResSQL);
+  end;
 end;
 
 procedure TFrameCtFieldDef.PageControl1Change(Sender: TObject);

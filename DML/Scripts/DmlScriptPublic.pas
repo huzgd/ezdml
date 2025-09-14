@@ -170,7 +170,8 @@ uses
   {$ifndef EZDML_LITE}
   DmlScriptControl,
   {$endif}
-  UCNSpell,
+  UCNSpell, 
+  ezdmlstrs,
   dmlstrs,
   TypInfo,
   CtObjJsonSerial,
@@ -519,7 +520,11 @@ begin
   else if AName = 'COMPUTER' then
     Result := GetThisComputerName//'ComputerName'
   else if AName = 'IP' then
-    Result := 'GetLocalIP'
+    Result := 'GetLocalIP'        
+  else if AName = 'EZDMLVER' then
+    Result := srEzdmlVersionNum       
+  else if AName = 'OSTYPE' then
+    Result := srEzdmlOSType
   else if AName = 'LANGUAGE' then
     Result := GetEzdmlLang
   else if AName = 'DMLFILEPATH' then
@@ -535,7 +540,9 @@ begin
   else if AName = 'CONFIGFILE' then
     Result := GetConfFileOfApp()
   else if AName = 'SCRIPTFOLDER' then
-    Result := GetFolderPathOfAppExe('Templates')
+    Result := GetFolderPathOfAppExe('Templates')    
+  else if AName = 'DIRSEPARATOR' then
+    Result := DirectorySeparator
   else if AName = 'ARCHBITS' then
     Result := '64'
   else if AName = 'SYSTEMTYPE' then

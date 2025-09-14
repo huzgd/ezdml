@@ -96,6 +96,7 @@ function GetAppTempFileName(filename: string): string;
 function FolderAddFileName(folder, fileName: string): string;
 function TrimFileName(fileName: string): string;
 function CheckFileNameSep(fileName: string): string;
+function TrimParentRelateDots(fileName: string): string;
 
 function GetUnusedFileName(AFileName: string): string;
 
@@ -106,7 +107,8 @@ function Utf8URLEncode(const msg: string): string;
 function URLEncode(const msg: string): string;
 function URLDecode(const S: string): string;
                      
-function IsJdkInstalled: Boolean;
+function IsJdkInstalled: Boolean; 
+function IsToolInstalled(cmd: string): Boolean;
 
 procedure ShellCmd(cmd: string; par: string = '');    
 function RunCmd(cmd: string; timeout: integer): string;
@@ -785,7 +787,7 @@ begin
   Result := StringReplace(Result, '-', '', [rfReplaceAll]);
 end;
 
-function IsJdkInstalled: Boolean;
+function IsToolInstalled(cmd: string): Boolean;
 var
   AProcess: TProcess;
   sl: TStringList;
@@ -795,7 +797,7 @@ begin
   AProcess := TProcess.Create(nil);
   try
     try
-      AProcess.CommandLine := 'java -version';
+      AProcess.CommandLine := cmd;
       AProcess.Options := AProcess.Options + [poUsePipes,poNoConsole];
       AProcess.Execute;
       if AProcess.WaitOnExit then
@@ -810,6 +812,11 @@ begin
     AProcess.Free;
     sl.Free;
   end;
+end;
+
+function IsJdkInstalled: Boolean;
+begin
+  Result := IsToolInstalled('java -version');
 end;
 
 procedure ShellCmd(cmd, par: string);
@@ -1683,6 +1690,37 @@ begin
   else
     S:='/';
   Result := StringReplace(Result,S,DirectorySeparator,[rfReplaceAll]);
+end;
+
+function TrimParentRelateDots(fileName: string): string;
+var
+  po, po2: Integer;
+  S, S1, R1, S2, R2: string;
+begin
+  Result := fileName;
+  while True do
+  begin
+    S:= Result+'/';
+    if Pos('\', S)>0 then
+      S:=StringReplace(S,'\', '/', [rfReplaceAll]);
+    po := Pos('/../', S);
+    if po=0 then
+      Break;
+    S1 := Copy(S, 1, po-1);
+    R1 := Copy(Result, 1, po -1 );
+    po2 := LastPos('/', S1);
+    if po2=0 then
+      Exit;
+    S1 := Copy(S1, 1, po2);
+    R1 := Copy(R1, 1, po2);
+
+    S2 := Copy(S, po+4, Length(S));
+    R2 := Copy(Result, po + 4, Length(Result));
+
+    S:=S1+S2;
+    Result := R1+R2;
+  end;
+  Result := CheckFileNameSep(Result);
 end;
 
 function GetUnusedFileName(AFileName: string): string;

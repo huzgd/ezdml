@@ -9,6 +9,10 @@ msgstr ""
 msgid "Data version not supported. You may need a newer version of EZDML."
 msgstr ""
 
+#: dmlstrs.srautoinitgencodegit
+msgid "Auto pull the template files from GIT repo? Or you can exec shell command manually:"
+msgstr ""
+
 #: dmlstrs.srbackupdatabase
 msgid "Backup database"
 msgstr ""
@@ -906,6 +910,10 @@ msgstr ""
 msgid "Logic Name"
 msgstr ""
 
+#: dmlstrs.srmanualinitgencodegit
+msgid "Please manually exec shell command to pull templates from GIT repo:"
+msgstr ""
+
 #: dmlstrs.srminutes
 msgid "Minutes"
 msgstr ""
@@ -1053,6 +1061,10 @@ msgctxt "dmlstrs.srprocessing"
 msgid "Processing..."
 msgstr ""
 
+#: dmlstrs.srpullinggitrepo
+msgid "Pulling code/template from GIT repo..."
+msgstr ""
+
 #: dmlstrs.srpwddecryptfailed
 msgid "Decryption failed due to invalid password"
 msgstr ""
@@ -1089,6 +1101,10 @@ msgstr ""
 msgid "Warning: The database is about to be restored, all data in selected tables will be lost. Do you still want to restore tables now?"
 msgstr ""
 
+#: dmlstrs.srsceditordatalostwarning
+msgid "Warning: editor content changed, do you want to save content before editor close?"
+msgstr ""
+
 #: dmlstrs.srscriptruleeditors
 msgid ""
 "Editor\n"
@@ -1099,6 +1115,10 @@ msgstr ""
 
 #: dmlstrs.srseconds
 msgid "Seconds"
+msgstr ""
+
+#: dmlstrs.srsqldeleteallwarning
+msgid "Warning: about to DELETE ALL records. Are you sure?"
 msgstr ""
 
 #: dmlstrs.srsqleditorexectip
@@ -2058,14 +2078,6 @@ msgctxt "tframectfielddef.label5.hint"
 msgid "curField.labelText"
 msgstr ""
 
-#: tframectfielddef.label50.caption
-msgid "Dropdown SQL"
-msgstr ""
-
-#: tframectfielddef.label50.hint
-msgid "curField.dropDownSQL"
-msgstr ""
-
 #: tframectfielddef.label51.caption
 msgid "Editor props"
 msgstr ""
@@ -2090,24 +2102,6 @@ msgstr ""
 
 #: tframectfielddef.label53.hint
 msgid "curField.validateRule"
-msgstr ""
-
-#: tframectfielddef.label54.caption
-msgctxt "tframectfielddef.label54.caption"
-msgid "UI logic"
-msgstr ""
-
-#: tframectfielddef.label54.hint
-msgid "curField.UILogic"
-msgstr ""
-
-#: tframectfielddef.label55.caption
-msgctxt "tframectfielddef.label55.caption"
-msgid "Business logic"
-msgstr ""
-
-#: tframectfielddef.label55.hint
-msgid "curField.businessLogic"
 msgstr ""
 
 #: tframectfielddef.label56.caption
@@ -2163,6 +2157,14 @@ msgstr ""
 msgid "curField.fieldWeight"
 msgstr ""
 
+#: tframectfielddef.label61.caption
+msgid "Res SQL where"
+msgstr ""
+
+#: tframectfielddef.label61.hint
+msgid "curField.resSQLWhere"
+msgstr ""
+
 #: tframectfielddef.label7.caption
 msgctxt "tframectfielddef.label7.caption"
 msgid "Field name"
@@ -2190,12 +2192,59 @@ msgstr ""
 msgid "curField.dataLength, curField.dataScale"
 msgstr ""
 
+#: tframectfielddef.lbbuzlogic.caption
+msgctxt "tframectfielddef.lbbuzlogic.caption"
+msgid "Business logic"
+msgstr ""
+
+#: tframectfielddef.lbbuzlogic.hint
+msgctxt "tframectfielddef.lbbuzlogic.hint"
+msgid "curField.businessLogic"
+msgstr ""
+
 #: tframectfielddef.lbdemodata.caption
 msgid "Demo data"
 msgstr ""
 
 #: tframectfielddef.lbdemodata.hint
 msgid "curField.genDemoData(row,opt,ds)"
+msgstr ""
+
+#: tframectfielddef.lbdropdownsql.caption
+msgctxt "tframectfielddef.lbdropdownsql.caption"
+msgid "Dropdown SQL"
+msgstr ""
+
+#: tframectfielddef.lbdropdownsql.hint
+msgctxt "tframectfielddef.lbdropdownsql.hint"
+msgid "curField.dropDownSQL"
+msgstr ""
+
+#: tframectfielddef.lbparams.caption
+msgctxt "tframectfielddef.lbparams.caption"
+msgid "Params"
+msgstr ""
+
+#: tframectfielddef.lbparams.hint
+msgid "curField.params"
+msgstr ""
+
+#: tframectfielddef.lbressql.caption
+msgid "Res SQL"
+msgstr ""
+
+#: tframectfielddef.lbressql.hint
+msgid "curField.resSQL"
+msgstr ""
+
+#: tframectfielddef.lbuilogic.caption
+msgctxt "tframectfielddef.lbuilogic.caption"
+msgid "UI logic"
+msgstr ""
+
+#: tframectfielddef.lbuilogic.hint
+msgctxt "tframectfielddef.lbuilogic.hint"
+msgid "curField.UILogic"
 msgstr ""
 
 #: tframectfielddef.mntab_editorui.caption
@@ -2211,6 +2260,21 @@ msgstr ""
 #: tframectfielddef.mntab_settings.caption
 msgctxt "tframectfielddef.mntab_settings.caption"
 msgid "Settings"
+msgstr ""
+
+#: tframectfielddef.sbtnbuzlogiceditor.caption
+msgctxt "tframectfielddef.sbtnbuzlogiceditor.caption"
+msgid ">>"
+msgstr ""
+
+#: tframectfielddef.sbtndropdownsqleditor.caption
+msgctxt "tframectfielddef.sbtndropdownsqleditor.caption"
+msgid ">>"
+msgstr ""
+
+#: tframectfielddef.sbtnressqleditor.caption
+msgctxt "tframectfielddef.sbtnressqleditor.caption"
+msgid ">>"
 msgstr ""
 
 #: tframectfielddef.sbtnsearchfields.caption
@@ -2249,6 +2313,11 @@ msgstr ""
 
 #: tframectfielddef.sbtnshowreltbinfo.hint
 msgid "View relate table"
+msgstr ""
+
+#: tframectfielddef.sbtnuilogiceditor.caption
+msgctxt "tframectfielddef.sbtnuilogiceditor.caption"
+msgid ">>"
 msgstr ""
 
 #: tframectfielddef.stfieldname.caption
@@ -2901,6 +2970,7 @@ msgid "curTable.ownerCategory"
 msgstr ""
 
 #: tframecttableprop.lbparams.caption
+msgctxt "tframecttableprop.lbparams.caption"
 msgid "Params"
 msgstr ""
 
@@ -3163,6 +3233,11 @@ msgctxt "tframecttableprop.pmspeccopy.caption"
 msgid "Special Copy"
 msgstr ""
 
+#: tframecttableprop.sbtnbuzlogiceditor.caption
+msgctxt "tframecttableprop.sbtnbuzlogiceditor.caption"
+msgid ">>"
+msgstr ""
+
 #: tframecttableprop.sbtnfind.hint
 msgctxt "tframecttableprop.sbtnfind.hint"
 msgid "Find"
@@ -3180,6 +3255,11 @@ msgstr ""
 
 #: tframecttableprop.sbtntbjson.hint
 msgid "Json (Hold SHIFT for full-mode)"
+msgstr ""
+
+#: tframecttableprop.sbtnuilogiceditor.caption
+msgctxt "tframecttableprop.sbtnuilogiceditor.caption"
+msgid ">>"
 msgstr ""
 
 #: tframecttableprop.sbtnviewsqleditor.caption
@@ -3885,6 +3965,11 @@ msgstr ""
 #: tframedml.mn_capitalize.caption
 msgctxt "tframedml.mn_capitalize.caption"
 msgid "Capitalize"
+msgstr ""
+
+#: tframedml.mn_gencode.caption
+msgctxt "tframedml.mn_gencode.caption"
+msgid "Generate Code"
 msgstr ""
 
 #: tframedml.mn_publishtype.caption

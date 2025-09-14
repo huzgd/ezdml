@@ -1,39 +1,39 @@
 object FrameCtFieldDef: TFrameCtFieldDef
   Left = 0
-  Height = 723
+  Height = 936
   Top = 0
   Width = 622
-  ClientHeight = 723
+  ClientHeight = 936
   ClientWidth = 622
   TabOrder = 0
   TabStop = True
   DesignLeft = 463
-  DesignTop = 225
+  DesignTop = 12
   object PageControl1: TPageControl
     Left = 8
-    Height = 707
+    Height = 920
     Top = 8
     Width = 604
-    ActivePage = TabSheet1
+    ActivePage = TabSheet3
     Anchors = [akTop, akLeft, akRight, akBottom]
-    TabIndex = 0
+    TabIndex = 2
     TabOrder = 0
     OnChange = PageControl1Change
     OnMouseUp = PageControl1MouseUp
     object TabSheet1: TTabSheet
       Caption = 'Field defination'
-      ClientHeight = 677
+      ClientHeight = 890
       ClientWidth = 596
       object ScrollBoxFieldDef: TScrollBox
         Left = 0
-        Height = 677
+        Height = 890
         Top = 0
         Width = 596
         HorzScrollBar.Page = 382
         VertScrollBar.Page = 629
         VertScrollBar.Tracking = True
         Align = alClient
-        ClientHeight = 673
+        ClientHeight = 886
         ClientWidth = 592
         TabOrder = 0
         object Label3: TLabel
@@ -477,20 +477,20 @@ object FrameCtFieldDef: TFrameCtFieldDef
     end
     object TabSheet2: TTabSheet
       Caption = 'Editor UI'
-      ClientHeight = 677
+      ClientHeight = 890
       ClientWidth = 596
       ImageIndex = 1
       object ScrollBoxEditorUI: TScrollBox
         Left = 0
-        Height = 677
+        Height = 890
         Top = 0
         Width = 596
         HorzScrollBar.Page = 562
-        VertScrollBar.Page = 673
+        VertScrollBar.Page = 837
         VertScrollBar.Tracking = True
         Align = alClient
-        ClientHeight = 673
-        ClientWidth = 575
+        ClientHeight = 886
+        ClientWidth = 592
         TabOrder = 0
         object Label18: TLabel
           Left = 8
@@ -573,7 +573,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 17
           Hint = 'curField.fontName'
-          Top = 615
+          Top = 680
           Width = 61
           Caption = 'Font name'
           ParentColor = False
@@ -584,7 +584,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 272
           Height = 17
           Hint = 'curField.fontSize'
-          Top = 618
+          Top = 683
           Width = 51
           Caption = 'Font size'
           ParentColor = False
@@ -595,7 +595,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 17
           Hint = 'curField.foreColor'
-          Top = 664
+          Top = 729
           Width = 60
           Caption = 'Fore color'
           ParentColor = False
@@ -606,7 +606,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 272
           Height = 17
           Hint = 'curField.backColor'
-          Top = 664
+          Top = 729
           Width = 62
           Caption = 'Back color'
           ParentColor = False
@@ -617,7 +617,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 5
           Top = 604
-          Width = 558
+          Width = 575
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
         end
@@ -625,7 +625,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 5
           Top = 292
-          Width = 558
+          Width = 575
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
         end
@@ -677,7 +677,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 25
           Top = 160
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 14
@@ -701,7 +701,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 352
           Height = 25
           Top = 132
-          Width = 210
+          Width = 227
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 17
@@ -758,7 +758,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 25
           Top = 544
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 31
@@ -767,7 +767,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 25
           Top = 572
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 32
@@ -775,29 +775,29 @@ object FrameCtFieldDef: TFrameCtFieldDef
         object edtFontSize: TEdit
           Left = 352
           Height = 25
-          Top = 615
-          Width = 210
+          Top = 680
+          Width = 227
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
-          TabOrder = 34
+          TabOrder = 35
         end
         object ckbFontStyleB: TCheckBox
           Left = 112
           Height = 21
           Hint = 'curField.fontStyle'
-          Top = 640
+          Top = 705
           Width = 49
           Caption = 'Bold'
           OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 35
+          TabOrder = 36
         end
         object combVisibilty: TComboBox
           Left = 352
           Height = 25
           Top = 12
-          Width = 210
+          Width = 227
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 17
@@ -816,7 +816,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 352
           Height = 25
           Top = 431
-          Width = 210
+          Width = 227
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 17
@@ -854,7 +854,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 352
           Height = 25
           Top = 404
-          Width = 210
+          Width = 227
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 25
@@ -874,7 +874,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
         object Label42: TLabel
           Left = 112
           Height = 17
-          Top = 756
+          Top = 820
           Width = 12
           Caption = '   '
           ParentColor = False
@@ -895,7 +895,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 5
           Top = 120
-          Width = 558
+          Width = 575
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
         end
@@ -903,7 +903,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 25
           Top = 188
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 15
@@ -1008,7 +1008,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 352
           Height = 25
           Top = 304
-          Width = 210
+          Width = 227
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 17
@@ -1062,7 +1062,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 5
           Top = 392
-          Width = 558
+          Width = 575
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
         end
@@ -1100,37 +1100,41 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 352
           Height = 25
           Top = 460
-          Width = 210
+          Width = 227
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 29
         end
         object memoDropDownSql: TMemo
           Left = 112
-          Height = 54
+          Height = 55
           Top = 488
-          Width = 450
+          Width = 449
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 30
         end
-        object Label50: TLabel
+        object lbDropdownSQL: TLabel
+          Cursor = crHandPoint
           Left = 8
           Height = 17
           Hint = 'curField.dropDownSQL'
           Top = 488
           Width = 89
           Caption = 'Dropdown SQL'
+          Font.Color = clNavy
           ParentColor = False
+          ParentFont = False
           ParentShowHint = False
           ShowHint = True
+          OnClick = sbtnDropdownSqlEditorClick
         end
         object Label51: TLabel
           Left = 8
           Height = 17
           Hint = 'curField.editorProps'
-          Top = 692
+          Top = 757
           Width = 74
           Caption = 'Editor props'
           ParentColor = False
@@ -1140,18 +1144,18 @@ object FrameCtFieldDef: TFrameCtFieldDef
         object memoEditorProps: TMemo
           Left = 112
           Height = 57
-          Top = 692
-          Width = 450
+          Top = 757
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
-          TabOrder = 38
+          TabOrder = 39
         end
         object combAggregateFun: TComboBox
           Left = 352
           Height = 25
           Top = 332
-          Width = 210
+          Width = 227
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 17
@@ -1182,7 +1186,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 72
           Top = 216
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
@@ -1203,36 +1207,36 @@ object FrameCtFieldDef: TFrameCtFieldDef
         object combFontName: TComboBox
           Left = 112
           Height = 25
-          Top = 615
+          Top = 680
           Width = 145
           DropDownCount = 24
           ItemHeight = 17
           OnDropDown = combFontNameDropDown
           OnExit = edtNameExit
-          TabOrder = 33
+          TabOrder = 34
         end
         object colobForeColor: TColorBox
           Left = 112
           Height = 22
-          Top = 664
+          Top = 729
           Width = 145
           Style = [cbStandardColors, cbIncludeDefault, cbCustomColor]
           DropDownCount = 32
           ItemHeight = 16
           OnExit = edtNameExit
-          TabOrder = 36
+          TabOrder = 37
         end
         object colobBackColor: TColorBox
           Left = 352
           Height = 22
-          Top = 664
-          Width = 210
+          Top = 729
+          Width = 227
           Style = [cbStandardColors, cbIncludeDefault, cbCustomColor]
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 16
           OnExit = edtNameExit
-          TabOrder = 37
+          TabOrder = 38
         end
         object ckbExportable: TCheckBox
           Left = 368
@@ -1258,24 +1262,54 @@ object FrameCtFieldDef: TFrameCtFieldDef
           ShowHint = True
           TabOrder = 5
         end
+        object lbParams: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.params'
+          Top = 616
+          Width = 43
+          Caption = 'Params'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object memoParams: TMemo
+          Left = 112
+          Height = 57
+          Top = 616
+          Width = 467
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 33
+        end
+        object sbtnDropdownSqlEditor: TSpeedButton
+          Left = 561
+          Height = 57
+          Top = 487
+          Width = 18
+          Anchors = [akTop, akRight]
+          Caption = '>>'
+          OnClick = sbtnDropdownSqlEditorClick
+        end
       end
     end
     object TabSheet3: TTabSheet
       Caption = 'Operation logic'
-      ClientHeight = 615
+      ClientHeight = 890
       ClientWidth = 596
       ImageIndex = 2
       object ScrollBoxOperLogic: TScrollBox
         Left = 0
-        Height = 615
+        Height = 890
         Top = 0
         Width = 596
         HorzScrollBar.Page = 348
-        VertScrollBar.Page = 611
+        VertScrollBar.Page = 873
         VertScrollBar.Tracking = True
         Align = alClient
-        ClientHeight = 611
-        ClientWidth = 575
+        ClientHeight = 886
+        ClientWidth = 592
         TabOrder = 0
         object Label10: TLabel
           Left = 8
@@ -1303,7 +1337,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 17
           Hint = 'curField.formula'
-          Top = 428
+          Top = 532
           Width = 47
           Caption = 'Formula'
           ParentColor = False
@@ -1314,7 +1348,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 17
           Hint = 'curField.formulaCondition'
-          Top = 452
+          Top = 556
           Width = 64
           Caption = 'Formula Ex'
           ParentColor = False
@@ -1325,7 +1359,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 7
           Height = 17
           Hint = 'curField.graphDesc'
-          Top = 700
+          Top = 804
           Width = 71
           Caption = 'Graphic info'
           ParentColor = False
@@ -1380,7 +1414,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 7
           Height = 17
           Hint = 'curField.extraProps'
-          Top = 625
+          Top = 729
           Width = 53
           Caption = 'Ex-props'
           ParentColor = False
@@ -1391,7 +1425,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 25
           Top = 396
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 11
@@ -1400,7 +1434,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 25
           Top = 368
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 10
@@ -1408,37 +1442,37 @@ object FrameCtFieldDef: TFrameCtFieldDef
         object edtFormula: TEdit
           Left = 112
           Height = 25
-          Top = 424
-          Width = 450
+          Top = 528
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
-          TabOrder = 12
+          TabOrder = 14
         end
         object memoFormulaCondition: TMemo
           Left = 112
           Height = 48
-          Top = 452
-          Width = 450
+          Top = 556
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
-          TabOrder = 13
+          TabOrder = 15
         end
         object MemoGraphicDesc: TMemo
           Left = 112
           Height = 45
-          Top = 700
-          Width = 450
+          Top = 804
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
-          TabOrder = 17
+          TabOrder = 19
         end
         object edtInitValue: TEdit
           Left = 112
           Height = 25
           Top = 340
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 9
@@ -1447,7 +1481,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 25
           Top = 196
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 17
@@ -1480,7 +1514,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 352
           Height = 25
           Top = 253
-          Width = 209
+          Width = 226
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           TabOrder = 7
@@ -1488,17 +1522,17 @@ object FrameCtFieldDef: TFrameCtFieldDef
         object memoExtraProps: TMemo
           Left = 112
           Height = 71
-          Top = 624
-          Width = 450
+          Top = 728
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
-          TabOrder = 16
+          TabOrder = 18
         end
         object Label43: TLabel
           Left = 111
           Height = 17
-          Top = 752
+          Top = 856
           Width = 12
           Caption = '   '
           ParentColor = False
@@ -1507,7 +1541,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 3
           Top = 188
-          Width = 554
+          Width = 571
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
         end
@@ -1515,7 +1549,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 71
           Top = 40
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
@@ -1572,65 +1606,73 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 7
           Height = 3
           Top = 332
-          Width = 554
+          Width = 571
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
         end
         object Bevel9: TBevel
           Left = 8
           Height = 3
-          Top = 508
-          Width = 554
+          Top = 612
+          Width = 571
           Anchors = [akTop, akLeft, akRight]
           Shape = bsTopLine
         end
-        object Label54: TLabel
+        object lbUILogic: TLabel
+          Cursor = crHandPoint
           Left = 8
           Height = 17
           Hint = 'curField.UILogic'
-          Top = 516
+          Top = 620
           Width = 45
           Caption = 'UI logic'
+          Font.Color = clNavy
           ParentColor = False
+          ParentFont = False
           ParentShowHint = False
           ShowHint = True
+          OnClick = sbtnUILogicEditorClick
         end
         object MemoUILogic: TMemo
           Left = 112
           Height = 45
-          Top = 516
-          Width = 450
+          Top = 620
+          Width = 448
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
-          TabOrder = 14
+          TabOrder = 16
         end
-        object Label55: TLabel
+        object lbBuzLogic: TLabel
+          Cursor = crHandPoint
           Left = 7
           Height = 17
           Hint = 'curField.businessLogic'
-          Top = 564
+          Top = 668
           Width = 82
           Caption = 'Business logic'
+          Font.Color = clNavy
           ParentColor = False
+          ParentFont = False
           ParentShowHint = False
           ShowHint = True
+          OnClick = sbtnBuzLogicEditorClick
         end
         object memoBusinessLogic: TMemo
           Left = 112
           Height = 54
-          Top = 566
-          Width = 450
+          Top = 670
+          Width = 448
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
-          TabOrder = 15
+          TabOrder = 17
         end
         object memoValidateRule: TMemo
           Left = 112
           Height = 45
           Top = 280
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
@@ -1641,7 +1683,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Height = 48
           Hint = 'curField.genDemoData(row,opt,ds)'
           Top = 140
-          Width = 449
+          Width = 466
           Anchors = [akTop, akLeft, akRight]
           AutoSize = False
           Caption = 'Demo data'
@@ -1665,7 +1707,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 112
           Height = 25
           Top = 12
-          Width = 450
+          Width = 467
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 17
@@ -1726,6 +1768,79 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Width = 11
           Caption = '%'
           ParentColor = False
+        end
+        object Label61: TLabel
+          Left = 7
+          Height = 17
+          Hint = 'curField.resSQLWhere'
+          Top = 480
+          Width = 87
+          Caption = 'Res SQL where'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object memoResSQLWhere: TMemo
+          Left = 111
+          Height = 40
+          Top = 480
+          Width = 467
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 13
+        end
+        object lbResSQL: TLabel
+          Cursor = crHandPoint
+          Left = 8
+          Height = 17
+          Hint = 'curField.resSQL'
+          Top = 424
+          Width = 48
+          Caption = 'Res SQL'
+          Font.Color = clNavy
+          ParentColor = False
+          ParentFont = False
+          ParentShowHint = False
+          ShowHint = True
+          OnClick = sbtnResSqlEditorClick
+        end
+        object memoResSQL: TMemo
+          Left = 112
+          Height = 52
+          Top = 424
+          Width = 448
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          ScrollBars = ssVertical
+          TabOrder = 12
+        end
+        object sbtnResSqlEditor: TSpeedButton
+          Left = 560
+          Height = 54
+          Top = 423
+          Width = 18
+          Anchors = [akTop, akRight]
+          Caption = '>>'
+          OnClick = sbtnResSqlEditorClick
+        end
+        object sbtnUILogicEditor: TSpeedButton
+          Left = 560
+          Height = 47
+          Top = 619
+          Width = 18
+          Anchors = [akTop, akRight]
+          Caption = '>>'
+          OnClick = sbtnUILogicEditorClick
+        end
+        object sbtnBuzLogicEditor: TSpeedButton
+          Left = 560
+          Height = 56
+          Top = 669
+          Width = 18
+          Anchors = [akTop, akRight]
+          Caption = '>>'
+          OnClick = sbtnBuzLogicEditorClick
         end
       end
     end

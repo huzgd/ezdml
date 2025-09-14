@@ -188,8 +188,10 @@ type
     sbtnFind: TSpeedButton;
     PanelFieldProps: TPanel;
     sbtnListSqlEditor: TSpeedButton;
+    sbtnBuzLogicEditor: TSpeedButton;
     sbtnViewSqlEditor: TSpeedButton;
     sbtnTbJson: TSpeedButton;
+    sbtnUILogicEditor: TSpeedButton;
     ScrollBoxCustomScriptDef: TScrollBox;
     ScrollBoxOperLogic: TScrollBox;
     sbtnScRuleEditor: TSpeedButton;
@@ -327,10 +329,12 @@ type
     procedure pmSaveCodeAsClick(Sender: TObject);
     procedure PopupMenuTabsPopup(Sender: TObject);
     procedure PopupMenuTbFieldsPopup(Sender: TObject);
+    procedure sbtnBuzLogicEditorClick(Sender: TObject);
     procedure sbtnFindClick(Sender: TObject);
     procedure sbtnListSqlEditorClick(Sender: TObject);
     procedure sbtnScRuleEditorClick(Sender: TObject);
     procedure sbtnTbJsonClick(Sender: TObject);
+    procedure sbtnUILogicEditorClick(Sender: TObject);
     procedure sbtnViewSqlEditorClick(Sender: TObject);
     procedure ScrollBoxCustomScriptDefResize(Sender: TObject);
     procedure SplitterFsPropMoved(Sender: TObject);
@@ -519,6 +523,7 @@ uses
   ClipBrd, WindowFuncs, uFormCtDbLogon, PvtInput, Toolwin, DB,
   {$ifndef EZDML_LITE}
   DmlPasScript, ide_editor,uFrameUIPreview,DmlScriptControl,wFrameScRuleIDE,
+  wFormScRuleEdit,
   {$else}DmlPasScriptLite,
   {$endif}      
   {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf,{$endif}
@@ -1738,7 +1743,8 @@ begin
       MemoCodeGen.Lines.Text := '';
       MemoDesc.Modified := False;
 
-      edtPhysicalName.Text := '';
+      edtPhysicalName.Text := '';  
+      edtPhysicalName.TextHint := '';
       edtUIDisplayText.Text := '';
       combPublishType.ItemIndex:=0;
       ckbIsReadOnly.Checked := False;
@@ -1795,7 +1801,8 @@ begin
         TabSheetText.Caption := srGroup
       else
         TabSheetText.Caption := srText;
-      edtTextName.Text := ATb.Name;
+      edtTextName.Text := ATb.Name;  
+      edtPhysicalName.TextHint := ATb.RealTableName;
       ckbIsSqlText.Visible:=ATb.IsText;
       ckbIsSqlText.Checked := ATb.IsSqlText;
       MemoTextContent.Lines.Text := ATb.Memo;
@@ -1855,7 +1862,8 @@ begin
       GenTbCode;
       MemoDesc.Modified := False;
                    
-      edtPhysicalName.Text := ATb.PhysicalName;
+      edtPhysicalName.Text := ATb.PhysicalName;     
+      edtPhysicalName.TextHint := ATb.RealTableName;
       edtUIDisplayText.Text := ATb.UIDisplayText;     
       combPublishType.ItemIndex:=Integer(ATb.PublishType);
       ckbIsReadOnly.Checked := ATb.IsReadOnly;
@@ -2576,7 +2584,8 @@ begin
       edtTextName.SetFocus;
       Abort;
     end;
-    FCtMetaTable.Name := edtTextName.Text;
+    FCtMetaTable.Name := edtTextName.Text; 
+    edtPhysicalName.TextHint := FCtMetaTable.RealTableName;
     if Assigned(Proc_OnPropChange) then
       Proc_OnPropChange(0, FCtMetaTable, nil, '');
   end;
@@ -3113,7 +3122,14 @@ begin
       Exit;
     fd.LabelText := Value;
     DoFieldChanged(fd);
-  end;         
+  end;
+  if prop = 'SheetGroup' then
+  begin
+    if fd = nil then
+      Exit;
+    fd.SheetGroup := Value;
+    DoFieldChanged(fd);
+  end;
   if prop = 'ColGroup' then
   begin
     if fd = nil then
@@ -3732,7 +3748,8 @@ begin
   begin
     if FCtMetaTable.PhysicalName = edtPhysicalName.Text then
       Exit;
-    FCtMetaTable.PhysicalName := edtPhysicalName.Text;
+    FCtMetaTable.PhysicalName := edtPhysicalName.Text; 
+    edtPhysicalName.TextHint := FCtMetaTable.RealTableName;
     RefreshDesc;  
     RefreshUIPreview;
   end;         
@@ -4345,12 +4362,19 @@ begin
     FScRuleEditor.Align := alClient;     
     TFrameScRuleIDE(FScRuleEditor).Proc_OnUIPropChanged := _OnUIPropChanged;
 
-    TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, Self.FReadOnlyMode);
+    if FCtMetaTable <> nil then
+      TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, 'ScriptRules', FCtMetaTable.ScriptRules, Self.FReadOnlyMode)
+    else
+      TFrameScRuleIDE(FScRuleEditor).InitTb(nil, 'ScriptRules', '', Self.FReadOnlyMode);
   end
   else if FScRuleEditor.Tag=1 then
   begin
     FScRuleEditor.Tag := 0;
-    TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, Self.FReadOnlyMode);
+
+    if FCtMetaTable <> nil then
+      TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, 'ScriptRules', FCtMetaTable.ScriptRules, Self.FReadOnlyMode)
+    else
+      TFrameScRuleIDE(FScRuleEditor).InitTb(nil, 'ScriptRules', '', Self.FReadOnlyMode);
   end;
   {$else}
   raise Exception.Create(srEzdmlLiteNotSupportFun);
@@ -5684,6 +5708,23 @@ begin
   end;
 end;
 
+procedure TFrameCtTableProp.sbtnBuzLogicEditorClick(Sender: TObject);
+var
+  S: String;
+begin
+  {$ifndef EZDML_LITE}
+  S := ScRuleEdit(FCtMetaTable, lbBuzLogic.Caption, 'Table.BusinessLogic', memoBusinessLogic.Lines.Text,'', Self.FReadOnlyMode);
+  if not FReadOnlyMode then
+    if Trim(S) <> Trim(memoBusinessLogic.Lines.Text) then
+    begin
+      memoBusinessLogic.Lines.Text := S;
+      MemoTableCommentExit(memoBusinessLogic);
+    end;
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
+end;
+
 
 procedure TFrameCtTableProp.sbtnFindClick(Sender: TObject);
 begin
@@ -5747,6 +5788,23 @@ begin
   if Assigned(Proc_OnPropChange) then
     Proc_OnPropChange(2, FCtMetaTable, nil, '');
   ShowTableProp(FCtMetaTable);
+end;
+
+procedure TFrameCtTableProp.sbtnUILogicEditorClick(Sender: TObject);
+var
+  S: String;
+begin
+  {$ifndef EZDML_LITE}
+  S := ScRuleEdit(FCtMetaTable, lbUILogic.Caption, 'Table.UILogic', MemoUILogic.Lines.Text,'', Self.FReadOnlyMode);
+  if not FReadOnlyMode then
+    if Trim(S) <> Trim(MemoUILogic.Lines.Text) then
+    begin
+      MemoUILogic.Lines.Text := S;
+      MemoTableCommentExit(MemoUILogic);
+    end;
+  {$else}
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
 end;
 
 procedure TFrameCtTableProp.sbtnViewSqlEditorClick(Sender: TObject);
@@ -6029,7 +6087,8 @@ begin
       edtDispName.Text := FCtMetaTable.Caption;
       MemoTableComment.Lines.Text := FCtMetaTable.Memo;
 
-      edtPhysicalName.Text := FCtMetaTable.PhysicalName;
+      edtPhysicalName.Text := FCtMetaTable.PhysicalName;  
+      edtPhysicalName.TextHint := FCtMetaTable.RealTableName;
       edtUIDisplayText.Text := FCtMetaTable.UIDisplayText;
       combPublishType.ItemIndex := Integer(FCtMetaTable.PublishType);
       ckbIsReadOnly.Checked := FCtMetaTable.IsReadOnly;

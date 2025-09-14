@@ -31,8 +31,8 @@
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="3"/>
       <MinorVersionNr Value="6"/>
-      <RevisionNr Value="8"/>
-      <BuildNr Value="321"/>
+      <RevisionNr Value="9"/>
+      <BuildNr Value="322"/>
       <StringTable Comments="EZDML_X EMail:huzzz@163.com" CompanyName="huzzz@163.com" FileDescription="EZDML" InternalName="ezdml_x.exe" LegalCopyright="(c) 2007-2025 Huz(huzzz@163.com,http://www.ezdml.com)" LegalTrademarks="ezdml" OriginalFilename="ezdml_x.exe" ProductName="EZDML_X" ProductVersion="3.6"/>
     </VersionInfo>
     <BuildModes Count="3">

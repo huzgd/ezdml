@@ -388,3 +388,6 @@ Support categories, publishing types (red/green/blue flags), multi header grid U
 
 2025-08-10 V3.68
 Generate Ruoyi multi-module code, support script editing. Bugs fixed.
+
+2025-09-14 V3.69
+Pull code/templates from GIT. Bugs fixed.

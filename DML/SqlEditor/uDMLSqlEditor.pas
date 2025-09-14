@@ -16,14 +16,14 @@ type
 {$endif}
 
 procedure ShowSqlEditor(initSql: string='');
+function EditSQL(ASQL, ATitle: string): string;
 
 implementation
 
 procedure ShowSqlEditor(initSql: string);
 var
   vDmlSqlEditorForm: TfrmDmlSqlEditorN;
-{$ifndef EZDML_LITE}   
-  bRect: TRect;
+{$ifndef EZDML_LITE}
   bModal: Boolean;
 {$endif}
 begin
@@ -89,6 +89,36 @@ begin
   frmSqlTabs.Show;
 
 {$endif}
+end;
+
+function EditSQL(ASQL, ATitle: string): string;
+var
+  vDmlSqlEditorForm: TfrmDmlSqlEditorN;
+begin       
+  Result := ASQL;
+{$ifdef EZDML_LITE}
+  vDmlSqlEditorForm := TfrmDmlSqlEditorN.Create(Application);
+  vDmlSqlEditorForm.PanelTbs.Tag := 1;
+  if ASQL <> '' then
+  begin
+    vDmlSqlEditorForm.MemoSql.Text := ASQL;
+  end;                     
+  vDmlSqlEditorForm.Caption := vDmlSqlEditorForm.Caption +' - '+ATitle;
+  vDmlSqlEditorForm.ShowModal;
+  Result := vDmlSqlEditorForm.MemoSql.Text;
+{$else}
+  vDmlSqlEditorForm := TfrmDmlSqlEditorN.Create(Application);
+  vDmlSqlEditorForm.PanelTbs.Tag := 1;
+  if ASQL <> '' then
+  begin
+    vDmlSqlEditorForm.MemoSql.Text := ASQL;
+  end;                
+  vDmlSqlEditorForm.Caption := vDmlSqlEditorForm.Caption +' - '+ATitle;
+  vDmlSqlEditorForm.ShowModal;   
+  Result := vDmlSqlEditorForm.MemoSql.Text;
+{$endif}
+  if Trim(Result)=Trim(ASQL) then
+    Result := ASQL;
 end;
 
 end.

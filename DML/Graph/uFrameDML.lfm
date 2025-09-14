@@ -390,8 +390,8 @@ object FrameDML: TFrameDML
     Visible = False
   end
   object ImageList2: TImageList
-    Left = 76
-    Top = 116
+    left = 76
+    top = 116
     Bitmap = {
       4C69270000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1647,8 +1647,8 @@ object FrameDML: TFrameDML
   object ActionList2: TActionList
     Images = ImageList1
     OnUpdate = ActionList2Update
-    Left = 77
-    Top = 64
+    left = 77
+    top = 64
     object actRectSelect: TAction
       Category = 'View'
       AutoCheck = True
@@ -2128,8 +2128,8 @@ object FrameDML: TFrameDML
   object PopupMenu1: TPopupMenu
     Images = ImageList1
     OnPopup = PopupMenu1Popup
-    Left = 141
-    Top = 64
+    left = 140
+    top = 64
     object MenuItem1: TMenuItem
       Action = actFullTableView
     end
@@ -2262,11 +2262,17 @@ object FrameDML: TFrameDML
       Caption = '-'
       GroupIndex = 1
     end
-    object MenuItem12: TMenuItem
-      Action = actExecSql
+    object MN_GenCode: TMenuItem
+      Caption = 'Generate Code'
+      ImageIndex = 96
+      ShortCut = 16464
+      OnClick = MNRun_GenCodeClick
     end
     object MN_GenSql: TMenuItem
       Action = actDBGenSql
+    end
+    object MenuItem12: TMenuItem
+      Action = actExecSql
     end
     object Batchoperations1: TMenuItem
       Action = actBatchOps
@@ -2387,8 +2393,8 @@ object FrameDML: TFrameDML
     end
   end
   object ImageList1: TImageList
-    Left = 109
-    Top = 117
+    left = 109
+    top = 117
     Bitmap = {
       4C69620000001000000010000000000000000000000000000000000000000000
       00000000000000000000848400FF000084FF0000000000000000000000000000
@@ -5532,27 +5538,27 @@ object FrameDML: TFrameDML
   object OpenDialog1: TOpenDialog
     DefaultExt = '.dmi'
     Filter = 'dml graph files(*.dmi;*.dmh)|*.dmi;*.dmh|dml graph ini|*.dmi|dml graph bin|*.dmh'
-    Left = 109
-    Top = 64
+    left = 109
+    top = 64
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = '.dmi'
     Filter = 'dml graph ini|*.dmi|dml graph bin|*.dmh'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 141
-    Top = 117
+    left = 141
+    top = 117
   end
   object TimerDelayCmd: TTimer
     Enabled = False
     Interval = 100
     OnTimer = TimerDelayCmdTimer
-    Left = 76
-    Top = 200
+    left = 76
+    top = 200
   end
   object PopupMenuRunGens: TPopupMenu
     Images = ImageList1
-    Left = 520
-    Top = 168
+    left = 520
+    top = 168
     object MNRun_GenCode: TMenuItem
       Caption = 'Generate Code'
       ImageIndex = 97
@@ -5598,13 +5604,13 @@ object FrameDML: TFrameDML
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    Left = 204
-    Top = 120
+    left = 204
+    top = 120
   end
   object PopupMenuAIActs: TPopupMenu
     Images = ImageList1
-    Left = 424
-    Top = 116
+    left = 424
+    top = 116
     object MNAI_GenNewModel: TMenuItem
       Caption = 'Generate New Model'
       ImageIndex = 90
@@ -5642,8 +5648,8 @@ object FrameDML: TFrameDML
     end
   end
   object PopupMenuOpenFile: TPopupMenu
-    Left = 274
-    Top = 235
+    left = 274
+    top = 235
     object MNOF_LocalFile: TMenuItem
       Tag = 101
       Caption = 'Open file'
@@ -5667,8 +5673,8 @@ object FrameDML: TFrameDML
     end
   end
   object PopupMenuSaveFile: TPopupMenu
-    Left = 368
-    Top = 260
+    left = 368
+    top = 260
     object MNSF_LocalFile: TMenuItem
       Tag = 201
       Caption = 'Save as file...'

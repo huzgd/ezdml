@@ -129,6 +129,7 @@
 {"hash":63967907,"name":"tframedml.pmnai_gensamplevalues.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,83,97,109,112,108,101,32,86,97,108,117,101,115],"value":"Generate Sample Values"},
 {"hash":236671299,"name":"tframedml.pmnai_genfklinks.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,70,111,114,101,105,103,110,32,75,101,121,115],"value":"Generate Foreign Keys"},
 {"hash":134977340,"name":"tframedml.pmnai_text2sql.caption","sourcebytes":[84,101,120,116,32,116,111,32,83,81,76],"value":"Text to SQL"},
+{"hash":129002853,"name":"tframedml.mn_gencode.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,67,111,100,101],"value":"Generate Code"},
 {"hash":161623769,"name":"tframedml.mn_batchcopy.caption","sourcebytes":[66,97,116,99,104,32,99,111,112,121],"value":"Batch copy"},
 {"hash":10799477,"name":"tframedml.mn_capitalize.caption","sourcebytes":[67,97,112,105,116,97,108,105,122,101],"value":"Capitalize"},
 {"hash":129002853,"name":"tframedml.mnrun_gencode.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,67,111,100,101],"value":"Generate Code"},
