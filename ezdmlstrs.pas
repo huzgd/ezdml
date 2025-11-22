@@ -17,8 +17,8 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.69';
-  srEzdmlVersionDate = '2025-09-14';
+  srEzdmlVersionNum = '3.71';
+  srEzdmlVersionDate = '2025-11-22';
 
 {$ifdef EZDML_LITE}
 
@@ -96,6 +96,8 @@ resourcestring
   srEzdmlPromptSaveFile = 'Save current file before continue?';         
   srEzdmlPromptReloadOnFileDateSizeChanged = 'Current file is changed by other program, do you want to re-open it?'; 
   srEzdmlPromptReloadDbFileChanged = 'Current file is changed in database by %s (%s), do you want to re-open it?';
+  srEzdmlPromptReloadedHybbChanges = 'Changes reloaded: %s';
+  srEzdmlPromptAutoSaveHybbChanges = 'Changes saved: %s';
   srEzdmlPromptDbFileDisconnected = 'Database file is disconnected and will enter offline mode. Do you want to reconnect now?';
   srEzdmlDbOfflineTip = '(Offline)';
   srEzdmlConfirmCloseModified = 'Do you want to save and apply changes before close?';
@@ -125,6 +127,7 @@ resourcestring
   srEzdmlChatAITip_GenTables = 'Add More Tables: AI will supplement and add new tables to the model based on the system description and existing table information.'#13#10'Exists tables:';
   srEzdmlChatAITip_GenFields = 'Add More Fields: AI will supplement and add new fields to the selected tables based on the system description and existing tables/fields information.'#13#10'Existing tables/fields:';
   srEzdmlChatAITip_GenComments = 'Generate Comments: AI will add logical names and comments to the selected tables/fields based on the system description and existing tables/fields information.'#13#10'Existing tables/fields:';
+  srEzdmlChatAITip_GenPhyNames = 'Generate Physical Names: AI will generate physical names for the selected tables/fields based on the system description and existing tables/fields information.'#13#10'Existing tables/fields:';
   srEzdmlChatAITip_GenSampleValues = 'Generate Sample Values: AI will generate some example data and candidate values for the selected fields based on the system description and existing tables/fields information.'#13#10'Existing tables/fields:';
   srEzdmlChatAITip_GenFKLinks = 'Generate Foreign Keys: AI will add foreign key links to the selected table based on the system description and existing table information.'#13#10'Existing tables:';
   srEzdmlNoUpdateFound = 'No updatable version present.'; 

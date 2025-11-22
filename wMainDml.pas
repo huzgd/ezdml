@@ -28,7 +28,7 @@ uses
   BESENCharset,
   DmlJsScript,
   {$endif}
-  uWaitWnd, ActnList, StdActns, Buttons, FileUtil, CtObjJsonSerial;
+  uWaitWnd, ActnList, StdActns, Buttons, FileUtil, CtObjJsonSerial, CtMetaChange;
 
 const
   WMZ_CUSTCMD = WM_USER + $1001;
@@ -66,6 +66,7 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MNAI_GenPhyNames: TMenuItem;
     MN_ViewModelInNewWnd: TMenuItem;
     MNAI_Text2SQL: TMenuItem;
     MNAI_GenSampleValues: TMenuItem;
@@ -200,6 +201,8 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure lbNewVerInfoClick(Sender: TObject);
+    procedure lbNewVerInfoMouseEnter(Sender: TObject);
+    procedure lbNewVerInfoMouseLeave(Sender: TObject);
     procedure MNAI_GenNewModelClick(Sender: TObject);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -241,6 +244,7 @@ type
     { Private declarations }
     FFrameCtTableDef: TFrameCtTableDef;
     FCtDataModelList: TCtDataModelGraphList;
+    FCtMetaChangeList: TCtMetaChangeList;
     FCurFileName: string;
     FCurFileSize: integer;
     FMainSplitterPos: integer;
@@ -262,10 +266,14 @@ type
     FReservedToolsMenuCount: integer;
     FCustomTools: TStringList;
 
+    FAutoCheckTimerCounter: Integer;
     FAutoSaveMinutes: integer;
     FAutoSaveCounter: integer;
+    FNewVerToastCounter: integer;
+    FAutoSaveHydbCounter: Integer;
     FIsAutoSaving: boolean;
     FSaveTempFileOnExit: boolean;
+    FLastAutoSaveDate: TDateTime;
 
     FGlobalScriptor: TObject;
 
@@ -281,6 +289,11 @@ type
     procedure _OnRecentFileClick(Sender: TObject);
     procedure _OnAppActivate(Sender: TObject);    
     procedure _OnDbFileMemoChanged(Sender: TObject; fn: string);
+
+    procedure _OnMetaPropsChanged(AObj: TObject; tp: TCtMetaChangeType);  
+    function _LockDbMetaTable(ATb: TCtMetaTable; act: Integer): Boolean;
+    function CheckAutoSaveHydb: String;
+    function CheckAutoLoadHydb: Boolean;
 
     procedure PromptOpenFile(fn: string; bDisableTmpFiles: boolean = False);
     procedure LoadFromFile(fn: string);
@@ -324,9 +337,12 @@ type
 
     procedure CheckForUpdates(bForceNow: boolean);
     procedure CheckShowNewVersionInfo(bForceNow: boolean);
+    procedure ShowNewVerToast(msg, hint: string; timeOut: Integer);
 
     function GetDmlFileDate(fn: string; var vFileDate: TDateTime): boolean;    
     function GetDmlFileDateAndSize(fn: string; var vFileSize: Integer; var vFileDate: TDateTime): boolean;
+
+    procedure RunConsoleCmd(cmd: string);
   protected
     procedure CreateWnd; override;
     procedure _WMZ_CUSTCMD(var msg: TMessage); message WMZ_CUSTCMD;
@@ -732,6 +748,17 @@ begin
   Result := S;
 end;
 
+procedure Ezdml_OnMetaPropsChanged(AObj: TObject; tp: TCtMetaChangeType);
+begin
+  //frmMainDml.Caption:=IntToStr(Integer(tp))+' xx '+AObj.ClassName+' '+TimeToStr(Now);
+  frmMainDml._OnMetaPropsChanged(AObj, tp);
+end;
+
+function Ezdml_LockMetaTable(ATb: TCtMetaTable; act: Integer): Boolean;
+begin
+  Result := frmMainDml._LockDbMetaTable(ATb, act);
+end;
+
 function SetFileAges(fn: string; vFileDate: TDateTime): boolean;
 var
   age: longint;
@@ -851,6 +878,7 @@ procedure TfrmMainDml.FormCloseQuery(Sender: TObject; var CanClose: boolean);
         FCurFileName := '';
         FAutoSaveCounter := 0;
         FCurDmlFileName := '';
+        FAutoSaveHydbCounter := 0;
         TryLockFile('');
       except
       end;
@@ -858,6 +886,7 @@ procedure TfrmMainDml.FormCloseQuery(Sender: TObject; var CanClose: boolean);
     finally
       FCurFileName := '';
       FAutoSaveCounter := 0;
+      FAutoSaveHydbCounter := 0;
       FCurDmlFileName := '';
     end;
   end;
@@ -877,8 +906,9 @@ begin
   end;
   if bCke then
     CheckCanEditMeta;
+  CheckAutoSaveHydb;
   bHuge := FCtDataModelList.IsHuge;
-  if (FCtDataModelList.TableCount > 0) then
+  if (FCtDataModelList.TableCount > 0) and FCtDataModelList.MetaModified then
   begin
     if (IsTmpFile(FCurFileName) or (FCurFileName = '')) then
     begin
@@ -997,6 +1027,18 @@ begin
   end;
 end;
 
+procedure TfrmMainDml.lbNewVerInfoMouseEnter(Sender: TObject);
+begin
+  PanelNewVerHint.Tag := 1;
+  if FNewVerToastCounter < 5 then
+    FNewVerToastCounter := 5;
+end;
+
+procedure TfrmMainDml.lbNewVerInfoMouseLeave(Sender: TObject);
+begin
+  PanelNewVerHint.Tag := 0;
+end;
+
 procedure TfrmMainDml.MNAI_GenNewModelClick(Sender: TObject);
 begin
   CallAI(TMenuItem(Sender).Tag);
@@ -1103,6 +1145,8 @@ begin
   frmEzdmlDbFile := TfrmEzdmlDbFile.Create(Self);
   frmEzdmlDbFile.Proc_OnDbFileMemoChanged := _OnDbFileMemoChanged;
 
+  FCtMetaChangeList := TCtMetaChangeList.Create;
+
   if GetCtMetaDBReg('ORACLE')^.DbImpl = nil then
   begin
     db := TCtMetaOracleDb.Create;
@@ -1172,8 +1216,27 @@ begin
   begin
     GProc_OnEzdmlCmdEvent('MAINFORM', 'CREATE', '', Self, nil);
   end;
+       
+{$IFDEF EZDML_CONSOLE}         
+  Self.TimerInit.Enabled := False;    
+  Application.ShowMainForm := False;
+  MessageBoxFunction := nil;
+  try
+    RunConsoleCmd(ParamStr(1));
+  except
+    on E: Exception do
+    begin
+      ExitCode := 1;
+      WriteLn('Error: '+ E.Message);
+    end;
+  end;
+  Self.Visible := False;
+  Application.Terminate;
+  Application.ShowMainForm := False;
+{$ENDIF}
 
   if ParamStr(1) <> '' then
+  begin
     if GetDmlScriptType(ParamStr(1)) <> '' then
     begin
       Self.TimerInit.Enabled := False;
@@ -1190,6 +1253,7 @@ begin
           Application.HandleException(Self);
       end;
     end;
+  end;
 
   Application.OnActivate := Self._OnAppActivate;
   Application.ExceptionDialog := aedOkMessageBox;
@@ -1224,7 +1288,11 @@ begin
             Screen.Cursor := crAppStart;
           end
           else
+          begin
+{$IFNDEF EZDML_CONSOLE}    
             FWaitWnd := TfrmWaitWnd.Create(Self);
+{$ENDIF}
+          end;
           try
             if Assigned(FWaitWnd) then
               FWaitWnd.Init(srEzdmlOpenFile + ' ' + ExtractFileName(fn), srEzdmlOpening,
@@ -1259,6 +1327,7 @@ begin
         FCurFileName := fn;
         Self.RememberFileDateSize;
         FAutoSaveCounter := 0;
+        FAutoSaveHydbCounter := 0;
         CheckCaption;
       except
         on E: Exception do
@@ -1580,7 +1649,8 @@ procedure TfrmMainDml.FormDestroy(Sender: TObject);
 begin
   try
     FRecentFiles.Free;
-    FCustomTools.Free;
+    FCustomTools.Free;   
+    FCtMetaChangeList.Free;
     FCtDataModelList.Free;
     if Assigned(FGlobalScriptor) then
       FreeAndNil(FGlobalScriptor);
@@ -1721,23 +1791,29 @@ procedure TfrmMainDml.ImportFromFile(fn: string);
     FFrameCtTableDef.Init(nil, True);
     FCurFileName := '';
     FProgressAll := 0;
-    FProgressCur := 0;
+    FProgressCur := 0;      
+{$IFNDEF EZDML_CONSOLE}
     FWaitWnd := TfrmWaitWnd.Create(Self);
+{$ENDIF}
     with TCtMetaPdmImporter.Create do
       try
-        FWaitWnd.Init(srEzdmlOpenFile + ' ' + ExtractFileName(fn), srEzdmlOpening,
-          srEzdmlAbortOpening);
+        if Assigned(FWaitWnd) then
+          FWaitWnd.Init(srEzdmlOpenFile + ' ' + ExtractFileName(fn), srEzdmlOpening, srEzdmlAbortOpening);
         FWaitWnd.CheckAbort;
         ModelList := FCtDataModelList;
         FileName := fn;
         DoImport;
         Sleep(100);
-        FWaitWnd.CheckAbort;
-        Sleep(200);
-        FWaitWnd.CheckAbort;
+        if Assigned(FWaitWnd) then
+        begin
+          FWaitWnd.CheckAbort;
+          Sleep(200);
+          FWaitWnd.CheckAbort;
+        end;
       finally
         Free;
-        FWaitWnd.Release;
+        if Assigned(FWaitWnd) then
+          FWaitWnd.Release;
         FWaitWnd := nil;
         FFrameCtTableDef.Init(FCtDataModelList, False);
       end;    
@@ -1759,6 +1835,7 @@ begin
   SetStatusBarMsg(GetStatusPanelFileName(fn));
   FCurFileName := '';
   FAutoSaveCounter := 0;
+  FAutoSaveHydbCounter := 0;
   CheckCaption;
 end;
 
@@ -1785,8 +1862,10 @@ begin
     Self.Refresh;
 
     FProgressAll := 0;
-    FProgressCur := 0;
-    FWaitWnd := TfrmWaitWnd.Create(Self);     
+    FProgressCur := 0; 
+{$IFNDEF EZDML_CONSOLE}     
+    FWaitWnd := TfrmWaitWnd.Create(Self);
+{$ENDIF}
     bBuiltin := IsBuiltinDbModel(frmEzdmlDbFile.ResultFileName);
     if bBuiltin then
     begin
@@ -1799,8 +1878,9 @@ begin
       fs.RootName := 'DataModels';
       fs.CurCtVer :=0;
 
-      FWaitWnd.Init(srEzdmlOpenFile + ' ' + frmEzdmlDbFile.ResultFileName, srEzdmlOpening,
-        srEzdmlAbortOpening);
+      if Assigned(FWaitWnd) then
+        FWaitWnd.Init(srEzdmlOpenFile + ' ' + frmEzdmlDbFile.ResultFileName, srEzdmlOpening,
+          srEzdmlAbortOpening);
 
       if Assigned(GProc_OnEzdmlCmdEvent) then
       begin
@@ -1842,7 +1922,8 @@ begin
 
     finally
       fs.Free;
-      FWaitWnd.Release;
+      if Assigned(FWaitWnd) then
+        FWaitWnd.Release;
       FWaitWnd := nil;
       FFrameCtTableDef.IsInitLoading := False;
       FFrameCtTableDef.Init(FCtDataModelList, False);
@@ -1859,6 +1940,7 @@ begin
     FCurDmlFileName := fn;
     Self.RememberFileDateSize;
     FAutoSaveCounter := 0;
+    FAutoSaveHydbCounter := 0;
     CheckCaption;
 
   finally
@@ -1996,11 +2078,19 @@ begin
     Exit;
   end;
 
-  try
+  try      
+    fastFn := GetFastTmpFileName(FCurFileName); //上一次保存的临时文件
+    if (fastFn<>'') and FileExists(fastFn) and not FCtDataModelList.MetaModified then //临时文件存在且没改过，修改时间也对，不存
+    begin
+      if GetDmlFileDate(fastFn, vFileDate)  then
+      begin
+        if Abs(vFileDate - FCtDataModelList.ModelFileConfig.ModifyDate) <= 1.0 / 24 / 60 / 60 then
+          Exit;
+      end;
+    end;
     fn := SaveDMLToTmpFile(); //这一次保存的临时文件
     if fn <> '' then
     begin
-      fastFn := GetFastTmpFileName(FCurFileName); //上一次保存的临时文件
       if (fastFn <> '') and not FileExists(fastFn) then
       begin
         //快速加载文件不存在，直接复制一份
@@ -2095,7 +2185,9 @@ begin
   ini := TIniFile.Create(GetConfFileOfApp);
   try
     if FCurFileName = '' then
+    begin
       ini.WriteString('RecentFiles', 'CurFileName', FCurFileName);
+    end;
     FMainSplitterPos := Self.FFrameCtTableDef.PanelCttbTree.Width;
     if FMainSplitterPos > 20 then
       ini.WriteInteger('MainForm', 'MainSplitterPos', FMainSplitterPos);
@@ -2147,7 +2239,11 @@ begin
         Screen.Cursor := crAppStart;
       end
       else
-        FWaitWnd := TfrmWaitWnd.Create(Self);
+      begin         
+{$IFNDEF EZDML_CONSOLE}
+        FWaitWnd := TfrmWaitWnd.Create(Self); 
+{$ENDIF}
+      end;
       try
         if Assigned(FWaitWnd) then
         begin
@@ -2176,6 +2272,7 @@ begin
     FCurFileName := fn;
     RememberFileDateSize;
     FAutoSaveCounter := 0;
+    FAutoSaveHydbCounter := 0;
     if not FIsAutoSaving then
       CheckCaption;
   finally
@@ -2251,28 +2348,76 @@ begin
     Exit;
   if Application.ModalLevel > 0 then
     Exit;
-  if IsDbFile(FCurFileName) and not IsDbHistFile(FCurFileName) then
-    _OnAppActivate(nil);
+     
+  try
+    if FNewVerToastCounter > 0 then
+      if PanelNewVerHint.Tag = 0 then
+      begin
+        Dec(FNewVerToastCounter);
+        if FNewVerToastCounter=0 then
+        begin
+          PanelNewVerHint.Hide;
+        end;
+      end;
 
-  if (FAutoSaveMinutes = 0) then
-    Exit;
-  //hw := GetForegroundWindow;
-  // if GetWindowThreadProcessId(hw, nil) <> MainThreadID then
-  //  Exit;
-  Inc(FAutoSaveCounter);
-  if (FAutoSaveCounter / 6) < FAutoSaveMinutes then
-    Exit;
-  if Assigned(FWaitWnd) then
-    Exit;
+    if FAutoSaveHydbCounter<0 then
+      FAutoSaveHydbCounter := -FAutoSaveHydbCounter;
+    if FAutoSaveHydbCounter > 0 then
+    begin
+      Dec(FAutoSaveHydbCounter);
+      if FAutoSaveHydbCounter = 0 then
+      begin
+        TimerAutoSave.Enabled := False;
+        CheckAutoSaveHydb;
+      end;
+    end;
 
-  FAutoSaveCounter := 0;
-  if Assigned(GProc_OnEzdmlCmdEvent) then
-  begin
-    GProc_OnEzdmlCmdEvent('MAINFORM', 'FILE_AUTOSAVE', FCurDmlFileName, Self, nil);
+    Inc(FAutoCheckTimerCounter);
+    if FAutoCheckTimerCounter<10 then
+    begin
+      if G_BuiltinHydbMode and (FAutoCheckTimerCounter=5) then
+      begin
+        TimerAutoSave.Enabled := False;
+        _OnAppActivate(nil);
+      end;
+      Exit;
+    end;
+    FAutoCheckTimerCounter := 0;
+    TimerAutoSave.Enabled := False;
+
+    if IsDbFile(FCurFileName) and not IsDbHistFile(FCurFileName) then
+      _OnAppActivate(nil);
+
+    if (FAutoSaveMinutes = 0) then
+      Exit;
+    //hw := GetForegroundWindow;
+    // if GetWindowThreadProcessId(hw, nil) <> MainThreadID then
+    //  Exit;
+    Inc(FAutoSaveCounter);
+    if (FAutoSaveCounter / 6) < FAutoSaveMinutes then
+      Exit;
+    if Assigned(FWaitWnd) then
+      Exit;
+
+    FAutoSaveCounter := 0;
+    if Assigned(GProc_OnEzdmlCmdEvent) then
+    begin
+      GProc_OnEzdmlCmdEvent('MAINFORM', 'FILE_AUTOSAVE', FCurDmlFileName, Self, nil);
+    end;
+
+    if not FCtDataModelList.IsHuge then
+      if FCtDataModelList.MetaModified then
+      begin
+        if (FLastAutoSaveDate=0) or (FLastAutoSaveDate <> FCtDataModelList.ModifyDate) then
+        begin
+          SaveDmlToTmpFile;
+          FLastAutoSaveDate := FCtDataModelList.ModifyDate;
+        end;
+      end;
+
+  finally
+    TimerAutoSave.Enabled := True;
   end;
-
-  if not FCtDataModelList.IsHuge then
-    SaveDmlToTmpFile;
 end;
 
 procedure TfrmMainDml.TimerInitTimer(Sender: TObject);
@@ -2317,6 +2462,7 @@ begin
   else if FCurFileName <> '' then
   begin
     fn := FCurFileName;
+
     FCurFileName := '';
     try
       TryLockFile(fn, False);
@@ -2673,6 +2819,19 @@ begin
   end;
 end;
 
+procedure TfrmMainDml.ShowNewVerToast(msg, hint: string; timeOut: Integer);
+begin                   
+  lbNewVerInfo.Caption := msg;
+  lbNewVerInfo.Tag := 2;
+  lbNewVerInfo.Hint := hint;
+  lbNewVerInfo.ShowHint:=True;
+  PanelNewVerHint.Left := 4;
+  PanelNewVerHint.Top := Self.StatusBar1.Top - PanelNewVerHint.Height - 4;
+  PanelNewVerHint.Show;
+  PanelNewVerHint.BringToFront;
+  FNewVerToastCounter := timeOut+1;
+end;
+
 function TfrmMainDml.GetDmlFileDate(fn: string; var vFileDate: TDateTime
   ): boolean;
 var
@@ -2707,6 +2866,35 @@ begin
   vFileDate := FileDateToDateTime(age);   
   vFileSize := GetDocFileSize(fn);
   Result := True;
+end;
+
+procedure TfrmMainDml.RunConsoleCmd(cmd: string);
+begin
+{$IFDEF EZDML_CONSOLE}
+  if cmd='gencode' then
+  begin
+    WriteLn('Gen code: loading model....');
+
+    LoadFromFile(ParamStr(2));
+
+    WriteLn('Gen code: start...');
+    if not Assigned(frmCtGenCode) then
+      frmCtGenCode := TfrmCtGenCode.Create(Self);
+    frmCtGenCode.CtDataModelList := FCtDataModelList;
+
+    frmCtGenCode.LoadIniFile;
+    frmCtGenCode.InitListObj;
+    frmCtGenCode.MN_CheckAll.Checked := True;
+    frmCtGenCode.MN_CheckAllClick(nil);
+    if not frmCtGenCode.DoGenCode then
+    begin
+      ExitCode := 9;
+      WriteLn('Gen code: failed.');
+    end
+    else
+      WriteLn('Gen code: finished.');
+  end;
+{$ENDIF}
 end;
 
 function TfrmMainDml.IsShortcut(var Message: TLMKey): boolean;
@@ -2812,13 +3000,17 @@ begin
         Exit;
       if not frmEzdmlDbFile.GetDbFileModifierInfo(FCurFileName, usr, memo) then
         Exit;
+      if G_BuiltinHydbMode then
+      begin
+        if CheckAutoLoadHydb then
+        begin
+          actRefresh.Execute;
+          S := Format(srEzdmlPromptReloadedHybbChanges, [memo+' '+usr]);
+          ShowNewVerToast(S, memo+' '+usr, 10);
+        end; 
+        Exit;
+      end;
       S := Format(srEzdmlPromptReloadDbFileChanged, [usr, memo]);
-      //if Application.MessageBox(PChar(S),
-      //  PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
-      //begin
-      //  Self.RememberFileDateSize;
-      //  Exit;
-      //end;  
       if ShowMessageOnTop(S, Application.Title) <> mrOk then
       begin
         Self.RememberFileDateSize;
@@ -2859,6 +3051,76 @@ procedure TfrmMainDml._OnDbFileMemoChanged(Sender: TObject; fn: string);
 begin
   if ExtractDmlFileName(fn)=ExtractDmlFileName(FCurFileName) then
     RememberFileDateSize;
+end;
+
+procedure TfrmMainDml._OnMetaPropsChanged(AObj: TObject; tp: TCtMetaChangeType);
+begin
+  if G_BuiltinHydbMode then
+  begin
+    FCtMetaChangeList.NewChangeItem(AObj, tp);
+    if tp in [cmctNew, cmctModify, cmctChildOrderNo, cmctRemove] then
+      FAutoSaveHydbCounter := -2
+    else if FAutoSaveHydbCounter >= 0 then
+      FAutoSaveHydbCounter := 6;
+  end;
+end;
+
+function TfrmMainDml._LockDbMetaTable(ATb: TCtMetaTable; act: Integer): Boolean;
+begin
+  Result := False;
+  if ATb=nil then
+    Exit;
+  if G_BuiltinHydbMode then
+    Result := frmEzdmlDbFile.DoBuiltinDbTableLock(ATb, act, FCtMetaChangeList);
+end;
+
+function TfrmMainDml.CheckAutoSaveHydb: String;
+var
+  S: String;
+begin
+  Result := '';
+  if G_BuiltinHydbMode and (FCtMetaChangeList.Count > 0) then
+  try                              
+    S := frmEzdmlDbFile.DoBuiltinModelLock(FCtDataModelList, FCurFileName);
+    Result := frmEzdmlDbFile.DoBuiltinModelAutoSave(FCtDataModelList, FCurFileName, FCtMetaChangeList);
+    if S <> '' then
+      Result := S + ' '#13#10+Result;
+    FCtDataModelList.MetaModified:=False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
+    RememberFileDateSize;
+    if S <> '' then
+      actRefresh.Execute;
+    if Result<>'' then
+    begin
+      S := Format(srEzdmlPromptAutoSaveHybbChanges, [Result]);
+      ShowNewVerToast(S, Result, 10);
+      SetStatusBarMsg(Format(srEzdmlPromptAutoSaveHybbChanges, [TimeToStr(Now)]));
+    end;
+  except
+    on E: Exception do
+      Application.HandleException(Self);
+  end;
+end;
+
+function TfrmMainDml.CheckAutoLoadHydb: Boolean;
+begin
+  Result := False;
+  if G_BuiltinHydbMode then
+  try              
+    if (FCtMetaChangeList.Count > 0) then
+    begin
+      CheckAutoSaveHydb;
+      Exit;
+    end;
+    Caption := frmEzdmlDbFile.DoBuiltinModelAutoLoad(FCtDataModelList, FCurFileName)+' '+TimeToStr(Now);
+    FCtDataModelList.MetaModified:=False;
+    Result := True;
+    RememberFileDateSize;
+  except
+    on E: Exception do
+      Application.HandleException(Self);
+  end;
 end;
 
 procedure TfrmMainDml._OnCustomToolsClick(Sender: TObject);
@@ -3223,6 +3485,7 @@ end;
 procedure TfrmMainDml.actExitWithoutSaveExecute(Sender: TObject);
 begin
   FCtDataModelList.Clear;
+  FCtMetaChangeList.Clear;
   FFrameCtTableDef.Init(nil, True);
   Close;
 end;
@@ -3282,7 +3545,7 @@ begin
         tbs.AutoFree := False;
         FFrameCtTableDef.FFrameDMLGraph.CountSelectedTables(tbs);
         if tbs.Count > 0 then
-          frmCtGenCode.MetaObjList := tbs;
+          frmCtGenCode.MetaTableList := tbs;
       end;
     end
     else
@@ -3293,7 +3556,7 @@ begin
         tbs := TCtMetaTableList.Create;
         tbs.AutoFree := False;
         tbs.Add(cto);
-        frmCtGenCode.MetaObjList := tbs;
+        frmCtGenCode.MetaTableList := tbs;
       end;
     end;
     if frmCtGenCode.ShowModal = mrOk then
@@ -3385,11 +3648,12 @@ begin
   EzdmlMenuActExecuteEvt('File_New');
   if (GetKeyState(VK_SHIFT) and $80) <> 0 then
   begin
-    WindowFuncs.CtOpenDoc(Application.ExeName);
+    actNewAppWin.Execute;
     Exit;
   end;
   CheckCanEditMeta;
-  FCtDataModelList.Pack;
+  FCtDataModelList.Pack;    
+  CheckAutoSaveHydb;
   if FCtDataModelList.Count = 0 then
     Exit;
   if Application.MessageBox(PChar(srEzdmlConfirmNewFile),
@@ -3414,13 +3678,18 @@ begin
     SetStatusBarMsg('');
     FCurFileName := '';
     FAutoSaveCounter := 0;
-    FCurDmlFileName := '';
+    FAutoSaveHydbCounter := 0;
+    FCurDmlFileName := ''; 
+    FCtDataModelList.MetaModified:=False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
     TryLockFile('');
     CheckCaption;
     SaveIni;
   finally
     FCurFileName := '';
     FAutoSaveCounter := 0;
+    FAutoSaveHydbCounter := 0;
     FCurDmlFileName := '';
   end;
   if Assigned(GProc_OnEzdmlCmdEvent) then
@@ -3549,6 +3818,7 @@ begin
     if FCurFileName <> '' then
     begin
       FAutoSaveCounter := 0;
+      FAutoSaveHydbCounter := 0;
       if not FCtDataModelList.IsHuge then
         SaveDmlToTmpFile;
     end;
@@ -3557,8 +3827,10 @@ begin
 
   FProgressAll := 0;
   FProgressCur := 0;
-  svRes := '';
+  svRes := '';        
+{$IFNDEF EZDML_CONSOLE}   
   FWaitWnd := TfrmWaitWnd.Create(Self);
+{$ENDIF}
   bBuiltin := IsBuiltinDbModel(frmEzdmlDbFile.ResultFileName);
   if bBuiltin then
   begin
@@ -3569,8 +3841,9 @@ begin
   try
     fs.RootName := 'DataModels';
 
-    FWaitWnd.Init(srEzdmlSaveFile + ' ' + frmEzdmlDbFile.ResultFileName, srEzdmlSaving,
-      srEzdmlAbortSaving);
+    if Assigned(FWaitWnd) then
+      FWaitWnd.Init(srEzdmlSaveFile + ' ' + frmEzdmlDbFile.ResultFileName, srEzdmlSaving,
+        srEzdmlAbortSaving);
 
     if Assigned(GProc_OnEzdmlCmdEvent) then
     begin
@@ -3590,20 +3863,25 @@ begin
       if not frmEzdmlDbFile.SaveDataToDbFile(Stream, frmEzdmlDbFile.ResultFileName, True) then
         Exit;
       svRes := 'ok';
-    end;
+    end;          
+    FCtDataModelList.MetaModified:=False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
     frmEzdmlDbFile.ListViewFiles.Items.Clear;
 
     FCurFileName := 'db://'+GetLastCtDbIdentStr+'/'+frmEzdmlDbFile.ResultFileName;
     RememberFileDateSize;
   finally
     fs.Free;
-    FWaitWnd.Release;
+    if Assigned(FWaitWnd) then
+      FWaitWnd.Release;
     FWaitWnd := nil;
   end;
 
   if not FCtDataModelList.IsHuge then
     SaveDmlToTmpFile;
   FAutoSaveCounter := 0;
+  FAutoSaveHydbCounter := 0;
   CheckCaption;
 
   S := Format(srEzdmlDbFileSavedFmt, [frmEzdmlDbFile.ResultFileName]);
@@ -4018,7 +4296,10 @@ procedure TfrmMainDml.actOpenUrlExecute(Sender: TObject);
       ts.Free;
     end;
     Self.LoadFromFile(fn);
-    AddOnlineHistoryFile(sid,url,'',Length(data));
+    AddOnlineHistoryFile(sid,url,'',Length(data));  
+    FCtDataModelList.MetaModified:=False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
     //FCurFileName := sfn;
     //FCurDmlFileName := sfn;
     //CheckCaption;
@@ -4042,8 +4323,9 @@ begin
 
   CheckCanEditMeta;
   FCtDataModelList.Pack;
+  CheckAutoSaveHydb;
 
-  if FCtDataModelList.TableCount > 0 then
+  if (FCtDataModelList.TableCount > 0) and FCtDataModelList.MetaModified then
     case Application.MessageBox(PChar(ExtractFileName(sfn) + ' ' +
         srEzdmlConfirmClearOnOpen),
         PChar(srEzdmlOpenFile), MB_OKCANCEL or MB_ICONWARNING) of
@@ -4157,8 +4439,12 @@ begin
     end;
 
     FAutoSaveCounter := 0;
+    FAutoSaveHydbCounter := 0;
     SaveDmlToTmpFile;
     SetStatusBarMsg(srEzdmlSaved + GetStatusPanelFileName(FCurFileName) + ' ' + TimeToStr(Now));
+    FCtDataModelList.MetaModified:=False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
 
     FCurDmlFileName := FCurFileName;
     SetRecentFile(FCurFileName);
@@ -4182,8 +4468,12 @@ begin
     end;
     SaveToFile(FCurFileName);     
     FAutoSaveCounter := 0;
+    FAutoSaveHydbCounter := 0;
     if not FCtDataModelList.IsHuge then
-      SaveDmlToTmpFile;
+      SaveDmlToTmpFile;  
+    FCtDataModelList.MetaModified:=False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
     SetStatusBarMsg(srEzdmlSaved + GetStatusPanelFileName(FCurFileName) + ' ' + TimeToStr(Now));
     if Assigned(GProc_OnEzdmlCmdEvent) then
     begin
@@ -4197,7 +4487,13 @@ begin
       actSaveFileAs.Execute;
       Exit;
     end;
-    actSaveToDb.Execute;
+    if G_BuiltinHydbMode then
+    begin
+      if CheckAutoSaveHydb='' then
+        ShowNewVerToast(srBuiltinDbFileNotChangedPrompt, '', 8);
+    end
+    else
+      actSaveToDb.Execute;
   end
   else
   begin
@@ -4302,7 +4598,7 @@ begin
   end
   else
   begin              
-    if IsDbFile(FCurFileName) and FFileDbConnectOk then
+    if IsDbFile(FCurFileName) then
       G_BuiltinHydbMode := IsBuiltinDbModel(FCurFileName)
     else
       G_BuiltinHydbMode := False;
@@ -4328,8 +4624,8 @@ begin
               
   if IsDbFile(FCurFileName) then
   begin
-    sz := 0;
-    vfileDate := Now;
+    sz := FCurFileSize;
+    vfileDate := FCurFileDate;
     st := frmEzdmlDbFile.CheckDbFileState(FCurFileName, sz, vfileDate, False);
     if st <= 2 then
     begin
@@ -4418,7 +4714,10 @@ procedure TfrmMainDml.PromptOpenFile(fn: string; bDisableTmpFiles: boolean);
       LoadFromDbFile(dfn);
     end
     else
-      LoadFromFile(dfn);
+      LoadFromFile(dfn); 
+    FCtDataModelList.MetaModified:=False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
   end;
 var
   vOldMds: TCtDataModelGraphList;
@@ -4430,8 +4729,9 @@ begin
     
   CheckCanEditMeta;
   FCtDataModelList.Pack;
+  CheckAutoSaveHydb;
 
-  if FCtDataModelList.TableCount > 0 then
+  if (FCtDataModelList.TableCount > 0) and FCtDataModelList.MetaModified then
     case Application.MessageBox(PChar(ExtractFileName(fn) + ' ' +
         srEzdmlConfirmClearOnOpen),
         PChar(srEzdmlOpenFile), MB_OKCANCEL or MB_ICONWARNING) of
@@ -4631,18 +4931,30 @@ procedure TfrmMainDml.RecreateRecentMn;
   procedure RecreateRecentMnEx(Pmns: TMenuItem);
   var
     mn: TMenuItem;
-    I: integer;
-    fn: string;
+    I, L: integer;
+    fn, S, T, U: string;
   begin
     Pmns.Clear;
     for I := 0 to FRecentFiles.Count - 1 do
     begin
       fn := FRecentFiles[I];
       mn := TMenuItem.Create(Self);
-      if IsDbFile(fn) then
-        mn.Caption := '@'+ExtractDmlFileName(fn)
-      else
-        mn.Caption := ExtractFileName(fn);
+      U := fn;
+      L := 64;
+      if DmlStrLength(U)>L then
+      begin
+        if IsDbFile(fn) then
+        begin
+          S := '/'+ExtractDmlFileName(fn);
+        end
+        else
+          S := DirectorySeparator+ExtractFileName(fn);
+        T := Copy(fn, 1, Length(fn)-Length(S));
+        L := L - DmlStrLength(S);
+        T := DmlStrCut(T, L);
+        U := T+'...'+S;
+      end;
+      mn.Caption := U;
       mn.Hint := fn;
       mn.Tag := I;
       mn.OnClick := _OnRecentFileClick;
@@ -4753,6 +5065,8 @@ initialization
   {$endif}
 
   Proc_CheckDecDmlData := Ezdml_CheckDecDmlData;
+  Proc_OnMetaPropsChanged := Ezdml_OnMetaPropsChanged;  
+  Proc_LockMetaTable := Ezdml_LockMetaTable;
 
   InitCtChnNames;
 

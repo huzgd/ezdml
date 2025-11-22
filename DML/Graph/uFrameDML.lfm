@@ -2220,9 +2220,14 @@ object FrameDML: TFrameDML
         ImageIndex = 29
         OnClick = MNAI_GenCommentsClick
       end
+      object PMNAI_GenPhyNames: TMenuItem
+        Caption = 'Generate Physical Names'
+        ImageIndex = 10
+        OnClick = MNAI_GenPhyNamesClick
+      end
       object PMNAI_GenSampleValues: TMenuItem
         Caption = 'Generate Sample Values'
-        ImageIndex = 10
+        ImageIndex = 9
         OnClick = MNAI_GenSampleValuesClick
       end
       object PMNAI_GenFKLinks: TMenuItem
@@ -5631,9 +5636,14 @@ object FrameDML: TFrameDML
       ImageIndex = 29
       OnClick = MNAI_GenCommentsClick
     end
+    object MNAI_GenPhyNames: TMenuItem
+      Caption = 'Generate Phyical Names'
+      ImageIndex = 10
+      OnClick = MNAI_GenPhyNamesClick
+    end
     object MNAI_GenSampleValues: TMenuItem
       Caption = 'Generate Sample Values'
-      ImageIndex = 10
+      ImageIndex = 9
       OnClick = MNAI_GenSampleValuesClick
     end
     object MNAI_GenFKLinks: TMenuItem

@@ -681,24 +681,9 @@ begin
               end;
             end;
         end;
-
+                             
     exo := FCtMetaObjList.ItemByName(o.Name);
-    if Assigned(exo) and ckbOverwriteExists.Checked then
-    begin
-      if (exo is TCtMetaTable) or (o is TCtMetaTable) then
-      begin
-        S := TCtMetaTable(exo).GraphDesc;
-        TCtMetaTable(exo).AssignFrom(o);
-        TCtMetaTable(exo).GraphDesc := S;
-      end
-      else
-      begin
-        FCtMetaObjList.Remove(exo);
-        FCtMetaObjList.Add(o);
-      end;
-    end
-    else
-      FCtMetaObjList.Add(o);
+
     if ckbAutoCapitalize.Checked and ckbAutoCapitalize.Visible then
     begin
       o.Name := AutoRenameObj(o.Name);
@@ -706,6 +691,29 @@ begin
         with TCtMetaTable(o).MetaFields do
           for I := 0 to Count - 1 do
             Items[I].Name := AutoRenameObj(Items[I].Name);
+    end;
+
+    if Assigned(exo) and ckbOverwriteExists.Checked then
+    begin
+      if (exo is TCtMetaTable) or (o is TCtMetaTable) then
+      begin
+        S := TCtMetaTable(exo).GraphDesc;
+        TCtMetaTable(exo).AssignFrom(o);
+        TCtMetaTable(exo).GraphDesc := S;
+        DoMetaPropsChanged(exo, cmctModify);
+      end
+      else
+      begin
+        FCtMetaObjList.Remove(exo);
+        DoMetaPropsChanged(exo, cmctRemove);
+        FCtMetaObjList.Add(o);     
+        DoMetaPropsChanged(o, cmctNew);
+      end;
+    end
+    else
+    begin
+      FCtMetaObjList.Add(o);
+      DoMetaPropsChanged(o, cmctNew);
     end;
 
     if Assigned(GProc_OnEzdmlCmdEvent) then

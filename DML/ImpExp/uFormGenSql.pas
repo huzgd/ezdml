@@ -663,9 +663,14 @@ begin
       end;
   end;
 
-  if Assigned(FCtMetaDatabase) and (FCtMetaDatabase.EngineType = 'ORACLE') then
-    ckbProcOracleSeqs.Show
-  else if FDefaultDbType = 'ORACLE' then
+  if Assigned(FCtMetaDatabase) then
+  begin
+    if (FCtMetaDatabase.EngineType = 'ORACLE') or (FCtMetaDatabase.EngineType = 'POSTGRESQL') then
+      ckbProcOracleSeqs.Show
+    else  
+      ckbProcOracleSeqs.Hide;
+  end
+  else if (FDefaultDbType = 'ORACLE') or (FDefaultDbType = 'POSTGRESQL') then
     ckbProcOracleSeqs.Show
   else
     ckbProcOracleSeqs.Hide;
@@ -766,9 +771,16 @@ begin
   ckbProcOracleSeqs.Checked := G_CreateSeqForOracle; 
   ckbGenDBComments.Checked := G_GenDBComments;
   ckbCreateForeignkeys.Checked := G_CreateForeignkeys;
-  if Assigned(FCtMetaDatabase) and (FCtMetaDatabase.EngineType = 'ORACLE') then
-    ckbProcOracleSeqs.Show
-  else if FDefaultDbType = 'ORACLE' then
+
+
+  if Assigned(FCtMetaDatabase) then
+  begin
+    if (FCtMetaDatabase.EngineType = 'ORACLE') or (FCtMetaDatabase.EngineType = 'POSTGRESQL') then
+      ckbProcOracleSeqs.Show
+    else
+      ckbProcOracleSeqs.Hide;
+  end
+  else if (FDefaultDbType = 'ORACLE') or (FDefaultDbType = 'POSTGRESQL') then
     ckbProcOracleSeqs.Show
   else
     ckbProcOracleSeqs.Hide;
@@ -1386,13 +1398,10 @@ begin
   Result := Trim(Result);
 end;
 
-type
-  TCommandType = (ctSQL, ctPLSQL, ctNonSQL);
-
 procedure TfrmCtGenSQL.ExecCommands;
 var
   i: integer;
-  EndChar: char;
+  EndChar: String;
   S, Command, XCommand: string;
   ValidSQL: boolean;
   WordList: TStringList;
@@ -1464,26 +1473,27 @@ var
         Result := not Result;
   end;
 
-  function CommandEnd(S, Line: string; C: char): boolean;
+  function CommandEnd(S, Line: string; EndChar: String): boolean;
   begin
-    Result := (Trim(Line) = '/') and NotInString(S);
-    if (not Result) and (C = ';') then
+    Result := (Trim(Line) = EndChar) and NotInString(S);
+    if (not Result) and (EndChar = ';') then
       Result := (S[Length(S)] = ';');
   end;
   // Add a command to the collection
 
   procedure AddCommand;
   var
-    CType: TCommandType;
+    isSQL: Boolean;
   begin
     // Determine Command Type (SQL, PL/SQL or ...)
     if not ValidSQL then
-      CType := ctNonSQL
+      isSQL := False
+    else if EndChar = '/' then
+      isSQL := False
+    else if EndChar = 'END $$;' then
+      isSQL := False
     else
-    if EndChar = '/' then
-      CType := ctPLSQL
-    else
-      CType := ctSQL;
+      isSQL := True;
     // Strip terminating character
     if ValidSQL and (Length(Command) > 1) and
       (Command[Length(Command) - 1] = #10) and
@@ -1494,7 +1504,7 @@ var
     end
     else
     begin
-      if (CType = ctSQL) and (Command <> '') and (Command[Length(Command)] = ';') then
+      if isSQL and (Command <> '') and (Command[Length(Command)] = ';') then
       begin
         SetLength(Command, Length(Command) - 1);
         Command := TrimRight(Command);
@@ -1544,7 +1554,7 @@ var
       (S1 = 'TRUNCATE') or (S1 = 'NOAUDIT') or (S1 = 'REVOKE') or
       (S1 = 'UPDATE') or (S1 = 'BEGIN') or (S1 = 'DECLARE') or
       (S1 = 'EXPLAIN') or (S1 = 'ASSOCIATE') or (S1 = 'DISASSOCIATE') or
-      (S1 = 'CALL') or (S1 = 'EXEC') or (S1 = 'EXECUTE');
+      (S1 = 'CALL') or (S1 = 'EXEC') or (S1 = 'EXECUTE') or (S1='DO');
     if (not Result) and (S1 = 'SET') then
     begin
       Result :=
@@ -1553,6 +1563,19 @@ var
         (S2 = 'CONSTRAINT') or
         (S2 = 'CONSTRAINTS');
     end;
+  end;
+             
+  function PGSQLBlock(const S: string): boolean;
+  var
+    T : String;
+  begin
+    Result := False;
+    T:=UpperCase(Trim(S));
+    if Copy(T,1,3)<> 'DO ' then
+      Exit;
+    if not StrEndsWith(T,'$$') then
+      Exit;
+    Result := True;
   end;
 
   function PLSQLBlock(const FirstWord, S: string): boolean;
@@ -1631,7 +1654,11 @@ begin
       end;
       // Is it a valid SQL command or PL/SQL Block?
       if ValidSQL and (EndChar <> '/') and PLSQLBlock(FirstWord, XCommand) then
-        EndChar := '/';
+        EndChar := '/'
+      else
+        // Is it a PG SQL Block?
+      if ValidSQL and (EndChar <> 'END $$;') and PGSQLBlock(XCommand) then
+        EndChar := 'END $$;';
       if (Trim(XCommand) <> '') and (CommandEnd(Command, S, EndChar) or
         (not ValidSQL)) then
       begin

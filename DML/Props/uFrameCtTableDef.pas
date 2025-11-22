@@ -38,10 +38,10 @@ type
     FFramePropRefreshing: boolean;
     function GetShowLeftTree: Boolean;
     procedure SetShowLeftTree(AValue: Boolean);
-    procedure _actNewTableExecute(Sender: TObject);
-    procedure _OnCtMetaNodeChange(Sender: TObject);
-    procedure _OnCtFieldPropChange(Sender: TObject);
-    procedure _OnCtObjShowProp(Sender: TObject);
+    procedure _actNewTableExecute(Sender: TObject); //列表添加
+    procedure _OnCtMetaNodeChange(Sender: TObject); //列表选择节点
+    procedure _OnCtFieldPropChange(Sender: TObject); //字段属性Frame变化
+    procedure _OnCtObjShowProp(Sender: TObject); //列表显示节点属性
     procedure _OnCtMetaNodeFindLocation(Sender: TObject; Node: TTreeNode);
     procedure _OnBatchAddFields(Sender: TObject);
     procedure _OnBatchRemoveFields(Sender: TObject);
@@ -667,7 +667,7 @@ begin
     if not Assigned(frmCtGenCode) then
       frmCtGenCode := TfrmCtGenCode.Create(Self);
     if tbs.Count > 0 then
-      frmCtGenCode.MetaObjList := tbs
+      frmCtGenCode.MetaTableList := tbs
     else
       frmCtGenCode.CtDataModelList := FCtDataModelList;
 

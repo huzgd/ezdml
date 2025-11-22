@@ -617,15 +617,23 @@ end;
 
 procedure ctalert(s: string);
 begin
-  ShowMessage(s);
+{$IFDEF EZDML_CONSOLE}
+  WriteLn('[Alert] '+s);
+{$ELSE}
+ShowMessage(s);
+{$ENDIF}
 end;
 
 procedure ctToast(s: variant; closeTimeMs: integer);
-begin
+begin        
+{$IFDEF EZDML_CONSOLE}
+  WriteLn('[Toast] '+s);
+{$ELSE}
   if Assigned(GProc_Toast) then
     GProc_Toast(S, closeTimeMs)
   else
-    ctalert(s);
+    ctalert(s); 
+{$ENDIF}
 end;
            
 function PvtMsgBox(AMsgId, ATitle, AMsg: string; def, tp, maxShowCount: Integer): Integer;
@@ -1497,6 +1505,9 @@ var
   ks: Smallint;
   tk: Int64;
 begin
+{$IFDEF EZDML_CONSOLE}
+  Exit;
+{$ENDIF}
   if G_SkipCheckAbort then
     Exit;
   if Application.ModalLevel > 0 then

@@ -2,7 +2,7 @@ unit uFormEzdmlDbFile;
 
 {$MODE Delphi}
 
-{.$define EZDML_DBSERIAL}
+{$define EZDML_DBSERIAL}
 
 {$ifdef EZDML_LITE}
 {$undef EZDML_DBSERIAL}
@@ -13,7 +13,7 @@ interface
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs, StdCtrls, ComCtrls, CheckLst, Menus, CtMetaTable,
-  ExtCtrls, Buttons, DB, CtObjSerialer
+  ExtCtrls, Buttons, DB, CtObjSerialer, CtMetaChange
 {$ifdef EZDML_DBSERIAL}
   , CtObjMetaDbSerial
 {$endif}
@@ -126,7 +126,11 @@ type
     procedure CheckSelBuiltInDbModel;
     function CreateBuiltinDbSerialer(mds: TCtDataModelGraphList; fn: string; bReadOnly: Boolean): TCtObjSerialer;
     procedure DoBuiltinModelLoad(sr: TCtObjSerialer);
-    function DoBuiltinModelSave(sr: TCtObjSerialer; bPromptMemo: Boolean): string; 
+    function DoBuiltinModelSave(sr: TCtObjSerialer; bPromptMemo: Boolean): string;     
+    function DoBuiltinModelAutoLoad(mds: TCtDataModelGraphList; fn: string): String;
+    function DoBuiltinModelLock(mds: TCtDataModelGraphList; fn: string): String;
+    function DoBuiltinModelAutoSave(mds: TCtDataModelGraphList; fn: string; chgList: TCtMetaChangeList): String; 
+    function DoBuiltinDbTableLock(ATb: TCtMetaTable; act: Integer; chgList: TCtMetaChangeList): Boolean;
     function PublishFileToBuiltinHydb(Sender: TObject; md: TCtDataModelGraph; tb: TCtMetaTable;
       const fileType, filePath, fileName, fileContent, opts: string): string;
 
@@ -141,6 +145,8 @@ function IsBuiltinDbModel(fn: string): Boolean;
 var
   frmEzdmlDbFile: TfrmEzdmlDbFile;
   G_LockUserId: string;
+const
+  DEF_DATETIME_TOL = 1.49/24.0/3600.0;
 
 implementation
 
@@ -166,7 +172,7 @@ begin
     Exit;
   if fn='Built_in_model' then
     Exit;
-  if fn='内置模型' then
+  if fn='系统内置模型' then
     Exit;
   Result := False;
   {$else}
@@ -1000,7 +1006,7 @@ begin
 
   if IsBuiltinDbModel(fn) then
   begin
-    sql := 'select fileSize, modifyDate from ezdml_meta_hyfile';
+    sql := 'select modifierName, fileSize, modifyDate from ezdml_meta_hyfile';
     if fid<>'' then
       sql := sql+' where fileGuid='''+fid+'''';
   end
@@ -1018,10 +1024,13 @@ begin
   try
     ds.first;
     if not ds.Eof then
-    begin
+    begin       
+      Result := 3;
+      if IsBuiltinDbModel(fn) then
+        if GetLockState(ds.FieldByName('modifierName').AsString)=2 then
+          Exit;
       fileSize := ds.FieldByName('fileSize').AsInteger;
       fileDate := ds.FieldByName('modifyDate').AsDateTime;
-      Result := 3;
     end;
   finally
     ds.Free;
@@ -1457,6 +1466,206 @@ begin
   FCtMetaDatabase.ExecCmd('commit','','');
 {$else}
   raise Exception.Create(srEzdmlLiteNotSupportFun);
+{$endif}
+end;
+
+function TfrmEzdmlDbFile.DoBuiltinModelAutoLoad(mds: TCtDataModelGraphList;
+  fn: string): String;
+var
+  ser: TCtObjSerialer;
+begin
+  Result := '';
+{$ifdef EZDML_DBSERIAL}
+  ser := CreateBuiltinDbSerialer(mds, fn, True);
+  try
+    Result := TCtObjMetaDbSerial(ser).DoLoadChanges();
+  finally
+    ser.Free;
+  end;
+{$endif}
+end;
+            
+function TfrmEzdmlDbFile.DoBuiltinModelLock(mds: TCtDataModelGraphList;
+  fn: string): String;
+var
+  ser: TCtObjSerialer;    
+  ds: TDataSet;
+  mstr: String;
+  curDateTime: TDateTime;
+begin
+  Result := '';
+{$ifdef EZDML_DBSERIAL}
+  //保存前应锁定文件，锁定后判断是否要先更新（避免并发修改）
+  ds := FCtMetaDatabase.OpenTable('select fileGuid, modifierName, modifyDate, fileMemo from ezdml_meta_hyfile', '[PK=fileGuid]');
+  if ds.EOF then
+    raise Exception.Create('ezdml_meta_hyfile EOF');
+  try
+    mstr := ds.FieldByName('modifierName').AsString;
+    if GetLockState(mstr) = 2 then //0无锁 1我锁 2他人锁
+    begin
+      //被他人锁定时，等待2秒再次检测
+      ds := FCtMetaDatabase.OpenTable('select fileGuid, modifierName, modifyDate, fileMemo from ezdml_meta_hyfile', '[PK=fileGuid]');
+      mstr := ds.FieldByName('modifierName').AsString;
+    end;
+    if GetLockState(mstr) = 2 then //2秒后仍然锁定，报错
+      raise Exception.Create(Format(srNeedUnlockDbFilePromptFmt,[fn, GetLockerName(mstr)]));
+
+    //修改时间比原记录时间新，说明被其他人改过了，需要更新
+    if ds.FieldByName('modifyDate').AsDateTime > FGlobeDataModelList.ModelFileConfig.ModifyDate+DEF_DATETIME_TOL then
+    begin
+      //加载更新
+      ser := CreateBuiltinDbSerialer(mds, fn, True);
+      try
+        Result := TCtObjMetaDbSerial(ser).DoLoadChanges();
+      finally
+        ser.Free;
+      end;
+      FreeAndNil(ds);
+      //更新完后重新加载
+      ds := FCtMetaDatabase.OpenTable('select fileGuid, modifierName, modifyDate, fileMemo from ezdml_meta_hyfile', '[PK=fileGuid]');
+      //更新后修改时间仍然比我新，报错
+      if ds.FieldByName('modifyDate').AsDateTime > FGlobeDataModelList.ModelFileConfig.ModifyDate+DEF_DATETIME_TOL then
+        raise Exception.Create('Failed to sync DB changes');
+      mstr := ds.FieldByName('modifierName').AsString;
+      if GetLockState(mstr) = 2 then //更新后又被他人锁定，报错
+        raise Exception.Create(Format(srNeedUnlockDbFilePromptFmt,[fn, GetLockerName(mstr)]));
+    end;
+
+    //执行锁定
+    ds.Edit;
+    curDateTime := Now;
+    if curDateTime <= ds.FieldByName('modifyDate').AsDateTime then
+      curDateTime := ds.FieldByName('modifyDate').AsDateTime + 1/24.0/3600.0;
+    mstr := GetMyNameWithLockId;
+    ds.FieldByName('modifierName').AsString := mstr;
+    ds.FieldByName('modifyDate').AsDateTime := curDateTime;
+    ds.FieldByName('fileMemo').AsString :='['+ srAutoSave + '] ' + GetMyComputerId + ' ' + DateTimeToStr(curDateTime);
+    ds.Post;
+    FCtMetaDatabase.ExecCmd('commit','','');
+
+    //判断锁定是否成功
+    FreeAndNil(ds);
+    ds := FCtMetaDatabase.OpenTable('select fileGuid, modifierName, modifyDate, fileMemo from ezdml_meta_hyfile', '[PK=fileGuid]');
+    if (ds.FieldByName('modifierName').AsString <> mstr) or (Abs(ds.FieldByName('modifyDate').AsDateTime - curDateTime)> DEF_DATETIME_TOL) then
+    begin
+      raise Exception.Create(Format(srFailToLockDbFileFmt,[fn, ds.FieldByName('modifierName').AsString, ds.FieldByName('modifyDate').AsString]));
+    end;
+
+    //锁定成功，可以保存（保存后覆盖modifierName自动解锁）
+  finally
+    FreeAndNil(ds);
+  end;
+{$endif}
+end;
+
+function TfrmEzdmlDbFile.DoBuiltinModelAutoSave(mds: TCtDataModelGraphList;
+  fn: string; chgList: TCtMetaChangeList): String;
+var
+  ser: TCtObjSerialer;
+begin
+  Result := '';
+  if chgList.Count=0 then
+    Exit;
+{$ifdef EZDML_DBSERIAL}
+
+  ser := CreateBuiltinDbSerialer(mds, fn, False);
+  try
+    Result := TCtObjMetaDbSerial(ser).DoSaveChanges(chgList);
+  finally
+    ser.Free;
+  end;
+{$endif}
+end;
+
+function TfrmEzdmlDbFile.DoBuiltinDbTableLock(ATb: TCtMetaTable; act: Integer;
+  chgList: TCtMetaChangeList): Boolean;
+var
+  sGuid: String;
+  ds: TDataSet;
+  mstr: String;
+  df: Double;
+  dt, curDateTime: TDateTime;
+begin
+  Result := False;  
+  if ATb=nil then
+    Exit;       
+{$ifdef EZDML_DBSERIAL}
+  sGuid := ATb.CtGuid;
+  if sGuid='' then //无GUID的是新表，不需要锁
+    Exit;
+  if act in [1,2] then
+  begin
+    if chgList.AddTbLock(sGuid, act) then
+    begin
+      //新锁，需要锁数据库
+      ds := FCtMetaDatabase.OpenTable('select tableGuid, Tb_CurLocker, Tb_LockTime, ModifyDate from ezdml_meta_table where tableGuid='''+sGuid+''' ', '[PK=tableGuid]');
+      if ds.EOF then
+        raise Exception.Create('ezdml_meta_table EOF for '+sGuid);
+      try
+        mstr := ds.FieldByName('Tb_CurLocker').AsString;
+        if GetLockState(mstr) = 2 then //0无锁 1我锁 2他人锁
+          raise Exception.Create(Format(srFailToLockDbTableFmt,[Atb.Name, GetLockerName(mstr), ds.FieldByName('Tb_LockTime').AsString]));
+
+        dt := ds.FieldByName('ModifyDate').AsDateTime;
+        df := Abs(dt - ATb.ModifyDate);
+        if (df > DEF_DATETIME_TOL) then
+          raise Exception.Create(Format(srNeedUpdateDbObjectFmt,[Atb.Name, GetLockerName(mstr), ds.FieldByName('ModifyDate').AsString]));
+
+        //执行锁定
+        ds.Edit;
+        mstr := GetMyNameWithLockId;
+        ds.FieldByName('Tb_CurLocker').AsString := mstr;
+        curDateTime := Now;
+        if curDateTime <= ds.FieldByName('Tb_LockTime').AsDateTime then
+          curDateTime := ds.FieldByName('Tb_LockTime').AsDateTime + 1/24.0/3600.0;
+        ds.FieldByName('Tb_LockTime').AsDateTime := curDateTime;
+        ds.Post;
+        FCtMetaDatabase.ExecCmd('commit','','');
+
+        //判断锁定是否成功
+        FreeAndNil(ds);
+        ds := FCtMetaDatabase.OpenTable('select tableGuid, Tb_CurLocker, Tb_LockTime from ezdml_meta_table where tableGuid='''+sGuid+''' ', '[PK=tableGuid]');
+        if (ds.FieldByName('Tb_CurLocker').AsString <> mstr) or (Abs(ds.FieldByName('Tb_LockTime').AsDateTime - curDateTime)> DEF_DATETIME_TOL) then
+        begin
+          raise Exception.Create(Format(srFailToLockDbTableFmt,[Atb.Name, GetLockerName(mstr), ds.FieldByName('Tb_LockTime').AsString]));
+        end; 
+        Result := True;
+      finally
+        FreeAndNil(ds);
+        if not Result then //锁定失败，删除锁定记录
+          chgList.RemoveTbLock(sGuid, False);
+      end;
+    end
+    else
+      Result := False;
+  end
+  else if act=3 then
+  begin
+    if chgList.RemoveTbLock(sGuid, True) then
+    begin
+      Result := True;
+      //预锁取消，需要解锁数据库  
+      ds := FCtMetaDatabase.OpenTable('select tableGuid, Tb_CurLocker, Tb_LockTime from ezdml_meta_table where tableGuid='''+sGuid+''' ', '[PK=tableGuid]');
+      if ds.EOF then
+        raise Exception.Create('ezdml_meta_table EOF for '+sGuid);
+      try
+        mstr := ds.FieldByName('Tb_CurLocker').AsString;
+        if GetLockState(mstr) = 1 then //0无锁 1我锁 2他人锁
+        begin
+          //执行解锁
+          ds.Edit;     
+          mstr := GetMyComputerId;
+          ds.FieldByName('Tb_CurLocker').AsString := mstr;
+          ds.Post;
+          FCtMetaDatabase.ExecCmd('commit','','');
+        end;
+      finally
+        FreeAndNil(ds);
+      end;
+    end
+    else
+      Result := False;
+  end;   
 {$endif}
 end;
 

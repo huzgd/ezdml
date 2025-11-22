@@ -81,7 +81,7 @@ var
 implementation
 
 uses
-  WindowFuncs, EzJdbcConn
+  WindowFuncs, EzJdbcConn, NetUtil
   {$ifndef EZDML_LITE},CtCustomSqlConn {$endif}
   ;
 
@@ -431,10 +431,30 @@ begin
 end;
 
 function TCtMetaFCLSqlDb.ExecCmd(ACmd, AParam1, AParam2: string): string;
+var
+  url, S: String;
 begin                    
   try
     if G_SqlLogEnalbed then
-      WriteSqlLog('ExecCmd: '+ACmd+':'+AParam1+':'+AParam2);
+      WriteSqlLog('ExecCmd: '+ACmd+':'+AParam1+':'+AParam2);    
+    if ACmd='CT_PING_HTTPJDBC' then
+    begin
+      if Assigned(FDbConn) and (FDbConn is TEzJdbcSqlConnection) then
+      begin    
+        Result := 'FAILED';
+        url := TEzJdbcSqlConnection(FDbConn).JdbcSvAddr;
+        if url <> '' then
+        try
+          S:=GetUrlData_Net(url+'?cmd=nop', '', AParam1);
+          if Pos('{', Trim(S))=1 then
+            Result := 'OK';
+        except
+          on E: Exception do
+            Result := 'Error: '+E.Message;
+        end;
+        Exit;
+      end;
+    end;
     if ACmd='CT_BEFORE_RECONNECT' then
     begin
       if Connected and (FUseDriverType='JDBC') then
@@ -453,21 +473,26 @@ begin
       if G_RetainAfterCommit then
         FDbConn.Transaction.CommitRetaining
       else
-        FDbConn.Transaction.Commit;
+        FDbConn.Transaction.Commit;  
+      Result := 'OK';
     end
     else if LowerCase(ACmd)='rollback' then
     begin               
       if G_RetainAfterCommit then
         FDbConn.Transaction.RollbackRetaining
       else
-        FDBConn.Transaction.Rollback;    
+        FDBConn.Transaction.Rollback;
+      Result := 'OK';
     end
     else if LowerCase(ACmd)='row_affected' then
     begin
       Result := IntToStr(FLastCmdRowAffected);
       if AParam1='reset' then
         FLastCmdRowAffected := -1;
-    end;    
+    end;            
+    if (Result = '') and Connected then 
+      if Assigned(FDbConn) and (FDbConn is TEzJdbcSqlConnection) then
+        Result := TEzJdbcSqlConnection(FDbConn).ExecDbCmd('ExecCmd:'+ ACmd,AParam1,AParam2, '');
     if G_SqlLogEnalbed then
       WriteSqlLog('ExecCmd: done!');
   except

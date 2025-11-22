@@ -148,6 +148,7 @@
 {"hash":240251124,"name":"tframecttableprop.menuitem_ai.caption","sourcebytes":[65,73,32,65,115,115,105,115,116,97,110,116],"value":"AI Assistant"},
 {"hash":43756899,"name":"tframecttableprop.mnai_genfields.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,70,105,101,108,100,115],"value":"Add More Fields"},
 {"hash":251925971,"name":"tframecttableprop.mnai_gencomments.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,67,111,109,109,101,110,116,115],"value":"Generate Comments"},
+{"hash":71827875,"name":"tframecttableprop.mnai_genphynames.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,80,104,121,105,99,97,108,32,78,97,109,101,115],"value":"Generate Phyical Names"},
 {"hash":63967907,"name":"tframecttableprop.mnai_gensamplevalues.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,83,97,109,112,108,101,32,86,97,108,117,101,115],"value":"Generate Sample Values"},
 {"hash":51658644,"name":"tframecttableprop.mn_fieldweights.caption","sourcebytes":[70,105,101,108,100,32,119,101,105,103,104,116],"value":"Field weight"},
 {"hash":183934819,"name":"tframecttableprop.mn_genoption.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,111,112,116,105,111,110,115],"value":"Generate options"},

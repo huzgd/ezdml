@@ -135,12 +135,13 @@ end;
 
 procedure TfrmAddCtFields.FormCreate(Sender: TObject);
 const
-  DEF_SELECTED_FIELD: array[0..7] of TCtKeyFieldType = (
+  DEF_SELECTED_FIELD: array[0..8] of TCtKeyFieldType = (
     cfktId,
     cfktRid,
     cfktCaption,
     cfktComment,
     cfktOrgId,
+    cfktDeptId,
     cfktCreatorId,
     cfktCreateDate,
     cfktDataLevel);

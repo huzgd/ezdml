@@ -182,7 +182,25 @@ begin
 end;
 
 function TCtMetaHttpDb.ExecCmd(ACmd, AParam1, AParam2: string): string;
-begin        
+var
+  url, S: String;
+begin
+  if ACmd='CT_PING_HTTPJDBC' then
+  begin                          
+    Result := 'FAILED';
+    url := Self.Database;
+    if Assigned(FCtJdbcConn) then
+      url := FCtJdbcConn.FJdbcSvAddr;
+    try
+      S:=GetUrlData_Net(url+'?cmd=nop', '', AParam1);
+      if Pos('{', Trim(S))=1 then
+        Result := 'OK';
+    except
+      on E: Exception do
+        Result := 'Error: '+E.Message;
+    end;
+    Exit;
+  end;
   if ACmd='CT_BEFORE_RECONNECT' then
   begin
     if Connected and Assigned(FCtJdbcConn) then
@@ -193,8 +211,22 @@ begin
             Result := '_HANDLED';
             Exit;
           end;
-  end;
+  end;                                                
   Result:=inherited ExecCmd(ACmd, AParam1, AParam2);
+  if LowerCase(ACmd)='commit' then
+  begin
+    Result := 'OK';
+  end
+  else if LowerCase(ACmd)='rollback' then
+  begin
+    Result := 'OK';
+  end
+  else if LowerCase(ACmd)='row_affected' then
+  begin
+    Result := '-1';
+  end;
+  if (Result = '') and Connected then
+    Result := ExecCustomDbCmd('ExecCmd:'+ ACmd,AParam1,AParam2, '');
 end;
 
 function TCtMetaHttpDb.OpenTable(ASql, op: string): TDataSet;   
@@ -265,7 +297,7 @@ end;
 
 function TCtMetaHttpDb.ExecCustomDbCmdEx(cmd, par1, par2, buf: string): string;
 var
-  url, qs: string;
+  url, qs, opt: string;
 begin
   //执行命令，返回JSON字符串，其中resultCode=-1表示失败，errorMsg为出错信息，其它情况为成功
   url := Self.Database;
@@ -297,7 +329,14 @@ begin
     qs := '';
   end;
 
-  Result := GetUrlData_Net(url, qs, '[SHOW_PROGRESS][WAIT_TICKS=2000][READ_TIMEOUT=90000]');
+  opt := '[SHOW_PROGRESS][WAIT_TICKS=2000]';
+  if cmd='ExecCmd:PubModel_Restart' then
+    opt := opt+'[READ_TIMEOUT=8000]'
+  else if (cmd='ExecCmd:PubModel_Content') or (cmd='ExecCmd:PubModel_ReCompile') then
+    opt := '[SHOW_PROGRESS][WAIT_TICKS=200][READ_TIMEOUT=90000]'
+  else
+    opt := opt+'[READ_TIMEOUT=90000]';
+  Result := GetUrlData_Net(url, qs, opt);
 end;
 
 function TCtMetaHttpDb.GetDbNames: string;

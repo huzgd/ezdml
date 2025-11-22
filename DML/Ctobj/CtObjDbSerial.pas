@@ -491,12 +491,19 @@ end;
 
 procedure TCtObjDbSerial.WriteString(const PropName: string;
   const PropValue: string);
+var
+  fd : TField;
 begin
   CheckObjID;
   CheckDsEdit;
   if PropName = 'IconImg' then
     Exit;
-  GetPropField(PropName).AsString := PropValue;
+  fd := GetPropField(PropName);
+  try  
+  fd.AsString := PropValue;
+  except 
+  fd.AsString := PropValue;
+  end;
   SetPropModified;
 end;
 

@@ -136,7 +136,8 @@ resourcestring
   srConfirmOpenXlsAfterExport = 'Export success. Open exported file now?';
   srConfirmSortTablesByName =
     'Warning: this operation CANNOT be undone!'#13#10'Are you sure to sort tables in current model by thire names?';
-  srConfirmSortFieldsByName = 'Are you sure to sort fields by thire names?';
+  srConfirmSortFieldsByName = 'Are you sure to sort fields by thire names?';     
+  srConfirmResetBeforeSqlResFields = 'Do you want to clear old fields before adding SQL result fields?';
   srFilter = 'Filter';
   srFieldName = 'Field Name';
   srLogicName = 'Logic Name';
@@ -176,10 +177,17 @@ resourcestring
   srForceUnlockDbFilePromptFmt = 'Database file %s is currently locked by %s. Do you want to forcibly unlock it?';    
   srForceLockDbFilePromptFmt = 'Database file %s is currently locked by %s. Do you want to forcibly lock it?';
   srDbFileLockComment = 'File lock comment:';   
-  srNeedUnlockDbFilePromptFmt = 'Database file %s is currently locked by %s. Please unlock it before continue';
+  srNeedUnlockDbFilePromptFmt = 'Database file %s is currently locked by %s. Please unlock it before continue'; 
+  srFailToLockDbFileFmt = 'Failed to lock Database file %s, currently locked by %s at %s';     
+  srFailToLockDbTableFmt = 'Failed to lock Database table %s, currently locked by %s at %s';  
+  srNeedUpdateDbObjectFmt = 'Local object %s is not up to date (last changed by %s at %s) and needs to be reloaded';
   srNoLock = 'Not locked';
   srLockByMe = 'Locked by me';
   srLockByUserFmt = 'Locked by %s';
+  srAutoSave = 'Auto save';
+  srModelsSort = 'Models-sort';
+  srAutoSaveResultFmt = '%s (%d objects, %d changes)';
+  srOverwriteBuiltinModelErr = 'Failed to overwrite Built-in-model: file option [OVERWRITE] not found';
   srConfirmAbort = 'Are you sure to abort current process?';
   srCapAbort = 'Abort';
   srInvalidTableNameWarningFmt = 'Warning: Table name may be invalid - %s';
@@ -221,8 +229,8 @@ resourcestring
   srDmlNormalIndex = 'Normal Index';
   srDmlDataTypeNames = 'Unknow'#10'String'#10'Integer'#10'Float'#10'Date'#10'Bool'#10'Enum'#10'Blob'#10'Object'#10'Calculate'#10'List'#10'Function'#10'Event'#10'Other';
   srDmlConstraintNames = ''#10'NotNull'#10'PK'#10'FK'#10'UniqueIndex'#10'NormalIndex'#10'Default'#10'AutoInc'#10'Relation'#10'TypeName';
-  srDmlKeyFieldNames = 'Normal'#10'Id'#10'Pid'#10'Rid'#10'Name'#10'Caption'#10'Memo'#10'TypeName'#10'OrgId'#10'Period'#10'CreatorId'#10'CreatorName'#10'CreateDate'#10'ModifierId'#10'ModifierName'#10'ModifyDate'#10'VersionNo'#10'HistoryId'#10'LockStamp'#10'InsNo'#10'ProcID'#10'URL'#10'DataLevel'#10'DataStatus'#10'OrderNo'#10'Others';
-  srDmlPossibleKeyFieldNames = 'Normal'#10'Id'#10'Pid,ParentId'#10'Rid,RelateId'#10'Name,Title'#10'Caption,SubTitle'#10'Memo,Comment,Desc,Description,Note,Notes,Remark'#10'TypeName'#10'OrgId'#10'Period'#10'CreatorId,Creator'#10'CreatorName'#10'CreateDate'#10'ModifierId,Modifier'#10'ModifierName'#10'ModifyDate'#10'VersionNo'#10'HistoryId'#10'LockStamp'#10'InsNo'#10'ProcID'#10'URL'#10'DataLevel'#10'DataStatus'#10'OrderNo'#10'Others';
+  srDmlKeyFieldNames = 'Normal'#10'Id'#10'Pid'#10'Rid'#10'Name'#10'Caption'#10'Memo'#10'TypeName'#10'OrgId'#10'DeptId'#10'CreatorId'#10'CreatorName'#10'CreateDate'#10'ModifierId'#10'ModifierName'#10'ModifyDate'#10'VersionNo'#10'HistoryId'#10'LockStamp'#10'InsNo'#10'ProcID'#10'URL'#10'DataLevel'#10'DataStatus'#10'OrderNo'#10'Others';
+  srDmlPossibleKeyFieldNames = 'Normal'#10'Id'#10'Pid,ParentId'#10'Rid,RelateId'#10'Name,Title'#10'Caption,SubTitle'#10'Memo,Comment,Desc,Description,Note,Notes,Remark'#10'TypeName'#10'OrgId'#10'DeptId'#10'CreatorId,Creator,UserId'#10'CreatorName'#10'CreateDate'#10'ModifierId,Modifier'#10'ModifierName'#10'ModifyDate'#10'VersionNo'#10'HistoryId'#10'LockStamp'#10'InsNo'#10'ProcID'#10'URL'#10'DataLevel'#10'DataStatus'#10'OrderNo'#10'Others';
   srDmlAddLink = 'Add Link';
   srDmlEditLink = 'Edit Link';
   srDmlShowLink = 'Link Info';
@@ -250,7 +258,8 @@ resourcestring
   srRestoreDatabase = 'Restore database';
   srWritingDataFmt = '%d/%d Backing up data...%s';
   srReadingDataFmt = '%d/%d Restoring data...%s';
-  srManualInitGenCodeGit = 'Please manually exec shell command to pull templates from GIT repo:';
+  srManualInitGenCodeGit = 'Please manually exec shell command to pull templates from GIT repo:';   
+  srPubModelToWebFailedFmt = 'Failed to publish to WEB: %s';
   srAutoInitGenCodeGit = 'Auto pull the template files from GIT repo? Or you can exec shell command manually:';
   srPullingGitRepo = 'Pulling code/template from GIT repo...';
   srConfirmOpenAfterGenCode = 'Generate-code success. Open output folder now?';  
@@ -334,7 +343,9 @@ resourcestring
     'Picture' + #13#10 +
     'BarCode' + #13#10 +   
     'QRCode' + #13#10 +
-    'Chart';
+    'Chart' + #13#10 +
+    'IFrame' + #13#10 +
+    'Custom';
 
   srTbFieldCountFmt = '(%d total)';   
   srTbCountFmt = '(%d total)';
@@ -523,7 +534,8 @@ resourcestring
   srChatGPTGenModel = 'Generate New Model';
   srChatGPTGenTables = 'Add More Tables';         
   srChatGPTGenFields = 'Add More Fields';
-  srChatGPTGenComments = 'Generate Comments';  
+  srChatGPTGenComments = 'Generate Comments';     
+  srChatGPTGenPhyNames = 'Generate Physical Names';
   srChatGPTGenSampleValues = 'Generate Sample Values';
   srChatGPTGenRelations = 'Generate Foreign Keys';
   srChatGPTReqFailed = 'Request for AI service failed';

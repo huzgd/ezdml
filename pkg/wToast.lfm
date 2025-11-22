@@ -1,22 +1,21 @@
 object frmToast: TfrmToast
   Left = 636
-  Height = 93
+  Height = 124
   Top = 289
-  Width = 385
+  Width = 299
   BorderIcons = []
-  BorderStyle = bsDialog
+  BorderStyle = bsToolWindow
   Caption = 'Info'
-  ClientHeight = 93
-  ClientWidth = 385
+  ClientHeight = 124
+  ClientWidth = 299
   FormStyle = fsSystemStayOnTop
   OnClose = FormClose
-  Position = poMainFormCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.12.0'
   object LabelMsg: TLabel
-    Left = 24
-    Height = 57
-    Top = 24
-    Width = 337
+    Left = 8
+    Height = 96
+    Top = 16
+    Width = 288
     AutoSize = False
     Caption = 'Please wait...'
     ParentColor = False
@@ -25,7 +24,7 @@ object frmToast: TfrmToast
   object TimerHide: TTimer
     Enabled = False
     OnTimer = TimerHideTimer
-    left = 104
-    top = 56
+    Left = 104
+    Top = 56
   end
 end

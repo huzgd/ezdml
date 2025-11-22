@@ -1,7 +1,7 @@
 object frmMainDml: TfrmMainDml
-  Left = 241
+  Left = 438
   Height = 609
-  Top = 182
+  Top = 189
   Width = 1017
   Caption = 'EZDML'
   ClientHeight = 589
@@ -33,21 +33,21 @@ object frmMainDml: TfrmMainDml
   end
   object PanelNewVerHint: TPanel
     Left = 24
-    Height = 56
+    Height = 72
     Top = 360
-    Width = 241
+    Width = 268
     Anchors = [akLeft, akBottom]
     BevelOuter = bvNone
-    ClientHeight = 56
-    ClientWidth = 241
+    ClientHeight = 72
+    ClientWidth = 268
     ParentBackground = False
     TabOrder = 1
     Visible = False
     object Shape1: TShape
       Left = 0
-      Height = 56
+      Height = 72
       Top = 0
-      Width = 241
+      Width = 268
       Align = alClient
       Brush.Color = clInfoBk
       OnMouseUp = Shape1MouseUp
@@ -55,20 +55,22 @@ object frmMainDml: TfrmMainDml
     object lbNewVerInfo: TLabel
       Cursor = crHandPoint
       Left = 8
-      Height = 12
+      Height = 17
       Top = 8
-      Width = 224
+      Width = 251
       Anchors = [akTop, akLeft, akRight]
       Caption = 'New version'
       ParentColor = False
       ParentShowHint = False
       WordWrap = True
       OnClick = lbNewVerInfoClick
+      OnMouseEnter = lbNewVerInfoMouseEnter
+      OnMouseLeave = lbNewVerInfoMouseLeave
     end
   end
   object MainMenu1: TMainMenu
-    Left = 344
-    Top = 80
+    left = 344
+    top = 80
     object Mn_File: TMenuItem
       Caption = '&File'
       object MnNewFile: TMenuItem
@@ -152,6 +154,11 @@ object frmMainDml: TfrmMainDml
         object MNAI_GenComments: TMenuItem
           Tag = 4
           Caption = 'Generate Comments'
+          OnClick = MNAI_GenNewModelClick
+        end
+        object MNAI_GenPhyNames: TMenuItem
+          Tag = 7
+          Caption = 'Generate Physical Names'
           OnClick = MNAI_GenNewModelClick
         end
         object MNAI_GenSampleValues: TMenuItem
@@ -299,25 +306,25 @@ object frmMainDml: TfrmMainDml
     Enabled = False
     Interval = 300
     OnTimer = TimerInitTimer
-    Left = 44
-    Top = 80
+    left = 44
+    top = 80
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '.xml'
     Filter = 'All supported files(*.dmj;*.dmx;*.dmh)|*.dmj;*.dmx;*.dmh|Json files(*.dmj)|*.dmj|XML files(*.dmx)|*.dmx|Binary files(*.dmh)|*.dmh'
-    Left = 200
-    Top = 80
+    left = 200
+    top = 80
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = '.dmj'
     Filter = 'Json files(*.dmj)|*.dmj|XML files(*.dmx)|*.dmx|Binary files(*.dmh)|*.dmh'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 48
-    Top = 184
+    left = 48
+    top = 184
   end
   object ActionList1: TActionList
-    Left = 192
-    Top = 184
+    left = 192
+    top = 184
     object EditSelectAll1: TEditSelectAll
       Category = 'Edit'
       Caption = 'Select &All'
@@ -609,22 +616,21 @@ object frmMainDml: TfrmMainDml
     end
   end
   object TimerAutoSave: TTimer
-    Interval = 10000
     OnTimer = TimerAutoSaveTimer
-    Left = 48
-    Top = 264
+    left = 48
+    top = 264
   end
   object OpenDialogImp: TOpenDialog
     DefaultExt = '.xml'
     Filter = 'PDM xml files(*.pdm)|*.pdm'
-    Left = 192
-    Top = 264
+    left = 192
+    top = 264
   end
   object ImageListSwitchOnOff: TImageList
     Height = 18
     Width = 32
-    Left = 328
-    Top = 192
+    left = 328
+    top = 192
     Bitmap = {
       4C69020000002000000012000000FCFCFC00FFFFFF00F4F4F400C1C1C100B3B3
       B3008C8C8C54464646D7232323FF242424FF2F2F2FFF2D2D2DFF2D2D2DFF2D2D
@@ -777,7 +783,7 @@ object frmMainDml: TfrmMainDml
     Enabled = False
     Interval = 100
     OnTimer = TimerDelayCmdTimer
-    Left = 344
-    Top = 272
+    left = 344
+    top = 272
   end
 end

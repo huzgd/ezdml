@@ -13,6 +13,15 @@ msgstr ""
 msgid "Auto pull the template files from GIT repo? Or you can exec shell command manually:"
 msgstr ""
 
+#: dmlstrs.srautosave
+msgctxt "dmlstrs.srautosave"
+msgid "Auto save"
+msgstr ""
+
+#: dmlstrs.srautosaveresultfmt
+msgid "%s (%d objects, %d changes)"
+msgstr ""
+
 #: dmlstrs.srbackupdatabase
 msgid "Backup database"
 msgstr ""
@@ -139,6 +148,11 @@ msgstr ""
 msgid "AI did not return new content, please try modifying or adding prompts and descriptive information"
 msgstr ""
 
+#: dmlstrs.srchatgptgenphynames
+msgctxt "dmlstrs.srchatgptgenphynames"
+msgid "Generate Physical Names"
+msgstr ""
+
 #: dmlstrs.srchatgptgenrelations
 msgctxt "dmlstrs.srchatgptgenrelations"
 msgid "Generate Foreign Keys"
@@ -239,6 +253,10 @@ msgstr ""
 
 #: dmlstrs.srconfirmrearrangeselectedfmt
 msgid "Are you sure to re-arrange selected %d objects?"
+msgstr ""
+
+#: dmlstrs.srconfirmresetbeforesqlresfields
+msgid "Do you want to clear old fields before adding SQL result fields?"
 msgstr ""
 
 #: dmlstrs.srconfirmskiperrorfmt
@@ -417,7 +435,7 @@ msgid ""
 "Memo\n"
 "TypeName\n"
 "OrgId\n"
-"Period\n"
+"DeptId\n"
 "CreatorId\n"
 "CreatorName\n"
 "CreateDate\n"
@@ -477,8 +495,8 @@ msgid ""
 "Memo,Comment,Desc,Description,Note,Notes,Remark\n"
 "TypeName\n"
 "OrgId\n"
-"Period\n"
-"CreatorId,Creator\n"
+"DeptId\n"
+"CreatorId,Creator,UserId\n"
 "CreatorName\n"
 "CreateDate\n"
 "ModifierId,Modifier\n"
@@ -584,6 +602,14 @@ msgid ""
 "HIVE=driver=org.apache.hive.jdbc.HiveDriver;url=jdbc:hive2://127.0.0.1:10000/default\n"
 msgstr ""
 
+#: dmlstrs.srfailtolockdbfilefmt
+msgid "Failed to lock Database file %s, currently locked by %s at %s"
+msgstr ""
+
+#: dmlstrs.srfailtolockdbtablefmt
+msgid "Failed to lock Database table %s, currently locked by %s at %s"
+msgstr ""
+
 #: dmlstrs.srfieldaggregatefun
 msgid ""
 "Sum\n"
@@ -654,6 +680,8 @@ msgid ""
 "BarCode\n"
 "QRCode\n"
 "Chart\n"
+"IFrame\n"
+"Custom\n"
 msgstr ""
 
 #: dmlstrs.srfieldfixcoltype
@@ -923,6 +951,10 @@ msgctxt "dmlstrs.srmodel"
 msgid "Model"
 msgstr ""
 
+#: dmlstrs.srmodelssort
+msgid "Models-sort"
+msgstr ""
+
 #: dmlstrs.srmodifydatabasewarning
 msgid "Warning: The database is about to be modified, make sure you have backed up your data before continue. Do you still want to modify database now?"
 msgstr ""
@@ -942,6 +974,10 @@ msgstr ""
 
 #: dmlstrs.srneedunlockdbfilepromptfmt
 msgid "Database file %s is currently locked by %s. Please unlock it before continue"
+msgstr ""
+
+#: dmlstrs.srneedupdatedbobjectfmt
+msgid "Local object %s is not up to date (last changed by %s at %s) and needs to be reloaded"
 msgstr ""
 
 #: dmlstrs.srnewcatalognamefmt
@@ -1027,6 +1063,10 @@ msgstr ""
 msgid "Not locked"
 msgstr ""
 
+#: dmlstrs.sroverwritebuiltinmodelerr
+msgid "Failed to overwrite Built-in-model: file option [OVERWRITE] not found"
+msgstr ""
+
 #: dmlstrs.sroverwritedbfilewarning
 msgid "Database file %s already exists, are you sure to OVERWRITE?"
 msgstr ""
@@ -1059,6 +1099,10 @@ msgstr ""
 #: dmlstrs.srprocessing
 msgctxt "dmlstrs.srprocessing"
 msgid "Processing..."
+msgstr ""
+
+#: dmlstrs.srpubmodeltowebfailedfmt
+msgid "Failed to publish to WEB: %s"
 msgstr ""
 
 #: dmlstrs.srpullinggitrepo
@@ -1260,6 +1304,12 @@ msgstr ""
 msgid "Generate New Model: please specify the system name and requirement description, AI will generate the new model and add it to the list"
 msgstr ""
 
+#: ezdmlstrs.srezdmlchataitip_genphynames
+msgid ""
+"Generate Physical Names: AI will generate physical names for the selected tables/fields based on the system description and existing tables/fields information.\n"
+"Existing tables/fields:\n"
+msgstr ""
+
 #: ezdmlstrs.srezdmlchataitip_gensamplevalues
 msgid ""
 "Generate Sample Values: AI will generate some example data and candidate values for the selected fields based on the system description and existing tables/fields information.\n"
@@ -1448,6 +1498,10 @@ msgstr ""
 msgid "Open last recent file %s?"
 msgstr ""
 
+#: ezdmlstrs.srezdmlpromptautosavehybbchanges
+msgid "Changes saved: %s"
+msgstr ""
+
 #: ezdmlstrs.srezdmlpromptdbfiledisconnected
 msgid "Database file is disconnected and will enter offline mode. Do you want to reconnect now?"
 msgstr ""
@@ -1462,6 +1516,10 @@ msgstr ""
 
 #: ezdmlstrs.srezdmlpromptreloaddbfilechanged
 msgid "Current file is changed in database by %s (%s), do you want to re-open it?"
+msgstr ""
+
+#: ezdmlstrs.srezdmlpromptreloadedhybbchanges
+msgid "Changes reloaded: %s"
 msgstr ""
 
 #: ezdmlstrs.srezdmlpromptreloadonfiledatesizechanged
@@ -3112,6 +3170,11 @@ msgctxt "tframecttableprop.mnai_genfields.caption"
 msgid "Add More Fields"
 msgstr ""
 
+#: tframecttableprop.mnai_genphynames.caption
+msgctxt "tframecttableprop.mnai_genphynames.caption"
+msgid "Generate Phyical Names"
+msgstr ""
+
 #: tframecttableprop.mnai_gensamplevalues.caption
 msgctxt "tframecttableprop.mnai_gensamplevalues.caption"
 msgid "Generate Sample Values"
@@ -3891,6 +3954,11 @@ msgctxt "tframedml.mnai_gennewmodel.caption"
 msgid "Generate New Model"
 msgstr ""
 
+#: tframedml.mnai_genphynames.caption
+msgctxt "tframedml.mnai_genphynames.caption"
+msgid "Generate Phyical Names"
+msgstr ""
+
 #: tframedml.mnai_gensamplevalues.caption
 msgctxt "tframedml.mnai_gensamplevalues.caption"
 msgid "Generate Sample Values"
@@ -4015,6 +4083,11 @@ msgstr ""
 #: tframedml.pmnai_genfklinks.caption
 msgctxt "tframedml.pmnai_genfklinks.caption"
 msgid "Generate Foreign Keys"
+msgstr ""
+
+#: tframedml.pmnai_genphynames.caption
+msgctxt "tframedml.pmnai_genphynames.caption"
+msgid "Generate Physical Names"
 msgstr ""
 
 #: tframedml.pmnai_gensamplevalues.caption
@@ -4849,6 +4922,11 @@ msgstr ""
 #: tfrmcttableprop.mnai_genfields.caption
 msgctxt "tfrmcttableprop.mnai_genfields.caption"
 msgid "Add More Fields"
+msgstr ""
+
+#: tfrmcttableprop.mnai_genphynames.caption
+msgctxt "tfrmcttableprop.mnai_genphynames.caption"
+msgid "Generate Phyical Names"
 msgstr ""
 
 #: tfrmcttableprop.mnai_gensamplevalues.caption
@@ -5839,6 +5917,11 @@ msgctxt "tfrmmaindml.mnai_gennewmodel.caption"
 msgid "Generate New Model"
 msgstr ""
 
+#: tfrmmaindml.mnai_genphynames.caption
+msgctxt "tfrmmaindml.mnai_genphynames.caption"
+msgid "Generate Physical Names"
+msgstr ""
+
 #: tfrmmaindml.mnai_gensamplevalues.caption
 msgctxt "tfrmmaindml.mnai_gensamplevalues.caption"
 msgid "Generate Sample Values"
@@ -6290,6 +6373,7 @@ msgid "for example: VARCHAR2, VARCHAR2(4000), %RAW, %TEXT%  (wildcard % can be u
 msgstr ""
 
 #: tfrmsettings.groupboxautosave.caption
+msgctxt "tfrmsettings.groupboxautosave.caption"
 msgid "Auto save"
 msgstr ""
 

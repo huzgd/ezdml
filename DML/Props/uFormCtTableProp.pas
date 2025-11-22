@@ -24,6 +24,7 @@ type
     Label1: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
+    MNAI_GenPhyNames: TMenuItem;
     MNAI_GenSampleValues: TMenuItem;
     MNAI_GenFields: TMenuItem;
     MNAI_GenComments: TMenuItem;
@@ -133,7 +134,7 @@ function ShowCtMetaTableDialogEx(ATb: TCtMetaTable; AField: TCtMetaField;
   bReadOnly, bIsNew, bViewModal: boolean): boolean;
 var
   frm: TfrmCtTableProp;
-  fn, S: string;
+  fn, S, oTbJson: string;
   ss: TStrings;
   bOk, hHasOthers: Boolean;
   I, mrs: Integer;
@@ -193,6 +194,17 @@ begin
     end;
   end;
 
+  if not bReadOnly then
+  try
+    BeginTbPropUpdate(ATb);
+  except
+    on E: Exception do
+    begin
+      Application.HandleException(nil);
+      bReadOnly := True;
+    end;
+  end;
+
   if not Assigned(FfrmCtTableProp) then
   begin
     FfrmCtTableProp := TfrmCtTableProp.Create(Application);
@@ -205,10 +217,17 @@ begin
   end
   else
     frm := FfrmCtTableProp;
-           
+
+
+  oTbJson := '';
+  if not bReadOnly and not bIsNew then
+    oTbJson := atb.JsonStr;
   bOk := False;
   with frm do
-    try
+    try              
+      if not bReadOnly then
+        EditMetaAcquire(ATb, frm);
+
       if bIsNew and atb.IsTable then
       begin
         CreateNewTbTmplMenus;
@@ -223,11 +242,6 @@ begin
       else
         FFrameCtTableProp.CreatingNewTable := False;
       FFrameCtTableProp.OwnerDialog := frm;
-      if not bReadOnly then
-      begin
-        BeginTbPropUpdate(ATb);
-        EditMetaAcquire(ATb, frm);
-      end;
       Init(ATb, bReadOnly);
       FocusToField(AField);
       with FFrameCtTableProp do
@@ -405,7 +419,15 @@ begin
       if not bReadOnly then
       begin
         if Result then
-          EndTbPropUpdate(ATb)
+        begin
+          if bIsNew then
+            DoMetaPropsChanged(ATb, cmctNew);
+          S := ATb.JsonStr;
+          if oTbJson <> S then
+            EndTbPropUpdate(ATb)
+          else
+            EndTbPropUpdate(nil);
+        end
         else
           EndTbPropUpdate(nil);
         EditMetaRelease(ATb, frm);

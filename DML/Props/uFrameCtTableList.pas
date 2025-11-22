@@ -509,7 +509,8 @@ begin
     PChar(Application.Title), MB_OKCANCEL or MB_ICONWARNING) <> idOk then
     Exit;
   FCtDataModelList.CurDataModel.Tables.SortByName;
-  FCtDataModelList.CurDataModel.Tables.SaveCurrentOrder;
+  if FCtDataModelList.CurDataModel.Tables.SaveCurrentOrder then
+    DoMetaPropsChanged(FCtDataModelList.CurDataModel.Tables, cmctChildOrderNo);
   RefreshTheTree;
 end;
 
@@ -671,7 +672,7 @@ begin
         TreeViewCttbs.Selected := sNode;
       vNode.Delete;
     end;
-    if Assigned(vCtNode) then
+    if Assigned(vCtNode) and (vCtNode.DataLevel <> ctdlDeleted) then
     begin
       vCtNode.DataLevel := ctdlDeleted;
       if vCtNode is TCtMetaField then
@@ -682,8 +683,17 @@ begin
       else if vCtNode is TCtDataModelGraph then
       begin
         with TCtDataModelGraph(vCtNode).Tables do
-          for I:=0 to Count - 1 do
+          for I:=0 to Count - 1 do      
+          if Items[I].DataLevel <> ctdlDeleted then
+          begin
             Items[I].DataLevel:=ctdlDeleted;
+            DoMetaPropsChanged(Items[I], cmctRemove);
+          end;
+        DoMetaPropsChanged(vCtNode, cmctRemove);
+      end
+      else if vCtNode is TCtMetaTable then
+      begin
+        DoMetaPropsChanged(vCtNode, cmctRemove);
       end;
     end;
   end
@@ -702,7 +712,7 @@ begin
               if not TreeNodePSelected(vNode) then
               begin
                 vDelNodes.Add(vNode);
-                if Assigned(vCtNode) then
+                if Assigned(vCtNode) and (vCtNode.DataLevel <> ctdlDeleted) then
                 begin
                   vCtNode.DataLevel := ctdlDeleted;
                   if vCtNode is TCtMetaField then
@@ -714,8 +724,18 @@ begin
                   else if vCtNode is TCtDataModelGraph then
                   begin
                     with TCtDataModelGraph(vCtNode).Tables do
-                      for J:=0 to Count - 1 do
-                        Items[J].DataLevel:=ctdlDeleted;
+                      for J:=0 to Count - 1 do      
+                        if Items[J].DataLevel <> ctdlDeleted then
+                        begin
+                          Items[J].DataLevel:=ctdlDeleted;
+                          DoMetaPropsChanged(Items[J], cmctRemove);
+                        end;
+
+                    DoMetaPropsChanged(vCtNode, cmctRemove);
+                  end
+                  else if vCtNode is TCtMetaTable then
+                  begin
+                    DoMetaPropsChanged(vCtNode, cmctRemove);
                   end;
                 end;
               end;
@@ -1267,7 +1287,15 @@ begin
       else
         vCtNode.Caption := cap;
     end;        
-    if vCtNode is TCtMetaField then
+    if vCtNode is TCtDataModelGraph then
+    begin
+      DoMetaPropsChanged(vCtNode, cmctModify);
+    end         
+    else if vCtNode is TCtMetaTable then
+    begin
+      DoTablePropsChanged(TCtMetaTable(vCtNode));
+    end
+    else if vCtNode is TCtMetaField then
     begin
       DoTablePropsChanged(TCtMetaField(vCtNode).OwnerTable);
     end;
@@ -1414,6 +1442,7 @@ begin
 
   ctnode := FCtDataModelList.NewModelItem; 
   ctnode.PID := vPID;
+  DoMetaPropsChanged(ctnode, cmctNew);
   if Assigned(GProc_OnEzdmlCmdEvent) then
   begin
     GProc_OnEzdmlCmdEvent('NEW_MODEL', '', '', ctnode, nil);
@@ -1647,7 +1676,8 @@ var
             else
               SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
           end;
-          FCtDataModelList.SaveCurrentOrder;
+          if FCtDataModelList.SaveCurrentOrder then
+            DoMetaPropsChanged(FCtDataModelList, cmctChildOrderNo);
         end
         else if TCtDataModelGraph(ctNodeP).IsCatalog then //模型到目录
         begin                
@@ -1665,7 +1695,8 @@ var
             end;
             FCtDataModelList.Move(i1, i2);
             SrcNode.MoveTo(TgNode, naAddChild);
-            FCtDataModelList.SaveCurrentOrder;
+            if FCtDataModelList.SaveCurrentOrder then
+              DoMetaPropsChanged(FCtDataModelList, cmctChildOrderNo);
           end
           else //按住SHIFT键则挂到旁边
           begin
@@ -1687,7 +1718,8 @@ var
               else
                 SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
             end;
-            FCtDataModelList.SaveCurrentOrder;
+            if FCtDataModelList.SaveCurrentOrder then
+              DoMetaPropsChanged(FCtDataModelList, cmctChildOrderNo);
           end;
         end
         else
@@ -1726,7 +1758,8 @@ var
             else
               SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
           end;
-          FCtDataModelList.SaveCurrentOrder;
+          if FCtDataModelList.SaveCurrentOrder then
+            DoMetaPropsChanged(FCtDataModelList, cmctChildOrderNo);
         end
         else if TCtDataModelGraph(ctNodeP).IsCatalog then //目录到目录
         begin
@@ -1744,7 +1777,8 @@ var
             end;
             FCtDataModelList.Move(i1, i2);
             SrcNode.MoveTo(TgNode, naAddChild);
-            FCtDataModelList.SaveCurrentOrder;
+            if FCtDataModelList.SaveCurrentOrder then
+              DoMetaPropsChanged(FCtDataModelList, cmctChildOrderNo);
           end
           else //按住SHIFT键则挂到旁边
           begin
@@ -1766,7 +1800,8 @@ var
               else
                 SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
             end;
-            FCtDataModelList.SaveCurrentOrder;
+            if FCtDataModelList.SaveCurrentOrder then
+              DoMetaPropsChanged(FCtDataModelList, cmctChildOrderNo);
           end;
         end
         else
@@ -1825,7 +1860,8 @@ var
           else
             SrcNode.MoveTo(TgNode.getNextSibling, naInsert);
         end;
-        CtTableList.SaveCurrentOrder;
+        if CtTableList.SaveCurrentOrder then
+          DoMetaPropsChanged(CtTableList, cmctChildOrderNo);
       end;
     end
     else if (ctNodeP is TCtMetaField) and (ctNodeC is TCtMetaField) then
@@ -1932,6 +1968,7 @@ var
 var
   SrcNode, TgNode: TTreeNode;
   selNodes: array of TTreeNode;
+  tbLs: TCtMetaTableList;
   I: integer;
 begin
 
@@ -2000,8 +2037,16 @@ begin
 
     if Length(chgTbs) > 0 then
     begin
+      tbLs := nil;
       for I := 0 to High(chgTbs) do
-      begin
+      begin                  
+        if tbLs<>chgTbs[I].OwnerList then
+        begin
+          tbLs := chgTbs[I].OwnerList;
+          if tbLs<>nil then
+            if tbLs.SaveCurrentOrder then
+              DoMetaPropsChanged(tbLs, cmctChildOrderNo);
+        end;
         DoFreshTb(chgTbs[I]);
       end;
     end;
@@ -2153,6 +2198,7 @@ begin
 
   ctnode := FCtDataModelList.NewCatalogItem;
   ctnode.PID := vPID;
+  DoMetaPropsChanged(ctnode, cmctNew);
   if Assigned(GProc_OnEzdmlCmdEvent) then
   begin
     GProc_OnEzdmlCmdEvent('NEW_CATALOG', '', '', ctnode, nil);
@@ -2417,6 +2463,53 @@ procedure TFrameCtTableList.actPasteTbExecute(Sender: TObject);
     end;
   end;
 
+  //粘贴前，清掉GUID
+  procedure ClearTbGuid(tb: TCtMetaTable);
+  var
+    I: Integer;
+  begin
+    tb.CtGuid := '';
+    for I:=0 to tb.MetaFields.Count - 1 do
+      tb.MetaFields[I].CtGuid:='';
+  end;
+  //粘贴后，从同名表恢复GUID（如果有的话）
+  procedure RestoreTbGuids(ATb: TCtMetaTable);
+  var
+    I, J, K: integer;
+    tb: TCtMetaTable;
+    fd, fdOld: TCtMetaField;
+    tbs: TCtMetaTableList;
+    tn: string;
+  begin
+    if ATb = nil then
+      Exit;
+    if ATb.CtGuid<>'' then
+      Exit;
+    tn := ATb.Name;
+    for I := 0 to FGlobeDataModelList.Count - 1 do
+    begin
+      tbs := FGlobeDataModelList.Items[I].Tables;
+      for J := 0 to tbs.Count - 1 do
+      begin
+        tb := tbs.Items[J];
+        if (tb <> ATb) and (tb.DataLevel <> ctdlDeleted) then
+          if UpperCase(tb.Name) = UpperCase(tn) then
+          begin
+            ATb.CtGuid:=tb.CtGuid;
+            for K:=0 to Atb.MetaFields.Count -1 do
+            begin
+              fd :=Atb.MetaFields[K];
+              fdOld := tb.MetaFields.FieldByName(fd.Name);
+              if fdOld<>nil then
+              begin
+                fd.CtGuid:=fdOld.CtGuid;
+              end;
+            end;
+            Exit;
+          end;
+      end;
+    end;
+  end;
 var
   I, J, idx, vPID: integer;
   vTempMds: TCtDataModelGraphList;
@@ -2454,10 +2547,12 @@ begin
       for I := 0 to vTempMds.Count - 1 do
       begin
         md := vTempMds[I];
+        md.CtGuid := '';
         md.Name := FCtDataModelList.GetUnusedName(md.Name);
         for J := 0 to md.Tables.Count - 1 do
         begin
           tb := md.Tables[J];
+          ClearTbGuid(tb);
           RenameTbIfExists(tb, True);
         end;
       end;
@@ -2493,7 +2588,8 @@ begin
           FCtDataModelList.Move(FCtDataModelList.Count - 1, idx);
         end;
       end;
-      FCtDataModelList.SaveCurrentOrder;
+      if FCtDataModelList.SaveCurrentOrder then
+        DoMetaPropsChanged(FCtDataModelList, cmctChildOrderNo);
       RefreshTheTree;
     finally
       vTempMds.Free;
@@ -2540,13 +2636,15 @@ begin
       if Sender = nil then
         RenameAllTbs(vTempTbs);
       for I := 0 to vTempTbs.Count - 1 do
-      begin                  
+      begin
+        ClearTbGuid(vTempTbs[I]);
         RenameTbIfExists(vTempTbs[I], False);
         tb := CtTableList.NewTableItem;
         tb.AssignFrom(vTempTbs[I]);
         tb.GraphDesc := '';
         for J := 0 to tb.MetaFields.Count - 1 do
           tb.MetaFields[J].GraphDesc := '';
+        RestoreTbGuids(tb);
 
         if (idx >= 0) and (idx < CtTableList.Count - 1) then
         begin
@@ -2555,7 +2653,9 @@ begin
         end;
         DoTablePropsChanged(tb);
       end;
-      CtTableList.SaveCurrentOrder;
+      CtTableList.SaveCurrentOrder;  
+      if CtTableList.SaveCurrentOrder then
+        DoMetaPropsChanged(CtTableList, cmctChildOrderNo);
       RefreshTheTree;
     finally
       vTempTbs.Free;
@@ -2602,6 +2702,7 @@ begin
 
       for I := 0 to vTempFlds.Count - 1 do
       begin
+        vTempFlds[I].CtGuid:='';
         fd := tb.MetaFields.FieldByName(vTempFlds[I].Name);
         if fd = nil then
           Continue;

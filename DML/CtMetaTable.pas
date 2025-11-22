@@ -172,7 +172,7 @@ type
     cfktComment,
     cfktTypeName,
     cfktOrgId,
-    cfktPeriod,
+    cfktDeptId,
     cfktCreatorId,
     cfktCreatorName,
     cfktCreateDate,
@@ -499,7 +499,8 @@ type
     destructor Destroy; override;
                                     
     function ItemByName(AName: string; bCaseSensive: Boolean = False): TCtObject; override;   
-    function TableByName(AName: string; bCaseSensive: Boolean = False): TCtMetaTable; virtual;
+    function TableByName(AName: string; bCaseSensive: Boolean = False): TCtMetaTable; virtual;     
+    function TableByCtGuid(ACtGuid: string): TCtMetaTable; virtual;
     function NewTableItem(tp: string = ''): TCtMetaTable; virtual;
 
     procedure LoadFromSerialer(ASerialer: TCtObjSerialer); override;
@@ -632,6 +633,7 @@ type
     function GetFieldTypeDesc(bPhy: boolean = False; dbType: string = ''): string;
     function GetFieldComments: string;
     function GetFieldDefaultValDesc(dbType: string = ''): string;
+    function GetDescribeStr: string;
 
     function GetConstraintStr: string;
     procedure SetConstraintStr(Value: string);
@@ -981,12 +983,18 @@ type
   TCtDataModelGraphList = class(TCtObjectList)
   private
     FCurDataModel: TCtDataModelGraph;
+    FLocalModifyDate: TDateTime;
     FModelFileConfig: TCtModelFileConfig;
     FOnObjProgress: TMetaObjProgressEvent;
     FSyncingTbProp: boolean;
+    FMetaModified: boolean;
     function GetCurDataModel: TCtDataModelGraph;
     function GetItem(Index: integer): TCtDataModelGraph;
+    function GetMetaModified: boolean;
+    function GetModifyDate: TDateTime;
     procedure PutItem(Index: integer; const Value: TCtDataModelGraph);
+    procedure SetMetaModified(AValue: boolean);
+    procedure SetModifyDate(AValue: TDateTime);
   protected
     FTbSeqCounter: Integer;
     function CreateObj: TCtObject; override;
@@ -1004,7 +1012,8 @@ type
     function GetAllTableCount: integer;
     function GetAllSubItemCount: integer;
     function IsHuge: boolean;
-    function GetTableOfName(AName: string): TCtMetaTable;     
+    function GetTableOfName(AName: string): TCtMetaTable;
+    function GetTableOfCtGuid(ACtGuid: string): TCtMetaTable;
     function GenNewTableID: Integer; virtual;
 
     //修改过表后，同步到所有同名对象上
@@ -1021,13 +1030,14 @@ type
     function TableCount: integer;
     function NewCatalogItem: TCtDataModelGraph;
     function NewModelItem: TCtDataModelGraph;
-    //property CurDataModal: TCtDataModelGraph read GetCurDataModel;
+    //property CurDataModal: TCtDataModelGraph read GetCurDataModel; 
+    property MetaModified: boolean read GetMetaModified write SetMetaModified; 
+    property LocalModifyDate: TDateTime read FLocalModifyDate write FLocalModifyDate;
+    property ModifyDate: TDateTime read GetModifyDate write SetModifyDate;
     property CurDataModel: TCtDataModelGraph read GetCurDataModel write FCurDataModel;
-    property Items[Index: integer]: TCtDataModelGraph read GetItem write PutItem;
-      default;
+    property Items[Index: integer]: TCtDataModelGraph read GetItem write PutItem; default;
     property ModelFileConfig: TCtModelFileConfig read FModelFileConfig;
-    property OnObjProgress: TMetaObjProgressEvent
-      read FOnObjProgress write FOnObjProgress;
+    property OnObjProgress: TMetaObjProgressEvent read FOnObjProgress write FOnObjProgress;
   end;
 
   { TCtMetaDatabase }
@@ -1096,6 +1106,8 @@ type
   end;
   PCtMetaDBReg = ^TCtMetaDBReg;
 
+  TCtMetaChangeType=(cmctNone, cmctNew, cmctModify, cmctGraphDesc, cmctChildOrderNo, cmctRemove);
+
                                             
 function IsValidTableName(AName: string; bPrompt: boolean): boolean;
 function CheckCanRenameTable(ATb: TCtMetaTable; AName: string; bAbort: boolean): boolean;
@@ -1112,6 +1124,12 @@ function GetMetaEditingWin: TWinControl;
 procedure BeginTbPropUpdate(Tb: TCtMetaTable);
 procedure EndTbPropUpdate(Tb: TCtMetaTable);
 procedure DoTablePropsChanged(Tb: TCtMetaTable);
+
+//act: 1=Lock 2=Pre-Lock 3=Pre-UnLock,  result for Lock: True=Done False=Duplicate-Lock Error=failed
+function LockMetaTable(ATb: TCtMetaTable; act: Integer): Boolean;
+
+//外围变化 tp: 1新增对象 2修改对象 3移动对象 4排序 5删除对象
+procedure DoMetaPropsChanged(AObj: TObject; tp: TCtMetaChangeType);
 
 procedure AddCtMetaDBReg(EngineType: string; DbClass: TCtMetaDatabaseClass);
 function GetCtMetaDBReg(EngineType: string): PCtMetaDBReg;
@@ -1172,7 +1190,10 @@ var
   Proc_GetTableDemoDataJson: function(ATb: TCtMetaTable; ARowIndex: Integer; AOpt, AFields: string): string;
   Proc_GenDemoData: function(AField: TCtMetaField; ARule, ADef: string;
   ARowIndex: integer; AOpt: string; ADataSet: TDataSet): string;
-
+  Proc_OnMetaPropsChanged: procedure(AObj: TObject; tp: TCtMetaChangeType);
+  Proc_LockMetaTable: function(ATb: TCtMetaTable; act: Integer): Boolean;
+                                
+  FGlobeDataModelList: TCtDataModelGraphList;
   CtMetaDBRegs: array of TCtMetaDBReg;
   CtCurMetaDbConn: TCtMetaDatabase;
   CtCurMetaDbName: string;
@@ -1182,7 +1203,6 @@ var
   CtCustDataTypeReplaces: array of string;
   CtTbNamePrefixDefs: array of string;
   CtCustFieldDataGenRules: array of string;
-  FGlobeDataModelList: TCtDataModelGraphList;   
   G_LastMetaDbSchema: string;
   G_OdbcCharset: string;
   G_CheckForUpdates: boolean;
@@ -1455,7 +1475,7 @@ const
     'Memo',
     'TypeName',
     'OrgId',
-    'Period',
+    'DeptId',
     'CreatorId',
     'CreatorName',
     'CreateDate',
@@ -1567,6 +1587,7 @@ uses
 
 var
   TbPropUpdateCounter: integer;
+  TbLockObj: TCtMetaTable;
 
 function RemoveCtSQLComment(const ASQL: string; KeepHints: boolean): string;
 var
@@ -1665,6 +1686,11 @@ begin
   end
   else if ADbType = 'SQLITE' then
   begin
+    {if Pos(':', Result) = 0 then
+      Result := 'date(''' + Result + ''',''YYYY-MM-DD'')'
+    else
+      Result := 'datetime(''' + Result + ''',''YYYY-MM-DD HH:MM:SS'')';
+    SQLITE无专用日期类型，可能存不同格式，需要特殊处理}
     Result := '''' + Result + '''';
   end
   else
@@ -1796,8 +1822,29 @@ begin
   if TbPropUpdateCounter <> 0 then
     Exit;
   FGlobeDataModelList.SyncTableProps(Tb);
+  DoMetaPropsChanged(Tb, cmctModify);
 end;
 
+procedure DoMetaPropsChanged(AObj: TObject; tp: TCtMetaChangeType);
+begin        
+  //外围变化 tp: 1新增对象 2修改对象 3移动对象 4排序 5删除对象
+  if AObj=nil then
+    Exit;
+  FGlobeDataModelList.MetaModified := True;
+  if AObj is TCtMetaTable then
+    if not (tp in [cmctGraphDesc, cmctChildOrderNo]) then
+      LockMetaTable(TCtMetaTable(AObj), 1);
+  if Assigned(Proc_OnMetaPropsChanged) then
+    Proc_OnMetaPropsChanged(AObj, tp);
+end;
+          
+function LockMetaTable(ATb: TCtMetaTable; act: Integer): Boolean;
+begin
+  //act: 1=Lock 2=Pre-Lock 3=Pre-UnLock,  result for Lock: True=Done False=Duplicate-Lock Error=failed
+  Result := False;
+  if Assigned(Proc_LockMetaTable) then
+    Result := Proc_LockMetaTable(ATb, act);
+end;
 
 function IsValidTableName(AName: string; bPrompt: boolean): boolean;  
 var
@@ -1892,6 +1939,13 @@ end;
 
 procedure BeginTbPropUpdate(Tb: TCtMetaTable);
 begin
+  if TbPropUpdateCounter=0 then
+  begin
+    if LockMetaTable(Tb, 2) then
+    begin
+      TbLockObj := Tb;
+    end;
+  end;
   Inc(TbPropUpdateCounter);
 end;
 
@@ -1899,8 +1953,18 @@ procedure EndTbPropUpdate(Tb: TCtMetaTable);
 begin
   Dec(TbPropUpdateCounter);
   if TbPropUpdateCounter = 0 then
+  begin
     if Tb <> nil then
-      DoTablePropsChanged(tb);
+    begin
+      DoTablePropsChanged(tb)
+    end
+    else
+    begin
+      if Assigned(TbLockObj) then
+        LockMetaTable(TbLockObj, 3);
+    end;
+    TbLockObj := nil;
+  end;
 end;
 
 var
@@ -2127,7 +2191,7 @@ begin
       Result := True;
     end;
   end
-  else if len > IfElse(msz>=0,msz,8000) then
+  else if len > IfElse(msz>0,msz,8000) then
   begin
     res := 'TEXT';  
     if Trim(custTpName) <> '' then
@@ -3107,6 +3171,7 @@ begin
       ASerialer.BeginChildren('MetaFields');
       MetaFields.LoadFromSerialer(ASerialer);
       ASerialer.EndChildren('MetaFields');
+      MetaFields.GenDefOrderNos;
     end;
     if ASerialer.CurCtVer < 27 then
       CheckEditorUIProp;
@@ -4653,6 +4718,7 @@ begin
       if MetaFields[I].DataLevel <> ctdlDeleted then
       begin
         f := MetaFields[I];
+
         S := ExtStr(GetDesName(f.Name, f.DisplayName), L);
         FT := f.GetFieldTypeDesc(False, 'DESC');
 
@@ -5151,9 +5217,11 @@ end;
 procedure TCtMetaTable.SyncPropFrom(ACtTable: TCtMetaTable);
 var
   S: string;
+  ordNo: Double;
   tmpList: TCtMetaFieldList;
 begin
   S := Self.GraphDesc;
+  ordNo := Self.OrderNo;
 
   tmpList := TCtMetaFieldList.Create;
   try
@@ -5162,6 +5230,7 @@ begin
     inherited AssignFrom(ACtTable);
     AssignTbPropsFrom(ACtTable);
     Self.GraphDesc := S;
+    Self.OrderNo := ordNo;
     FCustomModId := ACtTable.FCustomModId;
 
     if Assigned(ACtTable.FMetaFields) then
@@ -5351,7 +5420,15 @@ begin
         begin
           vFdn := f.GenDemoData(1, '[VALUE_ONLY]', nil);
           vFdn := f.GetSqlQuotValue(vFdn, dbType, nil);
-        end;
+        end;   
+        if f.DataType=cfdtBool then
+          if (dbType='POSTGRESQL') then
+          begin
+            if vFdn='1' then
+              vFdn := 'true'
+            else if vFdn='0' then
+              vFdn := 'false';
+          end;
 
         if dbType='HIVE' then
         begin
@@ -5638,6 +5715,14 @@ begin
       else
         S := S + ', ';
     end;
+    if f.DataType=cfdtBool then
+      if Assigned(dbEngine) and (dbEngine.EngineType='POSTGRESQL') then
+      begin
+        if vFdn='1' then
+          vFdn := 'true'
+        else if vFdn='0' then
+          vFdn := 'false';
+      end;
     S := S + vFdn;
   end;
   S := S+ ');';
@@ -5680,9 +5765,14 @@ function TCtMetaTable.GenSelectRandRelateKeySql(fd: TCtMetaField; maxrow: Intege
   end;
 
 var
+  rTb: TCtMetaTable;
   vTbn, vFdn, S: string;
-begin
+begin                         
   vTbn := fd.RelateTable;
+  rTb := fd.GetRelateTableObj;
+  if rTb<>nil then
+    vTbn := rTb.RealTableName;
+
   vTbn := GetQuotTbName(vTbn);
   vFdn := GetQuotName(fd.RelateField);
   if maxRow <= 0 then
@@ -5988,10 +6078,12 @@ end;
 
 function TCtMetaTableList.ItemByName(AName: string; bCaseSensive: Boolean
   ): TCtObject;
-var
-  I: Integer;
 begin
   Result:=inherited ItemByName(AName, bCaseSensive);
+  {    
+var
+  I: Integer;
+
   if Result = nil then
   begin
     if AName='' then
@@ -6017,7 +6109,7 @@ begin
             Exit;
           end;
     end;
-  end;
+  end;  }
 end;
 
 function TCtMetaTableList.TableByName(AName: string; bCaseSensive: Boolean
@@ -6027,6 +6119,18 @@ var
 begin
   Result := nil;
   o := Self.ItemByName(AName, bCaseSensive);
+  if o = nil then
+    Exit;
+  if o is TCtMetaTable then
+    Result := TCtMetaTable(o);
+end;
+
+function TCtMetaTableList.TableByCtGuid(ACtGuid: string): TCtMetaTable;
+var
+  o: TCtObject;
+begin
+  Result := nil;
+  o := Self.ItemByCtGuid(ACtGuid);
   if o = nil then
     Exit;
   if o is TCtMetaTable then
@@ -6228,6 +6332,7 @@ begin
         end;
       end;
     end;
+  GenDefOrderNos;
   ASerialer.EndChildren('');
 end;
 
@@ -6383,7 +6488,8 @@ begin
     end;    
     cfktCreatorId,
     cfktModifierId,
-    cfktOrgId,
+    cfktOrgId,        
+    cfktDeptId,
     cfktPid,
     cfktRid: 
       if (Self.LabelText = '') and MaybeIdNames(Self.DisplayName) then
@@ -6423,7 +6529,7 @@ begin
     Result := DisplayName;
   if Result = '' then
     Result := Name;    
-  if Self.PossibleKeyFieldType in [cfktRid, cfktPid, cfktOrgId, cfktCreatorId, cfktModifierId] then
+  if Self.PossibleKeyFieldType in [cfktRid, cfktPid, cfktOrgId, cfktDeptId, cfktCreatorId, cfktModifierId] then
   //  if (Self.RelateTable <> '') and (Self.RelateField <> '') then
   begin
     L := Length(Result);
@@ -6458,6 +6564,7 @@ begin
 
   case Self.PossibleKeyFieldType of
     cfktOrgId,
+    cfktDeptId,
     cfktCreatorId,
     cfktModifierId,
     cfktPid,
@@ -6608,7 +6715,7 @@ function TCtMetaField.PossibleDemoDataRule: string;
       Result := '#json';
       Exit;
     end;
-    if Self.PossibleKeyFieldType in [cfktId, cfktPid, cfktRid, cfktOrgId,
+    if Self.PossibleKeyFieldType in [cfktId, cfktPid, cfktRid, cfktOrgId, cfktDeptId,
       cfktCreatorId, cfktModifierId, cfktHistoryId, cfktInstNo, cfktProcID] then
     begin
       if Self.DataType = cfdtString then
@@ -8870,7 +8977,12 @@ begin
     else if dbType = 'MYSQL' then
     begin
       Result := ' auto_increment';
-    end
+    end         
+    {else if dbType = 'POSTGRESQL' then
+    begin
+      //默认用bigserial类型代替
+      Result := ' GENERATED ALWAYS AS IDENTITY';
+    end }
     else if dbType = 'SQLITE' then
     begin
       Result := ' autoincrement';
@@ -8914,9 +9026,70 @@ begin
       else
         Result := '';
     end
+    else if (DataType=cfdtBool) and (dbType='POSTGRESQL') then
+    begin
+      if DefaultValue='1' then
+        Result := ' default true'
+      else if DefaultValue='0' then
+        Result := ' default false'
+      else
+        Result := ' default ' + DefaultValue;
+    end
     else
       Result := ' default ' + DefaultValue;
   end;
+end;
+
+function TCtMetaField.GetDescribeStr: string;     
+  function CheckDesName(nm: string): string;
+  begin
+    Result := nm;
+    if Pos(' ', Result) > 0 then
+      Result := StringReplace(Result, ' ', '#32', [rfReplaceAll]);
+    if Pos(#9, Result) > 0 then
+      Result := StringReplace(Result, #9, '#9', [rfReplaceAll]);
+    if Pos('(', Result) > 0 then
+      Result := StringReplace(Result, '(', '#40', [rfReplaceAll]);
+    if Pos(')', Result) > 0 then
+      Result := StringReplace(Result, ')', '#41', [rfReplaceAll]);
+  end;
+  function GetDesName(phy, nm: string): string;
+  begin
+    phy := CheckDesName(phy);
+    nm := CheckDesName(nm);
+    Result := nm;
+    if Result = '' then
+      Result := phy
+    else if (phy <> '') and (Result <> phy) then
+      Result := phy + '(' + Result + ')';
+  end;
+var
+  L: Integer;
+  S, T, CSTR, FT: String;
+begin
+  S := GetDesName(Self.Name, Self.DisplayName);
+  FT := Self.GetFieldTypeDesc(False, 'DESC');
+
+  T := Self.Memo;
+  if Self.DataType = cfdtFunction then
+    if Self.Memo = Self.IndexFields then
+      T := '';
+  CSTR := Self.GetConstraintStrEx(False, True);
+  if CSTR <> '' then
+  begin
+    CSTR := '<<' + CSTR + '>>';
+  end;
+  T := CSTR + T;
+  if T <> '' then
+  begin
+    T := StringReplace(T, '\', '\\', [rfReplaceAll]);
+    T := StringReplace(T, #13, '\r', [rfReplaceAll]);
+    T := StringReplace(T, #10, '\n', [rfReplaceAll]);
+    S := S + ' ' + ExtStr(FT, 11) + ' //' + T;
+  end
+  else
+    S := S + ' ' + FT;
+  Result := S;
 end;
 
 { TCtMetaFieldList }
@@ -9366,6 +9539,16 @@ begin
   Result := TCtDataModelGraph(inherited Get(Index));
 end;
 
+function TCtDataModelGraphList.GetMetaModified: boolean;
+begin
+  Result := FMetaModified;
+end;
+
+function TCtDataModelGraphList.GetModifyDate: TDateTime;
+begin
+  Result := ModelFileConfig.ModifyDate;
+end;
+
 function TCtDataModelGraphList.HasSameNameTables(ATb: TCtMetaTable;
   AName: string): boolean;
 var
@@ -9468,9 +9651,30 @@ begin
     Exit;
   for I := 0 to Count - 1 do
   begin
-    md := FGlobeDataModelList.Items[I];
+    md := Items[I];
 
     tb := TCtMetaTable(md.Tables.ItemByName(AName));
+    if tb = nil then
+      Continue;
+    Result := tb;
+    Exit;
+  end;
+end;
+
+function TCtDataModelGraphList.GetTableOfCtGuid(ACtGuid: string): TCtMetaTable;
+var
+  I: integer;
+  md: TCtDataModelGraph;
+  tb: TCtMetaTable;
+begin
+  Result := nil;
+  if Trim(ACtGuid) = '' then
+    Exit;
+  for I := 0 to Count - 1 do
+  begin
+    md := Items[I];
+
+    tb := TCtMetaTable(md.Tables.ItemByCtGuid(ACtGuid));
     if tb = nil then
       Continue;
     Result := tb;
@@ -9487,7 +9691,7 @@ begin
   begin        
     for I := 0 to Count - 1 do
     begin
-      md := FGlobeDataModelList.Items[I];
+      md := Items[I];
       for J:=0 to md.Tables.Count - 1 do
         if md.Tables[J].ID > FTbSeqCounter then
           FTbSeqCounter := md.Tables[J].ID;
@@ -9588,9 +9792,12 @@ begin
         end;
       end;
     end;
+
+    GenDefOrderNos;
     ASerialer.EndChildren('');
   end;
 
+  FMetaModified := False;
 end;
 
 function TCtDataModelGraphList.NewModelItem: TCtDataModelGraph;
@@ -9682,6 +9889,24 @@ begin
   inherited Put(Index, Value);
 end;
 
+procedure TCtDataModelGraphList.SetMetaModified(AValue: boolean);
+var
+  dt: TDateTime;
+begin
+  FMetaModified := AValue;
+
+  dt := LocalModifyDate;
+  if dt <= Now then
+    LocalModifyDate := Now
+  else
+    LocalModifyDate := dt + 1/24.0/60.0/60.0;
+end;
+
+procedure TCtDataModelGraphList.SetModifyDate(AValue: TDateTime);
+begin
+  ModelFileConfig.ModifyDate := AValue;
+end;
+
 procedure TCtDataModelGraphList.SaveToFile(fn: string);
 var
   fs: TCtObjSerialer;
@@ -9744,7 +9969,6 @@ begin
     end;
     ASerialer.EndChildren('');
   end;
-
 end;
 
 procedure TCtDataModelGraphList.SortByOrderNo;
@@ -11227,7 +11451,7 @@ var
 begin    
   Result := LowerCase(EngineType);
   if EngineType <> OrigEngineType then
-    Result := Result + '/' + LowerCase(OrigEngineType);
+    Result := Result + '_' + LowerCase(OrigEngineType);
   Result := Result+':';
   if User <> '' then
     Result := Result + User+'@';

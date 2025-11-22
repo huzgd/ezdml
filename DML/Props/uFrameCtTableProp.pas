@@ -127,6 +127,7 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MNAI_GenPhyNames: TMenuItem;
     MNTabs_ViewSQL: TMenuItem;
     MNTabs_ListSQL: TMenuItem;
     MNTabs_ScRules: TMenuItem;
@@ -696,7 +697,16 @@ var
   t: TCtFieldDataType;
   ss: TStrings;
   I: integer;
-begin
+begin                      
+  if G_TbPropDataSqlType <> '' then
+  begin
+    if ATable=nil then      
+      G_TbPropDataSqlType := ''
+    else if (G_TbPropDataSqlType='ListSQL') and (Trim(ATable.ListSQL)='') then
+      G_TbPropDataSqlType := ''        
+    else if (G_TbPropDataSqlType='ViewSQL') and (Trim(ATable.ViewSQL)='') then
+      G_TbPropDataSqlType := '';
+  end;
   if G_TbPropDataSqlType='ListSQL' then
     TabSheetData.Caption := lbListSql.Caption
   else if G_TbPropDataSqlType='ViewSQL' then
@@ -2159,7 +2169,8 @@ begin
     if Copy(S, 1, Length(DEF_SQLTEXT_MARK)) <> DEF_SQLTEXT_MARK then
     begin
       MemoTextContent.Lines.Insert(0, '/*[SQL]*/');
-      FCtMetaTable.Memo := MemoTextContent.Lines.Text;
+      FCtMetaTable.Memo := MemoTextContent.Lines.Text; 
+      DoTablePropsChanged(Self.FCtMetaTable);
     end;
   end
   else
@@ -2172,6 +2183,7 @@ begin
         S := Copy(S, 3, Length(S));
       MemoTextContent.Lines.Text := S;
       FCtMetaTable.Memo := MemoTextContent.Lines.Text;
+      DoTablePropsChanged(Self.FCtMetaTable);
     end;
   end;
 end;
@@ -2585,7 +2597,8 @@ begin
       Abort;
     end;
     FCtMetaTable.Name := edtTextName.Text; 
-    edtPhysicalName.TextHint := FCtMetaTable.RealTableName;
+    edtPhysicalName.TextHint := FCtMetaTable.RealTableName;  
+    DoTablePropsChanged(Self.FCtMetaTable);
     if Assigned(Proc_OnPropChange) then
       Proc_OnPropChange(0, FCtMetaTable, nil, '');
   end;
@@ -2737,8 +2750,6 @@ begin
   if not bEvents then
     Exit;
 
-  DoTablePropsChanged(Self.FCtMetaTable);
-
   if (oName <> AField.Name)
     or (oDisp <> AField.DisplayName)
     or (oFieldTp <> AField.GetFieldTypeDesc)
@@ -2746,7 +2757,9 @@ begin
     or (oDtName <> AField.DataTypeName)
     or (oCons <> AField.GetConstraintStr)
     or (oMemo <> AField.Memo) then
-  begin
+  begin        
+    DoTablePropsChanged(Self.FCtMetaTable);
+
     if Assigned(Proc_OnPropChange) then
       Proc_OnPropChange(0, AField, nil, '');
     RefreshDesc;
@@ -3231,51 +3244,12 @@ begin
 end;
 
 procedure TFrameCtTableProp._OnAddSqlResFields(Sender: TObject);
-
-  function GetFtName(ft: TFieldType): string;
-  begin
-    Result := 'String';
-    case ft of
-      ftAutoInc,
-      ftSmallint,
-      ftInteger,
-      ftLargeint,
-      ftWord:
-        Result := 'Integer';
-      ftFloat,
-      ftCurrency,
-      ftBCD,
-      ftFMTBcd:
-        Result := 'Float';
-      ftDate,
-      ftTime,
-      ftDateTime,
-      ftTimeStamp:
-        Result := 'Date';
-      ftBytes,
-      ftVarBytes,
-      ftBlob,
-      ftGraphic,
-      ftOraBlob,
-      ftTypedBinary:
-        Result := 'Blob';
-    end;
-  end;
-
-  function GetFieldPosiDataType(fdName: string; ds: TDataSet): TCtFieldDataType;
-  var
-    S: string;
-  begin
-    S:=GetFtName(ds.FieldByName(fdName).DataType);
-    Result := GetCtFieldDataTypeOfName(S);
-  end;
-
 var
-  ds: TDataSet;
-  S, T, V: string;
+  S, T, Ta, V, fdn, lb, tbn: string;
   ss: TStringList;
   I, C: Integer;
-  fd: TCtMetaField;
+  fd, tfd: TCtMetaField;
+  ttb: TCtMetaTable;
 begin
   if FIniting then
     Exit;
@@ -3284,53 +3258,87 @@ begin
   if TbDataSqlForm = nil then  
     Exit;
 
-  ds := TfrmDmlSqlEditorN(TbDataSqlForm).ResultDataSet;
-  if ds=nil then
+  S := TfrmDmlSqlEditorN(TbDataSqlForm).GetRsDescribText;
+  if S='' then
     Exit;
-  if not ds.Active then
-    Exit;
-  S := 'TableSql'#13#10'---------'#13#10;
-  T :='';
-  for I:=0 to ds.Fields.Count-1 do
-  begin
-    S:=S+ds.Fields[I].FieldName+' '+GetFtName(ds.Fields[I].DataType)+#13#10;
-    if FCtMetaTable.MetaFields.FieldByName(ds.Fields[I].FieldName)=nil then
-    begin
-      if T<>'' then
-        T:=T+',';
-      T := T+ ds.Fields[I].FieldName;
-    end;
-  end;
-  V := CtSelectFields(S, T, '[CAN_SELECT_ALL]');
-  if V='' then
-    Exit;
-  C:=0;
-  ss:= TStringList.Create;
+  ttb := TCtMetaTable.Create;
   try
-    ss.CommaText:=V;
-    for I:=0 to ss.Count-1 do
-    begin
-      S:=ss.Strings[I];
-      if S='' then
-        Continue;
-      if FCtMetaTable.MetaFields.FieldByName(S)<>nil then
-        Continue;
-      fd := FCtMetaTable.MetaFields.NewMetaField;
-      fd.Name:=S;
-      fd.DataType:=GetFieldPosiDataType(S,ds);
-      Inc(C);
-    end;
-  finally
-    ss.Free;
-  end;
+    ttb.Describe:=S;
+    tbn := TfrmDmlSqlEditorN(TbDataSqlForm).GetRsDsTableName;
 
-  if C>0 then
-  begin
-    DoTablePropsChanged(FCtMetaTable);
-    if Assigned(Proc_OnPropChange) then
-      Proc_OnPropChange(2, FCtMetaTable, nil, '');
-    ShowTableProp(FCtMetaTable);
-    PageControlTbProp.ActivePage := TabSheetTable;
+    T :='';
+    Ta := '';
+    for I:=0 to ttb.MetaFields.Count-1 do
+    begin
+      fdn := ttb.MetaFields[I].Name;
+      if Ta<>'' then
+        Ta:=Ta+',';
+      Ta := Ta+ fdn;
+      if CreatingNewTable or (FCtMetaTable.MetaFields.FieldByName(fdn)=nil) then
+      begin
+        if T<>'' then
+          T:=T+',';
+        T := T+ fdn;
+      end;
+    end;
+    V := CtSelectFields(S, T, '[CAN_SELECT_ALL]');
+    if V='' then
+      Exit;
+    C:=0;
+    if CreatingNewTable or (Trim(V)=Trim(Ta)) then
+      case Application.MessageBox(PChar(srConfirmResetBeforeSqlResFields), PChar(FCtMetaTable.NameCaption), MB_YESNOCANCEL or MB_ICONWARNING) of
+        IDYES:
+          begin
+            for I:=0 to FCtMetaTable.MetaFields.Count - 1 do
+              FCtMetaTable.MetaFields[I].DataLevel := ctdlDeleted;
+            FCtMetaTable.ListSQL:=TfrmDmlSqlEditorN(TbDataSqlForm).MemoSql.Lines.Text;  
+            if CreatingNewTable then
+              FCtMetaTable.GenDatabase:=False;
+            Inc(C);
+          end;
+        IDNO:;
+      else
+        Exit;
+      end;
+    if CreatingNewTable then
+      if (tbn <> '') and (tbn <> FCtMetaTable.Name) then
+      begin
+        FCtMetaTable.PhysicalName := tbn;
+        FCtMetaTable.Name := tbn+'_SQL';
+        FCtMetaTable.Caption := ttb.Caption;
+        Inc(C);
+      end;
+    ss:= TStringList.Create;
+    try
+      ss.CommaText:=V;
+      for I:=0 to ss.Count-1 do
+      begin
+        S:=ss.Strings[I];
+        if S='' then
+          Continue;
+        if FCtMetaTable.MetaFields.FieldByName(S)<>nil then
+          Continue;
+        tfd := ttb.MetaFields.FieldByName(S);
+        if tfd=nil then
+          Continue;
+        fd := FCtMetaTable.MetaFields.NewMetaField;   
+        fd.AssignFrom(tfd);
+        Inc(C);
+      end;
+    finally
+      ss.Free;
+    end;
+
+    if C>0 then
+    begin
+      DoTablePropsChanged(FCtMetaTable);
+      if Assigned(Proc_OnPropChange) then
+        Proc_OnPropChange(2, FCtMetaTable, nil, '');
+      ShowTableProp(FCtMetaTable);
+      PageControlTbProp.ActivePage := TabSheetTable;
+    end;   
+  finally
+    ttb.Free;
   end;
 end;
 
@@ -3925,7 +3933,10 @@ procedure TFrameCtTableProp.MemoTextContentExit(Sender: TObject);
 begin
   if FCtMetaTable = nil then
     Exit;
+  if FCtMetaTable.Memo = MemoTextContent.Lines.Text then
+    Exit;
   FCtMetaTable.Memo := MemoTextContent.Lines.Text;
+  DoTablePropsChanged(Self.FCtMetaTable);
 end;
 
 function TFrameCtTableProp.GetDmlScriptFiles: string;
@@ -5021,7 +5032,8 @@ begin
     end;
 
     for I := 0 to vTempFlds.Count - 1 do
-    begin
+    begin         
+      vTempFlds[I].CtGuid := '';
       fd := tb.MetaFields.FieldByName(vTempFlds[I].Name);
       if fd = nil then
         Continue;

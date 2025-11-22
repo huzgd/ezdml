@@ -26,6 +26,9 @@ procedure ShowToastForm(Owner: TComponent; msg, title: string; closeTimeMs: Inte
 
 implementation
 
+uses
+  WindowFuncs;
+
 {$R *.lfm}
              
 procedure ShowToastForm(Owner: TComponent; msg, title: string; closeTimeMs: Integer);
@@ -36,6 +39,8 @@ begin
   begin
     Caption := title;
     LabelMsg.Caption := msg;
+    Left := Application.MainForm.Left+Application.MainForm.Width-Width-ScaleDPISize(6);
+    Top := Application.MainForm.Top+Application.MainForm.Height-Height-ScaleDPISize(16);
     if closeTimeMs > 0 then
     begin
       TimerHide.Interval := closeTimeMs;

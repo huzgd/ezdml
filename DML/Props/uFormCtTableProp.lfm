@@ -207,6 +207,11 @@ object frmCtTableProp: TfrmCtTableProp
         Caption = 'Generate Comments'
         OnClick = MNAI_GenFieldsClick
       end
+      object MNAI_GenPhyNames: TMenuItem
+        Tag = 7
+        Caption = 'Generate Phyical Names'
+        OnClick = MNAI_GenFieldsClick
+      end
       object MNAI_GenSampleValues: TMenuItem
         Tag = 6
         Caption = 'Generate Sample Values'

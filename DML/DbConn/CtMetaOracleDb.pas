@@ -255,7 +255,7 @@ begin
     if G_CreateSeqForOracle and (obj_db <> nil) and (obj_db is TCtMetaTable) and
       (TCtMetaTable(obj_db).KeyFieldName <> '') and TCtMetaTable(obj_db).IsSeqNeeded then
     begin
-      tb := UpperCase(TCtMetaTable(obj_db).Name);
+      tb := UpperCase(TCtMetaTable(obj_db).RealTableName);
       key := TCtMetaTable(obj_db).KeyFieldName;
       with FQuery do
         try

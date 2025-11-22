@@ -173,8 +173,65 @@ end;
 
 function TCtMetaPostgreSqlDb.GenObjSql(obj, obj_db: TCtMetaObject;
   sqlType: integer): string;
+var
+  tb, key, seqName: string;
+  kval, seqval: integer;
 begin
   Result := inherited GenObjSql(obj, obj_db, sqlType);
+  if not TCtMetaTable(obj).IsTable then
+    Exit;
+  CheckConnected;
+  if (sqlType = 0) or (sqlType = 1) then
+    if G_CreateSeqForOracle and (obj_db <> nil) and (obj_db is TCtMetaTable) and
+      (TCtMetaTable(obj_db).KeyFieldName <> '') and TCtMetaTable(obj_db).IsSeqNeeded then
+    begin
+      tb := UpperCase(TCtMetaTable(obj_db).RealTableName);
+      key := TCtMetaTable(obj_db).KeyFieldName;
+      seqName := TCtMetaTable(obj_db).RealTableName + '_'+key+'_seq';
+      with FQuery do
+        try
+          Clear;
+          Sql.Text := 'select max(' + key + ') from ' + tb;
+          Open;
+          if not EOF then
+            kval := Fields[0].AsInteger
+          else
+            kval := 0;
+
+          Clear;
+          SQL.Text :=
+            'select sequencename, last_value from pg_sequences where lower(sequencename) = :v_seqn';
+          Params.ParamByName('v_seqn').AsString := LowerCase(seqName);
+          Open;
+          if not EOF then
+          begin
+            seqName := Fields[0].AsString;
+            seqval := Fields[1].AsInteger;
+          end
+          else
+          begin
+            //added by huz 20250101
+            Result := Result + 'create sequence ' + seqName;
+            if kval>0 then
+              Result := Result + ' start with ' + IntToStr(kval) + ';'+#13#10
+            else
+              Result := Result + ';'+#13#10;
+            seqval := -1;
+          end;
+
+          if (kval > 0) and (seqval >= 0) then
+            if seqval < kval then
+            begin
+              Result := Result + '--     sequence change: ' + seqName + #13#10;
+              Result := Result +'DO $$' + #13#10 +
+                'BEGIN' + #13#10 +
+                ' PERFORM setval(''' + seqName + ''', '+IntToStr(kval)+', TRUE);' + #13#10 +
+                'END $$;'+ #13#10;
+              Result := Result + '--     ' + #13#10;
+            end;
+        except
+        end;
+    end;
 end;
 
 function TCtMetaPostgreSqlDb.GetDbNames: string;

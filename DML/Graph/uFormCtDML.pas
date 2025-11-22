@@ -1199,6 +1199,53 @@ var
     end;
   end;
 
+  //粘贴前，清掉GUID
+  procedure ClearTbGuid(tb: TCtMetaTable);
+  var
+    I: Integer;
+  begin
+    tb.CtGuid := '';
+    for I:=0 to tb.MetaFields.Count - 1 do
+      tb.MetaFields[I].CtGuid:='';
+  end;
+  //粘贴后，从同名表恢复GUID（如果有的话）
+  procedure RestoreTbGuids(ATb: TCtMetaTable);
+  var
+    I, J, K: integer;
+    tb: TCtMetaTable;      
+    fd, fdOld: TCtMetaField;
+    tbs: TCtMetaTableList;
+    tn: string;
+  begin
+    if ATb = nil then
+      Exit;
+    if ATb.CtGuid<>'' then
+      Exit;
+    tn := ATb.Name;
+    for I := 0 to FGlobeDataModelList.Count - 1 do
+    begin
+      tbs := FGlobeDataModelList.Items[I].Tables;
+      for J := 0 to tbs.Count - 1 do
+      begin
+        tb := tbs.Items[J];
+        if (tb <> ATb) and (tb.DataLevel <> ctdlDeleted) then
+          if UpperCase(tb.Name) = UpperCase(tn) then
+          begin
+            ATb.CtGuid:=tb.CtGuid;   
+            for K:=0 to Atb.MetaFields.Count -1 do
+            begin
+              fd :=Atb.MetaFields[K];
+              fdOld := tb.MetaFields.FieldByName(fd.Name);
+              if fdOld<>nil then
+              begin
+                fd.CtGuid:=fdOld.CtGuid;
+              end;
+            end;
+            Exit;
+          end;
+      end;
+    end;
+  end;
 var
   I, J, K, idx: integer;
   fs: TCtObjMemJsonSerialer;
@@ -1247,12 +1294,14 @@ begin
         RenameAllTbs;
       for I := 0 to vTempTbs.Count - 1 do
       begin
+        ClearTbGuid(vTempTbs[I]);
         RenameTbIfExists(vTempTbs[I]);
         tb := FCurMetaTableModel.Tables.NewTableItem;
         tb.AssignFrom(vTempTbs[I]);
         {tb.GraphDesc := '';
         for J := 0 to tb.MetaFields.Count - 1 do
           tb.MetaFields[J].GraphDesc := '';}
+        RestoreTbGuids(tb);
         if Assigned(Proc_OnPropChange) then
           Proc_OnPropChange(0, tb, nil, '');
         DoTablePropsChanged(tb);
@@ -1334,6 +1383,7 @@ begin
 
       for I := 0 to vTempFlds.Count - 1 do
       begin
+        vTempFlds[I].CtGuid := '';
         fd := tb.MetaFields.FieldByName(vTempFlds[I].Name);
         if fd = nil then
           Continue;
@@ -2435,64 +2485,106 @@ procedure TfrmCtDML._OnObjsMoved(Sender: TObject);
 var
   I, J: integer;
   lnk: TDMLLinkObj;
+  S: String;
+  tb: TCtMetaTable;
+  tbs: TList;
 begin
   //if FReadOnlyMode then  //removed by huz 20220416: 只读时允许记录位置
-  //  Exit;
-  with FFrameCtDML.DMLGraph.DMLObjs do
-  begin
-    if not Self.FCurMetaTableModel.IsHuge then
-      CheckSelectedLinks;
-    for I := 0 to Count - 1 do
-      if Items[I].Selected then
-      begin
-        if (Items[I] is TDMLTableObj) or (Items[I] is TDMLTextObj) then
-        begin
-          if Items[I].UserObject is TCtMetaTable then
-            TCtMetaTable(Items[I].UserObject).GraphDesc :=
-              Self.GetLocationDesc(Items[I]);
+  //  Exit;        
+  tbs:= TList.Create;
+  try
 
-          if Sender <> nil then  //sender为nil时，表字段可能已经删除，不可以访问
-          if not FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
+    with FFrameCtDML.DMLGraph.DMLObjs do
+    begin
+      if not Self.FCurMetaTableModel.IsHuge then
+        CheckSelectedLinks;
+      for I := 0 to Count - 1 do
+        if Items[I].Selected then
+        begin
+          if (Items[I] is TDMLTableObj) or (Items[I] is TDMLTextObj) then
           begin
-            for J := 0 to Count - 1 do
-              if Items[J] is TDMLLinkObj then
+            if Items[I].UserObject is TCtMetaTable then
+            begin
+              S := Self.GetLocationDesc(Items[I]); 
+              tb := TCtMetaTable(Items[I].UserObject);
+              if S <> tb.GraphDesc then
               begin
-                lnk := TDMLLinkObj(Items[J]);
-                if lnk.UserObject is TCtMetaField then
+                if tbs.IndexOf(tb)=-1 then
+                  tbs.Add(tb);
+                tb.GraphDesc := S;
+              end;
+            end;
+
+            if Sender <> nil then  //sender为nil时，表字段可能已经删除，不可以访问
+            if not FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
+            begin
+              for J := 0 to Count - 1 do
+                if Items[J] is TDMLLinkObj then
                 begin
-                  if (lnk.Obj1 = Items[I]) or (lnk.Obj2 = Items[I]) then
+                  lnk := TDMLLinkObj(Items[J]);
+                  if lnk.UserObject is TCtMetaField then
                   begin
-                    TCtMetaField(lnk.UserObject).GraphDesc := Self.GetLocationDesc(lnk);
+                    if (lnk.Obj1 = Items[I]) or (lnk.Obj2 = Items[I]) then
+                    begin
+                      S := Self.GetLocationDesc(lnk);
+                      if S<> TCtMetaField(lnk.UserObject).GraphDesc then
+                      begin
+                        TCtMetaField(lnk.UserObject).GraphDesc := S; 
+                        tb := TCtMetaField(lnk.UserObject).OwnerTable;
+                        if tbs.IndexOf(tb)=-1 then
+                          tbs.Add(tb);
+                      end;
+                    end;
                   end;
                 end;
-              end;
 
+            end;
           end;
-        end;          
-        if Sender <> nil then
-        if not FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
-          if Items[I] is TDMLLinkObj then
-            if TDMLLinkObj(Items[I]).UserObject is TCtMetaField then
-              TCtMetaField(Items[I].UserObject).GraphDesc :=
-                Self.GetLocationDesc(Items[I]);
-      end;
+          if Sender <> nil then
+          if not FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
+            if Items[I] is TDMLLinkObj then
+              if TDMLLinkObj(Items[I]).UserObject is TCtMetaField then
+              begin
+                S := Self.GetLocationDesc(Items[I]);
+                if TCtMetaField(Items[I].UserObject).GraphDesc <> S then
+                begin
+                  TCtMetaField(Items[I].UserObject).GraphDesc := S;   
+                  tb := TCtMetaField(Items[I].UserObject).OwnerTable;
+                  if tbs.IndexOf(tb)=-1 then
+                    tbs.Add(tb);
+                end;
+              end;
+        end;
+    end;
+
+    if Sender <> nil then
+    if not FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
+      with FFrameCtDML.DMLGraph.DMLObjs.FAutoCheckedLinks do
+        for I := 0 to Count - 1 do
+          //移动表过程中，被表遮挡的线也有处理，需要保存
+        begin
+          lnk := TDMLLinkObj(Items[I]);
+          if FFrameCtDML.DMLGraph.DMLObjs.IndexOf(lnk) >= 0 then
+            if lnk.UserObject is TCtMetaField then
+            begin
+              S := Self.GetLocationDesc(lnk);
+              if S <> TCtMetaField(lnk.UserObject).GraphDesc then
+              begin
+                TCtMetaField(lnk.UserObject).GraphDesc := S;
+                tb := TCtMetaField(lnk.UserObject).OwnerTable;
+                if tbs.IndexOf(tb)=-1 then
+                  tbs.Add(tb);
+              end;
+            end;
+        end;
+    FFrameCtDML.DMLGraph.DMLObjs.FAutoCheckedLinks.Clear;
+    FFrameCtDML.DMLGraph.Refresh;
+
+    for I:=0 to tbs.Count - 1 do
+      DoMetaPropsChanged(TCtMetaObject(tbs[I]), cmctGraphDesc);
+  finally
+    tbs.Free;
   end;
-                             
-  if Sender <> nil then
-  if not FFrameCtDML.DMLGraph.DMLObjs.BriefMode then
-    with FFrameCtDML.DMLGraph.DMLObjs.FAutoCheckedLinks do
-      for I := 0 to Count - 1 do
-        //移动表过程中，被表遮挡的线也有处理，需要保存
-      begin
-        lnk := TDMLLinkObj(Items[I]);
-        if FFrameCtDML.DMLGraph.DMLObjs.IndexOf(lnk) >= 0 then
-          if lnk.UserObject is TCtMetaField then
-          begin
-            TCtMetaField(lnk.UserObject).GraphDesc := Self.GetLocationDesc(lnk);
-          end;
-      end;
-  FFrameCtDML.DMLGraph.DMLObjs.FAutoCheckedLinks.Clear;
-  FFrameCtDML.DMLGraph.Refresh;
 end;
 
 procedure TfrmCtDML.actRearrangeExecuteEx(Sender: TObject);
@@ -3337,7 +3429,8 @@ begin
           try
             G_SkipCheckAbort := True;          
             TDMLTableObj(obj).PubFlag:=GetPubFlag(tb);
-            TDMLTableObj(Obj).Describe := tb.Describe;
+            TDMLTableObj(Obj).Describe := tb.Describe;    
+            TDMLTableObj(obj).IsView := not tb.GenDatabase;
             CheckDmlTableFieldProps(tb, TDMLTableObj(obj));
             TDMLTableObj(obj).CheckResize;
             TDMLTableObj(obj).FindFKLinks(FFrameCtDML.DMLGraph.DMLObjs); 
@@ -3362,7 +3455,8 @@ begin
       if Obj.UserObject is TCtMetaTable then
       begin
         tb := TCtMetaTable(Obj.UserObject);
-        tb.DataLevel := ctdlDeleted;
+        tb.DataLevel := ctdlDeleted; 
+        DoMetaPropsChanged(tb, cmctRemove);
         if Assigned(Proc_OnPropChange) then
           Proc_OnPropChange(0, tb, nil, '');
       end;

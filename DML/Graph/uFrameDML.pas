@@ -58,6 +58,8 @@ type
     MenuItem16: TMenuItem;
     MenuItem17: TMenuItem;
     MenuItem18: TMenuItem;
+    PMNAI_GenPhyNames: TMenuItem;
+    MNAI_GenPhyNames: TMenuItem;
     MN_GenCode: TMenuItem;
     MN_PubType_4: TMenuItem;
     MN_PubType_3: TMenuItem;
@@ -281,6 +283,7 @@ type
     procedure MNAI_GenFieldsClick(Sender: TObject);
     procedure MNAI_GenFKLinksClick(Sender: TObject);
     procedure MNAI_GenNewModelClick(Sender: TObject);
+    procedure MNAI_GenPhyNamesClick(Sender: TObject);
     procedure MNAI_GenSampleValuesClick(Sender: TObject);
     procedure MNAI_GenTablesClick(Sender: TObject);
     procedure MNAI_Text2SQLClick(Sender: TObject);
@@ -747,6 +750,11 @@ end;
 procedure TFrameDML.MNAI_GenNewModelClick(Sender: TObject);
 begin
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 1);
+end;
+
+procedure TFrameDML.MNAI_GenPhyNamesClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 7);
 end;
 
 procedure TFrameDML.MNAI_GenSampleValuesClick(Sender: TObject);
@@ -1586,11 +1594,13 @@ begin
   MN_PublishType.Enabled := (C > 0) and bSelTb;
 
   MNAI_GenFields.Enabled := (C = 1) and bSelTb;
-  MNAI_GenComments.Enabled := (C = 1) and bSelTb;   
+  MNAI_GenComments.Enabled := (C = 1) and bSelTb;     
+  MNAI_GenPhyNames.Enabled := (C = 1) and bSelTb;
   MNAI_GenSampleValues.Enabled := (C = 1) and bSelTb;
   MNAI_GenFKLinks.Enabled := (C > 0) and bSelTb;
   PMNAI_GenFields.Enabled := (C = 1) and bSelTb;
-  PMNAI_GenComments.Enabled := (C = 1) and bSelTb;     
+  PMNAI_GenComments.Enabled := (C = 1) and bSelTb;
+  PMNAI_GenPhyNames.Enabled := (C = 1) and bSelTb;
   PMNAI_GenSampleValues.Enabled := (C = 1) and bSelTb;
   PMNAI_GenFKLinks.Enabled := (C > 0) and bSelTb;
                                       

@@ -25,8 +25,10 @@ type
     procedure DoInternalConnect; override;
     procedure DoInternalDisconnect; override;
   public
+    function ExecDbCmd(Cmd, Par1,Par2, Opt: string): string;
     property JdbcProcActive: Boolean read FJdbcProcActive;
     property EzDbType: string read FEzDbType write FEzDbType;
+    property JdbcSvAddr: string read FJdbcSvAddr write FJdbcSvAddr;
     property EzDbDriverClass: string read FEzDbDriverClass write FEzDbDriverClass;
   end;
 
@@ -91,6 +93,11 @@ end;
 procedure TEzJdbcSqlConnection.DoInternalDisconnect;
 begin     
   raise Exception.Create(srEzdmlLiteNotSupportFun);
+end;
+
+function TEzJdbcSqlConnection.ExecDbCmd(Cmd, Par1, Par2, Opt: string): string;
+begin
+  Result := '';
 end;
 
 {$else}

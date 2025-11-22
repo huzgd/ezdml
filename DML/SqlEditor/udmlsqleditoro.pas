@@ -144,6 +144,8 @@ type
     Proc_CheckSpecValue:
     function(const Value: string): string of object;
     procedure ClearSql;
+    function GetRsDescribText: string;
+    function GetRsDsTableName: string;
 
     property ReadOnlyMode: boolean read FReadOnlyMode write SetReadOnlyMode;
     property OptionsStr: string read FOptionsStr write FOptionsStr;
@@ -492,6 +494,16 @@ begin
   MemoSql.Clear;
   AutoExecSql := '';
   FHisIndex := -1;
+end;
+
+function TfrmDmlSqlEditorO.GetRsDescribText: string;
+begin
+  Result := '';
+end;
+
+function TfrmDmlSqlEditorO.GetRsDsTableName: string;
+begin
+  Result := '';
 end;
 
 procedure TfrmDmlSqlEditorO.PopupMenuOldSqlPopup(Sender: TObject);

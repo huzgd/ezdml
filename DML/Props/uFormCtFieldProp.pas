@@ -56,12 +56,17 @@ uses
 function ShowCtMetaFieldDialog(AField: TCtMetaField; bReadOnly: Boolean): Boolean;
 var
   frm: TfrmCtMetaFieldProp;
+  sJson: String;
 begin
   frm := TfrmCtMetaFieldProp.Create(Application)    ;
   with frm do
-  try  
+  try
+    sJson := '';
     if not bReadOnly then
+    begin
+      sJson := AField.JsonStr;
       BeginTbPropUpdate(AField.OwnerTable);
+    end;
     Init(AField, bReadOnly);
     if Assigned(GProc_OnEzdmlCmdEvent) then
     begin
@@ -71,7 +76,15 @@ begin
   finally           
     if not bReadOnly then
     begin
-      EndTbPropUpdate(AField.OwnerTable);
+      if Result then
+      begin
+        if sJson = AField.JsonStr then
+          EndTbPropUpdate(nil)
+        else
+          EndTbPropUpdate(AField.OwnerTable);
+      end
+      else  
+        EndTbPropUpdate(nil);
       frm.Free;
     end;
   end;

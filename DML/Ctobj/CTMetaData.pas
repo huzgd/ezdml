@@ -323,7 +323,8 @@ type
     function CreateGlobeList: TCtGlobList; virtual;
     //获取子项
     function ItemByID(AID: Integer): TCtObject; virtual;
-    function ItemByName(AName: string; bCaseSensive: Boolean = False): TCtObject; virtual;
+    function ItemByName(AName: string; bCaseSensive: Boolean = False): TCtObject; virtual;   
+    function ItemByCtGuid(ACtGuid: string): TCtObject; virtual;
     function NameOfID(AID: Integer): string; virtual;
 
     function GetUnusedName(AName: string): string; virtual;
@@ -337,7 +338,9 @@ type
     procedure SortByOrderNo; virtual;
     procedure SortByName; virtual;
     //保存当前顺序
-    procedure SaveCurrentOrder; virtual;
+    function SaveCurrentOrder: Boolean; virtual;
+    //JSON加载子项的orderNo为0的要重新生成
+    function GenDefOrderNos(): Boolean; virtual;
 
     property Items[Index: Integer]: TCtObject read GetCtItem write PutCtItem; default;
     //子类
@@ -1243,7 +1246,8 @@ function TCtObjectList.ItemByName(AName: string;
   bCaseSensive: Boolean): TCtObject;
 var
   I: Integer;
-begin
+begin             
+  Result := nil;
   if AName='' then
     Exit;
   if bCaseSensive then
@@ -1267,9 +1271,23 @@ begin
           Exit;
         end;
   end;
+end;
+
+function TCtObjectList.ItemByCtGuid(ACtGuid: string): TCtObject;
+var
+  I: Integer;
+begin       
   Result := nil;
-
-
+  if ACtGuid='' then
+    Exit;
+  ACtGuid := UpperCase(ACtGuid);
+  for I := 0 to Count - 1 do
+    if Assigned(Items[I]) and (UpperCase(Items[I].CtGuid) = ACtGuid) then
+      if Items[I].DataLevel <> ctdlDeleted then
+      begin
+        Result := Items[I];
+        Exit;
+      end;
 end;
 
 constructor TCtObjectList.Create;
@@ -1449,12 +1467,36 @@ begin
     end;
 end;
 
-procedure TCtObjectList.SaveCurrentOrder;
+function TCtObjectList.SaveCurrentOrder: Boolean;
 var
   I: Integer;
 begin
+  Result := False;
   for I := 0 to Count - 1 do
-    Items[I].OrderNo := I + 1;
+  begin                       
+    if Abs(Items[I].OrderNo - I - 1)>0.000001 then
+    begin
+      Items[I].OrderNo := I + 1;
+      Result := True;
+    end;
+  end;
+end;
+
+function TCtObjectList.GenDefOrderNos: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to Count - 1 do
+  begin
+    if Abs(Items[I].OrderNo)>0.000001 then  
+      if Abs(Items[I].OrderNo - I - 1)>0.000001 then
+      begin
+        Exit;
+      end;
+  end;
+
+  Result := SaveCurrentOrder;
 end;
 
 procedure TCtObjectList.Pack;
