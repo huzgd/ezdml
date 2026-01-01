@@ -1527,7 +1527,8 @@ begin
       G_EnableTbPropRelations);
     G_EnableTbPropData := ini.ReadBool('Options', 'EnableTbPropData',
       G_EnableTbPropData);
-    G_TbPropDataSqlType := ini.ReadString('Options', 'TbPropDataSqlType', '');
+    G_TbPropDataSqlType := ini.ReadString('Options', 'TbPropDataSqlType', '');   
+    G_TbPropScRuleType := ini.ReadString('Options', 'TbPropScRuleType', '');
     G_EnableTbPropUIDesign := ini.ReadBool('Options', 'EnableTbPropUIDesign',
       G_EnableTbPropUIDesign);
     G_BackupBeforeAlterColumn :=
@@ -3534,6 +3535,7 @@ begin
   if not Assigned(frmCtGenCode) then
     frmCtGenCode := TfrmCtGenCode.Create(Self);
   frmCtGenCode.CtDataModelList := FCtDataModelList;
+  frmCtGenCode.CurFileName := FCurFileName;
                                                  
   tbs := nil;
   try             
@@ -5047,6 +5049,7 @@ initialization
   G_EnableTbPropRelations := True;
   G_EnableTbPropData := False;
   G_TbPropDataSqlType := '';
+  G_TbPropScRuleType := '';
   G_EnableTbPropUIDesign := False;
   G_TableDialogViewModeByDefault := False;
   G_CheckForUpdates := True;

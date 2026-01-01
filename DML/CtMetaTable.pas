@@ -33,6 +33,7 @@ RelateField[关联字段]                      String
 IndexType[索引类型_0无1唯一2普通]          Enum
 IndexFields[索引字段]                      String    
 DBCheck[数据库检查]                        String
+SQLExpression[SQL表达式]                   String
 Hint[提示]                                 String
 Memo[备注]                                 String
 DefaultValue[缺省值]                       String
@@ -527,7 +528,8 @@ type
   TCtMetaField = class(TCtMetaObject)
   private
     FBusinessLogic: string;
-    FDBCheck: string;
+    FDBCheck: string;             
+    FSQLExpression: string;
     FDesensitised: boolean;
     FDesignNotes: string;
     FExplainText: string;
@@ -652,6 +654,9 @@ type
     function IsFK: boolean;
     function IsPhysicalField: boolean;
 
+    function IsSqlSelField: boolean; 
+    function GetSQLSelExpression: string;
+
     function PossibleKeyFieldType: TCtKeyFieldType;
     function CanDisplay(tp: string): boolean;
     function IsRequired: boolean;
@@ -704,7 +709,9 @@ type
     //索引字段
     property IndexFields: string read FIndexFields write FIndexFields;
     //数据库检查
-    property DBCheck: string read FDBCheck write FDBCheck;
+    property DBCheck: string read FDBCheck write FDBCheck;     
+    //SQL表达式
+    property SQLExpression: string read FSQLExpression write FSQLExpression;
     //提示
     property Hint: string read FHint write FHint;
     //备注
@@ -1235,7 +1242,8 @@ var
   G_EnableTbPropGenerate: boolean;
   G_EnableTbPropRelations: boolean;
   G_EnableTbPropData: boolean;
-  G_TbPropDataSqlType: String;
+  G_TbPropDataSqlType: String;   
+  G_TbPropScRuleType: String;
   G_EnableTbPropUIDesign: boolean;
   G_Reserved_Keywords: TStrings;
   G_TableDialogViewModeByDefault: boolean;
@@ -1258,7 +1266,7 @@ var
   GProc_OnEzdmlCmdEvent: TOnEzdmlCmdEvent;
 
   DEF_CTMETAFIELD_DATATYPE_NAMES_CHN: TCtFieldDataTypeNames;
-  DEF_CTMETAFIELD_CONSTRAINT_STR_CHN: array[0..9] of string;
+  DEF_CTMETAFIELD_CONSTRAINT_STR_CHN: array[0..10] of string;
   DEF_CTMETAFIELD_KEYFIELD_NAMES_CHN: array[TCtKeyFieldType] of string;
   DEF_CTMETAFIELD_KEYFIELD_NAMES_POSSIBLE: array[TCtKeyFieldType] of string;
 
@@ -1494,7 +1502,7 @@ const
     'Others');
 
 
-  DEF_CTMETAFIELD_CONSTRAINT_STR_ENG: array[0..9] of string =
+  DEF_CTMETAFIELD_CONSTRAINT_STR_ENG: array[0..10] of string =
     (
     '',
     'NotNull',
@@ -1505,7 +1513,8 @@ const
     'Default',
     'AutoInc',
     'Relation',
-    'TypeName'
+    'TypeName',
+    'SQLExpr'
     );
 
   DEF_CTMETAFIELD_KEYFIELD_TYPES: array[TCtKeyFieldType] of TCtFieldDataType =
@@ -3656,7 +3665,7 @@ begin
   for I := 0 to MetaFields.Count - 1 do
   begin
     f := MetaFields[I];
-    if not f.IsPhysicalField then
+    if not f.IsSqlSelField then
       Continue;
     if f.DataType <> cfdtString then
       Continue;
@@ -3674,7 +3683,7 @@ begin
   for I := 0 to MetaFields.Count - 1 do
   begin
     f := MetaFields[I];
-    if not f.IsPhysicalField then
+    if not f.IsSqlSelField then
       Continue;       
     if f.DataType <> cfdtString then
       Continue;
@@ -3690,7 +3699,7 @@ begin
   for I := 0 to MetaFields.Count - 1 do
   begin
     f := MetaFields[I];
-    if not f.IsPhysicalField then
+    if not f.IsSqlSelField then
       Continue;      
     if f.DataType <> cfdtString then
       Continue;
@@ -4390,7 +4399,7 @@ begin
     for I := 0 to MetaFields.Count - 1 do
     begin
       f := MetaFields[I];
-      if not f.IsPhysicalField then
+      if not f.IsSqlSelField then
         Continue;
       if Length(F.Name) > exLen then
         exLen := Length(F.Name);
@@ -4411,14 +4420,22 @@ begin
     for I := 0 to MetaFields.Count - 1 do
     begin
       f := MetaFields[I];
-      if not F.IsPhysicalField then
+      if not F.IsSqlSelField then
         Continue;
       Inc(C);
       if C > 1 then
         S := S + ','#13#10;
       vFdn := f.Name;
       vFdn := GetQuotName(vFdn);
-      if G_LogicNamesForTableData and (f.DisplayName <> '') and
+      if Trim(f.SQLExpression) <>'' then
+      begin
+        S := S + '  ' + ExtStr(f.GetSQLSelExpression, exLen);
+        if (f.DisplayName <> '') and (f.DisplayName <> f.Name) then
+          S := S + ' as ' + GetQuotName(f.DisplayName)
+        else
+          S := S + ' as ' + vFdn;
+      end
+      else if G_LogicNamesForTableData and (f.DisplayName <> '') and
         (f.DisplayName <> f.Name) then
       begin
         S := S + '  ' + ExtStr(vFdn, exLen);
@@ -5288,7 +5305,7 @@ begin
     for I := 0 to MetaFields.Count - 1 do
     begin
       f := MetaFields[I];
-      if not F.IsPhysicalField then
+      if not F.IsSqlSelField then
         Continue;
       if Length(F.Name) > exLen then
         exLen := Length(F.Name);
@@ -5301,15 +5318,13 @@ begin
     else
       sEnd := '';
 
-    C := 0;
+    aFC := 0;
     for I := 0 to MetaFields.Count - 1 do
     begin
       f := MetaFields[I];
-      if not F.IsPhysicalField then
-        Continue;
-      Inc(C);
+      if F.IsPhysicalField then
+        Inc(aFC);
     end;
-    aFC := C;
 
     if (sqlType = '') or (Pos('select', sqlType) > 0) then
     begin
@@ -5320,13 +5335,21 @@ begin
       for I := 0 to MetaFields.Count - 1 do
       begin
         f := MetaFields[I];
-        if not F.IsPhysicalField then
+        if not F.IsSqlSelField then
           Continue;
         Inc(C);
         if C > 1 then
           S := S + ','#13#10;
         vFdn := GetQuotName(f.Name);
-        if (f.DisplayName <> '') and (f.DisplayName <> f.Name) then
+        if Trim(F.SQLExpression)<>'' then
+        begin
+          S := S + '  ' + ExtStr(F.GetSQLSelExpression, exLen);
+          if (f.DisplayName <> '') and (f.DisplayName <> f.Name) then   
+            S := S + ' as ' + GetQuotName(f.DisplayName)
+          else
+            S := S + ' as ' + vFdn;
+        end
+        else if (f.DisplayName <> '') and (f.DisplayName <> f.Name) then
         begin
           S := S + '  ' + ExtStr(vFdn, exLen);
           S := S + ' as ' + GetQuotName(f.DisplayName);
@@ -6924,6 +6947,7 @@ begin
   FIndexType := cfitNone;
   FIndexFields := '';      
   FDBCheck := '';
+  FSQLExpression := '';
   FHint := '';
   FDefaultValue := '';
   FNullable := True;
@@ -7013,7 +7037,8 @@ begin
     FRelateField := TCtMetaField(ACtObj).FRelateField;
     FIndexType := TCtMetaField(ACtObj).FIndexType;
     FIndexFields := TCtMetaField(ACtObj).FIndexFields;   
-    FDBCheck := TCtMetaField(ACtObj).FDBCheck;
+    FDBCheck := TCtMetaField(ACtObj).FDBCheck;            
+    FSQLExpression := TCtMetaField(ACtObj).FSQLExpression;
     FHint := TCtMetaField(ACtObj).FHint;
     FDefaultValue := TCtMetaField(ACtObj).FDefaultValue;
     FNullable := TCtMetaField(ACtObj).FNullable;
@@ -7116,7 +7141,9 @@ begin
     if ASerialer.CurCtVer >= 25 then
       ASerialer.ReadString('IndexFields', FIndexFields);  
     if ASerialer.CurCtVer >= 31 then
-      ASerialer.ReadString('DBCheck', FDBCheck);
+      ASerialer.ReadString('DBCheck', FDBCheck);    
+    if ASerialer.CurCtVer >= 42 then
+      ASerialer.ReadString('SQLExpression', FSQLExpression);
     ASerialer.ReadString('Hint', FHint);
     ASerialer.ReadString('DefaultValue', FDefaultValue);
     ASerialer.ReadNotBool('Nullable', FNullable);
@@ -7232,7 +7259,8 @@ begin
     ASerialer.WriteString('RelateField', FRelateField);
     ASerialer.WriteInteger('IndexType', integer(FIndexType));
     ASerialer.WriteString('IndexFields', FIndexFields);       
-    ASerialer.WriteString('DBCheck', DBCheck);
+    ASerialer.WriteString('DBCheck', FDBCheck);
+    ASerialer.WriteString('SQLExpression', FSQLExpression);
     ASerialer.WriteString('Hint', FHint);
     ASerialer.WriteString('DefaultValue', FDefaultValue);
     ASerialer.WriteNotBool('Nullable', FNullable);
@@ -7500,6 +7528,15 @@ begin
       S := StringReplace(S, '> >', '>>', [rfReplaceAll]);
     Self.DataTypeName := S;
   end;
+
+  S := Sub_FindConsVal(10, Value);
+  if (S <> '') then
+  begin
+    if S = '(NONE)' then
+      S := '';
+    S := DeccStr(Trim(S));
+    Self.SQLExpression := S;
+  end;
 end;
 
 function TCtMetaField.GetNullableStr(dbType: string): string;
@@ -7668,6 +7705,11 @@ begin
   begin
     Result := True;
     Exit;
+  end;    
+  if Trim(Self.SQLExpression) <> '' then
+  begin
+    Result := False;
+    Exit;
   end;
 
   case DataType of
@@ -7677,6 +7719,49 @@ begin
       if Trim(Self.DataTypeName) = '' then
         Result := False;
   end;
+end;
+
+function TCtMetaField.IsSqlSelField: boolean;
+begin
+  Result := True;
+  if Self.DataLevel = ctdlDeleted then
+  begin
+    Result := False;
+    Exit;
+  end;
+  if Pos('[NOT_DB_FIELD]', UpperCase(Self.Memo)) > 0 then
+  begin
+    Result := False;
+    Exit;
+  end;
+  if Pos('[IS_DB_FIELD]', UpperCase(Self.Memo)) > 0 then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  case DataType of
+    cfdtCalculate: 
+      if Trim(Self.SQLExpression) = '' then
+      begin
+        Result := False;
+      end;
+    cfdtUnknow, cfdtFunction, cfdtEvent, cfdtOther:
+      Result := False;
+    cfdtObject, cfdtList:
+      if Trim(Self.DataTypeName) = '' then
+        Result := False;
+  end;
+end;
+
+function TCtMetaField.GetSQLSelExpression: string;
+begin
+  Result := '';
+  if not IsSqlSelField then
+    Exit;
+  Result := Name;
+  if Trim(Self.SQLExpression) <> '' then
+    Result := Self.SQLExpression;
 end;
 
 function TCtMetaField.PossibleKeyFieldType: TCtKeyFieldType;
@@ -8943,6 +9028,13 @@ begin
       if RelateField <> '' then
         S := S + '.' + EnccStr(RelateField);
     end;
+
+  if SQLExpression <> '' then
+  begin
+    if S <> '' then
+      S := S + ',';
+    S := S + Sub_GetConsStr(10) + ':' + EnccStr(SQLExpression);
+  end;
 
   Result := S;
 end;

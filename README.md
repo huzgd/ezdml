@@ -394,3 +394,7 @@ Pull code/templates from GIT. Bugs fixed.
 
 2025-11-22 V3.71
 Add database built-in models to support multi person realtime-collaboration. Bugs fixed.
+
+2026-01-01 V3.72
+Add SQL expression for fields-select, WEB-pub/restart for Ruoyi_ezdml_pro. Bugs fixed.
+

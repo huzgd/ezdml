@@ -454,6 +454,14 @@ begin
         end;
         Exit;
       end;
+    end;    
+    if ACmd='CT_GET_HTTPJDBC_PUB_URL' then
+    begin
+      if Assigned(FDbConn) and (FDbConn is TEzJdbcSqlConnection) then
+      begin
+        Result := TEzJdbcSqlConnection(FDbConn).ExecDbCmd(ACmd, AParam1, AParam2, '');
+        Exit;
+      end;
     end;
     if ACmd='CT_BEFORE_RECONNECT' then
     begin

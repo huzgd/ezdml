@@ -1109,7 +1109,7 @@ object FrameCtTableProp: TFrameCtTableProp
         end
         object lbScriptRules: TLabel
           Cursor = crHandPoint
-          Left = 7
+          Left = 8
           Height = 17
           Hint = 'curTable.scriptRules'
           Top = 257
@@ -3435,8 +3435,8 @@ object FrameCtTableProp: TFrameCtTableProp
   end
   object PopupMenuTabs: TPopupMenu
     OnPopup = PopupMenuTabsPopup
-    left = 445
-    top = 159
+    left = 444
+    top = 156
     object MNTabs_Relations: TMenuItem
       Caption = 'Relations'
       OnClick = MNTabs_RelationsClick
@@ -3466,18 +3466,26 @@ object FrameCtTableProp: TFrameCtTableProp
     end
     object MNTabs_ListSQL: TMenuItem
       Caption = 'List SQL'
-      OnClick = MNTabs_ListSQLClick
+      OnClick = sbtnListSqlEditorClick
     end
     object MNTabs_ViewSQL: TMenuItem
       Caption = 'View SQL'
-      OnClick = MNTabs_ViewSQLClick
+      OnClick = sbtnViewSqlEditorClick
     end
     object MenuItem3: TMenuItem
       Caption = '-'
     end
     object MNTabs_ScRules: TMenuItem
       Caption = 'Script Rules'
-      OnClick = MNTabs_ScRulesClick
+      OnClick = sbtnScRuleEditorClick
+    end
+    object MNTabs_UILogic: TMenuItem
+      Caption = 'UI Logic'
+      OnClick = sbtnUILogicEditorClick
+    end
+    object MNTabs_BuzLogic: TMenuItem
+      Caption = 'Business Logic'
+      OnClick = sbtnBuzLogicEditorClick
     end
     object MenuItem1: TMenuItem
       Caption = '-'

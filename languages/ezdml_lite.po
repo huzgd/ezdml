@@ -370,6 +370,7 @@ msgid ""
 "AutoInc\n"
 "Relation\n"
 "TypeName\n"
+"SQLExpr\n"
 msgstr ""
 
 #: dmlstrs.srdmlcustomcolor
@@ -1270,6 +1271,10 @@ msgstr ""
 msgid "Unlock database file %s?"
 msgstr ""
 
+#: dmlstrs.srwebdburlnotfound
+msgid "Web-Pub URL not found, please use a JDBC connection"
+msgstr ""
+
 #: dmlstrs.srwritingdatafmt
 msgid "%d/%d Backing up data...%s"
 msgstr ""
@@ -2134,6 +2139,14 @@ msgstr ""
 #: tframectfielddef.label5.hint
 msgctxt "tframectfielddef.label5.hint"
 msgid "curField.labelText"
+msgstr ""
+
+#: tframectfielddef.label50.caption
+msgid "SQL expression"
+msgstr ""
+
+#: tframectfielddef.label50.hint
+msgid "curField.SQLExpression"
 msgstr ""
 
 #: tframectfielddef.label51.caption
@@ -3189,6 +3202,10 @@ msgctxt "tframecttableprop.mntabs_advpage.caption"
 msgid "Advanced"
 msgstr ""
 
+#: tframecttableprop.mntabs_buzlogic.caption
+msgid "Business Logic"
+msgstr ""
+
 #: tframecttableprop.mntabs_close.caption
 msgctxt "tframecttableprop.mntabs_close.caption"
 msgid "Close"
@@ -3232,6 +3249,10 @@ msgstr ""
 #: tframecttableprop.mntabs_uidesign.caption
 msgctxt "tframecttableprop.mntabs_uidesign.caption"
 msgid "UI Design"
+msgstr ""
+
+#: tframecttableprop.mntabs_uilogic.caption
+msgid "UI Logic"
 msgstr ""
 
 #: tframecttableprop.mntabs_viewsql.caption

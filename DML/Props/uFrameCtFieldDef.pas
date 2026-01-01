@@ -41,6 +41,7 @@ type
     combFontName: TComboBox;
     combFieldWeight: TComboBox;
     edtColGroup: TEdit;
+    edtSQLExpression: TEdit;
     edtSheetGroup: TEdit;
     edtTextClipSize: TEdit;
     edtExplainText: TEdit;
@@ -50,6 +51,7 @@ type
     Label13: TLabel;
     Label17: TLabel;
     Label27: TLabel;
+    Label50: TLabel;
     Label56: TLabel;
     Label57: TLabel;
     Label58: TLabel;
@@ -483,7 +485,8 @@ begin
   stFieldName.Caption := FMetaField.NameCaption;
   edtDisplayName.Text := FMetaField.DisplayName;
   edtHint.Text := FMetaField.Hint;
-  memoMemo.Lines.Text := FMetaField.Memo;   
+  memoMemo.Lines.Text := FMetaField.Memo;    
+  edtSQLExpression.Text := FMetaField.SQLExpression;
   memoDBCheck.Lines.Text := FMetaField.DBCheck;  
   memoDesignNotes.Lines.Text := FMetaField.DesignNotes;
   ckbIsFactMeasure.Checked := FMetaField.IsFactMeasure;
@@ -759,7 +762,9 @@ begin
     if Sender = memoMemo then
       FMetaField.Memo := memoMemo.Lines.Text;    
     if Sender = memoDBCheck then
-      FMetaField.DBCheck := memoDBCheck.Lines.Text; 
+      FMetaField.DBCheck := memoDBCheck.Lines.Text;  
+    if Sender = edtSQLExpression then
+      FMetaField.SQLExpression := edtSQLExpression.Text;
     if Sender = memoDesignNotes then
       FMetaField.DesignNotes := memoDesignNotes.Lines.Text;
     if Sender = ckbIsFactMeasure then

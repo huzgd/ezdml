@@ -228,7 +228,7 @@ resourcestring
   srDmlUniqueIndex = 'Unique Index';
   srDmlNormalIndex = 'Normal Index';
   srDmlDataTypeNames = 'Unknow'#10'String'#10'Integer'#10'Float'#10'Date'#10'Bool'#10'Enum'#10'Blob'#10'Object'#10'Calculate'#10'List'#10'Function'#10'Event'#10'Other';
-  srDmlConstraintNames = ''#10'NotNull'#10'PK'#10'FK'#10'UniqueIndex'#10'NormalIndex'#10'Default'#10'AutoInc'#10'Relation'#10'TypeName';
+  srDmlConstraintNames = ''#10'NotNull'#10'PK'#10'FK'#10'UniqueIndex'#10'NormalIndex'#10'Default'#10'AutoInc'#10'Relation'#10'TypeName'#10'SQLExpr';
   srDmlKeyFieldNames = 'Normal'#10'Id'#10'Pid'#10'Rid'#10'Name'#10'Caption'#10'Memo'#10'TypeName'#10'OrgId'#10'DeptId'#10'CreatorId'#10'CreatorName'#10'CreateDate'#10'ModifierId'#10'ModifierName'#10'ModifyDate'#10'VersionNo'#10'HistoryId'#10'LockStamp'#10'InsNo'#10'ProcID'#10'URL'#10'DataLevel'#10'DataStatus'#10'OrderNo'#10'Others';
   srDmlPossibleKeyFieldNames = 'Normal'#10'Id'#10'Pid,ParentId'#10'Rid,RelateId'#10'Name,Title'#10'Caption,SubTitle'#10'Memo,Comment,Desc,Description,Note,Notes,Remark'#10'TypeName'#10'OrgId'#10'DeptId'#10'CreatorId,Creator,UserId'#10'CreatorName'#10'CreateDate'#10'ModifierId,Modifier'#10'ModifierName'#10'ModifyDate'#10'VersionNo'#10'HistoryId'#10'LockStamp'#10'InsNo'#10'ProcID'#10'URL'#10'DataLevel'#10'DataStatus'#10'OrderNo'#10'Others';
   srDmlAddLink = 'Add Link';
@@ -262,6 +262,7 @@ resourcestring
   srPubModelToWebFailedFmt = 'Failed to publish to WEB: %s';
   srAutoInitGenCodeGit = 'Auto pull the template files from GIT repo? Or you can exec shell command manually:';
   srPullingGitRepo = 'Pulling code/template from GIT repo...';
+  srWebDbUrlNotFound = 'Web-Pub URL not found, please use a JDBC connection';
   srConfirmOpenAfterGenCode = 'Generate-code success. Open output folder now?';  
   srConfirmOpenFileLocation = 'Operation success. Open target folder now?';
   srModifyDatabaseWarning =

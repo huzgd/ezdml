@@ -1675,6 +1675,8 @@ begin
   folder := TrimFileName(folder);
   if folder = '' then
     Result := fileName
+  else if fileName='' then
+    Result := folder
   else
     Result := folder + DirectorySeparator + fileName;
 end;

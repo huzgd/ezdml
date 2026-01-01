@@ -46,6 +46,8 @@
 {"hash":92232693,"name":"tframectfielddef.ckbisfactmeasure.caption","sourcebytes":[73,115,32,102,97,99,116,45,109,101,97,115,117,114,101],"value":"Is fact-measure"},
 {"hash":50068308,"name":"tframectfielddef.label60.hint","sourcebytes":[99,117,114,70,105,101,108,100,46,102,105,101,108,100,87,101,105,103,104,116],"value":"curField.fieldWeight"},
 {"hash":51658644,"name":"tframectfielddef.label60.caption","sourcebytes":[70,105,101,108,100,32,119,101,105,103,104,116],"value":"Field weight"},
+{"hash":208985214,"name":"tframectfielddef.label50.hint","sourcebytes":[99,117,114,70,105,101,108,100,46,83,81,76,69,120,112,114,101,115,115,105,111,110],"value":"curField.SQLExpression"},
+{"hash":221009582,"name":"tframectfielddef.label50.caption","sourcebytes":[83,81,76,32,101,120,112,114,101,115,115,105,111,110],"value":"SQL expression"},
 {"hash":11931177,"name":"tframectfielddef.tabsheet2.caption","sourcebytes":[69,100,105,116,111,114,32,85,73],"value":"Editor UI"},
 {"hash":145891764,"name":"tframectfielddef.label18.hint","sourcebytes":[99,117,114,70,105,101,108,100,46,104,105,110,116],"value":"curField.hint"},
 {"hash":23296,"name":"tframectfielddef.label18.caption","sourcebytes":[84,105,112],"value":"Tip"},

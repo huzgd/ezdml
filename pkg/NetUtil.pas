@@ -306,6 +306,8 @@ begin
       begin
         tmOut := 20000;
         if Pos('[SAVE_TO_FILE]', PostData) > 0 then
+          tmOut := 90000;           
+        if Pos('[SAVE_TO_FILE]', Opts) > 0 then
           tmOut := 90000;
         if Pos('[POST_LOCAL_FILE]', PostData) > 0 then
           tmOut := 90000;
@@ -374,6 +376,12 @@ begin
       ForceDirectories(ExtractFilePath(fn));
       rfs := TFileStream.Create(fn, fmCreate);
       PostData := '';
+    end                          
+    else if Pos('[SAVE_TO_FILE]', Opts) > 0 then
+    begin
+      fn := ExtractCompStr(Opts, '[SAVE_TO_FILE]', '[/SAVE_TO_FILE]');
+      ForceDirectories(ExtractFilePath(fn));
+      rfs := TFileStream.Create(fn, fmCreate);
     end
     else
       rfs := nil;
@@ -479,6 +487,17 @@ begin
           finally
             ms.Free;
           end;
+        end;
+
+        I := vIdHTTP.ResponseCode;
+        if I >= 400 then
+        begin       
+          S := Format('Error %d', [I]);
+          try
+            S := S+ ': '+vIdHTTP.ResponseText;
+          except
+          end;
+          raise Exception.Create(S)
         end;
 
       except

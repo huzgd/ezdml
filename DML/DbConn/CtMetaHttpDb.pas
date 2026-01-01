@@ -200,6 +200,25 @@ begin
         Result := 'Error: '+E.Message;
     end;
     Exit;
+  end;          
+  if ACmd='CT_GET_HTTPJDBC_PUB_URL' then
+  begin
+    if Assigned(FCtJdbcConn) then
+      Result := FCtJdbcConn.ExecDbCmd(ACmd, AParam1, AParam2, '')
+    else
+    begin
+      Result := Self.Database;
+      if Self.Connected then
+        if FAccessToken <> '' then
+        begin
+          if Pos('?', Result)=0 then
+            Result := Result + '?'
+          else
+            Result := Result + '&';
+         Result := Result + 'eztoken=' + URLEncodeEx(FAccessToken);
+        end;
+    end;
+    Exit;
   end;
   if ACmd='CT_BEFORE_RECONNECT' then
   begin
@@ -211,7 +230,7 @@ begin
             Result := '_HANDLED';
             Exit;
           end;
-  end;                                                
+  end;
   Result:=inherited ExecCmd(ACmd, AParam1, AParam2);
   if LowerCase(ACmd)='commit' then
   begin
@@ -226,7 +245,9 @@ begin
     Result := '-1';
   end;
   if (Result = '') and Connected then
+  begin
     Result := ExecCustomDbCmd('ExecCmd:'+ ACmd,AParam1,AParam2, '');
+  end;
 end;
 
 function TCtMetaHttpDb.OpenTable(ASql, op: string): TDataSet;   

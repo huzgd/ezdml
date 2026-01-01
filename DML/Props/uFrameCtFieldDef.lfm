@@ -14,9 +14,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
     Height = 920
     Top = 8
     Width = 604
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight, akBottom]
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
     OnMouseUp = PageControl1MouseUp
@@ -30,7 +30,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
         Top = 0
         Width = 596
         HorzScrollBar.Page = 382
-        VertScrollBar.Page = 629
+        VertScrollBar.Page = 660
         VertScrollBar.Tracking = True
         Align = alClient
         ClientHeight = 886
@@ -348,7 +348,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
         object Label41: TLabel
           Left = 112
           Height = 17
-          Top = 612
+          Top = 643
           Width = 12
           Caption = '   '
           ParentColor = False
@@ -356,18 +356,18 @@ object FrameCtFieldDef: TFrameCtFieldDef
         object memoDBCheck: TMemo
           Left = 112
           Height = 74
-          Top = 394
+          Top = 425
           Width = 466
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
-          TabOrder = 14
+          TabOrder = 15
         end
         object Label17: TLabel
           Left = 8
           Height = 17
           Hint = 'curField.DBCheck'
-          Top = 392
+          Top = 423
           Width = 35
           Caption = 'Check'
           ParentColor = False
@@ -414,7 +414,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Left = 8
           Height = 17
           Hint = 'curField.designNotes'
-          Top = 472
+          Top = 503
           Width = 76
           Caption = 'Design notes'
           ParentColor = False
@@ -424,29 +424,29 @@ object FrameCtFieldDef: TFrameCtFieldDef
         object memoDesignNotes: TMemo
           Left = 111
           Height = 74
-          Top = 474
+          Top = 505
           Width = 466
           Anchors = [akTop, akLeft, akRight]
           OnExit = edtNameExit
           ScrollBars = ssVertical
-          TabOrder = 15
+          TabOrder = 16
         end
         object ckbIsFactMeasure: TCheckBox
           Left = 112
           Height = 21
           Hint = 'curField.isFactMeasure'
-          Top = 588
+          Top = 619
           Width = 112
           Caption = 'Is fact-measure'
           OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 17
+          TabOrder = 18
         end
         object combFieldWeight: TComboBox
           Left = 112
           Height = 25
-          Top = 556
+          Top = 587
           Width = 140
           DropDownCount = 32
           ItemHeight = 17
@@ -460,15 +460,35 @@ object FrameCtFieldDef: TFrameCtFieldDef
           OnChange = combEditorChange
           OnCloseUp = edtNameExit
           OnExit = edtNameExit
-          TabOrder = 16
+          TabOrder = 17
         end
         object Label60: TLabel
           Left = 8
           Height = 17
           Hint = 'curField.fieldWeight'
-          Top = 556
+          Top = 587
           Width = 69
           Caption = 'Field weight'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object edtSQLExpression: TEdit
+          Left = 112
+          Height = 25
+          Top = 394
+          Width = 466
+          Anchors = [akTop, akLeft, akRight]
+          OnExit = edtNameExit
+          TabOrder = 14
+        end
+        object Label50: TLabel
+          Left = 8
+          Height = 17
+          Hint = 'curField.SQLExpression'
+          Top = 394
+          Width = 90
+          Caption = 'SQL expression'
           ParentColor = False
           ParentShowHint = False
           ShowHint = True

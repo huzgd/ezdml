@@ -127,6 +127,8 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MNTabs_UILogic: TMenuItem;
+    MNTabs_BuzLogic: TMenuItem;
     MNAI_GenPhyNames: TMenuItem;
     MNTabs_ViewSQL: TMenuItem;
     MNTabs_ListSQL: TMenuItem;
@@ -312,12 +314,9 @@ type
     procedure MNTabs_CustClick(Sender: TObject);
     procedure MNTabs_DataClick(Sender: TObject);
     procedure MNTabs_GenClick(Sender: TObject);
-    procedure MNTabs_ListSQLClick(Sender: TObject);
     procedure MNTabs_RelationsClick(Sender: TObject);
-    procedure MNTabs_ScRulesClick(Sender: TObject);
     procedure MNTabs_SettingsClick(Sender: TObject);
     procedure MNTabs_UIDesignClick(Sender: TObject);
-    procedure MNTabs_ViewSQLClick(Sender: TObject);
     procedure MN_OpenTemplFolderClick(Sender: TObject);
     procedure PageControlTbPropChange(Sender: TObject);
     procedure PageControlTbPropContextPopup(Sender: TObject; MousePos: TPoint;
@@ -711,6 +710,21 @@ begin
     TabSheetData.Caption := lbListSql.Caption
   else if G_TbPropDataSqlType='ViewSQL' then
     TabSheetData.Caption := lbViewSQL.Caption;
+
+  if G_TbPropScRuleType <> '' then
+  begin
+    if ATable=nil then
+      G_TbPropScRuleType := ''
+    else if (G_TbPropScRuleType='BusinessLogic') and (Trim(ATable.BusinessLogic)='') then
+      G_TbPropScRuleType := ''
+    else if (G_TbPropScRuleType='UILogic') and (Trim(ATable.UILogic)='') then
+      G_TbPropScRuleType := '';
+  end;   
+  if G_TbPropScRuleType='BusinessLogic' then
+    TabSheetScRules.Caption := lbBuzLogic.Caption
+  else if G_TbPropScRuleType='UILogic' then
+    TabSheetScRules.Caption := lbUILogic.Caption;
+
   if FTabInitTick <> G_TbPropTabInitTick then
     InitDmlScriptPages;
   if G_CustomPropUICaption <> '' then
@@ -1948,9 +1962,7 @@ begin
                    
   {$ifndef EZDML_LITE}
     if FScRuleEditor<>nil then
-    begin
       FScRuleEditor.Tag := 1;
-    end;
   {$endif}
   finally
     FIniting := False;
@@ -2831,7 +2843,7 @@ var
 begin
   if FCtMetaTable = nil then
     Exit;
-  if prop = 'table_script_rules' then
+  if prop = 'ScriptRules' then
   begin
     if Trim(memoScriptRules.Lines.Text) <> Trim(Value) then
     begin
@@ -2840,7 +2852,28 @@ begin
       DoTablePropsChanged(FCtMetaTable);
     end;
     Exit;
+  end;           
+  if prop = 'Table.UILogic' then
+  begin
+    if Trim(MemoUILogic.Lines.Text) <> Trim(Value) then
+    begin
+      MemoUILogic.Lines.Text := Value;
+      FCtMetaTable.UILogic := Value;
+      DoTablePropsChanged(FCtMetaTable);
+    end;
+    Exit;
   end;
+  if prop = 'Table.BusinessLogic' then
+  begin
+    if Trim(memoBusinessLogic.Lines.Text) <> Trim(Value) then
+    begin
+      memoBusinessLogic.Lines.Text := Value;
+      FCtMetaTable.BusinessLogic := Value;
+      DoTablePropsChanged(FCtMetaTable);
+    end;
+    Exit;
+  end;
+
   fd := FCtMetaTable.MetaFields.FieldByName(Field);
   if fd = nil then
     fd := FCtMetaTable.MetaFields.FieldByLabelName(Field);
@@ -3538,7 +3571,10 @@ begin
   if tab = TabSheetAdvanced then
     G_EnableAdvTbProp := True
   else if tab = TabSheetScRules then
-    G_EnableScRulesProp := True
+  begin
+    G_EnableScRulesProp := True;
+    TabSheetScRules.Tag := 1;
+  end
   else if tab = TabSheetUI then
     G_EnableTbPropUIDesign := True
   else if tab = TabSheetCodeGen then
@@ -3604,6 +3640,7 @@ begin
     ini.WriteBool('Options', 'EnableTbPropRelations', G_EnableTbPropRelations);
     ini.WriteBool('Options', 'EnableTbPropData', G_EnableTbPropData);      
     ini.WriteString('Options', 'TbPropDataSqlType', G_TbPropDataSqlType);
+    ini.WriteString('Options', 'TbPropScRuleType', G_TbPropScRuleType);
     ini.WriteBool('Options', 'EnableTbPropUIDesign', G_EnableTbPropUIDesign);
   finally
     ini.Free;
@@ -4373,20 +4410,35 @@ begin
     FScRuleEditor.Align := alClient;     
     TFrameScRuleIDE(FScRuleEditor).Proc_OnUIPropChanged := _OnUIPropChanged;
 
-    if FCtMetaTable <> nil then
-      TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, 'ScriptRules', FCtMetaTable.ScriptRules, Self.FReadOnlyMode)
-    else
-      TFrameScRuleIDE(FScRuleEditor).InitTb(nil, 'ScriptRules', '', Self.FReadOnlyMode);
-  end
-  else if FScRuleEditor.Tag=1 then
-  begin
-    FScRuleEditor.Tag := 0;
-
-    if FCtMetaTable <> nil then
-      TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, 'ScriptRules', FCtMetaTable.ScriptRules, Self.FReadOnlyMode)
-    else
-      TFrameScRuleIDE(FScRuleEditor).InitTb(nil, 'ScriptRules', '', Self.FReadOnlyMode);
+    FScRuleEditor.Tag := 1;
   end;
+
+  if FScRuleEditor.Tag<>1 then
+    Exit;
+  FScRuleEditor.Tag := 0; 
+  if FCtMetaTable = nil then
+  begin                                  
+    TabSheetScRules.Caption := lbScriptRules.Caption;
+    TFrameScRuleIDE(FScRuleEditor).InitTb(nil, 'ScriptRules', '', True);
+    Exit;
+  end;
+
+  if (G_TbPropScRuleType = 'ScriptRules') or (G_TbPropScRuleType='') then
+  begin                  
+    TabSheetScRules.Caption := lbScriptRules.Caption;
+    TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, 'ScriptRules', FCtMetaTable.ScriptRules, Self.FReadOnlyMode);
+  end
+  else if (G_TbPropScRuleType = 'UILogic') then
+  begin                          
+    TabSheetScRules.Caption := lbUILogic.Caption;
+    TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, 'Table.UILogic', FCtMetaTable.UILogic, Self.FReadOnlyMode);
+  end     
+  else if (G_TbPropScRuleType = 'BusinessLogic') then
+  begin                              
+    TabSheetScRules.Caption := lbBuzLogic.Caption;
+    TFrameScRuleIDE(FScRuleEditor).InitTb(FCtMetaTable, 'Table.BusinessLogic', FCtMetaTable.BusinessLogic, Self.FReadOnlyMode);
+  end;
+
   {$else}
   raise Exception.Create(srEzdmlLiteNotSupportFun);
   {$endif}
@@ -5404,25 +5456,10 @@ begin
   GotoTab(TabSheetCodeGen);
 end;
 
-procedure TFrameCtTableProp.MNTabs_ListSQLClick(Sender: TObject);
-begin
-  G_TbPropDataSqlType := 'ListSQL';   
-  if TabSheetData=PageControlTbProp.ActivePage then
-  begin
-    TabSheetData.OnShow(nil);
-    Exit;
-  end;
-  GotoTab(TabSheetData);
-end;
 
 procedure TFrameCtTableProp.MNTabs_RelationsClick(Sender: TObject);
 begin
   GotoTab(TabSheetRelations);
-end;
-
-procedure TFrameCtTableProp.MNTabs_ScRulesClick(Sender: TObject);
-begin
-  GotoTab(TabSheetScRules);
 end;
 
 procedure TFrameCtTableProp.MNTabs_SettingsClick(Sender: TObject);
@@ -5437,17 +5474,6 @@ begin
   {$else}
   raise Exception.Create(srEzdmlLiteNotSupportFun);
   {$endif}
-end;
-
-procedure TFrameCtTableProp.MNTabs_ViewSQLClick(Sender: TObject);
-begin
-  G_TbPropDataSqlType := 'ViewSQL';
-  if TabSheetData=PageControlTbProp.ActivePage then
-  begin
-    TabSheetData.OnShow(nil);
-    Exit;
-  end;
-  GotoTab(TabSheetData);
 end;
 
 procedure TFrameCtTableProp.MN_OpenTemplFolderClick(Sender: TObject);
@@ -5724,14 +5750,27 @@ procedure TFrameCtTableProp.sbtnBuzLogicEditorClick(Sender: TObject);
 var
   S: String;
 begin
-  {$ifndef EZDML_LITE}
-  S := ScRuleEdit(FCtMetaTable, lbBuzLogic.Caption, 'Table.BusinessLogic', memoBusinessLogic.Lines.Text,'', Self.FReadOnlyMode);
-  if not FReadOnlyMode then
-    if Trim(S) <> Trim(memoBusinessLogic.Lines.Text) then
-    begin
-      memoBusinessLogic.Lines.Text := S;
-      MemoTableCommentExit(memoBusinessLogic);
-    end;
+  {$ifndef EZDML_LITE}     
+  if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+  begin
+    S := ScRuleEdit(FCtMetaTable, lbBuzLogic.Caption, 'Table.BusinessLogic', memoBusinessLogic.Lines.Text,'', Self.FReadOnlyMode);
+    if not FReadOnlyMode then
+      if Trim(S) <> Trim(memoBusinessLogic.Lines.Text) then
+      begin
+        memoBusinessLogic.Lines.Text := S;
+        MemoTableCommentExit(memoBusinessLogic);
+      end;
+  end;
+
+  G_TbPropScRuleType := 'BusinessLogic'; 
+  if FScRuleEditor<>nil then
+    FScRuleEditor.Tag := 1;
+  if TabSheetScRules=PageControlTbProp.ActivePage then
+  begin
+    TabSheetScRules.OnShow(nil);
+    Exit;
+  end;
+  GotoTab(TabSheetScRules);
   {$else}
   raise Exception.Create(srEzdmlLiteNotSupportFun);
   {$endif}
@@ -5755,8 +5794,34 @@ begin
 end;
 
 procedure TFrameCtTableProp.sbtnScRuleEditorClick(Sender: TObject);
+var
+  S: String;
 begin
+  {$ifndef EZDML_LITE}
+  if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+  begin
+    S := ScRuleEdit(FCtMetaTable, lbScriptRules.Caption, 'Table.ScriptRule', memoScriptRules.Lines.Text,'', Self.FReadOnlyMode);
+    if not FReadOnlyMode then
+      if Trim(S) <> Trim(memoScriptRules.Lines.Text) then
+      begin
+        memoScriptRules.Lines.Text := S;
+        MemoTableCommentExit(memoScriptRules);
+      end;
+    Exit;
+  end;
+
+  G_TbPropScRuleType := '';   
+  if FScRuleEditor<>nil then
+    FScRuleEditor.Tag := 1;
+  if TabSheetScRules=PageControlTbProp.ActivePage then
+  begin
+    TabSheetScRules.OnShow(nil);
+    Exit;
+  end;
   GotoTab(TabSheetScRules);
+  {$else}  
+  raise Exception.Create(srEzdmlLiteNotSupportFun);
+  {$endif}
 end;
 
 procedure TFrameCtTableProp.sbtnTbJsonClick(Sender: TObject);
@@ -5807,13 +5872,27 @@ var
   S: String;
 begin
   {$ifndef EZDML_LITE}
-  S := ScRuleEdit(FCtMetaTable, lbUILogic.Caption, 'Table.UILogic', MemoUILogic.Lines.Text,'', Self.FReadOnlyMode);
-  if not FReadOnlyMode then
-    if Trim(S) <> Trim(MemoUILogic.Lines.Text) then
-    begin
-      MemoUILogic.Lines.Text := S;
-      MemoTableCommentExit(MemoUILogic);
-    end;
+  if (GetKeyState(VK_SHIFT) and $80) <> 0 then
+  begin
+    S := ScRuleEdit(FCtMetaTable, lbUILogic.Caption, 'Table.UILogic', MemoUILogic.Lines.Text,'', Self.FReadOnlyMode);
+    if not FReadOnlyMode then
+      if Trim(S) <> Trim(MemoUILogic.Lines.Text) then
+      begin
+        MemoUILogic.Lines.Text := S;
+        MemoTableCommentExit(MemoUILogic);
+      end;
+    Exit;
+  end;
+
+  G_TbPropScRuleType := 'UILogic'; 
+  if FScRuleEditor<>nil then
+    FScRuleEditor.Tag := 1;
+  if TabSheetScRules=PageControlTbProp.ActivePage then
+  begin
+    TabSheetScRules.OnShow(nil);
+    Exit;
+  end;
+  GotoTab(TabSheetScRules);
   {$else}
   raise Exception.Create(srEzdmlLiteNotSupportFun);
   {$endif}
