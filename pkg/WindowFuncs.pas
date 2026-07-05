@@ -77,6 +77,9 @@ function RemoveCompStr(const Strsrc: string; const sCompS, sCompE: string;
 function TrimByStr(const src, trs: string): string;  
 function LastPos(SubStr, S: string): integer;
 function StrEndsWith(s, es: string): Boolean;
+                                             
+function IsDivStr(str: String): boolean;
+function IsDivChar(ch: Char): boolean;
 
 procedure OleVariantToStream(const AVariant: olevariant; Stream: TStream);
 procedure StreamToOleVariant(Stream: TStream; var AVariant: olevariant);
@@ -1423,6 +1426,26 @@ begin
     Result := False;
 end;
 
+function IsDivStr(str: String): boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I:=Length(str) downto 1 do
+    if IsDivChar(str[I]) then
+    begin
+      Result := True;
+      Exit;
+    end;
+end;
+
+function IsDivChar(ch: Char): boolean;
+const
+  sDivChars='`~!@#$%^&*()-=_+{}[]:"|;''\<>?,./ '#13#10#9;
+begin
+  Result := Pos(ch, sDivChars)>0;
+end;
+
 procedure StreamToVariant(Stream: TStream; var AVariant: variant);
 var
   p: PChar;
@@ -1517,6 +1540,7 @@ begin
     Exit;
   G_CheckAbortTk := tk;
 
+{$IFDEF Windows}
   Application.MainForm.Enabled := False;
   try
     Application.ProcessMessages;
@@ -1524,6 +1548,9 @@ begin
   finally
     Application.MainForm.Enabled := True;
   end;
+{$ELSE}
+  ks := GetKeyState(VK_ESCAPE);
+{$ENDIF}
 
   if (ks and $80) <> 0 then
   begin

@@ -7,11 +7,11 @@ object frmSettings: TfrmSettings
   Caption = 'Settings'
   ClientHeight = 687
   ClientWidth = 544
-  OnCreate = FormCreate
-  OnShow = FormShow
   ParentFont = True
   Position = poMainFormCenter
-  LCLVersion = '2.0.12.0'
+  LCLVersion = '4.8.0.0'
+  OnCreate = FormCreate
+  OnShow = FormShow
   object Panel1: TPanel
     Left = 0
     Height = 36
@@ -188,7 +188,7 @@ object frmSettings: TfrmSettings
             Top = 80
             Width = 480
             Anchors = [akTop, akLeft, akRight]
-            Caption = 'Usually, when current opened file is modified, the system will save it to temporary directory at specified intervals. You can find these files by choose "File|Show Temporary File" from main menu.'#13#10'Also, when closing the program, EZDML may save current file to temporary folder, and try to load it from temporary folder when opening, just like that it''s never been closed before.'
+            Caption = 'Usually, when current opened file is modified, the system will save it to temporary directory at specified intervals. You can find and restore these files by choosing "File|History Versions" from the main menu.'#13#10'Also, when closing the program, EZDML may save current file to temporary folder, and try to load it from temporary folder when opening, just like that it''s never been closed before.'
             ParentColor = False
             WordWrap = True
           end
@@ -270,8 +270,8 @@ object frmSettings: TfrmSettings
             Top = 40
             Width = 66
             Caption = 'Custom'
-            OnChange = ckbEnableCustomPropUIChange
             TabOrder = 5
+            OnChange = ckbEnableCustomPropUIChange
           end
           object ckbEnableTbPropUIDesign: TCheckBox
             Left = 24
@@ -279,8 +279,8 @@ object frmSettings: TfrmSettings
             Top = 8
             Width = 79
             Caption = 'UI Design'
-            OnChange = ckbEnableCustomPropUIChange
             TabOrder = 0
+            OnChange = ckbEnableCustomPropUIChange
           end
           object ckbEnableAdvTbProp: TCheckBox
             Left = 24
@@ -288,8 +288,8 @@ object frmSettings: TfrmSettings
             Top = 40
             Width = 79
             Caption = 'Advanced'
-            OnChange = ckbEnableCustomPropUIChange
             TabOrder = 4
+            OnChange = ckbEnableCustomPropUIChange
           end
           object ckbEnableTbPropData: TCheckBox
             Left = 388
@@ -297,8 +297,8 @@ object frmSettings: TfrmSettings
             Top = 8
             Width = 76
             Caption = 'Data SQL'
-            OnChange = ckbEnableCustomPropUIChange
             TabOrder = 3
+            OnChange = ckbEnableCustomPropUIChange
           end
           object ckbEnableTbPropGenerate: TCheckBox
             Left = 256
@@ -306,8 +306,8 @@ object frmSettings: TfrmSettings
             Top = 8
             Width = 75
             Caption = 'Generate'
-            OnChange = ckbEnableCustomPropUIChange
             TabOrder = 2
+            OnChange = ckbEnableCustomPropUIChange
           end
           object edtCustomPropUICaption: TEdit
             Left = 232
@@ -323,8 +323,8 @@ object frmSettings: TfrmSettings
             Top = 8
             Width = 75
             Caption = 'Relations'
-            OnChange = ckbEnableCustomPropUIChange
             TabOrder = 1
+            OnChange = ckbEnableCustomPropUIChange
           end
         end
       end
@@ -849,8 +849,8 @@ object frmSettings: TfrmSettings
               Top = 8
               Width = 207
               ItemHeight = 0
-              OnClick = ListBoxCustFldTpsClick
               TabOrder = 0
+              OnClick = ListBoxCustFldTpsClick
             end
             object lbCustFldtpName: TLabel
               Left = 248
@@ -866,10 +866,10 @@ object frmSettings: TfrmSettings
               Hint = 'example: MyStr or MyTestType'
               Top = 8
               Width = 120
-              OnChange = edtCustFldtpNameChange
               ParentShowHint = False
               ShowHint = True
               TabOrder = 1
+              OnChange = edtCustFldtpNameChange
             end
             object edtCustFldtpPhyType: TEdit
               Left = 352
@@ -877,10 +877,10 @@ object frmSettings: TfrmSettings
               Hint = 'example: NVARCHAR or CHAR(500)  (default lengths can be specified)'
               Top = 80
               Width = 120
-              OnChange = edtCustFldtpNameChange
               ParentShowHint = False
               ShowHint = True
               TabOrder = 2
+              OnChange = edtCustFldtpNameChange
             end
             object lbCustFldtpPhyType: TLabel
               Left = 248
@@ -896,8 +896,8 @@ object frmSettings: TfrmSettings
               Top = 146
               Width = 49
               Caption = '+'
-              OnClick = btnCustFldtpNewClick
               TabOrder = 3
+              OnClick = btnCustFldtpNewClick
             end
             object btnCustFldtpRemove: TButton
               Left = 313
@@ -905,8 +905,8 @@ object frmSettings: TfrmSettings
               Top = 146
               Width = 49
               Caption = '-'
-              OnClick = btnCustFldtpRemoveClick
               TabOrder = 4
+              OnClick = btnCustFldtpRemoveClick
             end
             object lbCustFldtpTip: TLabel
               Left = 19
@@ -980,10 +980,10 @@ object frmSettings: TfrmSettings
               Hint = 'Will convert to clob/text if exceed. Default: 4000 for Oracle (clob), 65532 for MySQL (longtext), 8000 for SQLServer/PostgreSQL/SQLite (text)'
               Top = 312
               Width = 120
-              OnChange = edtCustFldtpNameChange
               ParentShowHint = False
               ShowHint = True
               TabOrder = 2
+              OnChange = edtCustFldtpNameChange
             end
           end
           object Bevel10: TBevel
@@ -1018,8 +1018,8 @@ object frmSettings: TfrmSettings
               Top = 8
               Width = 207
               ItemHeight = 0
-              OnClick = ListBoxTpNameReplacesClick
               TabOrder = 0
+              OnClick = ListBoxTpNameReplacesClick
             end
             object lbTpnRepPattern: TLabel
               Left = 248
@@ -1035,10 +1035,10 @@ object frmSettings: TfrmSettings
               Hint = 'for example: VARCHAR2, VARCHAR2(4000), %RAW, %TEXT%  (wildcard % can be used on left or right side)'
               Top = 8
               Width = 120
-              OnChange = edtTpnRepPatternChange
               ParentShowHint = False
               ShowHint = True
               TabOrder = 1
+              OnChange = edtTpnRepPatternChange
             end
             object edtTpnReplacement: TEdit
               Left = 352
@@ -1046,10 +1046,10 @@ object frmSettings: TfrmSettings
               Hint = 'for example: NVARCHAR2, CHAR(200), BLOB, NCLOB'
               Top = 48
               Width = 120
-              OnChange = edtTpnRepPatternChange
               ParentShowHint = False
               ShowHint = True
               TabOrder = 2
+              OnChange = edtTpnRepPatternChange
             end
             object lbTpnReplacement: TLabel
               Left = 248
@@ -1065,8 +1065,8 @@ object frmSettings: TfrmSettings
               Top = 146
               Width = 49
               Caption = '+'
-              OnClick = btnTpnRepNewClick
               TabOrder = 3
+              OnClick = btnTpnRepNewClick
             end
             object btnTpnRepRemove: TButton
               Left = 313
@@ -1074,8 +1074,8 @@ object frmSettings: TfrmSettings
               Top = 146
               Width = 49
               Caption = '-'
-              OnClick = btnTpnRepRemoveClick
               TabOrder = 4
+              OnClick = btnTpnRepRemoveClick
             end
             object lbTpnReplaceTip: TLabel
               Left = 19
@@ -1122,8 +1122,8 @@ object frmSettings: TfrmSettings
               Top = 8
               Width = 207
               ItemHeight = 0
-              OnClick = ListBoxFDGenRulesClick
               TabOrder = 0
+              OnClick = ListBoxFDGenRulesClick
             end
             object lbTpnRepPattern1: TLabel
               Left = 248
@@ -1139,10 +1139,10 @@ object frmSettings: TfrmSettings
               Hint = 'for example: person_name'
               Top = 8
               Width = 120
-              OnChange = edtFDGenRuleChange
               ParentShowHint = False
               ShowHint = True
               TabOrder = 1
+              OnChange = edtFDGenRuleChange
             end
             object edtFDGenNames: TEdit
               Left = 352
@@ -1150,10 +1150,10 @@ object frmSettings: TfrmSettings
               Hint = 'for example: CreatorID, ModifierID'
               Top = 48
               Width = 120
-              OnChange = edtFDGenRuleChange
               ParentShowHint = False
               ShowHint = True
               TabOrder = 2
+              OnChange = edtFDGenRuleChange
             end
             object lbTpnReplacement1: TLabel
               Left = 248
@@ -1169,8 +1169,8 @@ object frmSettings: TfrmSettings
               Top = 146
               Width = 49
               Caption = '+'
-              OnClick = btnFDGenNewClick
               TabOrder = 3
+              OnClick = btnFDGenNewClick
             end
             object btnFDGenRemove: TButton
               Left = 313
@@ -1178,8 +1178,8 @@ object frmSettings: TfrmSettings
               Top = 146
               Width = 49
               Caption = '-'
-              OnClick = btnFDGenRemoveClick
               TabOrder = 4
+              OnClick = btnFDGenRemoveClick
             end
             object lbFDGenTip: TLabel
               Left = 19
@@ -1251,8 +1251,8 @@ object frmSettings: TfrmSettings
             Width = 51
             Anchors = [akTop, akRight]
             Caption = '..'
-            OnClick = btnOracleLibBrsClick
             TabOrder = 1
+            OnClick = btnOracleLibBrsClick
           end
           object lbNLSLang: TLabel
             Left = 24
@@ -1318,8 +1318,8 @@ object frmSettings: TfrmSettings
             Width = 51
             Anchors = [akTop, akRight]
             Caption = '..'
-            OnClick = btnMysqlLibBrsClick
             TabOrder = 1
+            OnClick = btnMysqlLibBrsClick
           end
         end
         object Bevel4: TBevel
@@ -1371,8 +1371,8 @@ object frmSettings: TfrmSettings
             Width = 51
             Anchors = [akTop, akRight]
             Caption = '..'
-            OnClick = btnSqlServerLibBrsClick
             TabOrder = 1
+            OnClick = btnSqlServerLibBrsClick
           end
         end
         object Bevel8: TBevel
@@ -1416,8 +1416,8 @@ object frmSettings: TfrmSettings
             Width = 51
             Anchors = [akTop, akRight]
             Caption = '..'
-            OnClick = btnSqliteLibBrsClick
             TabOrder = 1
+            OnClick = btnSqliteLibBrsClick
           end
         end
         object lbDBConnNote: TLabel
@@ -1479,8 +1479,8 @@ object frmSettings: TfrmSettings
             Width = 51
             Anchors = [akTop, akRight]
             Caption = '..'
-            OnClick = btnPostgreLibBrsClick
             TabOrder = 1
+            OnClick = btnPostgreLibBrsClick
           end
         end
         object Bevel17: TBevel
@@ -1553,8 +1553,8 @@ object frmSettings: TfrmSettings
             Top = 47
             Width = 96
             Caption = 'Auto commit'
-            OnChange = ckbAutoCommitChange
             TabOrder = 2
+            OnChange = ckbAutoCommitChange
           end
         end
       end
@@ -1725,7 +1725,7 @@ object frmSettings: TfrmSettings
   end
   object OpenDialogDbLib: TOpenDialog
     Options = [ofFileMustExist, ofEnableSizing, ofViewDetail]
-    left = 344
-    top = 484
+    Left = 344
+    Top = 484
   end
 end

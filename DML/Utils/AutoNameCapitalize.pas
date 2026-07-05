@@ -266,7 +266,7 @@ begin
   begin                             
     Result := CheckAllUpper(Result);
     Result := AutoCapProc(Result,'ChnToPY');
-    if IsReservedKeyworkd(Result) then
+    if IsReservedKeyword(Result) then
       Result := 'Ez_'+Result;
     Result := AutoCapProc(Result,'UnderlineToCamelCase');
     Result := AutoCapProc(Result,'Capitalize');
@@ -299,7 +299,7 @@ begin
       Result := Copy(Result, Length(prfH)+1, Length(result));
     Result := CheckAllUpper(Result);
     Result := AutoCapProc(Result,'ChnToPY');    
-    if IsReservedKeyworkd(Result) then
+    if IsReservedKeyword(Result) then
       Result := 'Ez_'+Result;
     Result := AutoCapProc(Result,'UnderlineToCamelCase');
     Result := AutoCapProc(Result,'UnCapitalize'); 
@@ -655,7 +655,7 @@ begin
   if FileExists(S) then
     FKeywordNs.LoadFromFile(S)
   else
-    Application.MessageBox(PChar('Dict file not found: ' + S), PChar(Application.Title), MB_OK or MB_ICONWARNING);
+    ;//Application.MessageBox(PChar('Dict file not found: ' + S), PChar(Application.Title), MB_OK or MB_ICONWARNING);
   FKeywordNs.AddStrings(FMyKeywordNs);
   for I := 0 to FKeywordNs.Count - 1 do
     FKeywordNs[I] := LowerCase(FKeywordNs[I]);

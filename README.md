@@ -2,7 +2,7 @@
 
 #### Description
 
-EZDML Lite is a small free tool which helps you to create data models quickly. It's simple and fast, with EZDML you can create tables within few seconds.
+EZDML Lite is a small free tool which helps you to create data models quickly. It's simple and fast, supports AI-assisted design, with EZDML you can create tables within few seconds.
 
 ![ezdml_en](doc/images/ezdml_lite_en.png)
 
@@ -42,7 +42,7 @@ https://github.com/huzgd/ezdml
 #### Notes
 
 1.  The repository already contains all the required source code, which can be compiled and run on Windows, Linux, and MacOS
-2.  The core classes and data format of EZDML Lite are completely consistent with the official version, but do not include some extended advanced features such as pascal/java script engine, user interface design/preview, Excel import, Pdm import, ChatGPT generation, batch code generation, and test data generation. Some details of data processing differ from the official version
+2.  The core classes and data format of EZDML Lite are completely consistent with the official version, but do not include some extended advanced features such as pascal/java script engine, user interface design/preview, Excel import, Pdm import, ChatGPT generation, MCP server, batch code generation, and test data generation. Some details of data processing differ from the official version
 3.  No installation program provided. It is recommended to make package base on the official green version (rename and replace the EZDML executable), which locations here: https://gitee.com/huzgd/ezdml_green
 
 #### Download EZDML
@@ -397,4 +397,10 @@ Add database built-in models to support multi person realtime-collaboration. Bug
 
 2026-01-01 V3.72
 Add SQL expression for fields-select, WEB-pub/restart for Ruoyi_ezdml_pro. Bugs fixed.
+
+2026-01-25 V3.73
+PostgreSQL int field import problem. Bugs fixed.
+
+2026-06-27 V3.74
+Run as MCP Server for AI agents. Bugs fixed.
 

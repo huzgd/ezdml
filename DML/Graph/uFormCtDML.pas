@@ -1842,10 +1842,10 @@ begin
       Init('DML_SCRIPT', tb, AOutput, nil);
       Exec('DML_SCRIPT', FileTxt.Text);
       AOutput.SaveToFile(tfn);
-    finally
+    finally   
+      Free;
       FileTxt.Free;
       AOutput.Free;
-      Free;
     end;
 
   if Application.MessageBox(PChar(srConfirmOpenXlsAfterExport),

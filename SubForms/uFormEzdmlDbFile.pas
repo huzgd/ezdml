@@ -1600,7 +1600,12 @@ begin
       //新锁，需要锁数据库
       ds := FCtMetaDatabase.OpenTable('select tableGuid, Tb_CurLocker, Tb_LockTime, ModifyDate from ezdml_meta_table where tableGuid='''+sGuid+''' ', '[PK=tableGuid]');
       if ds.EOF then
-        raise Exception.Create('ezdml_meta_table EOF for '+sGuid);
+      begin
+        //数据库中没有，说明是新表，不需要锁
+        Result := False;
+        Exit;
+        //raise Exception.Create('ezdml_meta_table EOF for '+sGuid);
+      end;
       try
         mstr := ds.FieldByName('Tb_CurLocker').AsString;
         if GetLockState(mstr) = 2 then //0无锁 1我锁 2他人锁

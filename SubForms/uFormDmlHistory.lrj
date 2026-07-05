@@ -1,0 +1,9 @@
+{"version":1,"strings":[
+{"hash":133480755,"name":"tfrmdmlhistory.caption","sourcebytes":[72,105,115,116,111,114,121,32,86,101,114,115,105,111,110,115],"value":"History Versions"},
+{"hash":158481562,"name":"tfrmdmlhistory.lbprompt.caption","sourcebytes":[83,101,108,101,99,116,32,97,32,104,105,115,116,111,114,121,32,118,101,114,115,105,111,110,32,116,111,32,114,101,115,116,111,114,101,58],"value":"Select a history version to restore:"},
+{"hash":208655893,"name":"tfrmdmlhistory.listviewversions.columns[0].caption","sourcebytes":[66,97,99,107,117,112,32,116,105,109,101],"value":"Backup time"},
+{"hash":368901,"name":"tfrmdmlhistory.listviewversions.columns[1].caption","sourcebytes":[83,105,122,101],"value":"Size"},
+{"hash":147502805,"name":"tfrmdmlhistory.btnrestore.caption","sourcebytes":[82,101,115,116,111,114,101],"value":"Restore"},
+{"hash":77089212,"name":"tfrmdmlhistory.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":102429538,"name":"tfrmdmlhistory.btnshowinexplorer.caption","sourcebytes":[83,104,111,119,32,105,110,32,69,120,112,108,111,114,101,114],"value":"Show in Explorer"}
+]}

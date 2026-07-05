@@ -2,9 +2,13 @@ unit CtMetaSqlsvrDb;
 
 interface
 
+{$IFDEF Windows}
+{$define USE_MSSQLCONN}
+{$ENDIF}
+
 uses
   LCLIntf, LCLType, LMessages, SysUtils, Variants, Classes, Graphics, Controls, ImgList,
-  IniFiles, CtMetaData, CtMetaTable, CtMetaFCLSqlDb, mssqlconn, odbcconn, DB, sqlDb;
+  IniFiles, CtMetaData, CtMetaTable, CtMetaFCLSqlDb, {$IFDEF USE_MSSQLCONN} mssqlconn, {$ENDIF} odbcconn, DB, sqlDb;
 
 type
 
@@ -69,9 +73,15 @@ begin
   end
   else
   begin
+    {$IFDEF USE_MSSQLCONN}
     Result := TMSSQLConnection.Create(nil);
     if Pos('[GSQL_FIELD_NULL]', FExtraOpt) = 0 then
       FExtraOpt := FExtraOpt + '[GSQL_FIELD_NULL]';
+    {$ELSE}               
+    FUseDriverType := 'JDBC';
+    Result := TEzJdbcSqlConnection.Create(nil);
+    TEzJdbcSqlConnection(Result).EzDbType := 'SQLSERVER';
+    {$ENDIF}
   end;
 end;
 

@@ -28,7 +28,7 @@ type
     procedure SetCurOut(AValue: TStrings); virtual;
     function GetStdOutPut: TStrings; virtual;
     procedure SetStdOutPut(const Value: TStrings); virtual;
-    procedure PrintVar(const AVal: variant); virtual;
+    procedure PrintVar(const AVal: variant; bNewLn: Boolean=False); virtual;
 
   published
   public
@@ -1315,7 +1315,7 @@ begin
   Result := AScript;
 end;
 
-procedure TDmlBaseScriptor.PrintVar(const AVal: variant);
+procedure TDmlBaseScriptor.PrintVar(const AVal: variant; bNewLn: Boolean);
 var
   s, V: string;
   I: integer;
@@ -1324,7 +1324,9 @@ begin
   if not VarIsNull(AVal) then
     s := VarToStr(AVal);
 
-  if CurOut.Count > 0 then
+  if bNewLn then 
+    CurOut.Add(S)
+  else if CurOut.Count > 0 then
   begin
     I := CurOut.Count - 1;
     V := CurOut.Strings[I] + S;
@@ -1365,10 +1367,10 @@ begin
       end;
       Init('DML_SCRIPT', Self.CurCtObj, Self.StdOutPut, nil);
       Exec('DML_SCRIPT', S);
-    finally
+    finally       
+      Free;
       if Assigned(FileTxt) then
         FileTxt.Free;
-      Free;
     end;
 end;
 

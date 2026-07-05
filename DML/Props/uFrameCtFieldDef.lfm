@@ -5,6 +5,7 @@ object FrameCtFieldDef: TFrameCtFieldDef
   Width = 622
   ClientHeight = 936
   ClientWidth = 622
+  LCLVersion = '4.8.0.0'
   TabOrder = 0
   TabStop = True
   DesignLeft = 463
@@ -183,9 +184,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           AutoSize = True
           Caption = '...'
           Visible = False
-          OnClick = sbtnSearchFieldsClick
           ShowHint = True
           ParentShowHint = False
+          OnClick = sbtnSearchFieldsClick
         end
         object edtDataLength: TEdit
           Left = 369
@@ -193,8 +194,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 200
           Width = 209
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 6
+          OnExit = edtNameExit
         end
         object combDataType: TComboBox
           Left = 112
@@ -203,9 +204,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Width = 140
           DropDownCount = 32
           ItemHeight = 17
-          OnChange = combDataTypeChange
           Style = csDropDownList
           TabOrder = 3
+          OnChange = combDataTypeChange
         end
         object combKeyFieldType: TComboBox
           Left = 112
@@ -214,9 +215,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Width = 140
           DropDownCount = 32
           ItemHeight = 17
-          OnChange = edtNameExit
           Style = csDropDownList
           TabOrder = 5
+          OnChange = edtNameExit
         end
         object memoMemo: TMemo
           Left = 112
@@ -224,9 +225,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 74
           Width = 466
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 2
+          OnExit = edtNameExit
         end
         object combIndexType: TComboBox
           Left = 112
@@ -235,9 +236,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Width = 140
           DropDownCount = 32
           ItemHeight = 17
-          OnChange = edtNameExit
           Style = csDropDownList
           TabOrder = 10
+          OnChange = edtNameExit
         end
         object edtDefaultValue: TEdit
           Left = 112
@@ -245,9 +246,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 232
           Width = 466
           Anchors = [akTop, akLeft, akRight]
+          TabOrder = 7
           OnChange = edtDefaultValueChange
           OnExit = edtNameExit
-          TabOrder = 7
         end
         object edtRelateTable: TComboBox
           Left = 112
@@ -257,10 +258,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 17
+          TabOrder = 12
           OnChange = edtRelateTableChange
           OnCloseUp = edtNameExit
           OnExit = edtNameExit
-          TabOrder = 12
         end
         object ckbNullable: TCheckBox
           Left = 112
@@ -269,10 +270,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 264
           Width = 70
           Caption = 'Nullable'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 8
+          OnClick = edtNameExit
         end
         object edtDisplayName: TEdit
           Left = 112
@@ -280,8 +281,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 44
           Width = 466
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 1
+          OnExit = edtNameExit
         end
         object edtName: TEdit
           Left = 112
@@ -289,8 +290,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 12
           Width = 466
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 0
+          OnExit = edtNameExit
         end
         object edtDataTypeName: TEdit
           Left = 369
@@ -298,8 +299,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 168
           Width = 209
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 4
+          OnExit = edtNameExit
         end
         object edtRelateField: TEdit
           Left = 112
@@ -307,8 +308,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 362
           Width = 440
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 13
+          OnExit = edtNameExit
         end
         object ckbAutoIncrement: TCheckBox
           Left = 272
@@ -317,10 +318,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 264
           Width = 110
           Caption = 'Auto increment'
-          OnClick = ckbAutoIncrementClick
           ParentShowHint = False
           ShowHint = True
           TabOrder = 9
+          OnClick = ckbAutoIncrementClick
         end
         object Label40: TLabel
           Left = 272
@@ -340,10 +341,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 302
           Width = 183
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 11
+          OnExit = edtNameExit
         end
         object Label41: TLabel
           Left = 112
@@ -359,9 +360,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 425
           Width = 466
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 15
+          OnExit = edtNameExit
         end
         object Label17: TLabel
           Left = 8
@@ -382,9 +383,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Width = 23
           Anchors = [akTop, akRight]
           Caption = '...'
-          OnClick = sbtnSelRelateFieldsClick
           ShowHint = True
           ParentShowHint = False
+          OnClick = sbtnSelRelateFieldsClick
         end
         object sbtnSelIndexFields: TSpeedButton
           Left = 554
@@ -394,9 +395,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Width = 23
           Anchors = [akTop, akRight]
           Caption = '...'
-          OnClick = sbtnSelIndexFieldsClick
           ShowHint = True
           ParentShowHint = False
+          OnClick = sbtnSelIndexFieldsClick
         end
         object sbtnShowRelTbInfo: TSpeedButton
           Left = 554
@@ -406,9 +407,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Width = 23
           Anchors = [akTop, akRight]
           Caption = '~'
-          OnClick = sbtnShowRelTbInfoClick
           ShowHint = True
           ParentShowHint = False
+          OnClick = sbtnShowRelTbInfoClick
         end
         object Label57: TLabel
           Left = 8
@@ -427,9 +428,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 505
           Width = 466
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 16
+          OnExit = edtNameExit
         end
         object ckbIsFactMeasure: TCheckBox
           Left = 112
@@ -438,10 +439,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 619
           Width = 112
           Caption = 'Is fact-measure'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 18
+          OnClick = edtNameExit
         end
         object combFieldWeight: TComboBox
           Left = 112
@@ -457,10 +458,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
             'Low'
             'Hidden'
           )
+          TabOrder = 17
           OnChange = combEditorChange
           OnCloseUp = edtNameExit
           OnExit = edtNameExit
-          TabOrder = 17
         end
         object Label60: TLabel
           Left = 8
@@ -479,8 +480,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 394
           Width = 466
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 14
+          OnExit = edtNameExit
         end
         object Label50: TLabel
           Left = 8
@@ -699,8 +700,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 160
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 14
+          OnExit = edtNameExit
         end
         object combDropDownMode: TComboBox
           Left = 112
@@ -713,9 +714,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
             'Editable'
             'Fixed'
           )
-          OnChange = edtNameExit
           Style = csDropDownList
           TabOrder = 26
+          OnChange = edtNameExit
         end
         object combMeasureUnit: TComboBox
           Left = 352
@@ -725,10 +726,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 17
+          TabOrder = 13
           OnChange = combEditorChange
           OnCloseUp = edtNameExit
           OnExit = edtNameExit
-          TabOrder = 13
         end
         object combEditorType: TComboBox
           Left = 112
@@ -737,18 +738,18 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Width = 145
           DropDownCount = 32
           ItemHeight = 17
+          TabOrder = 0
           OnChange = combEditorChange
           OnCloseUp = edtNameExit
           OnExit = edtNameExit
-          TabOrder = 0
         end
         object edtLabelText: TEdit
           Left = 112
           Height = 25
           Top = 132
           Width = 145
-          OnExit = edtNameExit
           TabOrder = 12
+          OnExit = edtNameExit
         end
         object ckbEditorReadOnly: TCheckBox
           Left = 112
@@ -757,10 +758,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 44
           Width = 78
           Caption = 'ReadOnly'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 2
+          OnClick = edtNameExit
         end
         object ckbEditorEnabled: TCheckBox
           Left = 240
@@ -769,10 +770,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 44
           Width = 69
           Caption = 'Enabled'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 3
+          OnClick = edtNameExit
         end
         object edtDisplayFormat: TEdit
           Left = 112
@@ -780,8 +781,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 544
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 31
+          OnExit = edtNameExit
         end
         object edtEditFormat: TEdit
           Left = 112
@@ -789,8 +790,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 572
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 32
+          OnExit = edtNameExit
         end
         object edtFontSize: TEdit
           Left = 352
@@ -798,8 +799,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 680
           Width = 227
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 35
+          OnExit = edtNameExit
         end
         object ckbFontStyleB: TCheckBox
           Left = 112
@@ -808,10 +809,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 705
           Width = 49
           Caption = 'Bold'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 36
+          OnClick = edtNameExit
         end
         object combVisibilty: TComboBox
           Left = 352
@@ -827,10 +828,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
             'Mid: grid and sheet'
             'Low: sheet only'
           )
+          TabOrder = 1
           OnChange = combEditorChange
           OnCloseUp = edtNameExit
           OnExit = edtNameExit
-          TabOrder = 1
         end
         object combTextAlign: TComboBox
           Left = 352
@@ -846,17 +847,17 @@ object FrameCtFieldDef: TFrameCtFieldDef
             'Center'
             'Right'
           )
-          OnChange = edtNameExit
           Style = csDropDownList
           TabOrder = 27
+          OnChange = edtNameExit
         end
         object edtColWidth: TEdit
           Left = 112
           Height = 25
           Top = 304
           Width = 145
-          OnExit = edtNameExit
           TabOrder = 17
+          OnExit = edtNameExit
         end
         object ckbSearchable: TCheckBox
           Left = 112
@@ -865,10 +866,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 68
           Width = 87
           Caption = 'Fast search'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 6
+          OnClick = edtNameExit
         end
         object edtMaxLength: TEdit
           Left = 352
@@ -876,8 +877,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 404
           Width = 227
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 25
+          OnExit = edtNameExit
         end
         object ckbQueryable: TCheckBox
           Left = 240
@@ -886,10 +887,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 68
           Width = 82
           Caption = 'Queryable'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 7
+          OnClick = edtNameExit
         end
         object Label42: TLabel
           Left = 112
@@ -906,10 +907,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 44
           Width = 76
           Caption = 'Is hidden'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 4
+          OnClick = edtNameExit
         end
         object Bevel5: TBevel
           Left = 8
@@ -925,8 +926,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 188
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 15
+          OnExit = edtNameExit
         end
         object Label44: TLabel
           Left = 8
@@ -946,10 +947,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 92
           Width = 88
           Caption = 'Hide on list'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 9
+          OnClick = edtNameExit
         end
         object ckbHideOnEdit: TCheckBox
           Left = 240
@@ -958,10 +959,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 92
           Width = 94
           Caption = 'Hide on edit'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 10
+          OnClick = edtNameExit
         end
         object ckbHideOnView: TCheckBox
           Left = 368
@@ -970,18 +971,18 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 92
           Width = 97
           Caption = 'Hide on view'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 11
+          OnClick = edtNameExit
         end
         object edtColGroup: TEdit
           Left = 112
           Height = 25
           Top = 332
           Width = 145
-          OnExit = edtNameExit
           TabOrder = 19
+          OnExit = edtNameExit
         end
         object Label45: TLabel
           Left = 8
@@ -999,8 +1000,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Height = 25
           Top = 404
           Width = 145
-          OnExit = edtNameExit
           TabOrder = 24
+          OnExit = edtNameExit
         end
         object Label46: TLabel
           Left = 8
@@ -1037,10 +1038,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
             'Left'
             'Right'
           )
-          OnChange = edtNameExit
-          OnExit = edtNameExit
           Style = csDropDownList
           TabOrder = 18
+          OnChange = edtNameExit
+          OnExit = edtNameExit
         end
         object ckbAutoMerge: TCheckBox
           Left = 112
@@ -1049,10 +1050,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 364
           Width = 91
           Caption = 'Auto merge'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 21
+          OnClick = edtNameExit
         end
         object ckbShowFilterBox: TCheckBox
           Left = 240
@@ -1061,10 +1062,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 364
           Width = 109
           Caption = 'Show filter box'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 22
+          OnClick = edtNameExit
         end
         object ckbColSortable: TCheckBox
           Left = 368
@@ -1073,10 +1074,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 364
           Width = 93
           Caption = 'Col sortable'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 23
+          OnClick = edtNameExit
         end
         object Bevel6: TBevel
           Left = 8
@@ -1102,8 +1103,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Height = 25
           Top = 460
           Width = 145
-          OnExit = edtNameExit
           TabOrder = 28
+          OnExit = edtNameExit
         end
         object Label49: TLabel
           Left = 272
@@ -1122,8 +1123,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 460
           Width = 227
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 29
+          OnExit = edtNameExit
         end
         object memoDropDownSql: TMemo
           Left = 112
@@ -1131,9 +1132,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 488
           Width = 449
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 30
+          OnExit = edtNameExit
         end
         object lbDropdownSQL: TLabel
           Cursor = crHandPoint
@@ -1167,9 +1168,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 757
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 39
+          OnExit = edtNameExit
         end
         object combAggregateFun: TComboBox
           Left = 352
@@ -1186,10 +1187,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
             'Min'
             'Count'
           )
+          TabOrder = 20
           OnChange = combEditorChange
           OnCloseUp = edtNameExit
           OnExit = edtNameExit
-          TabOrder = 20
         end
         object Label13: TLabel
           Left = 272
@@ -1208,10 +1209,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 216
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 16
           WordWrap = False
+          OnExit = edtNameExit
         end
         object Label27: TLabel
           Left = 8
@@ -1231,9 +1232,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Width = 145
           DropDownCount = 24
           ItemHeight = 17
+          TabOrder = 34
           OnDropDown = combFontNameDropDown
           OnExit = edtNameExit
-          TabOrder = 34
         end
         object colobForeColor: TColorBox
           Left = 112
@@ -1243,8 +1244,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Style = [cbStandardColors, cbIncludeDefault, cbCustomColor]
           DropDownCount = 32
           ItemHeight = 16
-          OnExit = edtNameExit
           TabOrder = 37
+          OnExit = edtNameExit
         end
         object colobBackColor: TColorBox
           Left = 352
@@ -1255,8 +1256,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Anchors = [akTop, akLeft, akRight]
           DropDownCount = 32
           ItemHeight = 16
-          OnExit = edtNameExit
           TabOrder = 38
+          OnExit = edtNameExit
         end
         object ckbExportable: TCheckBox
           Left = 368
@@ -1265,10 +1266,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 68
           Width = 85
           Caption = 'Exportable'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 8
+          OnClick = edtNameExit
         end
         object ckbDesensitised: TCheckBox
           Left = 467
@@ -1277,10 +1278,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 44
           Width = 95
           Caption = 'Desensitised'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 5
+          OnClick = edtNameExit
         end
         object lbParams: TLabel
           Left = 8
@@ -1299,9 +1300,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 616
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 33
+          OnExit = edtNameExit
         end
         object sbtnDropdownSqlEditor: TSpeedButton
           Left = 561
@@ -1447,8 +1448,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 396
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 11
+          OnExit = edtNameExit
         end
         object edtURL: TEdit
           Left = 112
@@ -1456,8 +1457,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 368
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 10
+          OnExit = edtNameExit
         end
         object edtFormula: TEdit
           Left = 112
@@ -1465,8 +1466,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 528
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 14
+          OnExit = edtNameExit
         end
         object memoFormulaCondition: TMemo
           Left = 112
@@ -1474,9 +1475,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 556
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 15
+          OnExit = edtNameExit
         end
         object MemoGraphicDesc: TMemo
           Left = 112
@@ -1484,9 +1485,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 804
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 19
+          OnExit = edtNameExit
         end
         object edtInitValue: TEdit
           Left = 112
@@ -1494,8 +1495,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 340
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 9
+          OnExit = edtNameExit
         end
         object combValueFormat: TComboBox
           Left = 112
@@ -1517,18 +1518,18 @@ object FrameCtFieldDef: TFrameCtFieldDef
             'TEL'
             'IDCARD'
           )
+          TabOrder = 3
           OnChange = combEditorChange
           OnCloseUp = edtNameExit
           OnExit = edtNameExit
-          TabOrder = 3
         end
         object edtValMin: TEdit
           Left = 112
           Height = 25
           Top = 252
           Width = 143
-          OnExit = edtNameExit
           TabOrder = 6
+          OnExit = edtNameExit
         end
         object edtValMax: TEdit
           Left = 352
@@ -1536,8 +1537,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 253
           Width = 226
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           TabOrder = 7
+          OnExit = edtNameExit
         end
         object memoExtraProps: TMemo
           Left = 112
@@ -1545,9 +1546,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 728
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 18
+          OnExit = edtNameExit
         end
         object Label43: TLabel
           Left = 111
@@ -1571,10 +1572,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 40
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 1
           WordWrap = False
+          OnExit = edtNameExit
         end
         object Label52: TLabel
           Left = 8
@@ -1594,10 +1595,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 228
           Width = 75
           Caption = 'Required'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 4
+          OnClick = edtNameExit
         end
         object ckbAutoTrim: TCheckBox
           Left = 272
@@ -1606,10 +1607,10 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 228
           Width = 76
           Caption = 'Auto trim'
-          OnClick = edtNameExit
           ParentShowHint = False
           ShowHint = True
           TabOrder = 5
+          OnClick = edtNameExit
         end
         object Label53: TLabel
           Left = 8
@@ -1659,9 +1660,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 620
           Width = 448
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 16
+          OnExit = edtNameExit
         end
         object lbBuzLogic: TLabel
           Cursor = crHandPoint
@@ -1684,9 +1685,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 670
           Width = 448
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 17
+          OnExit = edtNameExit
         end
         object memoValidateRule: TMemo
           Left = 112
@@ -1694,9 +1695,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 280
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 8
+          OnExit = edtNameExit
         end
         object lbDemoData: TLabel
           Left = 112
@@ -1757,18 +1758,18 @@ object FrameCtFieldDef: TFrameCtFieldDef
             'js'
             'pas'
           )
+          TabOrder = 0
           OnChange = combEditorChange
           OnCloseUp = edtNameExit
           OnExit = edtNameExit
-          TabOrder = 0
         end
         object edtTestDataNullPercent: TEdit
           Left = 112
           Height = 25
           Top = 114
           Width = 117
-          OnExit = edtNameExit
           TabOrder = 2
+          OnExit = edtNameExit
         end
         object Label58: TLabel
           Left = 7
@@ -1806,9 +1807,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 480
           Width = 467
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 13
+          OnExit = edtNameExit
         end
         object lbResSQL: TLabel
           Cursor = crHandPoint
@@ -1831,9 +1832,9 @@ object FrameCtFieldDef: TFrameCtFieldDef
           Top = 424
           Width = 448
           Anchors = [akTop, akLeft, akRight]
-          OnExit = edtNameExit
           ScrollBars = ssVertical
           TabOrder = 12
+          OnExit = edtNameExit
         end
         object sbtnResSqlEditor: TSpeedButton
           Left = 560
@@ -1970,8 +1971,8 @@ object FrameCtFieldDef: TFrameCtFieldDef
     Visible = False
   end
   object PopupMenuTabs: TPopupMenu
-    left = 424
-    top = 84
+    Left = 424
+    Top = 84
     object MNTab_EditorUI: TMenuItem
       Caption = 'Editor UI'
       OnClick = MNTab_EditorUIClick

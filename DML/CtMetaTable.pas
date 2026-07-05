@@ -372,7 +372,7 @@ type
       opt: string = ''; dbEngine: TCtMetaDatabase = nil): string; virtual;
     function GenSelectSqlNoDb(maxRowCount: integer; dbType: string): string; virtual;
     function GenSelectSql(maxRowCount: integer; dbType: string = ''; dbEngine: TCtMetaDatabase = nil): string; virtual;
-   function GenSelectSqlEx(maxRowCount: integer; selFields, whereCls, groupBy, orderBy, dbType: string;
+   function GenSelectSqlEx(maxRowCount: integer; selFields, whereCls, groupBy, orderBy, dbType, tbAlias: string;
       dbEngine: TCtMetaDatabase = nil): string; virtual;   
     function GenJoinSqlWhere(bTable: TCtMetaTable; aAlias, bAlias: string; bFKsOnly: Boolean): string; virtual;   
     function GenListSQL(): string; virtual;
@@ -490,8 +490,10 @@ type
   private
     FOwnerModel: TCtDataModelGraph;
     FOnObjProgress: TMetaObjProgressEvent;
+    function GetDescribe: string;
     function GetItem(Index: integer): TCtMetaTable;
     procedure PutItem(Index: integer; const Value: TCtMetaTable);
+    procedure SetDescribe(AValue: string);
   protected
     function CreateObj: TCtObject; override;
     procedure Notify(Ptr: Pointer; Action: TListNotification); override;
@@ -508,11 +510,15 @@ type
     procedure SaveToSerialer(ASerialer: TCtObjSerialer); override;
 
     procedure LoadFromDMLText(AText: string);
+    function ImportDMLText(AValue: string): Integer;
 
     property Items[Index: integer]: TCtMetaTable read GetItem write PutItem; default;
     property OwnerModel: TCtDataModelGraph read FOwnerModel;
     property OnObjProgress: TMetaObjProgressEvent
       read FOnObjProgress write FOnObjProgress;
+              
+    //描述字
+    property Describe: string read GetDescribe write SetDescribe;
   end;
 
 
@@ -967,6 +973,10 @@ type
   protected
     FLastModel      : String;
     FCustFieldTypes : String;
+    FRevision: Int64;
+    FLastChangeSetId: string;
+    FCheckpointForChangeSetId: string;
+    FCheckpointReason: string;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -981,6 +991,15 @@ type
     property LastModel     : String        read FLastModel      write FLastModel     ;
     //自定义字段类型
     property CustFieldTypes: String        read FCustFieldTypes write FCustFieldTypes;
+    //文档修订号
+    property Revision: Int64 read FRevision write FRevision;
+    //最后成功应用的MCP变更集
+    property LastChangeSetId: string read FLastChangeSetId write FLastChangeSetId;
+    //历史快照对应的MCP变更集，仅在保存快照时临时设置
+    property CheckpointForChangeSetId: string read FCheckpointForChangeSetId
+      write FCheckpointForChangeSetId;
+    //历史快照原因，仅在保存快照时临时设置
+    property CheckpointReason: string read FCheckpointReason write FCheckpointReason;
   end;
 
   { 数据模型图列表 }
@@ -1016,7 +1035,8 @@ type
     procedure LoadFromFile(fn: string); virtual;
     procedure SaveToFile(fn: string); virtual;
 
-    function GetAllTableCount: integer;
+    function GetAllTableCount: integer;     
+    function GetAllTableDescribe: string;
     function GetAllSubItemCount: integer;
     function IsHuge: boolean;
     function GetTableOfName(AName: string): TCtMetaTable;
@@ -1154,7 +1174,7 @@ function GetCtFieldPhyTypeName(ADbType: string; AFieldType: TCtFieldDataType;
 function CheckStringMaxLen(DbType, custTpName: string; var res: string; len: integer): boolean;
 function CheckCustDataTypeReplaces(Str: string): string;
 
-function IsReservedKeyworkd(str: string): boolean;    
+function IsReservedKeyword(str: string): boolean;    
 function IsSymbolName(AName: string): boolean;
 
 function GetDbQuotName(AName, dbType: string): string;
@@ -2215,6 +2235,7 @@ begin
     Result := True;
 end;
 
+
 function IsSymbolName(AName: string): boolean;
 const
   Def_SymbolNames = '~!@#$%^&*()-+=|\:;,."''<>/';
@@ -2240,7 +2261,7 @@ begin
   begin
 
   end
-  else if IsReservedKeyworkd(AName) then
+  else if IsReservedKeyword(AName) then
   begin
     if not G_QuotReservedNames and not G_QuotAllNames then
       Exit;
@@ -2518,7 +2539,7 @@ begin
   Result := S;
 end;
 
-function IsReservedKeyworkd(str: string): boolean;
+function IsReservedKeyword(str: string): boolean;
 var
   fn: string;
   I: integer;
@@ -2941,8 +2962,12 @@ end;
 procedure TCtModelFileConfig.Reset;
 begin
   inherited Reset;   
-  FLastModel      := '';
+  FLastModel := '';
   FCustFieldTypes := '';
+  FRevision := 0;
+  FLastChangeSetId := '';
+  FCheckpointForChangeSetId := '';
+  FCheckpointReason := '';
 end;
 
 procedure TCtModelFileConfig.AssignFrom(ACtObj: TCtObject);   
@@ -2953,8 +2978,12 @@ begin
   if not (ACtObj is TCtModelFileConfig) then
     Exit;
   cobj:= TCtModelFileConfig(ACtObj);
-  FLastModel      := cobj.FLastModel;
+  FLastModel := cobj.FLastModel;
   FCustFieldTypes := cobj.FCustFieldTypes;
+  FRevision := cobj.FRevision;
+  FLastChangeSetId := cobj.FLastChangeSetId;
+  FCheckpointForChangeSetId := cobj.FCheckpointForChangeSetId;
+  FCheckpointReason := cobj.FCheckpointReason;
 end;
 
 procedure TCtModelFileConfig.LoadFromSerialer(ASerialer: TCtObjSerialer); 
@@ -2976,6 +3005,15 @@ begin
 
   ASerialer.ReadString('LastModel', FLastModel);
   ASerialer.ReadString('CustFieldTypes', FCustFieldTypes);
+  if ASerialer.CurCtVer >= 43 then
+  begin
+    S := '';
+    ASerialer.ReadString('Revision', S);
+    FRevision := StrToInt64Def(S, 0);
+    ASerialer.ReadString('LastChangeSetId', FLastChangeSetId);
+    ASerialer.ReadString('CheckpointForChangeSetId', FCheckpointForChangeSetId);
+    ASerialer.ReadString('CheckpointReason', FCheckpointReason);
+  end;
 
   if ASerialer.CurCtVer >= 39 then
   begin
@@ -2999,6 +3037,13 @@ var
 begin
   ASerialer.WriteString('LastModel', FLastModel);
   ASerialer.WriteString('CustFieldTypes', FCustFieldTypes);
+  if ASerialer.CurCtVer >= 43 then
+  begin
+    ASerialer.WriteString('Revision', IntToStr(FRevision));
+    ASerialer.WriteString('LastChangeSetId', FLastChangeSetId);
+    ASerialer.WriteString('CheckpointForChangeSetId', FCheckpointForChangeSetId);
+    ASerialer.WriteString('CheckpointReason', FCheckpointReason);
+  end;
 
   if ASerialer.CurCtVer >= 39 then
   begin
@@ -3795,7 +3840,7 @@ function TCtMetaTable.GenSqlEx(bCreatTb: boolean; bFK: boolean; dbType: string;
     Result := True;
     if not bCreatTb then
       Exit;
-    if IsReservedKeyworkd(AName) then
+    if IsReservedKeyword(AName) then
       Result := False
     else
       for I := 1 to Length(AName) do
@@ -4348,11 +4393,11 @@ end;
 function TCtMetaTable.GenSelectSql(maxRowCount: integer;
   dbType: string; dbEngine: TCtMetaDatabase): string;
 begin
-  Result := GenSelectSqlEx(maxRowCount, '', '', '', '', dbType, dbEngine);
+  Result := GenSelectSqlEx(maxRowCount, '', '', '', '', dbType, '', dbEngine);
 end;
 
 function TCtMetaTable.GenSelectSqlEx(maxRowCount: integer;
-  selFields, whereCls, groupBy, orderBy, dbType: string; dbEngine: TCtMetaDatabase = nil): string;
+  selFields, whereCls, groupBy, orderBy, dbType, tbAlias: string; dbEngine: TCtMetaDatabase = nil): string;
 
   function GetQuotName(AName: string): string;
   begin
@@ -4386,6 +4431,8 @@ var
   Infos: TStringList;
   f: TCtMetaField;
 begin
+  if tbAlias='' then
+    tbAlias := 't';
   Infos := TStringList.Create;
   try
     S := RealTableName;
@@ -4445,39 +4492,29 @@ begin
         S := S + '  ' + vFdn;
     end;
     if S='' then
-      S := ' t.*';
+      S := ' '+ tbAlias +'.*';
     if S <> '' then
       if dbType = 'ORACLE' then
-        S := S + ','#13#10'  t.rowid';
+        S := S + ','#13#10'  '+ tbAlias +'.rowid';
 
     if Trim(selFields) <> '' then
       S := selFields;
 
     Infos.Add(S);
-    Infos.Add(' from ' + vTbn + ' t');
+    Infos.Add(' from ' + vTbn + ' '+ tbAlias);
     if Trim(whereCls)='' then
-    begin
-      if dbType='HIVE' then               
-        Infos.Add('where 1=1')
-      else
-        Infos.Add('where 1=1/*_SQL_WHERE*/')
-    end
-    else
-    begin
-      if maxRowCount<=0 then            
-        Infos.Add('where '+whereCls)
-      else
-        Infos.Add('where ('+whereCls+')');
-    end;
+      if tbAlias='ez_t' then
+        whereCls := Trim(Self.SQLWhereClause);
+    if Trim(whereCls)='' then
+      whereCls := '1=1';
+
+    Infos.Add('where '+whereCls);
 
     if maxRowCount > 0 then
     begin
       if dbType = 'ORACLE' then
       begin
-        if Trim(whereCls)='' then
-          Infos.Add('  and rownum <= ' + IntToStr(maxRowCount))
-        else
-          Infos.Add('  and (rownum <= ' + IntToStr(maxRowCount) + ')');
+        Infos.Add('  and rownum <= ' + IntToStr(maxRowCount));
       end;
     end;
 
@@ -4592,7 +4629,7 @@ begin
   Result := ListSQL;
   if Trim(Result)<>'' then
     Exit;          
-  Result := GenSelectSqlEx(0, '', '', '', '', '', nil);
+  Result := GenSelectSqlEx(0, '', '', '', '', '','ez_t', nil);
 end;
 
 function TCtMetaTable.GenViewSQL(): string;
@@ -4613,7 +4650,7 @@ begin
   end;
   if pk<>nil then
     wh := pk.Name+' = :'+pk.Name;
-  Result := GenSelectSqlEx(0, '', wh, '', ' ', '', nil);
+  Result := GenSelectSqlEx(0, '', wh, '', ' ', '', 'ez_t', nil);
 end;
 
 function TCtMetaTable.GetCustomConfigValue(AName: string): string;
@@ -4683,13 +4720,16 @@ end;
 
 function TCtMetaTable.GetDescribe: string;
 
-  function CheckDesName(nm: string): string;
+  function CheckDesName(nm: string; bPhy: Boolean): string;
   begin
     Result := nm;
-    if Pos(' ', Result) > 0 then
-      Result := StringReplace(Result, ' ', '#32', [rfReplaceAll]);
-    if Pos(#9, Result) > 0 then
-      Result := StringReplace(Result, #9, '#9', [rfReplaceAll]);
+    if bPhy then
+    begin
+      if Pos(' ', Result) > 0 then
+        Result := StringReplace(Result, ' ', '#32', [rfReplaceAll]);
+      if Pos(#9, Result) > 0 then
+        Result := StringReplace(Result, #9, '#9', [rfReplaceAll]);
+    end;
     if Pos('(', Result) > 0 then
       Result := StringReplace(Result, '(', '#40', [rfReplaceAll]);
     if Pos(')', Result) > 0 then
@@ -4698,8 +4738,8 @@ function TCtMetaTable.GetDescribe: string;
 
   function GetDesName(phy, nm: string): string;
   begin
-    phy := CheckDesName(phy);
-    nm := CheckDesName(nm);
+    phy := CheckDesName(phy, True);
+    nm := CheckDesName(nm, False);
     Result := nm;
     if Result = '' then
       Result := phy
@@ -5724,7 +5764,7 @@ begin
           begin
             if StrToIntDef(vFdn, 0) <> 0 then
               if Random(20)>4 then
-                vFdn := '0';
+                vFdn := '1';
           end;
         end;
         vFdn := f.GetSqlQuotValue(vFdn, dbType, dbEngine);
@@ -6165,9 +6205,128 @@ begin
   Result := TCtMetaTable(inherited Get(Index));
 end;
 
+function TCtMetaTableList.GetDescribe: string;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I:=0 to Count-1 do
+  begin
+    if Items[I].DataLevel=ctdlDeleted then
+      Continue;        
+    if not Items[I].IsTable then
+      Continue;
+    Result := Result + Items[I].Describe;
+    Result := Result + #13#10#13#10;
+  end;
+end;
+
 procedure TCtMetaTableList.PutItem(Index: integer; const Value: TCtMetaTable);
 begin
   inherited Put(Index, Value);
+end;
+
+procedure TCtMetaTableList.SetDescribe(AValue: string);   
+var
+  I: Integer;
+begin                    
+  for I:=0 to Count-1 do
+  begin
+    if Items[I].DataLevel=ctdlDeleted then
+      Continue;
+    if not Items[I].IsTable then
+      Continue;
+    Items[I].CalValue := 1;
+  end;
+  ImportDMLText(AValue);
+  for I:=0 to Count-1 do
+  begin
+    if Items[I].DataLevel=ctdlDeleted then
+      Continue;
+    if Items[I].CalValue = 1 then
+    begin
+      Items[I].DataLevel:=ctdlDeleted;  
+      DoMetaPropsChanged(Items[I], cmctRemove);
+    end;
+  end;
+end;
+
+function TCtMetaTableList.ImportDMLText(AValue: string): Integer;
+  function ReadNextDesc(ts: TStringList; var idx: Integer): string;
+  begin
+    // 读取下一段描述字
+    Result := '';
+    if idx>=ts.Count then
+      Exit;
+    //从idx的行号开始，先找到下一个有内容的行
+    while idx<ts.Count do
+    begin
+      if Trim(ts[idx])<>'' then
+        Break;
+      Inc(idx);
+    end;
+    //再找到下一个没内容的行
+    while idx<ts.Count do
+    begin
+      if Trim(ts[idx])='' then
+        Break;
+      Result := Result+ts[idx]+#13#10;
+      Inc(idx);
+    end;
+  end;
+var
+  idx, J: integer;
+  str, desc: string;
+  ss: TStringList;
+  itb, otb, tb: TCtMetaTable;
+  fd: TCtMetaField;
+  chgTp: TCtMetaChangeType;
+begin
+  Result := 0;
+  str := AValue;
+  if Trim(str) = '' then
+    Exit;
+  ss:= TStringList.Create;
+  idx := 0;
+  itb := TCtMetaTable.Create;
+  try
+    ss.Text := str;
+    while idx<ss.Count do
+    begin
+      desc := ReadNextDesc(ss, idx);
+      if trim(desc)='' then
+        Break;
+      itb.Describe:=desc;
+      otb := TableByName(itb.Name);
+      if otb = nil then
+      begin
+        tb := NewTableItem();
+        chgTp := cmctNew;
+        otb := FGlobeDataModelList.GetTableOfName(itb.Name);
+        if otb <> nil then
+          tb.SyncPropFrom(otb);
+      end
+      else
+      begin
+        tb := otb;
+        chgTp := cmctModify;
+      end;
+      tb.Describe:=desc;
+      tb.CalValue:=0;
+      for J:=0 to tb.MetaFields.Count-1 do
+      begin
+        fd := tb.MetaFields.Items[J];
+        if fd.DataType=cfdtUnknow then
+          if fd.DataTypeName <> '' then
+            fd.DataType:=GetPossibleCtFieldTypeOfName(fd.DataTypeName);
+      end;
+      DoMetaPropsChanged(tb, chgTp);
+      Inc(Result);
+    end;
+  finally
+    ss.Free;
+    itb.Free;
+  end;
 end;
 
 constructor TCtMetaTableList.Create;
@@ -6866,8 +7025,11 @@ begin
     end;
     cfdtInteger:
     begin      
-      Result := CheckDropDownVal(Result, True);
-      if not TryStrToInt(Result, I) then
+      Result := CheckDropDownVal(Result, True);     
+      if Result = '-1' then
+        if RelateTable <> '' then
+          Result := '';
+      if (Result = '') or not TryStrToInt(Result, I) then
       begin     
         if KeyFieldType <> cfktId then
           J := Round(Abs(Sin(ARowIndex + Self.ID + Trunc(Time * 123)) * 11779));
@@ -9028,30 +9190,25 @@ begin
       if RelateField <> '' then
         S := S + '.' + EnccStr(RelateField);
     end;
-
-  if SQLExpression <> '' then
-  begin
-    if S <> '' then
-      S := S + ',';
-    S := S + Sub_GetConsStr(10) + ':' + EnccStr(SQLExpression);
-  end;
+           
+  if bWithRelate then
+    if SQLExpression <> '' then
+    begin
+      if S <> '' then
+        S := S + ',';
+      S := S + Sub_GetConsStr(10) + ':' + EnccStr(SQLExpression);
+    end;
 
   Result := S;
 end;
 
-function TCtMetaField.GetFieldComments: string; 
-  function IsDivChar(ch: String): boolean;
-  const
-    sDivChars='`~!@#$%^&*()-=_+{}[]:"|;''\<>?,./ '#13#10#9;
-  begin
-    Result := Pos(ch, sDivChars)>0;
-  end;
+function TCtMetaField.GetFieldComments: string;
 begin
   Result := Memo;
   if Result <> '' then
   begin
     if (Name <> '') and (DisplayName <> '') and (Name <> DisplayName) then
-      if (Pos(DisplayName, Result)<>1) or not IsDivChar(Copy(Result, Length(DisplayName)+1, 1)) then
+      if (Pos(DisplayName, Result)<>1) or not IsDivStr(Copy(Result, Length(DisplayName)+1, 1)) then
         Result := DisplayName + ' ' + Result;
   end
   else if DisplayName <> '' then
@@ -9600,6 +9757,48 @@ begin
   for I := 0 to Count - 1 do
   begin
     Result := Result + Items[I].Tables.Count;
+  end;
+end;
+
+function TCtDataModelGraphList.GetAllTableDescribe: string;
+var
+  I, J: integer;
+  ss: TStringList; 
+  tb: TCtMetaTable;
+  tbs: TCtMetaTableList;
+begin
+  Result := '';
+  ss:= TStringList.Create;
+  try
+    ss.Sorted := True;
+    for I := 0 to Count - 1 do
+    begin         
+      if Items[I].DataLevel=ctdlDeleted then
+        Continue;
+      tbs := Items[I].Tables; 
+      for J := 0 to tbs.Count - 1 do
+      begin
+        tb := tbs.Items[J];
+        if tb.DataLevel=ctdlDeleted then
+          Continue;
+        if not tb.IsTable then
+          Continue;
+        if ss.IndexOf(tb.Name)>=0 then
+          Continue;
+        ss.AddObject(tb.Name, tb);
+      end;
+    end;
+
+    for I := 0 to ss.Count - 1 do
+    begin
+      tb := TCtMetaTable(ss.Objects[I]);
+      if tb=nil then
+        Continue;
+      Result := Result + tb.Describe;
+      Result := Result + #13#10#13#10;
+    end;
+  finally
+    ss.Free;
   end;
 end;
 

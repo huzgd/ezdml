@@ -586,6 +586,8 @@ begin
     try
       ExecSQL;
       FLastCmdRowAffected := RowsAffected;
+      if G_AutoCommit then
+        Close;
       if G_AutoCommit and (Pos('[NO_CT_TRANS]', ASql) = 0) then
         ExecCmd('commit', '', '');
     except

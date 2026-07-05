@@ -243,10 +243,10 @@ procedure TfrmHttpJdbcConfig.btnStartHttpSvClick(Sender: TObject);
 
       Init('DML_SCRIPT', cTb, AOutput, nil);
       Exec('DML_SCRIPT', FileTxt.Text);
-    finally
+    finally    
+      Free;
       FileTxt.Free;
       AOutput.Free;
-      Free;
     end;
   end;
 

@@ -58,6 +58,7 @@ type
     MenuItem16: TMenuItem;
     MenuItem17: TMenuItem;
     MenuItem18: TMenuItem;
+    MNAI_McpServer: TMenuItem;
     PMNAI_GenPhyNames: TMenuItem;
     MNAI_GenPhyNames: TMenuItem;
     MN_GenCode: TMenuItem;
@@ -126,6 +127,8 @@ type
     PopupMenuSaveFile: TPopupMenu;
     PopupMenuRunGens: TPopupMenu;
     PopupMenuAIActs: TPopupMenu;
+    Separator1: TMenuItem;
+    Separator2: TMenuItem;
     StatusBar1: TStatusBar;
     ActionList2: TActionList;
     actPan: TAction;
@@ -286,6 +289,7 @@ type
     procedure MNAI_GenPhyNamesClick(Sender: TObject);
     procedure MNAI_GenSampleValuesClick(Sender: TObject);
     procedure MNAI_GenTablesClick(Sender: TObject);
+    procedure MNAI_McpServerClick(Sender: TObject);
     procedure MNAI_Text2SQLClick(Sender: TObject);
     procedure MNFile_OperClick(Sender: TObject);
     procedure MNRun_GenCodeClick(Sender: TObject);
@@ -765,6 +769,11 @@ end;
 procedure TFrameDML.MNAI_GenTablesClick(Sender: TObject);
 begin
   PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 2);
+end;
+
+procedure TFrameDML.MNAI_McpServerClick(Sender: TObject);
+begin
+  PostMessage(Application.MainForm.Handle, WM_USER + $1001{WMZ_CUSTCMD},  8, 201);
 end;
 
 procedure TFrameDML.MNAI_Text2SQLClick(Sender: TObject);

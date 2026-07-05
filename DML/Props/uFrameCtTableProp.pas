@@ -1120,10 +1120,10 @@ begin
           lbCustomSCTip.Visible := True;
         end;
       end;
-    finally
+    finally    
+      Free;
       FileTxt.Free;
       AOutput.Free;
-      Free;
     end;       
   {$endif}
 end;
@@ -1235,7 +1235,7 @@ begin
   if G_LogicNamesForTableData then
     sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, fr.FCtMetaDatabase)
   else
-    sql := FCtMetaTable.GenSelectSqlEx(G_MaxRowCountForTableData, '  t.*', '', '', '', dbType, fr.FCtMetaDatabase);
+    sql := FCtMetaTable.GenSelectSqlEx(G_MaxRowCountForTableData, '  t.*', '', '', '', dbType, '', fr.FCtMetaDatabase);
   if fr.AutoExecSql = sql then
     Exit;
   if Assigned(fr.ResultDataSet) then
@@ -1475,19 +1475,32 @@ procedure TFrameCtTableProp.RefreshRelationMap;
               if fd.DataLevel = ctdlDeleted then
                 Continue;
               if (UpperCase(fd.RelateTable)=UpperCase(tbN)) and (fd.GetRelateTableField=nil) then
+              begin
+                if FTbRelateModel.Tables.ItemByName(tb.Name) = nil then
+                  AddRelTb(tb);
+                if ss.IndexOf(tb.NameCaption) < 0 then
                 begin
-                  if FTbRelateModel.Tables.ItemByName(tb.Name) = nil then
-                    AddRelTb(tb);
-                  if ss.IndexOf(tb.NameCaption) < 0 then
-                  begin
-                    ss.Add(tb.NameCaption);
-                    Inc(rc3);
-                    //ListBoxRelTbs.Items.AddObject(tbN+'.'+fd.RelateField + ' <- '+tb.NameCaption+'.'+fd.Name, tb);
-                    ListBoxRelTbs.Items.AddObject(' ~ '+tb.NameCaption+'.'+fd.Name, tb);
-                  end;
+                  ss.Add(tb.NameCaption);
+                  Inc(rc3);
+                  //ListBoxRelTbs.Items.AddObject(tbN+'.'+fd.RelateField + ' <- '+tb.NameCaption+'.'+fd.Name, tb);
+                  ListBoxRelTbs.Items.AddObject(' ~ '+tb.NameCaption+'.'+fd.Name, tb);
                 end;
+              end;
+            end;
+
+            if (UpperCase(tb.PhysicalName)=UpperCase(tbN)) or (UpperCase(tb.Name)=UpperCase(FCtMetaTable.PhysicalName)) then
+            begin
+              if FTbRelateModel.Tables.ItemByName(tb.Name) = nil then
+                AddRelTb(tb);
+              if ss.IndexOf(tb.NameCaption) < 0 then
+              begin
+                ss.Add(tb.NameCaption);
+                Inc(rc3);
+                ListBoxRelTbs.Items.AddObject(' ~ '+tb.NameCaption, tb);
+              end;
             end;
           end;
+
         end;
       end;
     finally
@@ -1632,7 +1645,7 @@ begin
           if G_LogicNamesForTableData then                                                                       
             sql := FCtMetaTable.GenSelectSql(G_MaxRowCountForTableData, dbType, FCtMetaDatabase)
           else
-            sql := FCtMetaTable.GenSelectSqlEx(G_MaxRowCountForTableData, '  t.*', '', '', '', dbType, FCtMetaDatabase);
+            sql := FCtMetaTable.GenSelectSqlEx(G_MaxRowCountForTableData, '  t.*', '', '', '', dbType, '', FCtMetaDatabase);
           if AutoExecSql <> sql then
           begin
             ClearSql;
@@ -4142,9 +4155,9 @@ begin
             PChar(Application.Title),
             MB_OK or MB_ICONINFORMATION);
     finally
+      Free;  
+      AOutput.Free; 
       FileTxt.Free;
-      AOutput.Free;
-      Free;
     end;     
   {$else}
   raise Exception.Create(srEzdmlLiteNotSupportFun);

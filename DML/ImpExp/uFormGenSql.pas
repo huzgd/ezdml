@@ -200,7 +200,8 @@ begin
   end;
 
   AddDbTypeMenu('HIVE');
-  AddDbTypeMenu('STANDARD');
+  AddDbTypeMenu('STANDARD'); 
+  AddDbTypeMenu('LLM');
   AddDbTypeMenu('EZDMLFILE');
   RefreshDbInfo;
 end;
@@ -315,7 +316,7 @@ begin
     Exit;
 
   tb := TCtMetaTable(cklbDbObjs.Items.Objects[I]);
-  obj := tb.Name;
+  obj := tb.RealTableName;
   db := combDBUser.Text;
 
   S := '';

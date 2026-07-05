@@ -6,6 +6,7 @@
 {"hash":5528252,"name":"tfrmmaindml.mn_model.caption","sourcebytes":[77,111,100,101,108],"value":"Model"},
 {"hash":240251124,"name":"tfrmmaindml.mnchatgpt1.caption","sourcebytes":[65,73,32,65,115,115,105,115,116,97,110,116],"value":"AI Assistant"},
 {"hash":134234030,"name":"tfrmmaindml.mnchatgpt1.hint","sourcebytes":[85,115,101,32,65,73,32,116,111,32,97,115,115,105,115,116,32,105,110,32,103,101,110,101,114,97,116,105,110,103,32,109,111,100,101,108,32,100,101,115,105,103,110],"value":"Use AI to assist in generating model design"},
+{"hash":93947106,"name":"tfrmmaindml.mnai_mcpserver.caption","sourcebytes":[77,67,80,32,83,101,114,118,101,114],"value":"MCP Server"},
 {"hash":88687356,"name":"tfrmmaindml.mnai_gennewmodel.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,78,101,119,32,77,111,100,101,108],"value":"Generate New Model"},
 {"hash":66305299,"name":"tfrmmaindml.mnai_gentables.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,84,97,98,108,101,115],"value":"Add More Tables"},
 {"hash":43756899,"name":"tfrmmaindml.mnai_genfields.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,70,105,101,108,100,115],"value":"Add More Fields"},
@@ -24,7 +25,7 @@
 {"hash":366789,"name":"tfrmmaindml.actsavefile.caption","sourcebytes":[83,97,118,101],"value":"Save"},
 {"hash":43117950,"name":"tfrmmaindml.actsavefileas.caption","sourcebytes":[83,97,118,101,32,38,97,115,46,46,46],"value":"Save &as..."},
 {"hash":102429538,"name":"tfrmmaindml.actshowfileinexplorer.caption","sourcebytes":[83,104,111,119,32,105,110,32,69,120,112,108,111,114,101,114],"value":"Show in Explorer"},
-{"hash":168112981,"name":"tfrmmaindml.actshowtmprfile.caption","sourcebytes":[83,104,111,119,32,84,101,109,112,111,114,97,114,121,32,70,105,108,101],"value":"Show Temporary File"},
+{"hash":202588238,"name":"tfrmmaindml.actshowhistfile.caption","sourcebytes":[72,105,115,116,111,114,121,32,86,101,114,115,105,111,110,115,46,46,46],"value":"History Versions..."},
 {"hash":211882693,"name":"tfrmmaindml.actopenlastfile1.caption","sourcebytes":[82,101,111,112,101,110,32,76,97,115,116,32,70,105,108,101],"value":"Reopen Last File"},
 {"hash":164218821,"name":"tfrmmaindml.actexitwithoutsave.caption","sourcebytes":[69,120,105,116,32,87,105,116,104,111,117,116,32,83,97,118,101],"value":"Exit Without Save"},
 {"hash":315140,"name":"tfrmmaindml.actexit.caption","sourcebytes":[69,120,105,116],"value":"Exit"},
@@ -70,5 +71,6 @@
 {"hash":227304142,"name":"tfrmmaindml.actsharefile.caption","sourcebytes":[79,110,108,105,110,101,32,115,104,97,114,101,46,46,46],"value":"Online share..."},
 {"hash":56382238,"name":"tfrmmaindml.actopenurl.caption","sourcebytes":[79,110,108,105,110,101,32,111,112,101,110,46,46,46],"value":"Online open..."},
 {"hash":212942990,"name":"tfrmmaindml.actimportddlsql.caption","sourcebytes":[73,109,112,111,114,116,32,68,68,76,32,83,81,76,46,46,46],"value":"Import DDL SQL..."},
-{"hash":202821783,"name":"tfrmmaindml.actviewmodelinnewwnd.caption","sourcebytes":[86,105,101,119,32,105,110,32,110,101,119,32,119,105,110,100,111,119],"value":"View in new window"}
+{"hash":202821783,"name":"tfrmmaindml.actviewmodelinnewwnd.caption","sourcebytes":[86,105,101,119,32,105,110,32,110,101,119,32,119,105,110,100,111,119],"value":"View in new window"},
+{"hash":72240420,"name":"tfrmmaindml.actmodeldmltext.caption","sourcebytes":[77,111,100,101,108,32,68,77,76,32,84,101,120,116],"value":"Model DML Text"}
 ]}

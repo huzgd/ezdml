@@ -17,8 +17,8 @@ interface
 }
 
 const
-  srEzdmlVersionNum = '3.72';
-  srEzdmlVersionDate = '2026-01-01';
+  srEzdmlVersionNum = '3.74';
+  srEzdmlVersionDate = '2026-06-27';
 
 {$ifdef EZDML_LITE}
 
@@ -142,6 +142,9 @@ resourcestring
   srEzdmlSharedByMe = 'Shared by me';
   srEzdmlError = 'Error';
   srEzdmlConfirmForceReconnDb = 'This database is already connected. Do you want to force a disconnection and reconnection?';
+  srEzdmlHistoryBackupPromptFmt = 'Select a history version of %s to restore:';
+  srEzdmlNoHistoryBackup = 'No history backup is available for the current file.';
+  srEzdmlHistoryRestoredFmt = 'History version restored: %s';
 
 implementation
 

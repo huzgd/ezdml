@@ -6,11 +6,11 @@ object frmCtDML: TfrmCtDML
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Diagram'
   Color = clBtnFace
+  ParentFont = True
+  Position = poMainFormCenter
+  LCLVersion = '4.8.0.0'
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  ParentFont = True
-  Position = poMainFormCenter
-  LCLVersion = '2.0.12.0'
 end

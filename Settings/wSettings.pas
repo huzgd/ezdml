@@ -346,7 +346,7 @@ implementation
 
 uses
   WindowFuncs, IniFiles, CtMetaTable, AutoNameCapitalize, dmlstrs, postgres3dyn,
-  ocidyn, mysql57dyn, sqlite3dyn, CtMetaCustomDb;
+  ocidyn, mysql80dyn, sqlite3dyn, CtMetaCustomDb;
 
 {$R *.lfm}
 

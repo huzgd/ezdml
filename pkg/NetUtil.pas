@@ -1,10 +1,5 @@
 unit NetUtil;
 
-{$ifndef EZDML_LITE}
-//如果indy编译有问题，可注掉此开关，改用fpHttpClient
-{$DEFINE USE_IDHTTP}
-{$endif}
-
 interface
 
 uses
@@ -26,7 +21,7 @@ function GetUrlData_Net_ExX(URL: string; PostData: string; headers: string; Opts
 function URLEncodeEx(const VS: string): string;
 function URLDecodeEx(const S: string): string;
 function GetJSessionId_Net: string;
-procedure SetJSessionId_Net(svr, ssid: string); 
+procedure SetJSessionId_Net(svr, ssid: string);
 function IsPortAvailable(Aport: Word): Boolean;
 function GetUrlParamVal(URL, par: string): string;
 
@@ -36,296 +31,321 @@ var
 
 implementation
 
-uses 
-{$IFDEF USE_IDHTTP}
-  IdHttp, IdCookieManager, IdMultipartFormData, IdSSLOpenSSL, IdGlobalProtocols, IdTCPClient,
-  IdHTTPHeaderInfo,
-{$else}
-  fphttpclient, Sockets,
-{$ENDIF}
+uses
+  fphttpclient, opensslsockets, ssockets, Sockets,
   ThreadWait, WindowFuncs, Forms, ezdmlstrs;
 
+var
+  FCookieJar: TStringList;
+  FBaServerAddr: string;
 
 function GetUrlParamVal(URL, par: string): string;
 var
-  S: String;
+  S: string;
 begin
-  URL := URL+'&';
-  S:=ExtractCompStr(URL,'?'+par+'=','&');
-  if S='' then
-    S:=ExtractCompStr(URL,'&'+par+'=','&');
-  S:=URLDecode(S);
+  URL := URL + '&';
+  S := ExtractCompStr(URL, '?' + par + '=', '&');
+  if S = '' then
+    S := ExtractCompStr(URL, '&' + par + '=', '&');
+  S := URLDecode(S);
   Result := S;
 end;
 
-function IsPortAvailable(Aport: Word): Boolean; 
-{$IFDEF USE_IDHTTP}
-begin
-  Result := True;
-  with TIdTCPClient.Create(nil) do
-  try
-    ConnectTimeout := 200;
-    try
-      Connect('127.0.0.1', APort);
-      Result := False;
-      DisConnect;
-    except
-    end;
-  finally
-    Free;
-  end;
-end;
-{$else}
+function IsPortAvailable(Aport: Word): Boolean;
 var
   sock: TSocket;
   addr: TInetSockAddr;
   timeout: Integer;
 begin
-  // 创建一个 socket 连接
   sock := fpSocket(AF_INET, SOCK_STREAM, 0);
-  if sock = {INVALID_SOCKET}TSocket(NOT(0)) then
+  if sock = TSocket(NOT(0)) then
   begin
-    Result := False; // 创建失败，端口可能被占用
+    Result := False;
     Exit;
   end;
 
-  // 设置地址信息
   addr.sin_family := AF_INET;
   addr.sin_port := htons(Aport);
-  addr.sin_addr.s_addr := htonl($7f000001{INADDR_LOOPBACK}); // 本地地址
+  addr.sin_addr.s_addr := htonl($7f000001);
 
   timeout := 200;
-  fpSetSockOpt(sock, SOL_SOCKET, SO_SNDTIMEO, @timeout, sizeof(timeout));  
-  fpSetSockOpt(sock, SOL_SOCKET, SO_RCVTIMEO, @timeout, sizeof(timeout));
+  fpSetSockOpt(sock, SOL_SOCKET, SO_SNDTIMEO, @timeout, SizeOf(timeout));
+  fpSetSockOpt(sock, SOL_SOCKET, SO_RCVTIMEO, @timeout, SizeOf(timeout));
 
-  // 尝试连接
   if fpConnect(sock, @addr, SizeOf(addr)) = 0 then
   begin
-    // 连接成功，端口已被占用
     CloseSocket(sock);
     Result := False;
   end
   else
   begin
-    // 连接失败，端口可用
     CloseSocket(sock);
     Result := True;
   end;
-end;     
-{$ENDIF}
+end;
 
-                  
-procedure AddNetLog(const msg: string; bAddDate: Boolean=True);
+procedure AddNetLog(const msg: string; bAddDate: Boolean = True);
 var
   S: string;
 begin
+  if G_NetLogs = nil then
+    Exit;
   while G_NetLogs.Count > 1000 do
     G_NetLogs.Delete(0);
+  S := '';
   if bAddDate then
     S := FormatDateTime('hh:nn:ss', Now);
   G_NetLogs.Add(S + ' ' + msg);
 end;
 
-               
-{$IFNDEF USE_IDHTTP}
-function GetUrlData_Net_ExX(URL: string; PostData: string; headers: string; Opts: string; conn: TObject): string;
-var
-  fn: string;             
-  fp: TFPCustomHTTPClient;
-  res:TMemoryStream;
-  L:Integer;
+function ShouldNetLog(const URL: string): Boolean;
 begin
-  if PostData='' then
-    Result := TFPCustomHTTPClient.SimpleGet(url)
+  Result := G_NetLogEnabled and (Pos('&noNetLog=1', URL) = 0);
+end;
+
+function CookieNameOf(const CookiePair: string): string;
+var
+  P: Integer;
+begin
+  P := Pos('=', CookiePair);
+  if P <= 1 then
+    Result := ''
   else
-  begin       
-    if Pos('[POST_LOCAL_FILE]', PostData) > 0 then
-    begin
-      fn := ExtractCompStr(PostData, '[POST_LOCAL_FILE]', '[/POST_LOCAL_FILE]');
-      if not FileExists(fn) then
-        raise Exception.Create('Uploading file not exists: ' + fn);
-      res := TMemoryStream.Create;
-      fp:=TFPCustomHTTPClient.Create(nil);
-      try
-        fp.FileFormPost(url, 'file', fn, res);
-        L := res.Size;
-        res.Position:=0;
-        SetLength(Result, L);
-        res.Read(PChar(Result)^, L);
-      finally
-        res.Free;
-        fp.Free;
-      end;
-    end
-    else
-      Result := TFPCustomHTTPClient.SimpleFormPost(url, PostData);
-  end;
+    Result := Trim(Copy(CookiePair, 1, P - 1));
 end;
-function GetJSessionId_Net: string;
-begin
-  Result := '';
-end;
-procedure SetJSessionId_Net(svr, ssid: string);
-begin
-end;
-{$ENDIF}
-          
-{$IFDEF USE_IDHTTP}     
-var
-  FCookieManager: TIdCookieManager;
-  FBaServerAddr: string;
 
-function IsUtf8Type(url: string; Response: TIdHTTPResponse): Boolean;
+function FindCookieIndex(const CookieName: string): Integer;
 var
-  tp: string;
+  I: Integer;
 begin
-  Result := False;
-  tp := Response.CharSet;
-  if tp <> '' then
-  begin
-    tp := LowerCase(tp);
-    if (Pos('utf8', tp) > 0) or (Pos('utf-8', tp) > 0) then
-    begin
-      Result := True;
-    end;
+  Result := -1;
+  if FCookieJar = nil then
     Exit;
-  end;
-
-  tp := LowerCase(Response.ContentType);
-  if tp <> '' then
-  begin
-    if Pos('utf-8', tp) > 0 then
-      Result := True
-    else if Pos('utf8', tp) > 0 then
-      Result := True;
-    if Result then
+  for I := 0 to FCookieJar.Count - 1 do
+    if SameText(CookieNameOf(FCookieJar[I]), CookieName) then
+    begin
+      Result := I;
       Exit;
-  end;
+    end;
+end;
 
-  if (Pos('/ucv.nx?', url) > 0) or (Pos('/utf8cv.nx?', url) > 0) then
-    Result := True;
+procedure SetCookiePair(const CookiePair: string);
+var
+  Name: string;
+  I: Integer;
+begin
+  Name := CookieNameOf(CookiePair);
+  if Name = '' then
+    Exit;
+  if FCookieJar = nil then
+    FCookieJar := TStringList.Create;
+  I := FindCookieIndex(Name);
+  if I >= 0 then
+    FCookieJar[I] := CookiePair
+  else
+    FCookieJar.Add(CookiePair);
+end;
+
+function GetCookieValue(const CookieName: string): string;
+var
+  I, P: Integer;
+  S: string;
+begin
+  Result := '';
+  I := FindCookieIndex(CookieName);
+  if I < 0 then
+    Exit;
+  S := FCookieJar[I];
+  P := Pos('=', S);
+  if P > 0 then
+    Result := Copy(S, P + 1, Length(S));
+end;
+
+procedure MergeSetCookieHeader(const HeaderLine: string);
+const
+  SetCookiePrefix = 'set-cookie:';
+var
+  S: string;
+  P: Integer;
+begin
+  S := Trim(HeaderLine);
+  if LowerCase(Copy(S, 1, Length(SetCookiePrefix))) <> SetCookiePrefix then
+    Exit;
+
+  Delete(S, 1, Length(SetCookiePrefix));
+  S := Trim(S);
+  P := Pos(';', S);
+  if P > 0 then
+    S := Trim(Copy(S, 1, P - 1));
+  if S <> '' then
+    SetCookiePair(S);
+end;
+
+procedure MergeResponseCookies(Client: TFPHTTPClient);
+var
+  I: Integer;
+begin
+  for I := 0 to Client.ResponseHeaders.Count - 1 do
+    MergeSetCookieHeader(Client.ResponseHeaders[I]);
+end;
+
+function ShouldUseCookieJar(const URL: string): Boolean;
+begin
+  Result := (FBaServerAddr <> '') and (Pos(FBaServerAddr, URL) = 1);
 end;
 
 function GetJSessionId_Net: string;
-var
-  I: Integer;
 begin
-  Result := '';
-  if FCookieManager = nil then
-    Exit;
-  I := FCookieManager.CookieCollection.GetCookieIndex('JSESSIONID');
-  if I >= 0 then
-    Result := FCookieManager.CookieCollection.Cookies[I].Value;
+  Result := GetCookieValue('JSESSIONID');
 end;
 
 procedure SetJSessionId_Net(svr, ssid: string);
-var
-  I: Integer;
 begin
-  if FCookieManager = nil then
-    FCookieManager := TIdCookieManager.Create(Application);
   if svr <> '' then
     if svr[Length(svr)] <> '/' then
       svr := svr + '/';
   FBaServerAddr := svr;
-  if ssid = '' then
-    Exit;
-  I := FCookieManager.CookieCollection.GetCookieIndex('JSESSIONID');
-  if I >= 0 then
-    FCookieManager.CookieCollection.Cookies[I].Value := ssid
-  else
-  begin
-    FCookieManager.CookieCollection.AddClientCookie('JSESSIONID=' + ssid + ';');
-  (*
-    po := Pos('://', svr);
-    if po > 0 then
-      svr := Copy(svr, po + 3, Length(svr));
-    po := Pos('/', svr);
-    if po > 0 then
-      svr := Copy(svr, 1, po - 1);
-    po := Pos(':', svr);
-    if po > 0 then
-      svr := Copy(svr, 1, po - 1);
+  if ssid <> '' then
+    SetCookiePair('JSESSIONID=' + ssid);
+end;
 
-      FCookieManager.CookieCollection
-      .AddCookie('JSESSIONID=' + ssid + '; path=/', uri, False);
-             *)
+function GetNetUserAgent: string;
+begin
+  Result := 'Mozilla/3.0 (compatible; FPC HTTPClient) EZDML ';
+  {$ifdef WINDOWS}
+  {$ifdef WIN32}
+  Result := Result + 'Win32 ';
+  {$else}
+  Result := Result + 'Win64 ';
+  {$endif}
+  {$else}
+  {$IFDEF DARWIN}
+  Result := Result + 'MacOS ';
+  {$else}
+  Result := Result + 'Linux ';
+  {$ENDIF}
+  {$endif}
+  Result := Result + srEzdmlVersionNum;
+end;
+
+function IsUtf8Type(const URL: string; Client: TFPHTTPClient): Boolean;
+var
+  Tp: string;
+begin
+  Result := False;
+  Tp := LowerCase(TFPCustomHTTPClient.GetHeader(Client.ResponseHeaders, 'Content-Type'));
+  if Tp <> '' then
+  begin
+    Result := (Pos('utf-8', Tp) > 0) or (Pos('utf8', Tp) > 0);
+    if Result then
+      Exit;
   end;
+
+  if (Pos('/ucv.nx?', URL) > 0) or (Pos('/utf8cv.nx?', URL) > 0) then
+    Result := True;
+end;
+
+procedure AddCustomHeaders(Client: TFPHTTPClient; const Headers: string);
+var
+  HS: TStringList;
+  I, P: Integer;
+  S, T, V: string;
+begin
+  if Headers = '' then
+    Exit;
+
+  HS := TStringList.Create;
+  try
+    HS.Text := Headers;
+    for I := 0 to HS.Count - 1 do
+    begin
+      S := HS[I];
+      P := Pos('=', S);
+      if P > 0 then
+      begin
+        T := Trim(Copy(S, 1, P - 1));
+        V := Copy(S, P + 1, Length(S));
+        if T <> '' then
+          Client.AddHeader(T, V);
+      end;
+    end;
+  finally
+    HS.Free;
+  end;
+end;
+
+procedure ReadStreamToString(Stream: TStream; out S: string);
+var
+  L: Integer;
+begin
+  L := Stream.Size;
+  Stream.Position := 0;
+  SetLength(S, L);
+  if L > 0 then
+    Stream.ReadBuffer(S[1], L);
+end;
+
+function ExtractSaveToFileName(var PostData: string; const Opts: string): string;
+begin
+  Result := '';
+  if Pos('[SAVE_TO_FILE]', PostData) > 0 then
+  begin
+    Result := ExtractCompStr(PostData, '[SAVE_TO_FILE]', '[/SAVE_TO_FILE]');
+    PostData := '';
+  end
+  else if Pos('[SAVE_TO_FILE]', Opts) > 0 then
+    Result := ExtractCompStr(Opts, '[SAVE_TO_FILE]', '[/SAVE_TO_FILE]');
 end;
 
 function GetUrlData_Net_ExX(URL: string; PostData: string; headers: string; Opts: string; conn: TObject): string;
 var
-  vIdHTTP: TIdHTTP;
-  SslIo: TIdSSLIOHandlerSocketOpenSSL;
-  ms, rs: TMemoryStream;
-  rfs: TFileStream;
-  pfs: TIdMultiPartFormDataStream;
-  S, T, V, fn: string;
-  I, po, tmOut: Integer;
-  hs: TStrings;
+  Client: TFPHTTPClient;
+  BodyStream: TRawByteStringStream;
+  MemoryResult: TMemoryStream;
+  FileResult: TFileStream;
+  ResponseStream: TStream;
+  SaveFn, UploadFn, S: string;
+  TmOut: Integer;
+  OwnClient, UseCookies: Boolean;
 begin
-  if FCookieManager = nil then
-    FCookieManager := TIdCookieManager.Create(Application);
+  OwnClient := not ((conn <> nil) and (conn is TFPHTTPClient));
+  if OwnClient then
+    Client := TFPHTTPClient.Create(nil)
+  else
+    Client := TFPHTTPClient(conn);
 
-  vIdHTTP := nil;
-  SslIo := nil;
+  BodyStream := nil;
+  MemoryResult := nil;
+  FileResult := nil;
   try
-    if (conn <> nil) and (conn is TIdHTTP) then
-      vIdHTTP := TIdHTTP(conn)
+    if Client.RequestBody <> nil then
+      Client.RequestBody := nil;
+    Client.RequestHeaders.Clear;
+    Client.Cookies.Clear;
+    Client.KeepConnection := False;
+
+    TmOut := 20000;
+    if Pos('[SAVE_TO_FILE]', PostData) > 0 then
+      TmOut := 90000;
+    if Pos('[SAVE_TO_FILE]', Opts) > 0 then
+      TmOut := 90000;
+    if Pos('[POST_LOCAL_FILE]', PostData) > 0 then
+      TmOut := 90000;
+    S := ExtractCompStr(Opts, '[READ_TIMEOUT=', ']');
+    if S <> '' then
+      TmOut := StrToIntDef(S, TmOut);
+    Client.IOTimeout := TmOut;
+    if TmOut > 1 then
+      Client.ConnectTimeout := TmOut div 2
     else
-    begin
-      vIdHTTP := TIdHTTP.Create(nil);
-  {
+      Client.ConnectTimeout := TmOut;
+    Client.AllowRedirect := Pos('[NO_REDIR]', Opts) = 0;
 
-  object vIdHTTP: TIdHTTP
-    MaxLineAction = maException
-    ReadTimeout = 20000
-    AuthRetries = 1
-    AllowCookies = True
-    HandleRedirects = True
-    RedirectMaximum = 1
-    ProxyParams.BasicAuthentication = False
-    ProxyParams.ProxyPort = 0
-    Request.ContentLength = -1
-    Request.ContentRangeEnd = 0
-    Request.ContentRangeStart = 0
-    Request.ContentType = 'text/html'
-    Request.Accept = 'text/html, */*'
-    Request.BasicAuthentication = False
-    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
-    HTTPOptions = [hoForceEncodeParams]
-    OnRedirect = vIdHTTPRedirect
-    Left = 256
-    Top = 276
-  end
-  }
-  //vIdHTTP.ProxyParams.ProxyServer := '127.0.0.1';
-  //vIdHTTP.ProxyParams.ProxyPort := 8088;
+    Client.AddHeader('User-Agent', GetNetUserAgent);
+    Client.AddHeader('Accept', 'text/html, */*');
+    AddCustomHeaders(Client, headers);
 
-      with vIdHTTP do
-      begin
-        tmOut := 20000;
-        if Pos('[SAVE_TO_FILE]', PostData) > 0 then
-          tmOut := 90000;           
-        if Pos('[SAVE_TO_FILE]', Opts) > 0 then
-          tmOut := 90000;
-        if Pos('[POST_LOCAL_FILE]', PostData) > 0 then
-          tmOut := 90000;
-        S := ExtractCompStr(Opts, '[READ_TIMEOUT=', ']');
-        if S <> '' then
-          tmOut := StrToIntDef(S, tmOut); 
-        ConnectTimeout := tmOut div 2;
-        ReadTimeout := tmOut;
-        AllowCookies := True;
-        if Pos('[NO_REDIR]', opts) > 0 then
-          HandleRedirects := False
-        else
-          HandleRedirects := True;
-        HTTPOptions := [hoForceEncodeParams];
-      end;
-    end;
-
-    if FBaServerAddr<>'' then
+    if FBaServerAddr <> '' then
     begin
       if Copy(URL, 1, 1) = '/' then
         URL := FBaServerAddr + URL
@@ -333,216 +353,114 @@ begin
         URL := FBaServerAddr + '/' + URL;
     end;
 
-    if Pos('https://', URL) = 1 then
-      if vIdHTTP.IOHandler = nil then
-      begin
-        SslIo := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-        vIdHTTP.IOHandler := sslIO;
-        with SslIo do
-        begin
-          SSLOptions.Method := sslvSSLv23;
-          SSLOptions.Mode := sslmClient;
-          SSLOptions.VerifyMode := [];
-          SSLOptions.VerifyDepth := 0;
-          PassThrough := True;
-        end;
-      end;
-
-    Result := '';
     if Pos('${TICK}', URL) > 0 then
       URL := StringReplace(URL, '${TICK}', IntToStr(GetTickCount), [rfReplaceAll]);
     if Pos('${JSESSIONID}', URL) > 0 then
-      URL := StringReplace(URL, '${JSESSIONID}', UrlEncode(GetJSessionId_Net), [rfReplaceAll]);
+      URL := StringReplace(URL, '${JSESSIONID}', URLEncodeEx(GetJSessionId_Net), [rfReplaceAll]);
 
-    if FBaServerAddr <> '' then
-      if Pos(FBaServerAddr, URL) = 1 then
-        vIdHTTP.CookieManager := FCookieManager;
+    UseCookies := ShouldUseCookieJar(URL);
+    if UseCookies and (FCookieJar <> nil) then
+      Client.Cookies.Assign(FCookieJar);
 
-    if G_NetLogEnabled then
-      if Pos('&noNetLog=1', URL) = 0 then
-      begin
-        S := 'Net_URL: ' + URL;
-        if Opts <> '' then
-          S := S + #13#10 + 'Options: ' + Opts;
-        if PostData <> '' then
-          S := S + #13#10 + 'PostData: ' + PostData;
-        AddNetLog(S);
-      end;
-
-    rs := TMemoryStream.Create;
-    if Pos('[SAVE_TO_FILE]', PostData) > 0 then
+    if ShouldNetLog(URL) then
     begin
-      fn := ExtractCompStr(PostData, '[SAVE_TO_FILE]', '[/SAVE_TO_FILE]');
-      ForceDirectories(ExtractFilePath(fn));
-      rfs := TFileStream.Create(fn, fmCreate);
-      PostData := '';
-    end                          
-    else if Pos('[SAVE_TO_FILE]', Opts) > 0 then
+      S := 'Net_URL: ' + URL;
+      if Opts <> '' then
+        S := S + #13#10 + 'Options: ' + Opts;
+      if PostData <> '' then
+        S := S + #13#10 + 'PostData: ' + PostData;
+      AddNetLog(S);
+      if headers <> '' then
+        AddNetLog('Net_Header: ' + Client.RequestHeaders.Text);
+    end;
+
+    SaveFn := ExtractSaveToFileName(PostData, Opts);
+    if SaveFn <> '' then
     begin
-      fn := ExtractCompStr(Opts, '[SAVE_TO_FILE]', '[/SAVE_TO_FILE]');
-      ForceDirectories(ExtractFilePath(fn));
-      rfs := TFileStream.Create(fn, fmCreate);
+      S := ExtractFilePath(SaveFn);
+      if S <> '' then
+        ForceDirectories(S);
+      FileResult := TFileStream.Create(SaveFn, fmCreate);
+      ResponseStream := FileResult;
     end
     else
-      rfs := nil;
+    begin
+      MemoryResult := TMemoryStream.Create;
+      ResponseStream := MemoryResult;
+    end;
 
     try
-      if headers <> '' then
+      if PostData = '' then
+        Client.HTTPMethod('GET', URL, ResponseStream, [])
+      else if Pos('[POST_LOCAL_FILE]', PostData) > 0 then
       begin
-        hs := TStringList.Create;
+        UploadFn := ExtractCompStr(PostData, '[POST_LOCAL_FILE]', '[/POST_LOCAL_FILE]');
+        if not FileExists(UploadFn) then
+          raise Exception.Create('Uploading file not exists: ' + UploadFn);
+        if ShouldNetLog(URL) then
+          AddNetLog('Net_Upload: ' + UploadFn);
+        Client.FileFormPost(URL, ExtractFileName(UploadFn), UploadFn, ResponseStream);
+      end
+      else
+      begin
+        if ShouldNetLog(URL) then
+          AddNetLog('Net_Post: ' + PostData);
+
+        S := ExtractCompStr(Opts, '[CONTENT_TYPE=', ']');
+        if S = '' then
+          S := 'application/x-www-form-urlencoded; charset=utf-8';
+        Client.AddHeader('Content-Type', S);
+
+        BodyStream := TRawByteStringStream.Create(PostData);
+        Client.RequestBody := BodyStream;
         try
-          hs.Text := headers;
-          for I := 0 to hs.Count - 1 do
-          begin
-            S := hs[I];
-            po := Pos('=', S);
-            if po > 0 then
-            begin
-              T := Trim(Copy(S, 1, po - 1));
-              V := Copy(S, po + 1, Length(S));
-              if T <> '' then
-                vIdHTTP.Request.CustomHeaders.Values[T] := V;
-            end;
-          end;
+          Client.HTTPMethod('POST', URL, ResponseStream, []);
         finally
-          hs.Free;
-        end;
-        if G_NetLogEnabled then
-          if Pos('&noNetLog=1', URL) = 0 then
-          begin
-            S := 'Net_Header: ' + vIdHTTP.Request.CustomHeaders.Text;
-            AddNetLog(S);
-          end;
-      end;
-
-      //vIdHTTP.Request.UserAgent :='Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko';
-      try
-
-        if PostData = '' then
-        begin
-          if rfs = nil then
-          begin
-           // Result := vIdHTTP.Get(URL{, CharsetToEncoding('GBK')})
-            vIdHTTP.Get(URL, rs);
-            rs.Seek(0, soFromBeginning);
-            SetLength(Result, rs.Size);
-            rs.Read(PChar(Result)^, rs.Size);
-          end
-          else
-            vIdHTTP.Get(URL, rfs);
-        end
-        else if Pos('[POST_LOCAL_FILE]', PostData) > 0 then
-        begin
-          fn := ExtractCompStr(PostData, '[POST_LOCAL_FILE]', '[/POST_LOCAL_FILE]');
-          if not FileExists(fn) then
-            raise Exception.Create('Uploading file not exists: ' + fn);
-          if G_NetLogEnabled then
-            if Pos('&noNetLog=1', URL) = 0 then
-            begin
-              S := 'Net_Upload: ' + fn;
-              AddNetLog(S);
-            end;
-          pfs := TIdMultiPartFormDataStream.Create;
-          try
-            pfs.AddFile(ExtractFileName(fn), fn, '');
-            if rfs = nil then
-            begin
-              vIdHTTP.Post(URL, pfs, rs);  
-              rs.Seek(0, soFromBeginning);
-              SetLength(Result, rs.Size);
-              rs.Read(PChar(Result)^, rs.Size);
-            end
-            else
-              vIdHTTP.Post(URL, pfs, rfs);
-          finally
-            pfs.Free;
-          end;
-        end
-        else
-        begin
-          if G_NetLogEnabled then
-            if Pos('&noNetLog=1', URL) = 0 then
-            begin
-              S := 'Net_Post: ' + PostData;
-              AddNetLog(S);
-            end;
-          ms := TMemoryStream.Create;
-          try
-            ms.Write(Pointer(PostData)^, Length(PostData));
-            ms.Seek(0, soFromBeginning);
-            S := ExtractCompStr(Opts, '[CONTENT_TYPE=', ']');
-            if S = '' then
-              S := 'application/x-www-form-urlencoded; charset=utf-8';
-            if S <> '' then
-              vIdHTTP.Request.ContentType := S;
-            if rfs = nil then
-            begin
-              vIdHTTP.Post(URL, ms, rs);
-              rs.Seek(0, soFromBeginning);
-              SetLength(Result, rs.Size);
-              rs.Read(PChar(Result)^, rs.Size);
-            end
-            else
-              vIdHTTP.Post(URL, ms, rfs);
-          finally
-            ms.Free;
-          end;
-        end;
-
-        I := vIdHTTP.ResponseCode;
-        if I >= 400 then
-        begin       
-          S := Format('Error %d', [I]);
-          try
-            S := S+ ': '+vIdHTTP.ResponseText;
-          except
-          end;
-          raise Exception.Create(S)
-        end;
-
-      except
-        on E: Exception do
-        begin
-          if G_NetLogEnabled then
-            if Pos('&noNetLog=1', URL) = 0 then
-            begin
-              S := 'Net_Error: ' + E.Message;
-              AddNetLog(S);
-            end;
-          raise;
+          Client.RequestBody := nil;
+          FreeAndNil(BodyStream);
         end;
       end;
 
+      if UseCookies then
+        MergeResponseCookies(Client);
 
-    finally
-      if rfs <> nil then
-        rfs.Free;
-      rs.Free;
+      if Client.ResponseStatusCode >= 400 then
+      begin
+        S := Format('Error %d', [Client.ResponseStatusCode]);
+        if Client.ResponseStatusText <> '' then
+          S := S + ': ' + Client.ResponseStatusText;
+        raise Exception.Create(S);
+      end;
+    except
+      on E: Exception do
+      begin
+        if ShouldNetLog(URL) then
+          AddNetLog('Net_Error: ' + E.Message);
+        raise;
+      end;
     end;
 
-    if IsUtf8Type(URL, vIdHTTP.Response) then
+    Result := '';
+    if MemoryResult <> nil then
+      ReadStreamToString(MemoryResult, Result);
+
+    if IsUtf8Type(URL, Client) then
       Result := UTF8Decode(Result);
 
-    if G_NetLogEnabled then
-      if Pos('&noNetLog=1', URL) = 0 then
-      begin
-        S := 'Net_Result: ' + Result;
-        AddNetLog(S + #13#10'-------------------------------------------------');
-      end;
-
+    if ShouldNetLog(URL) then
+      AddNetLog('Net_Result: ' + Result + #13#10'-------------------------------------------------');
   finally
-    if SslIo <> nil then
+    if BodyStream <> nil then
     begin
-      if vIdHTTP.IOHandler = SslIo then
-        vIdHTTP.IOHandler := nil;
-      SslIo.Free;
+      Client.RequestBody := nil;
+      BodyStream.Free;
     end;
-    if vIdHTTP <> conn then
-      vIdHTTP.Free;
+    FileResult.Free;
+    MemoryResult.Free;
+    if OwnClient then
+      Client.Free;
   end;
-
-end;           
-{$ENDIF}
+end;
 
 function GetUrlData_Net_Ex(URL: string; PostData: string; Opts: string): string;
 begin
@@ -559,20 +477,20 @@ end;
 
 function GetUrlData_Net(URL: string; PostData: string; Opts: string): string;
 var
-  cr:TCursor;
+  cr: TCursor;
 begin
   if Pos('[SHOW_PROGRESS]', UpperCase(Opts)) = 0 then
   begin
     Result := GetUrlData_Net_Ex(URL, PostData, Opts);
     Exit;
   end;
-  {$IFNDEF WINDOWS}   
+  {$IFNDEF WINDOWS}
   cr := Screen.Cursor;
-  Screen.Cursor:=crAppStart;
+  Screen.Cursor := crAppStart;
   try
     Result := GetUrlData_Net_Ex(URL, PostData, Opts);
   finally
-    Screen.Cursor:=cr;
+    Screen.Cursor := cr;
   end;
   Exit;
   {$ENDIF}
@@ -590,59 +508,46 @@ end;
 
 function URLDecodeEx(const S: string): string;
 var
-  Idx: Integer; // loops thru chars in string
-  Hex: string; // string of hex characters
-  Code: Integer; // hex character code (-1 on error)
+  Idx: Integer;
+  Hex: string;
+  Code: Integer;
 begin
-  // Intialise result and string index
   Result := '';
   Idx := 1;
-  // Loop thru string decoding each character
   while Idx <= Length(S) do
   begin
     case S[Idx] of
       '%':
         begin
-        // % should be followed by two hex digits - exception otherwise
           if Idx <= Length(S) - 2 then
           begin
-          // there are sufficient digits - try to decode hex digits
             Hex := S[Idx + 1] + S[Idx + 2];
             Code := SysUtils.StrToIntDef('$' + Hex, -1);
             Inc(Idx, 2);
           end
           else
-          // insufficient digits - error
             Code := -1;
-        // check for error and raise exception if found
           if Code = -1 then
-            raise SysUtils.EConvertError.Create(
-              'Invalid hex digit in URL'
-              );
-        // decoded OK - add character to result
+            raise SysUtils.EConvertError.Create('Invalid hex digit in URL');
           Result := Result + Chr(Code);
         end;
       '+':
-        // + is decoded as a space
-        Result := Result + ' '
+        Result := Result + ' ';
     else
-        // All other characters pass thru unchanged
       Result := Result + S[Idx];
     end;
     Inc(Idx);
   end;
-  //Result := Utf8Decode(Result);
 end;
-
 
 function URLEncodeEx(const VS: string): string;
 var
-  Idx: Integer; // loops thru characters in string
+  Idx: Integer;
   InQueryString: Boolean;
   S: string;
 begin
   Result := '';
-  S := VS;//Utf8Encode(VS);
+  S := VS;
   InQueryString := False;
   for Idx := 1 to Length(S) do
   begin
@@ -659,7 +564,6 @@ begin
     end;
   end;
 end;
-
 
 { TUrlWaitor }
 
@@ -700,26 +604,13 @@ begin
   bSuccess := True;
 end;
 
-initialization  
+initialization
   G_NetLogEnabled := True;
   G_NetLogs := TStringList.Create;
-{$IFDEF USE_IDHTTP}                 
-{$ifdef WINDOWS}
-{$ifdef WIN32}
-  GIdDefaultUserAgent := 'Mozilla/3.0 (compatible; Indy Library) EZDML Win32 '+srEzdmlVersionNum;
-{$else}
-  GIdDefaultUserAgent := 'Mozilla/3.0 (compatible; Indy Library) EZDML Win64 '+srEzdmlVersionNum;
-{$endif}
-{$else}
-{$IFDEF DARWIN}
-  GIdDefaultUserAgent := 'Mozilla/3.0 (compatible; Indy Library) EZDML MacOS '+srEzdmlVersionNum;
-{$else}
-  GIdDefaultUserAgent := 'Mozilla/3.0 (compatible; Indy Library) EZDML Linux '+srEzdmlVersionNum;
-{$ENDIF}
-{$endif}
-{$ENDIF}
+  FCookieJar := TStringList.Create;
 
-
+finalization
+  FreeAndNil(FCookieJar);
+  FreeAndNil(G_NetLogs);
 
 end.
-

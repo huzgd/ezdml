@@ -137,6 +137,7 @@
 {"hash":6306037,"name":"tframedml.mnrun_gensql.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,68,97,116,97,98,97,115,101],"value":"Generate Database"},
 {"hash":102743777,"name":"tframedml.mnrun_gendata.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,84,101,115,116,32,68,97,116,97],"value":"Generate Test Data"},
 {"hash":98939356,"name":"tframedml.mnrun_sqltool.caption","sourcebytes":[83,81,76,32,84,111,111,108],"value":"SQL Tool"},
+{"hash":93947106,"name":"tframedml.mnai_mcpserver.caption","sourcebytes":[77,67,80,32,83,101,114,118,101,114],"value":"MCP Server"},
 {"hash":88687356,"name":"tframedml.mnai_gennewmodel.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,78,101,119,32,77,111,100,101,108],"value":"Generate New Model"},
 {"hash":66305299,"name":"tframedml.mnai_gentables.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,84,97,98,108,101,115],"value":"Add More Tables"},
 {"hash":43756899,"name":"tframedml.mnai_genfields.caption","sourcebytes":[65,100,100,32,77,111,114,101,32,70,105,101,108,100,115],"value":"Add More Fields"},

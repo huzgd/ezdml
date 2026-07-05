@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="11"/>
+    <Version Value="12"/>
     <PathDelim Value="\"/>
     <General>
       <Flags>
@@ -9,9 +9,9 @@
         <MainUnitHasCreateFormStatements Value="False"/>
         <MainUnitHasTitleStatement Value="False"/>
         <MainUnitHasScaledStatement Value="False"/>
+        <CompatibilityMode Value="True"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <MainUnit Value="0"/>
       <Title Value="EZDML Lite"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
@@ -155,7 +155,6 @@
     </PublishOptions>
     <RunParams>
       <FormatVersion Value="2"/>
-      <Modes Count="0"/>
     </RunParams>
     <RequiredPackages Count="4">
       <Item1>
@@ -171,7 +170,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="76">
+    <Units Count="78">
       <Unit0>
         <Filename Value="ezdml_lite.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -540,6 +539,21 @@
         <Filename Value="DML\Scripts\PasGen_JDBCServer.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit75>
+      <Unit76>
+        <Filename Value="DML\ImpExp\wmodeldmltext.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmModelDMLText"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="wModelDMLText"/>
+      </Unit76>
+      <Unit77>
+        <Filename Value="SubForms\uFormDmlHistory.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmDmlHistory"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit77>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

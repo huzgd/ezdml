@@ -496,16 +496,23 @@ begin
         begin
           DataLength := FieldByName('numeric_precision').AsInteger;
           DataScale := FieldByName('numeric_scale').AsInteger;
-          if (DataType = cfdtInteger) and (DataScale = 0)
-            and (FieldByName('numeric_scale').AsInteger = 2) then
+        end;
+        if (DataLength > 0) and (DataScale = 0) then
+        begin
+          if DataType = cfdtInteger then
           begin
             if DataLength = 64 then
-              DataLength := 20        
+              DataLength := 20
+            else if DataLength = 32 then
+              DataLength := 0
             else if DataLength = 16 then
               DataLength := 5
             else if DataLength > 32 then
-              DataLength := 10
-            else
+              DataLength := 10;
+          end
+          else if DataType = cfdtEnum then
+          begin
+            if DataLength = 16 then
               DataLength := 0;
           end;
         end;
@@ -551,6 +558,13 @@ begin
       if (f <> nil) then
       begin
         f.KeyFieldType := cfktId;
+        if f.DataType=cfdtInteger then
+        begin
+          if Pos('nextval(', Trim(f.DefaultValue))=1 then
+            f.DefaultValue := DEF_VAL_auto_increment;
+          if f.DataLength=20 then
+            f.DataLength := 0;
+        end;
       end;
       Next;
     end;
@@ -612,6 +626,9 @@ begin
           f.KeyFieldType := cfktRid;
         f.RelateTable := FieldByName('reltable').AsString;
         f.RelateField := FieldByName('relfield').AsString;
+        if f.DataType=cfdtInteger then
+          if f.DataLength=20 then
+            f.DataLength := 0;
       end;
       Next;
     end;

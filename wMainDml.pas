@@ -1,11 +1,14 @@
-unit wMainDml;
+﻿unit wMainDml;
 
 {$MODE Delphi}
 {$WARN 5057 off : Local variable "$1" does not seem to be initialized}
 {$WARN 4105 off : Implicit string type conversion with potential data loss from "$1" to "$2"}
                    
 {$define EZDML_CHATGPT}
-{$define USE_MSSQL}
+{$define USE_MSSQL}    
+{$IFDEF Windows}  
+{$define USE_MSSQLCONN}
+{$ENDIF}
      
 {$ifdef WIN32}
   {$undef EZDML_CHATGPT}
@@ -17,6 +20,7 @@ unit wMainDml;
   {$endif}
 {$endif}
 
+
 interface
 
 uses
@@ -27,6 +31,7 @@ uses
   {$ifndef EZDML_LITE}
   BESENCharset,
   DmlJsScript,
+  ezdmlmcpdescribe, ezdmlmcpchangeset,
   {$endif}
   uWaitWnd, ActnList, StdActns, Buttons, FileUtil, CtObjJsonSerial, CtMetaChange;
 
@@ -49,6 +54,7 @@ type
     actImportExcel: TAction;
     actChatGPT: TAction;
     actImportDDLSql: TAction;
+    actModelDMLText: TAction;
     actViewModelInNewWnd: TAction;
     actOpenUrl: TAction;
     actShareFile: TAction;
@@ -66,6 +72,8 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MN_ModelDMLText: TMenuItem;
+    MNAI_MCPServer: TMenuItem;
     MNAI_GenPhyNames: TMenuItem;
     MN_ViewModelInNewWnd: TMenuItem;
     MNAI_Text2SQL: TMenuItem;
@@ -140,7 +148,7 @@ type
     N4: TMenuItem;
     MN_EditINIfile: TMenuItem;
     MN_ExecScript: TMenuItem;
-    MNShowTemprFile: TMenuItem;
+    MNShowHistFile: TMenuItem;
     MN_BrowseScripts: TMenuItem;
     MnGenerateCode: TMenuItem;
     N5: TMenuItem;
@@ -151,7 +159,7 @@ type
     actSaveFile: TAction;
     actSaveFileAs: TAction;
     actShowFileInExplorer: TAction;
-    actShowTmprFile: TAction;
+    actShowHistFile: TAction;
     actExitWithoutSave: TAction;
     actExit: TAction;
     actNewTable: TAction;
@@ -186,6 +194,7 @@ type
     procedure actImportDDLSqlExecute(Sender: TObject);
     procedure actImportExcelExecute(Sender: TObject);
     procedure actImportFileExecute(Sender: TObject);
+    procedure actModelDMLTextExecute(Sender: TObject);
     procedure actLoadFromDbExecute(Sender: TObject);
     procedure actNewAppWinExecute(Sender: TObject);
     procedure actOpenUrlExecute(Sender: TObject);
@@ -204,6 +213,7 @@ type
     procedure lbNewVerInfoMouseEnter(Sender: TObject);
     procedure lbNewVerInfoMouseLeave(Sender: TObject);
     procedure MNAI_GenNewModelClick(Sender: TObject);
+    procedure MNAI_MCPServerClick(Sender: TObject);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure TimerDelayCmdTimer(Sender: TObject);
@@ -217,7 +227,7 @@ type
     procedure actSaveFileExecute(Sender: TObject);
     procedure actSaveFileAsExecute(Sender: TObject);
     procedure actShowFileInExplorerExecute(Sender: TObject);
-    procedure actShowTmprFileExecute(Sender: TObject);
+    procedure actShowHistFileExecute(Sender: TObject);
     procedure actExitWithoutSaveExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actNewTableExecute(Sender: TObject);
@@ -263,6 +273,8 @@ type
 
     FGlobeOpeningFile: string;
     FRecentFiles: TStringList;
+    FMcpDescribePreviews: TStringList;
+    FMcpChangeSetPreviews: TStringList;
     FReservedToolsMenuCount: integer;
     FCustomTools: TStringList;
 
@@ -329,7 +341,7 @@ type
     function GetFastTmpFileName(fn: string): string; //快速加载用的临时文件名
     function GetLastTmpFileName(fn: string): string; //最后一次的临时文件名
     function GetNewTmpFileName(fn: string): string;
-    function SaveDMLToTmpFile: string;
+    function SaveDMLToTmpFile(AForceEmpty: Boolean = False): string;
     procedure SaveDMLFastTmpFile(bForceSaveHuge: Boolean=False);
     function TryLoadFromTmpFile(sfn: string): boolean;
 
@@ -343,6 +355,52 @@ type
     function GetDmlFileDateAndSize(fn: string; var vFileSize: Integer; var vFileDate: TDateTime): boolean;
 
     procedure RunConsoleCmd(cmd: string);
+
+  {$ifndef EZDML_LITE}
+    procedure AsyncMcpToolRequest(Data: PtrInt);
+    function HandleMcpAppTool(const AToolName, AArgumentsJson: string;
+      out AResultJson, AErrorMessage: string): Boolean;
+    function McpBuildFileStatusJson(const AOperation, APath: string): string;
+    function McpHandleDirty(const AOnDirty, ASavePath: string; out AErrorMessage: string): Boolean;
+    function McpFileNew(const AOnDirty, ASavePath: string): string;
+    function McpFileOpen(const APath, AOnDirty, ASavePath: string; ADisableTmpRecovery: Boolean): string;
+    function McpFileSave(const APath: string; AOverwrite: Boolean): string;
+    function McpFileSaveAs(const APath: string; AOverwrite, AUtf8EncodeStrings: Boolean): string;
+    function McpOnlineExamplesList(const AQuery: string; ACursor, ALimit: Integer): string;
+    function McpOnlineExampleLoad(const ASid, AOnDirty, ASavePath: string): string;
+    procedure ClearMcpDescribePreviews;
+    procedure ClearMcpChangeSetPreviews;
+    function FindMcpDescribePreview(const AToken: string): TMcpDescribePreview;
+    function FindMcpChangeSetPreview(const AToken: string): TMcpChangeSetPreview;
+    function McpContextGet: string;
+    function McpResourceRead(const AUri: string): string;
+    function McpDescribeGet(const AScope, AModelName, ATableName: string): string;
+    function McpDescribePreview(const AScope, AModelName, ATableName,
+      AMode, AText: string; ABaseRevision: Int64): string;
+    function McpDescribeApply(const AToken: string; ABaseRevision: Int64;
+      AConfirm: Boolean): string;
+    function McpObjectWrite(const AToolName, AArgumentsJson: string;
+      ABaseRevision: Int64): string;
+    function McpHistoryList(ACursor, ALimit: Integer): string;
+    function McpHistoryPreview(const AHistoryId, ADetail: string): string;
+    function McpHistoryRestore(const AHistoryId: string;
+      ABaseRevision: Int64; AConfirm: Boolean): string;
+    function McpChangeSetUndo(const AChangeSetId: string;
+      ABaseRevision: Int64; AConfirm: Boolean): string;
+    function ResolveMcpHistoryId(const AHistoryId: string): string;
+    function McpChangeSetPreview(const AArgumentsJson: string;
+      ABaseRevision: Int64): string;
+    function McpChangeSetApply(const AToken: string; ABaseRevision: Int64;
+      AConfirm: Boolean): string;
+    function McpScriptRun(const AArgumentsJson: string;
+      ABaseRevision: Int64): string;
+    function McpCodeTemplatesList(const AArgumentsJson: string): string;
+    function McpCodeGenerate(const AArgumentsJson: string): string;
+    function McpSaveHistoryCheckpoint(const AChangeSetId, AReason: string): string;
+    procedure McpRestoreHistoryCheckpoint(const AFileName: string;
+      AWasModified: Boolean);
+    procedure McpRefreshModelViews;
+    {$ENDIF}
   protected
     procedure CreateWnd; override;
     procedure _WMZ_CUSTCMD(var msg: TMessage); message WMZ_CUSTCMD;
@@ -371,24 +429,87 @@ uses
   {$ifndef EZDML_LITE}
   CtMetaPdmImporter, DmlPasScript, DmlGlobalPasScript, ide_editor, uFormGenCode,
   uFormHttpSvr, FindHexDlg, wExcelImp, DmlScriptControl, uFormGenData, CtTestDataGen,
-  wDDLSqlImp, CtSQLFormat,
+  wDDLSqlImp, CtSQLFormat, ezdmlmcpquery,
+  ezdmlmcpwrite, ezdmlmcpdiff, ezdmlmcpsqldb, ezdmlmcpscriptrun,
   {$else}
   DmlGlobalPasScriptLite, DmlPasScriptLite,
   {$endif}  
-  {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf, uFormText2SQL,{$endif}
+  {$ifdef EZDML_CHATGPT}uFormChatGPT, ChatGptIntf, uFormText2SQL, wMcpSvForm, mcpserver,{$endif}
   CtMetaOdbcDb, NetUtil, PvtInput, AESCrypt, MD5, Base64,
-  ocidyn, mysql57dyn,  sqlite3dyn, CtSysInfo, wShareFile, uFormOnlineFile,
+  ocidyn, mysql80dyn,  sqlite3dyn, CtSysInfo, wShareFile, uFormOnlineFile,
   postgres3dyn,
   ezdmlstrs, dmlstrs, DMLObjs, IniFiles, AutoNameCapitalize, uDMLSqlEditor,
   wAbout, wSettings, uFormCtTableProp, uFormCtFieldProp,
   uJSON, DmlScriptPublic, CtMetaSqliteDb,
   uPSComponent, LCLTranslator, uFormCtDbLogon,
   {$IFDEF DARWIN}  MacOSAll,{$ENDIF}
-  {$IFDEF USE_MSSQL} CtMetaSqlsvrDb, mssqlconn, dblib, {$ENDIF}
+  {$IFDEF USE_MSSQL} CtMetaSqlsvrDb, {$IFDEF USE_MSSQLCONN} mssqlconn, dblib, {$ENDIF} {$ENDIF}
   CtMetaMysqlDb, CtMetaPostgreSqlDb, LCLProc, CtMetaHttpDb,
-  MessageBoxOnTop;
+  MessageBoxOnTop, uFormDmlHistory, wModelDMLText;
 
 {$R *.lfm}
+
+type
+  TMcpMainToolRequest = class
+  public
+    ToolName: string;
+    ArgumentsJson: string;
+    ResultJson: string;
+    ErrorMessage: string;
+    Success: Boolean;
+    Done: Boolean;
+    Event: PRTLEvent;
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+constructor TMcpMainToolRequest.Create;
+begin
+  inherited Create;
+  Event := RTLEventCreate;
+  if Event = nil then
+    raise Exception.Create('RTLEventCreate failed');
+  RTLEventResetEvent(Event);
+end;
+
+destructor TMcpMainToolRequest.Destroy;
+begin
+  if Event <> nil then
+  begin
+    RTLEventDestroy(Event);
+    Event := nil;
+  end;
+  inherited Destroy;
+end;
+
+const
+  MCP_ONLINE_EXAMPLES_URL = 'http://ezdml.com/ez/mfiles/';
+  MCP_ONLINE_EXAMPLE_DOWNLOAD_URL = 'http://ezdml.com/ez/mdown/';
+
+function FetchMcpOnlineExamples: TJSONObject;
+var
+  Data, ErrorMessage, Url: string;
+begin
+  Url := MCP_ONLINE_EXAMPLES_URL + '?uid=' + UrlEncodeEx(GetMyComputerId) +
+    '&t=' + FormatDateTime('yyyymmddhhnnss', Now);
+  Data := Trim(GetUrlData_Net(Url, '', '[WAIT_TICKS=0]'));
+  if (Data = '') or (Data[1] <> '{') then
+    raise Exception.Create('Invalid response from the EZDML online example service: ' + Data);
+
+  Result := TJSONObject.Create(Data);
+  try
+    if Result.optIntDef('resultCode', -1) <> 0 then
+    begin
+      ErrorMessage := Result.optStringDef('errorMsg', 'Unknown online service error');
+      raise Exception.Create('EZDML online example service error: ' + ErrorMessage);
+    end;
+    if Result.optJSONArray('itemList') = nil then
+      raise Exception.Create('EZDML online example service did not return itemList');
+  except
+    Result.Free;
+    raise;
+  end;
+end;
 
   {$IFDEF DARWIN}
 function GetOSLanguageEz: string;
@@ -657,6 +778,1818 @@ begin
     js.Free;
   end;
 end;
+          
+{$ifndef EZDML_LITE}
+function NormalizeMcpLocalPath(const APath: string): string;
+begin
+  Result := Trim(APath);
+  if (Result <> '') and (Pos('db://', LowerCase(Result)) <> 1) then
+    Result := ExpandFileName(Result);
+end;
+
+function IsMcpObjectWriteTool(const AToolName: string): Boolean;
+begin
+  Result := (AToolName = 'ezdml_model_create') or
+    (AToolName = 'ezdml_model_update') or
+    (AToolName = 'ezdml_model_json_update') or
+    (AToolName = 'ezdml_model_delete') or
+    (AToolName = 'ezdml_table_create') or
+    (AToolName = 'ezdml_table_attach') or
+    (AToolName = 'ezdml_table_detach') or
+    (AToolName = 'ezdml_table_update') or
+    (AToolName = 'ezdml_table_json_update') or
+    (AToolName = 'ezdml_table_delete') or
+    (AToolName = 'ezdml_field_create') or
+    (AToolName = 'ezdml_field_update') or
+    (AToolName = 'ezdml_field_json_update') or
+    (AToolName = 'ezdml_field_delete') or
+    (AToolName = 'ezdml_field_reorder') or
+    (AToolName = 'ezdml_graph_layout_update') or
+    (AToolName = 'ezdml_graph_layout_auto');
+end;
+
+procedure TfrmMainDml.AsyncMcpToolRequest(Data: PtrInt);
+var
+  Req: TMcpMainToolRequest;
+  Args: TJSONObject;
+  ArgsText, RevisionText: string;
+  BaseRevision: Int64;
+begin
+  Req := TMcpMainToolRequest(Data);
+  Args := nil;
+  try
+    try
+      if Application.ModalLevel > 0 then
+        raise Exception.Create('The main window has an active modal dialog; MCP file operations are temporarily unavailable');
+      if FFileWorking then
+        raise Exception.Create('The main window is already running a file operation; try again later');
+
+      ArgsText := Trim(Req.ArgumentsJson);
+      if ArgsText = '' then
+        ArgsText := '{}';
+      Args := TJSONObject.Create(ArgsText);
+
+      if Req.ToolName = 'ezdml_file_new' then
+        Req.ResultJson := McpFileNew(
+          Args.optStringDef('on_dirty', 'error'),
+          Args.optStringDef('save_path', ''))
+      else if Req.ToolName = 'ezdml_file_open' then
+        Req.ResultJson := McpFileOpen(
+          Args.optStringDef('path', ''),
+          Args.optStringDef('on_dirty', 'error'),
+          Args.optStringDef('save_path', ''),
+          Args.optBooleanDef('disable_tmp_recovery', True))
+      else if Req.ToolName = 'ezdml_online_examples_list' then
+        Req.ResultJson := McpOnlineExamplesList(
+          Args.optStringDef('query', ''), Args.optIntDef('cursor', 0),
+          Args.optIntDef('limit', 50))
+      else if Req.ToolName = 'ezdml_online_example_load' then
+        Req.ResultJson := McpOnlineExampleLoad(
+          Args.optStringDef('sid', ''),
+          Args.optStringDef('on_dirty', 'error'),
+          Args.optStringDef('save_path', ''))
+      else if Req.ToolName = 'ezdml_file_save' then
+        Req.ResultJson := McpFileSave(
+          Args.optStringDef('path', ''),
+          Args.optBooleanDef('overwrite', False))
+      else if Req.ToolName = 'ezdml_file_save_as' then
+        Req.ResultJson := McpFileSaveAs(
+          Args.optStringDef('path', ''),
+          Args.optBooleanDef('overwrite', False),
+          Args.optBooleanDef('utf8_encode_strings', stringsAsUtf8Encode))
+      else if Req.ToolName = 'ezdml_context_get' then
+        Req.ResultJson := McpContextGet
+      else if Req.ToolName = 'ezdml_resource_read' then
+        Req.ResultJson := McpResourceRead(Args.optStringDef('uri', ''))
+      else if Req.ToolName = 'ezdml_model_list' then
+        Req.ResultJson := McpModelListJson(FCtDataModelList,
+          Args.optIntDef('cursor', 0), Args.optIntDef('limit', 50),
+          Args.optBooleanDef('includeDeleted', False))
+      else if Req.ToolName = 'ezdml_model_get' then
+        Req.ResultJson := McpModelGetJson(FCtDataModelList,
+          Args.optStringDef('modelName', ''),
+          Args.optBooleanDef('includeTables', True))
+      else if Req.ToolName = 'ezdml_model_json_get' then
+        Req.ResultJson := McpModelJsonGet(FCtDataModelList,
+          Args.optStringDef('modelName', ''),
+          Args.optBooleanDef('includeJsonStr', False))
+      else if Req.ToolName = 'ezdml_table_list' then
+        Req.ResultJson := McpTableListJson(FCtDataModelList,
+          Args.optStringDef('modelName', ''),
+          Args.optStringDef('query', ''), Args.optIntDef('cursor', 0),
+          Args.optIntDef('limit', 50))
+      else if Req.ToolName = 'ezdml_table_get' then
+        Req.ResultJson := McpTableGetJson(FCtDataModelList,
+          Args.optStringDef('tableName', ''),
+          Args.optStringDef('modelName', ''),
+          Args.optBooleanDef('includeFields', True))
+      else if Req.ToolName = 'ezdml_table_json_get' then
+        Req.ResultJson := McpTableJsonGet(FCtDataModelList,
+          Args.optStringDef('tableName', ''),
+          Args.optStringDef('modelName', ''),
+          Args.optBooleanDef('includeJsonStr', False))
+      else if Req.ToolName = 'ezdml_field_list' then
+        Req.ResultJson := McpFieldListJson(FCtDataModelList,
+          Args.optStringDef('tableName', ''))
+      else if Req.ToolName = 'ezdml_field_json_get' then
+        Req.ResultJson := McpFieldJsonGet(FCtDataModelList,
+          Args.optStringDef('tableName', ''),
+          Args.optStringDef('fieldName', ''),
+          Args.optStringDef('modelName', ''),
+          Args.optBooleanDef('includeJsonStr', False))
+      else if Req.ToolName = 'ezdml_validate' then
+        Req.ResultJson := McpValidateJson(FCtDataModelList,
+          Args.optStringDef('scope', 'document'),
+          Args.optStringDef('modelName', ''),
+          Args.optStringDef('tableName', ''))
+      else if Req.ToolName = 'ezdml_history_list' then
+        Req.ResultJson := McpHistoryList(Args.optIntDef('cursor', 0),
+          Args.optIntDef('limit', 50))
+      else if Req.ToolName = 'ezdml_history_preview' then
+        Req.ResultJson := McpHistoryPreview(
+          Args.optStringDef('historyId', ''),
+          Args.optStringDef('detail', 'auto'))
+      else if Req.ToolName = 'ezdml_history_restore' then
+      begin
+        RevisionText := Args.optStringDef('baseRevision', '');
+        if RevisionText = '' then
+          raise Exception.Create('baseRevision is required');
+        if not TryStrToInt64(RevisionText, BaseRevision) then
+          raise Exception.Create('baseRevision must be an integer');
+        Req.ResultJson := McpHistoryRestore(
+          Args.optStringDef('historyId', ''), BaseRevision,
+          Args.optBooleanDef('confirm', False));
+      end
+      else if Req.ToolName = 'ezdml_changeset_undo' then
+      begin
+        RevisionText := Args.optStringDef('baseRevision', '');
+        if RevisionText = '' then raise Exception.Create('baseRevision is required');
+        if not TryStrToInt64(RevisionText, BaseRevision) then
+          raise Exception.Create('baseRevision must be an integer');
+        Req.ResultJson := McpChangeSetUndo(Args.optStringDef('changeSetId', ''),
+          BaseRevision, Args.optBooleanDef('confirm', False));
+      end
+      else if Req.ToolName = 'ezdml_changeset_preview' then
+      begin
+        RevisionText := Args.optStringDef('baseRevision', '');
+        if RevisionText = '' then
+          raise Exception.Create('baseRevision is required');
+        if not TryStrToInt64(RevisionText, BaseRevision) then
+          raise Exception.Create('baseRevision must be an integer');
+        Req.ResultJson := McpChangeSetPreview(ArgsText, BaseRevision);
+      end
+      else if Req.ToolName = 'ezdml_changeset_apply' then
+      begin
+        RevisionText := Args.optStringDef('baseRevision', '');
+        if RevisionText = '' then
+          raise Exception.Create('baseRevision is required');
+        if not TryStrToInt64(RevisionText, BaseRevision) then
+          raise Exception.Create('baseRevision must be an integer');
+        Req.ResultJson := McpChangeSetApply(
+          Args.optStringDef('previewToken', ''), BaseRevision,
+          Args.optBooleanDef('confirm', False));
+      end
+      else if IsMcpObjectWriteTool(Req.ToolName) then
+      begin
+        RevisionText := Args.optStringDef('baseRevision', '');
+        if RevisionText = '' then
+          raise Exception.Create('baseRevision is required');
+        if not TryStrToInt64(RevisionText, BaseRevision) then
+          raise Exception.Create('baseRevision must be an integer');
+        Req.ResultJson := McpObjectWrite(Req.ToolName, ArgsText, BaseRevision);
+      end
+      else if Req.ToolName = 'ezdml_describe_get' then
+        Req.ResultJson := McpDescribeGet(
+          Args.optStringDef('scope', 'file'),
+          Args.optStringDef('modelName', ''),
+          Args.optStringDef('tableName', ''))
+      else if Req.ToolName = 'ezdml_describe_preview' then
+      begin
+        RevisionText := Args.optStringDef('baseRevision', '');
+        if RevisionText = '' then
+          raise Exception.Create('baseRevision is required');
+        if not TryStrToInt64(RevisionText, BaseRevision) then
+          raise Exception.Create('baseRevision must be an integer');
+        Req.ResultJson := McpDescribePreview(
+          Args.optStringDef('scope', ''),
+          Args.optStringDef('modelName', ''),
+          Args.optStringDef('tableName', ''),
+          Args.optStringDef('mode', 'merge'),
+          Args.optStringDef('text', ''),
+          BaseRevision);
+      end
+      else if Req.ToolName = 'ezdml_describe_apply' then
+      begin
+        RevisionText := Args.optStringDef('baseRevision', '');
+        if RevisionText = '' then
+          raise Exception.Create('baseRevision is required');
+        if not TryStrToInt64(RevisionText, BaseRevision) then
+          raise Exception.Create('baseRevision must be an integer');
+        Req.ResultJson := McpDescribeApply(
+          Args.optStringDef('previewToken', ''), BaseRevision,
+          Args.optBooleanDef('confirm', False));
+      end
+      else if Req.ToolName = 'ezdml_script_run' then
+      begin
+        RevisionText := Args.optStringDef('baseRevision', '');
+        if RevisionText = '' then
+          raise Exception.Create('baseRevision is required');
+        if not TryStrToInt64(RevisionText, BaseRevision) then
+          raise Exception.Create('baseRevision must be an integer');
+        Req.ResultJson := McpScriptRun(ArgsText, BaseRevision);
+      end
+      else if Req.ToolName = 'ezdml_code_templates_list' then
+        Req.ResultJson := McpCodeTemplatesList(ArgsText)
+      else if Req.ToolName = 'ezdml_code_generate' then
+        Req.ResultJson := McpCodeGenerate(ArgsText)
+      else if IsMcpSqlDbTool(Req.ToolName) then
+        Req.ResultJson := McpSqlDbToolJson(FCtDataModelList,
+          Req.ToolName, ArgsText)
+      else
+        raise Exception.Create('Unknown MCP application tool: ' + Req.ToolName);
+
+      Req.Success := True;
+    except
+      on E: Exception do
+      begin
+        Req.Success := False;
+        Req.ErrorMessage := E.Message;
+      end;
+    end;
+  finally
+    Args.Free;
+    Req.Done := True;
+    RTLEventSetEvent(Req.Event);
+  end;
+end;
+
+function TfrmMainDml.HandleMcpAppTool(const AToolName, AArgumentsJson: string;
+  out AResultJson, AErrorMessage: string): Boolean;
+var
+  Req: TMcpMainToolRequest;
+begin
+  AResultJson := '';
+  AErrorMessage := '';
+  Req := TMcpMainToolRequest.Create;
+  try
+    Req.ToolName := AToolName;
+    Req.ArgumentsJson := AArgumentsJson;
+    Application.QueueAsyncCall(AsyncMcpToolRequest, PtrInt(Req));
+    RTLEventWaitFor(Req.Event);
+
+    Result := Req.Success;
+    AResultJson := Req.ResultJson;
+    AErrorMessage := Req.ErrorMessage;
+  finally
+    Req.Free;
+  end;
+end;
+
+function TfrmMainDml.McpBuildFileStatusJson(const AOperation, APath: string): string;
+var
+  Js: TJSONObject;
+begin
+  Js := TJSONObject.Create;
+  try
+    Js.put('ok', True);
+    Js.put('operation', AOperation);
+    Js.put('path', APath);
+    Js.put('currentPath', FCurFileName);
+    Js.put('currentDmlPath', FCurDmlFileName);
+    Js.put('modified', FCtDataModelList.MetaModified);
+    Js.put('modelCount', FCtDataModelList.Count);
+    Js.put('tableCount', FCtDataModelList.TableCount);
+    Result := Js.toString;
+  finally
+    Js.Free;
+  end;
+end;
+
+function TfrmMainDml.McpHandleDirty(const AOnDirty, ASavePath: string;
+  out AErrorMessage: string): Boolean;
+var
+  Act, Fn: string;
+begin
+  Result := False;
+  AErrorMessage := '';
+
+  if (FCtDataModelList.TableCount = 0) or (not FCtDataModelList.MetaModified) then
+    Exit(True);
+
+  Act := LowerCase(Trim(AOnDirty));
+  if Act = '' then
+    Act := 'error';
+
+  if Act = 'error' then
+  begin
+    AErrorMessage := 'The current model has unsaved changes. Use on_dirty=discard, save, or backup';
+    Exit;
+  end
+  else if Act = 'discard' then
+  begin
+    FCtDataModelList.MetaModified := False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
+    Exit(True);
+  end
+  else if Act = 'backup' then
+  begin
+    SaveDMLFastTmpFile(True);
+    FCtDataModelList.MetaModified := False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
+    Exit(True);
+  end
+  else if Act = 'save' then
+  begin
+    Fn := NormalizeMcpLocalPath(ASavePath);
+    if Fn = '' then
+      Fn := FCurFileName;
+    if (Fn = '') or IsTmpFile(Fn) or IsDbFile(Fn) then
+    begin
+      AErrorMessage := 'on_dirty=save requires a local current file or a save_path argument';
+      Exit;
+    end;
+
+    SaveToFile(Fn);
+    FCurDmlFileName := FCurFileName;
+    SetRecentFile(FCurFileName);
+    FCtDataModelList.MetaModified := False;
+    FLastAutoSaveDate := 0;
+    FCtMetaChangeList.Clear;
+    Exit(True);
+  end;
+
+  AErrorMessage := 'Invalid on_dirty value: ' + AOnDirty;
+end;
+
+function TfrmMainDml.McpFileNew(const AOnDirty, ASavePath: string): string;
+var
+  Err: string;
+begin
+  EzdmlMenuActExecuteEvt('MCP_File_New');
+  CheckCanEditMeta;
+  FCtDataModelList.Pack;
+  CheckAutoSaveHydb;
+  if not McpHandleDirty(AOnDirty, ASavePath, Err) then
+    raise Exception.Create(Err);
+
+  ClearMcpDescribePreviews;
+  ClearMcpChangeSetPreviews;
+  FCtDataModelList.Clear;
+  FFrameCtTableDef.Init(FCtDataModelList, True);
+  FFrameCtTableDef.Init(FCtDataModelList, False);
+  SetStatusBarMsg('');
+  FCurFileName := '';
+  FCurDmlFileName := '';
+  FAutoSaveCounter := 0;
+  FAutoSaveHydbCounter := 0;
+  FCtDataModelList.MetaModified := False;
+  FLastAutoSaveDate := 0;
+  FCtMetaChangeList.Clear;
+  TryLockFile('');
+  CheckCaption;
+  SaveIni;
+
+  if Assigned(GProc_OnEzdmlCmdEvent) then
+    GProc_OnEzdmlCmdEvent('MAINFORM', 'FILE_NEW', '', Self, nil);
+
+  Result := McpBuildFileStatusJson('new', '');
+end;
+
+function TfrmMainDml.McpFileOpen(const APath, AOnDirty, ASavePath: string;
+  ADisableTmpRecovery: Boolean): string;
+var
+  Fn, Ext, Err: string;
+begin
+  EzdmlMenuActExecuteEvt('MCP_File_Open');
+  CheckCanEditMeta;
+  FCtDataModelList.Pack;
+  CheckAutoSaveHydb;
+  if not McpHandleDirty(AOnDirty, ASavePath, Err) then
+    raise Exception.Create(Err);
+
+  ClearMcpDescribePreviews;
+  ClearMcpChangeSetPreviews;
+  Fn := NormalizeMcpLocalPath(APath);
+  if Fn = '' then
+    raise Exception.Create('Opening a file requires the path argument');
+  if IsDbFile(Fn) then
+    raise Exception.Create('MCP file open does not currently support db:// files');
+  if not FileExists(Fn) then
+    raise Exception.Create('File not found: ' + Fn);
+
+  // MCP 打开必须无交互，因此不会弹出临时恢复文件确认框。
+  if not ADisableTmpRecovery then
+    SetStatusBarMsg('MCP open ignores temporary recovery prompts.');
+
+  TryLockFile(Fn);
+  Ext := LowerCase(ExtractFileExt(Fn));
+  if Ext = '.pdm' then
+    ImportFromFile(Fn)
+  else
+  begin
+    LoadFromFile(Fn);
+    FCurDmlFileName := Fn;
+    SetRecentFile(Fn);
+    if Assigned(GProc_OnEzdmlCmdEvent) then
+      GProc_OnEzdmlCmdEvent('MAINFORM', 'FILE_OPEN', FCurDmlFileName, Self, nil);
+  end;
+
+  Result := McpBuildFileStatusJson('open', Fn);
+end;
+
+function TfrmMainDml.McpOnlineExamplesList(const AQuery: string;
+  ACursor, ALimit: Integer): string;
+var
+  Added, I, MatchedCount: Integer;
+  Catalog, Item, OutputItem, Root: TJSONObject;
+  CreatedAt, Memo, Name, Query, ShareUrl, Sid: string;
+  Items, OutputItems: TJSONArray;
+begin
+  if ACursor < 0 then
+    raise Exception.Create('cursor must be zero or greater');
+  if ALimit = 0 then
+    ALimit := 50;
+  if (ALimit < 1) or (ALimit > 200) then
+    raise Exception.Create('limit must be between 1 and 200');
+
+  Query := LowerCase(Trim(AQuery));
+  Catalog := FetchMcpOnlineExamples;
+  Root := TJSONObject.Create;
+  try
+    Items := Catalog.optJSONArray('itemList');
+    OutputItems := TJSONArray.Create;
+    Root.put('items', OutputItems);
+    MatchedCount := 0;
+    Added := 0;
+    for I := 0 to Items.Count - 1 do
+    begin
+      Item := Items.getMap(I);
+      Name := Item.optString('NAME');
+      Memo := Item.optString('MEMO');
+      if (Query <> '') and
+        (Pos(Query, LowerCase(Name + #10 + Memo)) = 0) then
+        Continue;
+
+      if (MatchedCount >= ACursor) and (Added < ALimit) then
+      begin
+        Sid := Item.optString('FILE_GUID');
+        ShareUrl := Item.optString('SHARE_URL');
+        if (ShareUrl <> '') and (Pos('://', ShareUrl) = 0) then
+          ShareUrl := 'http://' + ShareUrl;
+        CreatedAt := Item.optString('CREATEDATE');
+        if CreatedAt = '' then
+          CreatedAt := Item.optString('LASTDATE');
+
+        OutputItem := TJSONObject.Create;
+        OutputItem.put('sid', Sid);
+        OutputItem.put('name', Name);
+        OutputItem.put('fileSize', Item.optIntDef('FILE_SIZE', 0));
+        OutputItem.put('createdAt', CreatedAt);
+        OutputItem.put('visitCount', Item.optIntDef('VISIT_COUNTER', 0));
+        OutputItem.put('memo', Memo);
+        OutputItem.put('shareUrl', ShareUrl);
+        OutputItems.put(OutputItem);
+        Inc(Added);
+      end;
+      Inc(MatchedCount);
+    end;
+
+    Root.put('ok', True);
+    Root.put('operation', 'online_examples_list');
+    Root.put('source', 'EZDML official online examples');
+    Root.put('total', MatchedCount);
+    Root.put('cursor', ACursor);
+    Root.put('limit', ALimit);
+    if ACursor + Added < MatchedCount then
+      Root.put('nextCursor', IntToStr(ACursor + Added))
+    else
+      Root.put('nextCursor', '');
+    Result := Root.toString;
+  finally
+    Root.Free;
+    Catalog.Free;
+  end;
+end;
+
+function TfrmMainDml.McpOnlineExampleLoad(const ASid, AOnDirty,
+  ASavePath: string): string;
+var
+  I: Integer;
+  Found: Boolean;
+  Catalog, Item, ResultJson: TJSONObject;
+  Data, DownloadUrl, Err, Fn, Memo, Name, ShareUrl, Sid, VirtualName: string;
+  Items: TJSONArray;
+  TextFile: TStringList;
+begin
+  Sid := Trim(ASid);
+  if Sid = '' then
+    raise Exception.Create('sid is required');
+
+  Name := '';
+  Memo := '';
+  ShareUrl := '';
+  Found := False;
+  Catalog := FetchMcpOnlineExamples;
+  try
+    Items := Catalog.optJSONArray('itemList');
+    for I := 0 to Items.Count - 1 do
+    begin
+      Item := Items.getMap(I);
+      if SameText(Item.optString('FILE_GUID'), Sid) then
+      begin
+        Found := True;
+        Sid := Item.optString('FILE_GUID');
+        Name := Item.optString('NAME');
+        Memo := Item.optString('MEMO');
+        ShareUrl := Item.optString('SHARE_URL');
+        Break;
+      end;
+    end;
+  finally
+    Catalog.Free;
+  end;
+  if not Found then
+    raise Exception.Create('Online example not found: ' + Sid);
+  if (ShareUrl <> '') and (Pos('://', ShareUrl) = 0) then
+    ShareUrl := 'http://' + ShareUrl;
+
+  // 先完成下载，网络失败时不改变当前文档及其 modified 状态。
+  DownloadUrl := MCP_ONLINE_EXAMPLE_DOWNLOAD_URL + '?sid=' +
+    UrlEncodeEx(Sid) + '&uid=' + UrlEncodeEx(GetMyComputerId);
+  Data := GetUrlData_Net(DownloadUrl, '', '[WAIT_TICKS=0]');
+  if Pos('[Error]', Trim(Data)) = 1 then
+    raise Exception.Create(Trim(Copy(Trim(Data), 8, MaxInt)));
+  if Trim(Data) = '' then
+    raise Exception.Create('The downloaded online example is empty');
+
+  CheckCanEditMeta;
+  FCtDataModelList.Pack;
+  CheckAutoSaveHydb;
+  if not McpHandleDirty(AOnDirty, ASavePath, Err) then
+    raise Exception.Create(Err);
+
+  ClearMcpDescribePreviews;
+  ClearMcpChangeSetPreviews;
+  VirtualName := Name;
+  if VirtualName = '' then
+    VirtualName := Sid;
+  Fn := ChangeFileExt(GetNewTmpFileName('web://' + VirtualName), '.~dmj');
+  if not DirectoryExists(ExtractFilePath(Fn)) then
+    ForceDirectories(ExtractFilePath(Fn));
+  TextFile := TStringList.Create;
+  try
+    TextFile.Text := Data;
+    TextFile.SaveToFile(Fn);
+  finally
+    TextFile.Free;
+  end;
+
+  TryLockFile('');
+  LoadFromFile(Fn);
+  AddOnlineHistoryFile(Sid, ShareUrl, Memo, Length(Data));
+  FCurDmlFileName := '';
+  FCtDataModelList.MetaModified := False;
+  FLastAutoSaveDate := 0;
+  FCtMetaChangeList.Clear;
+  CheckCaption;
+
+  ResultJson := TJSONObject.Create(
+    McpBuildFileStatusJson('online_example_load', Fn));
+  try
+    ResultJson.put('sid', Sid);
+    ResultJson.put('name', Name);
+    ResultJson.put('memo', Memo);
+    ResultJson.put('shareUrl', ShareUrl);
+    ResultJson.put('downloadBytes', Length(Data));
+    ResultJson.put('revision',
+      IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+    Result := ResultJson.toString;
+  finally
+    ResultJson.Free;
+  end;
+end;
+
+function TfrmMainDml.McpFileSave(const APath: string; AOverwrite: Boolean): string;
+var
+  Fn: string;
+begin
+  EzdmlMenuActExecuteEvt('MCP_File_Save');
+  CheckCanEditMeta;
+
+  Fn := NormalizeMcpLocalPath(APath);
+  if Fn <> '' then
+    Exit(McpFileSaveAs(Fn, AOverwrite, stringsAsUtf8Encode));
+
+  if (FCurFileName = '') or IsTmpFile(FCurFileName) or IsDbFile(FCurFileName) then
+    raise Exception.Create('The current model has no local file path. Use ezdml_file_save_as');
+
+  SaveToFile(FCurFileName);
+  FAutoSaveCounter := 0;
+  FAutoSaveHydbCounter := 0;
+  if not FCtDataModelList.IsHuge then
+    SaveDmlToTmpFile;
+  FCtDataModelList.MetaModified := False;
+  FLastAutoSaveDate := 0;
+  FCtMetaChangeList.Clear;
+  FCurDmlFileName := FCurFileName;
+  SetRecentFile(FCurFileName);
+  SetStatusBarMsg(srEzdmlSaved + GetStatusPanelFileName(FCurFileName) + ' ' + TimeToStr(Now));
+
+  if Assigned(GProc_OnEzdmlCmdEvent) then
+    GProc_OnEzdmlCmdEvent('MAINFORM', 'FILE_SAVE', FCurDmlFileName, Self, nil);
+
+  Result := McpBuildFileStatusJson('save', FCurFileName);
+end;
+
+function TfrmMainDml.McpFileSaveAs(const APath: string; AOverwrite,
+  AUtf8EncodeStrings: Boolean): string;
+var
+  Fn, Dir: string;
+  OldUtf8Encode: Boolean;
+  SameAsCurrent: Boolean;
+begin
+  EzdmlMenuActExecuteEvt('MCP_File_SaveAs');
+  CheckCanEditMeta;
+
+  Fn := NormalizeMcpLocalPath(APath);
+  if Fn = '' then
+    raise Exception.Create('Save-as requires the path argument');
+
+  Dir := ExtractFileDir(Fn);
+  if (Dir <> '') and (not DirectoryExists(Dir)) then
+    raise Exception.Create('Directory does not exist: ' + Dir);
+
+  SameAsCurrent := (FCurFileName <> '') and (not IsDbFile(FCurFileName)) and
+    (CompareText(ExpandFileName(FCurFileName), Fn) = 0);
+  if FileExists(Fn) and (not AOverwrite) and (not SameAsCurrent) then
+    raise Exception.Create('Target file already exists. Pass overwrite=true: ' + Fn);
+
+  OldUtf8Encode := stringsAsUtf8Encode;
+  try
+    stringsAsUtf8Encode := AUtf8EncodeStrings;
+    TryLockFile(Fn);
+    SaveToFile(Fn);
+    TryLockFile(FCurFileName);
+  finally
+    stringsAsUtf8Encode := OldUtf8Encode;
+  end;
+
+  FAutoSaveCounter := 0;
+  FAutoSaveHydbCounter := 0;
+  SaveDmlToTmpFile;
+  SetStatusBarMsg(srEzdmlSaved + GetStatusPanelFileName(FCurFileName) + ' ' + TimeToStr(Now));
+  FCtDataModelList.MetaModified := False;
+  FLastAutoSaveDate := 0;
+  FCtMetaChangeList.Clear;
+  FCurDmlFileName := FCurFileName;
+  SetRecentFile(FCurFileName);
+
+  if Assigned(GProc_OnEzdmlCmdEvent) then
+    GProc_OnEzdmlCmdEvent('MAINFORM', 'FILE_SAVE', FCurDmlFileName, Self, nil);
+
+  Result := McpBuildFileStatusJson('save_as', FCurFileName);
+end;
+
+procedure TfrmMainDml.ClearMcpDescribePreviews;
+var
+  I: Integer;
+begin
+  if FMcpDescribePreviews = nil then
+    Exit;
+  for I := FMcpDescribePreviews.Count - 1 downto 0 do
+    FMcpDescribePreviews.Objects[I].Free;
+  FMcpDescribePreviews.Clear;
+end;
+
+procedure TfrmMainDml.ClearMcpChangeSetPreviews;
+var
+  I: Integer;
+begin
+  if FMcpChangeSetPreviews = nil then Exit;
+  for I := FMcpChangeSetPreviews.Count - 1 downto 0 do
+    FMcpChangeSetPreviews.Objects[I].Free;
+  FMcpChangeSetPreviews.Clear;
+end;
+
+function TfrmMainDml.FindMcpDescribePreview(
+  const AToken: string): TMcpDescribePreview;
+var
+  I: Integer;
+begin
+  Result := nil;
+  if FMcpDescribePreviews = nil then
+    Exit;
+  I := FMcpDescribePreviews.IndexOf(Trim(AToken));
+  if I >= 0 then
+    Result := TMcpDescribePreview(FMcpDescribePreviews.Objects[I]);
+end;
+
+function TfrmMainDml.FindMcpChangeSetPreview(
+  const AToken: string): TMcpChangeSetPreview;
+var
+  I: Integer;
+begin
+  Result := nil;
+  if FMcpChangeSetPreviews = nil then Exit;
+  I := FMcpChangeSetPreviews.IndexOf(Trim(AToken));
+  if I >= 0 then
+    Result := TMcpChangeSetPreview(FMcpChangeSetPreviews.Objects[I]);
+end;
+
+function TfrmMainDml.McpContextGet: string;
+var
+  Js: TJSONObject;
+begin
+  Js := TJSONObject.Create;
+  try
+    Js.put('ok', True);
+    Js.put('operation', 'context_get');
+    Js.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+    Js.put('modified', FCtDataModelList.MetaModified);
+    Js.put('currentPath', FCurFileName);
+    Js.put('modelCount', FCtDataModelList.Count);
+    Js.put('tableCount', FCtDataModelList.TableCount);
+    if FCtDataModelList.CurDataModel <> nil then
+      Js.put('currentModel', FCtDataModelList.CurDataModel.Name)
+    else
+      Js.put('currentModel', '');
+    Result := Js.toString;
+  finally
+    Js.Free;
+  end;
+end;
+
+function TfrmMainDml.McpDescribeGet(const AScope, AModelName,
+  ATableName: string): string;
+var
+  Js: TJSONObject;
+  Text: string;
+begin
+  Text := GetMcpDescribeText(FCtDataModelList, AScope, AModelName, ATableName);
+  Js := TJSONObject.Create;
+  try
+    Js.put('ok', True);
+    Js.put('operation', 'describe_get');
+    Js.put('scope', LowerCase(Trim(AScope)));
+    Js.put('modelName', AModelName);
+    Js.put('tableName', ATableName);
+    Js.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+    Js.put('text', Text);
+    Result := Js.toString;
+  finally
+    Js.Free;
+  end;
+end;
+
+function TfrmMainDml.McpDescribePreview(const AScope, AModelName,
+  ATableName, AMode, AText: string; ABaseRevision: Int64): string;
+var
+  I: Integer;
+  Preview: TMcpDescribePreview;
+  Js: TJSONObject;
+  Arr: TJSONArray;
+  Diff: TMcpDiffResult;
+begin
+  if Length(AText) > 2 * 1024 * 1024 then
+    raise Exception.Create('describe text exceeds the maximum of 2 MiB');
+  if ABaseRevision <> FCtDataModelList.ModelFileConfig.Revision then
+    raise Exception.CreateFmt('Revision conflict: expected %d, actual %d',
+      [ABaseRevision, FCtDataModelList.ModelFileConfig.Revision]);
+
+  for I := FMcpDescribePreviews.Count - 1 downto 0 do
+    if Now - TMcpDescribePreview(FMcpDescribePreviews.Objects[I]).CreatedAt >
+      1 / 24 then
+    begin
+      FMcpDescribePreviews.Objects[I].Free;
+      FMcpDescribePreviews.Delete(I);
+    end;
+
+  Preview := BuildMcpDescribePreview(FCtDataModelList, AScope, AModelName,
+    ATableName, AMode, AText, ABaseRevision);
+  try
+    FMcpDescribePreviews.AddObject(Preview.Token, Preview);
+  except
+    Preview.Free;
+    raise;
+  end;
+
+  Diff := BuildMcpDescribeDiff(Preview.BeforeText, Preview.AfterText);
+  Js := TJSONObject.Create;
+  try
+    Js.put('ok', True);
+    Js.put('operation', 'describe_preview');
+    Js.put('previewToken', Preview.Token);
+    Js.put('scope', Preview.Scope);
+    Js.put('mode', Preview.Mode);
+    Js.put('modelName', Preview.ModelName);
+    Js.put('tableName', Preview.TableName);
+    Js.put('baseRevision', IntToStr(Preview.BaseRevision));
+    Js.put('changed', Preview.Changed);
+    Js.put('normalizedText', Preview.NormalizedText);
+    Js.put('beforeText', Preview.BeforeText);
+    Js.put('afterText', Preview.AfterText);
+    Js.put('changes', TJSONArray.Create(Diff.ChangesJson));
+    Js.put('unifiedDiff', Diff.UnifiedText);
+    Js.put('approvalRequired', Diff.ApprovalRequired);
+    Js.put('approvalReasons', TJSONArray.Create(Diff.ApprovalReasonsJson));
+    Arr := TJSONArray.Create;
+    for I := 0 to Preview.AffectedTables.Count - 1 do
+      Arr.put(Preview.AffectedTables[I]);
+    Js.put('affectedTables', Arr);
+    Result := Js.toString;
+  finally
+    Js.Free;
+    Diff.Free;
+  end;
+end;
+
+function TfrmMainDml.McpResourceRead(const AUri: string): string;
+var
+  Uri, Rest, FirstName, SecondName, Payload, MimeType: string;
+  Root: TJSONObject;
+
+  procedure SplitFirst(const S: string; out AFirst, ATail: string);
+  var
+    N: Integer;
+  begin
+    N := Pos('/', S);
+    if N = 0 then begin AFirst := S; ATail := ''; end
+    else begin AFirst := Copy(S, 1, N - 1); ATail := Copy(S, N + 1, MaxInt); end;
+    AFirst := URLDecode(AFirst);
+  end;
+begin
+  Uri := Trim(AUri);
+  MimeType := 'application/json';
+  if Uri = 'ezdml://document/current' then Payload := McpContextGet
+  else if Uri = 'ezdml://database/connection' then
+    Payload := McpDbConnectionResourceJson
+  else if Uri = 'ezdml://document/validation' then
+    Payload := McpValidateJson(FCtDataModelList, 'document', '', '')
+  else if Uri = 'ezdml://models' then
+    Payload := McpModelListJson(FCtDataModelList, 0, 200, False)
+  else if Uri = 'ezdml://history' then Payload := McpHistoryList(0, 200)
+  else if Uri = 'ezdml://describe/file' then
+  begin
+    MimeType := 'text/plain';
+    Payload := FCtDataModelList.GetAllTableDescribe;
+  end
+  else if Pos('ezdml://models/', Uri) = 1 then
+  begin
+    Rest := Copy(Uri, Length('ezdml://models/') + 1, MaxInt);
+    SplitFirst(Rest, FirstName, Rest);
+    if Pos('tables/', Rest) = 1 then
+    begin
+      SecondName := URLDecode(Copy(Rest, Length('tables/') + 1, MaxInt));
+      Payload := McpTableGetJson(FCtDataModelList, SecondName, FirstName, True);
+    end
+    else if Rest = '' then Payload := McpModelGetJson(FCtDataModelList, FirstName, True)
+    else raise Exception.Create('Invalid EZDML resource URI: ' + Uri);
+  end
+  else if Pos('ezdml://tables/', Uri) = 1 then
+  begin
+    Rest := Copy(Uri, Length('ezdml://tables/') + 1, MaxInt);
+    SplitFirst(Rest, FirstName, Rest);
+    if Pos('fields/', Rest) = 1 then
+    begin
+      SecondName := URLDecode(Copy(Rest, Length('fields/') + 1, MaxInt));
+      Payload := McpFieldGetJson(FCtDataModelList, FirstName, SecondName);
+    end
+    else if Rest = '' then Payload := McpTableGetJson(FCtDataModelList, FirstName, '', True)
+    else raise Exception.Create('Invalid EZDML resource URI: ' + Uri);
+  end
+  else if Pos('ezdml://history/', Uri) = 1 then
+  begin
+    Rest := URLDecode(Copy(Uri, Length('ezdml://history/') + 1, MaxInt));
+    Payload := McpHistoryPreview(Rest, 'summary');
+  end
+  else if Pos('ezdml://describe/models/', Uri) = 1 then
+  begin
+    MimeType := 'text/plain';
+    Rest := URLDecode(Copy(Uri, Length('ezdml://describe/models/') + 1, MaxInt));
+    Payload := GetMcpDescribeText(FCtDataModelList, 'model', Rest, '');
+  end
+  else if Pos('ezdml://describe/tables/', Uri) = 1 then
+  begin
+    MimeType := 'text/plain';
+    Rest := URLDecode(Copy(Uri, Length('ezdml://describe/tables/') + 1, MaxInt));
+    Payload := GetMcpDescribeText(FCtDataModelList, 'table', '', Rest);
+  end
+  else
+    raise Exception.Create('EZDML resource not found: ' + Uri);
+
+  Root := TJSONObject.Create;
+  try
+    Root.put('mimeType', MimeType);
+    Root.put('text', Payload);
+    Result := Root.toString;
+  finally
+    Root.Free;
+  end;
+end;
+
+function TfrmMainDml.McpSaveHistoryCheckpoint(const AChangeSetId,
+  AReason: string): string;
+var
+  Config: TCtModelFileConfig;
+  OldChangeSetId, OldReason: string;
+begin
+  Config := FCtDataModelList.ModelFileConfig;
+  OldChangeSetId := Config.CheckpointForChangeSetId;
+  OldReason := Config.CheckpointReason;
+  try
+    Config.CheckpointForChangeSetId := AChangeSetId;
+    Config.CheckpointReason := AReason;
+    Result := SaveDMLToTmpFile(True);
+  finally
+    Config.CheckpointForChangeSetId := OldChangeSetId;
+    Config.CheckpointReason := OldReason;
+  end;
+  if (Result = '') or (not FileExists(Result)) then
+    raise Exception.Create('Failed to create EZDML history checkpoint');
+end;
+
+procedure TfrmMainDml.McpRefreshModelViews;
+begin
+  FFrameCtTableDef.FFrameCtTableList.RefreshTheTree;
+  FFrameCtTableDef.RefreshProp;
+  if FFrameCtTableDef.PanelDMLGraph.Visible then
+    FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.actRefresh.Execute;
+  CheckCaption;
+  {$ifdef EZDML_CHATGPT}
+  NotifyMcpResourcesChanged;
+  {$endif}
+end;
+
+procedure TfrmMainDml.McpRestoreHistoryCheckpoint(const AFileName: string;
+  AWasModified: Boolean);
+var
+  CurrentFileName, CurrentDmlFileName: string;
+begin
+  if (AFileName = '') or (not FileExists(AFileName)) then
+    raise Exception.Create('History checkpoint not found');
+  CurrentFileName := FCurFileName;
+  CurrentDmlFileName := FCurDmlFileName;
+  FCtDataModelList.Clear;
+  FFrameCtTableDef.Init(FCtDataModelList, True);
+  LoadFromFile(AFileName);
+  FCurFileName := CurrentFileName;
+  FCurDmlFileName := CurrentDmlFileName;
+  FCtDataModelList.ModelFileConfig.CheckpointForChangeSetId := '';
+  FCtDataModelList.ModelFileConfig.CheckpointReason := '';
+  FCtDataModelList.MetaModified := AWasModified;
+  FCtMetaChangeList.Clear;
+  FLastAutoSaveDate := 0;
+  FAutoSaveCounter := 0;
+  FAutoSaveHydbCounter := 0;
+  McpRefreshModelViews;
+end;
+
+function TfrmMainDml.McpDescribeApply(const AToken: string;
+  ABaseRevision: Int64; AConfirm: Boolean): string;
+var
+  Preview: TMcpDescribePreview;
+  PreviewIndex: Integer;
+  CheckpointFile, ChangeSetId: string;
+  WasModified: Boolean;
+  Table, TempTable, SourceTable, ExistingGlobal: TCtMetaTable;
+  Model: TCtDataModelGraph;
+  ParsedTables: TCtMetaTableList;
+  UpdateStarted: Boolean;
+  Js: TJSONObject;
+  Diff: TMcpDiffResult;
+
+  procedure ApplyTableDescribe;
+  var
+    NewName: string;
+    ExistingTarget: TCtMetaTable;
+  begin
+    Table := FCtDataModelList.GetTableOfName(Preview.TableName);
+    if (Table = nil) or (Table.DataLevel = ctdlDeleted) then
+      raise Exception.Create('Table not found: ' + Preview.TableName);
+
+    TempTable := TCtMetaTable.Create;
+    try
+      TempTable.AssignFrom(Table);
+      TempTable.Describe := Preview.NormalizedText;
+      NewName := TempTable.Name;
+    finally
+      TempTable.Free;
+    end;
+
+    if not SameText(NewName, Table.Name) then
+    begin
+      if not IsValidTableName(NewName, False) then
+        raise Exception.Create('Invalid table name: ' + NewName);
+      ExistingTarget := FCtDataModelList.GetTableOfName(NewName);
+      if (ExistingTarget <> nil) and (not SameText(ExistingTarget.Name, Table.Name)) then
+        raise Exception.Create('Table already exists: ' + NewName);
+      if not CheckCanRenameTable(Table, NewName, False) then
+        raise Exception.Create('Unable to rename table to: ' + NewName);
+    end;
+
+    UpdateStarted := True;
+    BeginTbPropUpdate(Table);
+    try
+      Table.Describe := Preview.NormalizedText;
+      EndTbPropUpdate(Table);
+      UpdateStarted := False;
+    except
+      if UpdateStarted then
+      begin
+        EndTbPropUpdate(nil);
+        UpdateStarted := False;
+      end;
+      raise;
+    end;
+  end;
+
+  procedure ApplyModelDescribe;
+  var
+    J: Integer;
+  begin
+    Model := FindMcpModel(FCtDataModelList, Preview.ModelName);
+    if Model = nil then
+      raise Exception.Create('Model not found: ' + Preview.ModelName);
+    ParsedTables := TCtMetaTableList.Create;
+    try
+      ParseMcpModelDescribe(Preview.NormalizedText, ParsedTables);
+      for J := 0 to ParsedTables.Count - 1 do
+      begin
+        SourceTable := ParsedTables[J];
+        if not SourceTable.IsTable then
+          Continue;
+        Table := Model.Tables.TableByName(SourceTable.Name);
+        if Table = nil then
+        begin
+          ExistingGlobal := FCtDataModelList.GetTableOfName(SourceTable.Name);
+          Table := Model.Tables.NewTableItem;
+          if ExistingGlobal <> nil then
+            Table.SyncPropFrom(ExistingGlobal);
+          Table.Describe := SourceTable.Describe;
+          FCtDataModelList.SyncTableProps(Table);
+          DoMetaPropsChanged(Table, cmctNew);
+        end
+        else
+        begin
+          UpdateStarted := True;
+          BeginTbPropUpdate(Table);
+          try
+            Table.Describe := SourceTable.Describe;
+            EndTbPropUpdate(Table);
+            UpdateStarted := False;
+          except
+            if UpdateStarted then
+            begin
+              EndTbPropUpdate(nil);
+              UpdateStarted := False;
+            end;
+            raise;
+          end;
+        end;
+      end;
+
+      if Preview.Mode = 'replace' then
+        for J := Model.Tables.Count - 1 downto 0 do
+        begin
+          Table := Model.Tables[J];
+          if Table.IsTable and (Table.DataLevel <> ctdlDeleted) and
+            (ParsedTables.TableByName(Table.Name) = nil) then
+          begin
+            Table.DataLevel := ctdlDeleted;
+            DoMetaPropsChanged(Table, cmctRemove);
+          end;
+        end;
+    finally
+      ParsedTables.Free;
+    end;
+  end;
+
+begin
+  Preview := FindMcpDescribePreview(AToken);
+  if Preview = nil then
+    raise Exception.Create('Describe preview token not found or expired');
+  if ABaseRevision <> FCtDataModelList.ModelFileConfig.Revision then
+    raise Exception.CreateFmt('Revision conflict: expected %d, actual %d',
+      [ABaseRevision, FCtDataModelList.ModelFileConfig.Revision]);
+  if Preview.BaseRevision <> ABaseRevision then
+    raise Exception.Create('Preview token was created for another revision');
+  Diff := BuildMcpDescribeDiff(Preview.BeforeText, Preview.AfterText);
+  try
+    if Diff.ApprovalRequired and (not AConfirm) then
+      raise Exception.Create('This describe change contains destructive operations; confirm=true is required');
+  finally
+    Diff.Free;
+  end;
+  if G_BuiltinHydbMode then
+    raise Exception.Create('Describe apply is not yet available for built-in database files');
+
+  PreviewIndex := FMcpDescribePreviews.IndexOf(Preview.Token);
+  ChangeSetId := Preview.Token;
+  CheckpointFile := '';
+  WasModified := FCtDataModelList.MetaModified;
+  UpdateStarted := False;
+
+  if not Preview.Changed then
+  begin
+    Js := TJSONObject.Create;
+    try
+      Js.put('ok', True);
+      Js.put('operation', 'describe_apply');
+      Js.put('changed', False);
+      Js.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+      Result := Js.toString;
+    finally
+      Js.Free;
+    end;
+    Preview.Free;
+    FMcpDescribePreviews.Delete(PreviewIndex);
+    Exit;
+  end;
+
+  CheckpointFile := McpSaveHistoryCheckpoint(ChangeSetId,
+    'MCP describe ' + Preview.Scope + ' apply');
+  try
+    if Preview.Scope = 'table' then
+      ApplyTableDescribe
+    else
+      ApplyModelDescribe;
+
+    FCtDataModelList.ModelFileConfig.Revision :=
+      FCtDataModelList.ModelFileConfig.Revision + 1;
+    FCtDataModelList.ModelFileConfig.LastChangeSetId := ChangeSetId;
+    FCtDataModelList.ModelFileConfig.CheckpointForChangeSetId := '';
+    FCtDataModelList.ModelFileConfig.CheckpointReason := '';
+    FCtDataModelList.MetaModified := True;
+    McpRefreshModelViews;
+  except
+    on E: Exception do
+    begin
+      try
+        McpRestoreHistoryCheckpoint(CheckpointFile, WasModified);
+      except
+        on ERollback: Exception do
+          raise Exception.Create(E.Message + '; rollback failed: ' +
+            ERollback.Message);
+      end;
+      raise;
+    end;
+  end;
+
+  Js := TJSONObject.Create;
+  try
+    Js.put('ok', True);
+    Js.put('operation', 'describe_apply');
+    Js.put('changed', True);
+    Js.put('changeSetId', ChangeSetId);
+    Js.put('checkpointHistoryId', ExtractFileName(CheckpointFile));
+    Js.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+    Js.put('scope', Preview.Scope);
+    Js.put('mode', Preview.Mode);
+    Js.put('afterText', Preview.AfterText);
+    Result := Js.toString;
+  finally
+    Js.Free;
+  end;
+
+  Preview.Free;
+  FMcpDescribePreviews.Delete(PreviewIndex);
+end;
+
+function TfrmMainDml.McpObjectWrite(const AToolName, AArgumentsJson: string;
+  ABaseRevision: Int64): string;
+var
+  Args, Js, DataJs: TJSONObject;
+  WriteResult: TMcpWriteResult;
+  CheckpointFile, ChangeSetId: string;
+  WasModified: Boolean;
+  G: TGUID;
+begin
+  if ABaseRevision <> FCtDataModelList.ModelFileConfig.Revision then
+    raise Exception.CreateFmt('Revision conflict: expected %d, actual %d',
+      [ABaseRevision, FCtDataModelList.ModelFileConfig.Revision]);
+  if G_BuiltinHydbMode then
+    raise Exception.Create('MCP object writes are not yet available for built-in database files');
+
+  if CreateGUID(G) <> 0 then
+    raise Exception.Create('Unable to generate MCP changeSetId');
+  ChangeSetId := LowerCase(StringReplace(StringReplace(GUIDToString(G),
+    '{', '', [rfReplaceAll]), '}', '', [rfReplaceAll]));
+  WasModified := FCtDataModelList.MetaModified;
+  CheckpointFile := McpSaveHistoryCheckpoint(ChangeSetId,
+    'MCP object write: ' + AToolName);
+  Args := nil;
+  WriteResult := nil;
+  try
+    try
+      Args := TJSONObject.Create(AArgumentsJson);
+      WriteResult := ExecuteMcpObjectWrite(FCtDataModelList, AToolName, Args);
+      FCtDataModelList.ModelFileConfig.Revision := ABaseRevision + 1;
+      FCtDataModelList.ModelFileConfig.LastChangeSetId := ChangeSetId;
+      FCtDataModelList.ModelFileConfig.CheckpointForChangeSetId := '';
+      FCtDataModelList.ModelFileConfig.CheckpointReason := '';
+      FCtDataModelList.MetaModified := True;
+      ClearMcpDescribePreviews;
+      ClearMcpChangeSetPreviews;
+      McpRefreshModelViews;
+      if SameText(AToolName, 'ezdml_graph_layout_auto') and
+        (WriteResult.AffectedCount > 0) and
+        FFrameCtTableDef.PanelDMLGraph.Visible and
+        (FFrameCtTableDef.FFrameDMLGraph.MetaTableModel <> nil) and
+        SameText(FFrameCtTableDef.FFrameDMLGraph.MetaTableModel.Name,
+          WriteResult.ModelName) then
+        FFrameCtTableDef.FFrameDMLGraph.FFrameCtDML.DMLGraph.BestFit;
+
+      Js := TJSONObject.Create;
+      try
+        Js.put('ok', True);
+        Js.put('operation', AToolName);
+        Js.put('changed', True);
+        Js.put('changeSetId', ChangeSetId);
+        Js.put('checkpointHistoryId', ExtractFileName(CheckpointFile));
+        Js.put('beforeRevision', IntToStr(ABaseRevision));
+        Js.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+        DataJs := TJSONObject.Create;
+        WriteResult.AddToJson(DataJs);
+        Js.put('data', DataJs);
+        Result := Js.toString;
+      finally
+        Js.Free;
+      end;
+    except
+      on E: Exception do
+      begin
+        try
+          McpRestoreHistoryCheckpoint(CheckpointFile, WasModified);
+        except
+          on ERollback: Exception do
+            raise Exception.Create(E.Message + '; rollback failed: ' +
+              ERollback.Message);
+        end;
+        raise;
+      end;
+    end;
+  finally
+    WriteResult.Free;
+    Args.Free;
+  end;
+end;
+
+function TfrmMainDml.McpScriptRun(const AArgumentsJson: string;
+  ABaseRevision: Int64): string;
+var
+  Args, Root, ValidationObj: TJSONObject;
+  BeforeFingerprint, AfterFingerprint: string;
+  ChangeSetId, CheckpointFile, RunResult: string;
+  Changed, ValidateAfter, WasModified: Boolean;
+  G: TGUID;
+begin
+  if ABaseRevision <> FCtDataModelList.ModelFileConfig.Revision then
+    raise Exception.CreateFmt('Revision conflict: expected %d, actual %d',
+      [ABaseRevision, FCtDataModelList.ModelFileConfig.Revision]);
+  if G_BuiltinHydbMode then
+    raise Exception.Create('MCP script run is not yet available for built-in database files');
+
+  Args := TJSONObject.Create(AArgumentsJson);
+  try
+    ValidateAfter := Args.optBooleanDef('validateAfter', True);
+  finally
+    Args.Free;
+  end;
+
+  if CreateGUID(G) <> 0 then
+    raise Exception.Create('Unable to generate MCP changeSetId');
+  ChangeSetId := LowerCase(StringReplace(StringReplace(GUIDToString(G),
+    '{', '', [rfReplaceAll]), '}', '', [rfReplaceAll]));
+
+  WasModified := FCtDataModelList.MetaModified;
+  CheckpointFile := McpSaveHistoryCheckpoint(ChangeSetId, 'MCP script run');
+  BeforeFingerprint := McpModelRuntimeFingerprint(FCtDataModelList);
+  try
+    RunResult := McpRunScriptJson(FCtDataModelList,
+      FFrameCtTableDef.GetCurTable, AArgumentsJson);
+    AfterFingerprint := McpModelRuntimeFingerprint(FCtDataModelList);
+    Changed := BeforeFingerprint <> AfterFingerprint;
+
+    if Changed and ValidateAfter then
+    begin
+      ValidationObj := TJSONObject.Create(McpValidateJson(FCtDataModelList,
+        'document', '', ''));
+      try
+        if not ValidationObj.optBooleanDef('valid', False) then
+          raise Exception.Create('Validation failed after running MCP script');
+      finally
+        ValidationObj.Free;
+      end;
+    end;
+
+    Root := TJSONObject.Create(RunResult);
+    try
+      Root.put('changed', Changed);
+      Root.put('changeSetId', ChangeSetId);
+      Root.put('checkpointHistoryId', ExtractFileName(CheckpointFile));
+      Root.put('beforeRevision', IntToStr(ABaseRevision));
+      if Changed then
+      begin
+        FCtDataModelList.ModelFileConfig.Revision := ABaseRevision + 1;
+        FCtDataModelList.ModelFileConfig.LastChangeSetId := ChangeSetId;
+        FCtDataModelList.ModelFileConfig.CheckpointForChangeSetId := '';
+        FCtDataModelList.ModelFileConfig.CheckpointReason := '';
+        FCtDataModelList.MetaModified := True;
+        ClearMcpDescribePreviews;
+        ClearMcpChangeSetPreviews;
+        McpRefreshModelViews;
+      end
+      else
+        FCtDataModelList.MetaModified := WasModified;
+      Root.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+      Result := Root.toString;
+    finally
+      Root.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      try
+        McpRestoreHistoryCheckpoint(CheckpointFile, WasModified);
+      except
+        on ERollback: Exception do
+          raise Exception.Create(E.Message + '; rollback failed: ' +
+            ERollback.Message);
+      end;
+      raise;
+    end;
+  end;
+end;
+
+function TfrmMainDml.McpCodeTemplatesList(const AArgumentsJson: string): string;
+begin
+  Result := McpListCodeTemplatesJson(AArgumentsJson);
+end;
+
+function TfrmMainDml.McpCodeGenerate(const AArgumentsJson: string): string;
+begin
+  Result := McpGenerateCodeJson(FCtDataModelList, AArgumentsJson);
+end;
+
+function TfrmMainDml.ResolveMcpHistoryId(const AHistoryId: string): string;
+var
+  SourceName, Dir, BaseName, FileName: string;
+begin
+  Result := '';
+  FileName := Trim(AHistoryId);
+  if (FileName = '') or (ExtractFileName(FileName) <> FileName) or
+    (not SameText(ExtractFileExt(FileName), '.~dmh')) then
+    raise Exception.Create('Invalid historyId');
+  SourceName := FCurFileName;
+  if (SourceName = '') and (FCtDataModelList.TableCount > 0) then
+    SourceName := GetConfFileOfApp('.dmh');
+  if SourceName = '' then
+    raise Exception.Create('No history is available for the empty document');
+  Dir := GetTmpDirForFile(SourceName);
+  BaseName := ChangeFileExt(ExtractDmlFileName(SourceName), '');
+  if Pos(LowerCase(BaseName + '('), LowerCase(FileName)) <> 1 then
+    raise Exception.Create('historyId does not belong to the current document');
+  Result := IncludeTrailingPathDelimiter(Dir) + FileName;
+  if not FileExists(Result) then
+    raise Exception.Create('History not found: ' + FileName);
+end;
+
+function TfrmMainDml.McpHistoryList(ACursor, ALimit: Integer): string;
+var
+  I, J, Limit, LastIndex: Integer;
+  SourceName, Dir, BaseName, Pattern, SummaryFile: string;
+  Files: TStringList;
+  SearchRec: TSearchRec;
+  Root, Item: TJSONObject;
+  Items: TJSONArray;
+  TempModels: TCtDataModelGraphList;
+  AgeI, AgeJ: LongInt;
+begin
+  if ACursor < 0 then ACursor := 0;
+  if ALimit <= 0 then Limit := 50
+  else if ALimit > 200 then Limit := 200
+  else Limit := ALimit;
+  SourceName := FCurFileName;
+  if (SourceName = '') and (FCtDataModelList.TableCount > 0) then
+    SourceName := GetConfFileOfApp('.dmh');
+  Files := TStringList.Create;
+  Root := TJSONObject.Create;
+  try
+    if SourceName <> '' then
+    begin
+      Dir := GetTmpDirForFile(SourceName);
+      BaseName := ChangeFileExt(ExtractDmlFileName(SourceName), '');
+      Pattern := IncludeTrailingPathDelimiter(Dir) + BaseName + '(*).~dmh';
+      if FindFirst(Pattern, faAnyFile and not faDirectory, SearchRec) = 0 then
+      try
+        repeat
+          Files.Add(IncludeTrailingPathDelimiter(Dir) + SearchRec.Name);
+        until FindNext(SearchRec) <> 0;
+      finally
+        FindClose(SearchRec);
+      end;
+      // 历史数量较小，按文件时间做稳定的倒序排序即可。
+      for I := 0 to Files.Count - 2 do
+        for J := I + 1 to Files.Count - 1 do
+        begin
+          AgeI := FileAge(Files[I]);
+          AgeJ := FileAge(Files[J]);
+          if AgeJ > AgeI then Files.Exchange(I, J);
+        end;
+    end;
+
+    Root.put('ok', True);
+    Root.put('operation', 'history_list');
+    Root.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+    Root.put('total', Files.Count);
+    Root.put('cursor', ACursor);
+    Root.put('limit', Limit);
+    Items := TJSONArray.Create;
+    LastIndex := ACursor + Limit - 1;
+    if LastIndex >= Files.Count then LastIndex := Files.Count - 1;
+    for I := ACursor to LastIndex do
+    begin
+      Item := TJSONObject.Create;
+      Item.put('historyId', ExtractFileName(Files[I]));
+      Item.put('fileTime', FormatDateTime('yyyy-mm-dd"T"hh:nn:ss',
+        FileDateToDateTime(FileAge(Files[I]))));
+      SearchRec.Size := 0;
+      if FindFirst(Files[I], faAnyFile, SearchRec) = 0 then
+      try
+        Item.put('size', IntToStr(SearchRec.Size));
+      finally
+        FindClose(SearchRec);
+      end;
+      SummaryFile := ChangeFileExt(Files[I], '.~dml');
+      Item.put('summaryAvailable', FileExists(SummaryFile));
+      TempModels := TCtDataModelGraphList.Create;
+      try
+        try
+          TempModels.LoadFromFile(Files[I]);
+          Item.put('revision', IntToStr(TempModels.ModelFileConfig.Revision));
+          Item.put('changeSetId', TempModels.ModelFileConfig.CheckpointForChangeSetId);
+          Item.put('reason', TempModels.ModelFileConfig.CheckpointReason);
+        except
+          Item.put('metadataAvailable', False);
+        end;
+      finally
+        TempModels.Free;
+      end;
+      Items.put(Item);
+    end;
+    Root.put('items', Items);
+    if ACursor + Items.Count < Files.Count then
+      Root.put('nextCursor', IntToStr(ACursor + Items.Count))
+    else
+      Root.put('nextCursor', '');
+    Result := Root.toString;
+  finally
+    Root.Free;
+    Files.Free;
+  end;
+end;
+
+function TfrmMainDml.McpHistoryPreview(const AHistoryId,
+  ADetail: string): string;
+var
+  HistoryFile, SummaryFile, HistoryText, Detail: string;
+  Lines: TStringList;
+  TempModels: TCtDataModelGraphList;
+  Root: TJSONObject;
+  Diff: TMcpDiffResult;
+  SummaryOnly: Boolean;
+begin
+  HistoryFile := ResolveMcpHistoryId(AHistoryId);
+  Detail := LowerCase(Trim(ADetail));
+  if Detail = '' then Detail := 'auto';
+  if not ((Detail = 'auto') or (Detail = 'summary') or (Detail = 'full')) then
+    raise Exception.Create('detail must be auto, summary, or full');
+  SummaryFile := ChangeFileExt(HistoryFile, '.~dml');
+  HistoryText := '';
+  SummaryOnly := (Detail <> 'full') and FileExists(SummaryFile);
+  if SummaryOnly then
+  begin
+    Lines := TStringList.Create;
+    try
+      Lines.LoadFromFile(SummaryFile);
+      HistoryText := Lines.Text;
+    finally
+      Lines.Free;
+    end;
+  end;
+  Diff := nil;
+  if not SummaryOnly then
+  begin
+    TempModels := TCtDataModelGraphList.Create;
+    try
+      TempModels.LoadFromFile(HistoryFile);
+      HistoryText := TempModels.GetAllTableDescribe;
+      Diff := BuildMcpModelDiff(FCtDataModelList, TempModels);
+    finally
+      TempModels.Free;
+    end;
+  end;
+  if Diff = nil then
+  begin
+    Diff := BuildMcpDescribeDiff(FCtDataModelList.GetAllTableDescribe,
+      HistoryText);
+    Diff.SummaryOnly := True;
+  end;
+
+  Root := TJSONObject.Create;
+  try
+    Root.put('ok', True);
+    Root.put('operation', 'history_preview');
+    Root.put('historyId', ExtractFileName(HistoryFile));
+    Root.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+    Root.put('summaryOnly', SummaryOnly);
+    Root.put('changed', Diff.ChangeCount > 0);
+    Root.put('changes', TJSONArray.Create(Diff.ChangesJson));
+    Root.put('unifiedDiff', Diff.UnifiedText);
+    Root.put('approvalRequired', Diff.ApprovalRequired);
+    Root.put('approvalReasons', TJSONArray.Create(Diff.ApprovalReasonsJson));
+    Root.put('historyText', HistoryText);
+    Root.put('currentText', FCtDataModelList.GetAllTableDescribe);
+    if SummaryOnly then
+      Root.put('notCovered', 'model membership, layout, canvas, and advanced properties')
+    else
+      Root.put('notCovered', 'advanced properties not represented by the unified diff');
+    Result := Root.toString;
+  finally
+    Root.Free;
+    Diff.Free;
+  end;
+end;
+
+function TfrmMainDml.McpHistoryRestore(const AHistoryId: string;
+  ABaseRevision: Int64; AConfirm: Boolean): string;
+var
+  HistoryFile, BeforeCheckpoint, ChangeSetId: string;
+  WasModified: Boolean;
+  G: TGUID;
+  Root: TJSONObject;
+begin
+  if ABaseRevision <> FCtDataModelList.ModelFileConfig.Revision then
+    raise Exception.CreateFmt('Revision conflict: expected %d, actual %d',
+      [ABaseRevision, FCtDataModelList.ModelFileConfig.Revision]);
+  if G_BuiltinHydbMode then
+    raise Exception.Create('MCP history restore is not yet available for built-in database files');
+  if not AConfirm then
+    raise Exception.Create('History restore replaces the current document; confirm=true is required');
+  HistoryFile := ResolveMcpHistoryId(AHistoryId);
+  if CreateGUID(G) <> 0 then
+    raise Exception.Create('Unable to generate MCP changeSetId');
+  ChangeSetId := LowerCase(StringReplace(StringReplace(GUIDToString(G),
+    '{', '', [rfReplaceAll]), '}', '', [rfReplaceAll]));
+  WasModified := FCtDataModelList.MetaModified;
+  BeforeCheckpoint := McpSaveHistoryCheckpoint(ChangeSetId, 'Before MCP history restore');
+  try
+    McpRestoreHistoryCheckpoint(HistoryFile, True);
+    FCtDataModelList.ModelFileConfig.Revision := ABaseRevision + 1;
+    FCtDataModelList.ModelFileConfig.LastChangeSetId := ChangeSetId;
+    FCtDataModelList.ModelFileConfig.CheckpointForChangeSetId := '';
+    FCtDataModelList.ModelFileConfig.CheckpointReason := '';
+    FCtDataModelList.MetaModified := True;
+    ClearMcpDescribePreviews;
+    ClearMcpChangeSetPreviews;
+    McpRefreshModelViews;
+  except
+    on E: Exception do
+    begin
+      try
+        McpRestoreHistoryCheckpoint(BeforeCheckpoint, WasModified);
+      except
+        on ERollback: Exception do
+          raise Exception.Create(E.Message + '; rollback failed: ' + ERollback.Message);
+      end;
+      raise;
+    end;
+  end;
+
+  Root := TJSONObject.Create;
+  try
+    Root.put('ok', True);
+    Root.put('operation', 'history_restore');
+    Root.put('changed', True);
+    Root.put('restoredHistoryId', ExtractFileName(HistoryFile));
+    Root.put('checkpointHistoryId', ExtractFileName(BeforeCheckpoint));
+    Root.put('changeSetId', ChangeSetId);
+    Root.put('beforeRevision', IntToStr(ABaseRevision));
+    Root.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+    Result := Root.toString;
+  finally
+    Root.Free;
+  end;
+end;
+
+function TfrmMainDml.McpChangeSetUndo(const AChangeSetId: string;
+  ABaseRevision: Int64; AConfirm: Boolean): string;
+var
+  ChangeSetId, SourceName, Dir, BaseName, Pattern, HistoryFile: string;
+  SearchRec: TSearchRec;
+  TempModels: TCtDataModelGraphList;
+  Root: TJSONObject;
+begin
+  ChangeSetId := Trim(AChangeSetId);
+  if ChangeSetId = '' then
+    ChangeSetId := FCtDataModelList.ModelFileConfig.LastChangeSetId;
+  if ChangeSetId = '' then raise Exception.Create('No MCP changeset is available to undo');
+  if not SameText(ChangeSetId,
+    FCtDataModelList.ModelFileConfig.LastChangeSetId) then
+    raise Exception.Create('Revision conflict: only the latest MCP changeset can be undone');
+  if not AConfirm then
+    raise Exception.Create('Changeset undo replaces the current document; confirm=true is required');
+
+  SourceName := FCurFileName;
+  if (SourceName = '') and (FCtDataModelList.TableCount > 0) then
+    SourceName := GetConfFileOfApp('.dmh');
+  if SourceName = '' then raise Exception.Create('History not found for changeset');
+  Dir := GetTmpDirForFile(SourceName);
+  BaseName := ChangeFileExt(ExtractDmlFileName(SourceName), '');
+  Pattern := IncludeTrailingPathDelimiter(Dir) + BaseName + '(*).~dmh';
+  HistoryFile := '';
+  if FindFirst(Pattern, faAnyFile and not faDirectory, SearchRec) = 0 then
+  try
+    repeat
+      TempModels := TCtDataModelGraphList.Create;
+      try
+        try
+          TempModels.LoadFromFile(IncludeTrailingPathDelimiter(Dir) + SearchRec.Name);
+          if SameText(TempModels.ModelFileConfig.CheckpointForChangeSetId,
+            ChangeSetId) then
+          begin
+            HistoryFile := SearchRec.Name;
+            Break;
+          end;
+        except
+          // 忽略损坏或旧格式的历史文件，继续查找对应检查点。
+        end;
+      finally
+        TempModels.Free;
+      end;
+    until FindNext(SearchRec) <> 0;
+  finally
+    FindClose(SearchRec);
+  end;
+  if HistoryFile = '' then raise Exception.Create('History not found for changeset: ' + ChangeSetId);
+  Result := McpHistoryRestore(HistoryFile, ABaseRevision, True);
+  Root := TJSONObject.Create(Result);
+  try
+    Root.put('operation', 'changeset_undo');
+    Root.put('undoneChangeSetId', ChangeSetId);
+    Result := Root.toString;
+  finally
+    Root.Free;
+  end;
+end;
+
+function TfrmMainDml.McpChangeSetPreview(const AArgumentsJson: string;
+  ABaseRevision: Int64): string;
+var
+  I: Integer;
+  Args, Root, Validation: TJSONObject;
+  Preview: TMcpChangeSetPreview;
+begin
+  if ABaseRevision <> FCtDataModelList.ModelFileConfig.Revision then
+    raise Exception.CreateFmt('Revision conflict: expected %d, actual %d',
+      [ABaseRevision, FCtDataModelList.ModelFileConfig.Revision]);
+  for I := FMcpChangeSetPreviews.Count - 1 downto 0 do
+    if Now - TMcpChangeSetPreview(FMcpChangeSetPreviews.Objects[I]).CreatedAt >
+      1 / 24 then
+    begin
+      FMcpChangeSetPreviews.Objects[I].Free;
+      FMcpChangeSetPreviews.Delete(I);
+    end;
+  Args := TJSONObject.Create(AArgumentsJson);
+  try
+    Preview := BuildMcpChangeSetPreview(FCtDataModelList, Args, ABaseRevision);
+    try
+      FMcpChangeSetPreviews.AddObject(Preview.Token, Preview);
+    except
+      Preview.Free;
+      raise;
+    end;
+  finally
+    Args.Free;
+  end;
+
+  Root := TJSONObject.Create;
+  try
+    Root.put('ok', True);
+    Root.put('operation', 'changeset_preview');
+    Root.put('previewToken', Preview.Token);
+    Root.put('baseRevision', IntToStr(Preview.BaseRevision));
+    Root.put('changed', Preview.Changed);
+    Root.put('approvalRequired', Preview.ApprovalRequired);
+    Root.put('approvalReasons', TJSONArray.Create(Preview.ApprovalReasonsJson));
+    Root.put('changes', TJSONArray.Create(Preview.DiffJson));
+    Root.put('unifiedDiff', Preview.UnifiedDiff);
+    Root.put('beforeText', Preview.BeforeText);
+    Root.put('afterText', Preview.AfterText);
+    Validation := TJSONObject.Create(Preview.ValidationJson);
+    Root.put('validation', Validation);
+    Result := Root.toString;
+  finally
+    Root.Free;
+  end;
+end;
+
+function TfrmMainDml.McpChangeSetApply(const AToken: string;
+  ABaseRevision: Int64; AConfirm: Boolean): string;
+var
+  Preview: TMcpChangeSetPreview;
+  PreviewIndex, OperationCount: Integer;
+  CheckpointFile: string;
+  WasModified: Boolean;
+  Root: TJSONObject;
+  ValidationObj: TJSONObject;
+begin
+  Preview := FindMcpChangeSetPreview(AToken);
+  if Preview = nil then
+    raise Exception.Create('Changeset preview token not found or expired');
+  if ABaseRevision <> FCtDataModelList.ModelFileConfig.Revision then
+    raise Exception.CreateFmt('Revision conflict: expected %d, actual %d',
+      [ABaseRevision, FCtDataModelList.ModelFileConfig.Revision]);
+  if Preview.BaseRevision <> ABaseRevision then
+    raise Exception.Create('Preview token was created for another revision');
+  if Preview.ApprovalRequired and (not AConfirm) then
+    raise Exception.Create('This changeset contains destructive operations; confirm=true is required');
+  if G_BuiltinHydbMode then
+    raise Exception.Create('MCP changesets are not yet available for built-in database files');
+  PreviewIndex := FMcpChangeSetPreviews.IndexOf(Preview.Token);
+
+  if not Preview.Changed then
+  begin
+    Root := TJSONObject.Create;
+    try
+      Root.put('ok', True);
+      Root.put('operation', 'changeset_apply');
+      Root.put('changed', False);
+      Root.put('revision', IntToStr(ABaseRevision));
+      Result := Root.toString;
+    finally
+      Root.Free;
+    end;
+    Preview.Free;
+    FMcpChangeSetPreviews.Delete(PreviewIndex);
+    Exit;
+  end;
+
+  WasModified := FCtDataModelList.MetaModified;
+  CheckpointFile := McpSaveHistoryCheckpoint(Preview.Token,
+    'MCP changeset: ' + Preview.Title + ' ' + Preview.Reason);
+  try
+    OperationCount := ApplyMcpChangeSetOperations(FCtDataModelList,
+      Preview.OperationsJson);
+    ValidationObj := TJSONObject.Create(McpValidateJson(FCtDataModelList,
+      'document', '', ''));
+    try
+      if not ValidationObj.optBooleanDef('valid', False) then
+        raise Exception.Create('Validation failed after applying changeset');
+    finally
+      ValidationObj.Free;
+    end;
+    FCtDataModelList.ModelFileConfig.Revision := ABaseRevision + 1;
+    FCtDataModelList.ModelFileConfig.LastChangeSetId := Preview.Token;
+    FCtDataModelList.ModelFileConfig.CheckpointForChangeSetId := '';
+    FCtDataModelList.ModelFileConfig.CheckpointReason := '';
+    FCtDataModelList.MetaModified := True;
+    McpRefreshModelViews;
+  except
+    on E: Exception do
+    begin
+      try
+        McpRestoreHistoryCheckpoint(CheckpointFile, WasModified);
+      except
+        on ERollback: Exception do
+          raise Exception.Create(E.Message + '; rollback failed: ' + ERollback.Message);
+      end;
+      raise;
+    end;
+  end;
+
+  Root := TJSONObject.Create;
+  try
+    Root.put('ok', True);
+    Root.put('operation', 'changeset_apply');
+    Root.put('changed', True);
+    Root.put('changeSetId', Preview.Token);
+    Root.put('checkpointHistoryId', ExtractFileName(CheckpointFile));
+    Root.put('beforeRevision', IntToStr(ABaseRevision));
+    Root.put('revision', IntToStr(FCtDataModelList.ModelFileConfig.Revision));
+    Root.put('operationCount', OperationCount);
+    Root.put('afterText', Preview.AfterText);
+    Result := Root.toString;
+  finally
+    Root.Free;
+  end;
+  ClearMcpDescribePreviews;
+  ClearMcpChangeSetPreviews;
+end;
+
+{$ENDIF}
 
 function ADecryptStr(const S, Key,IV: string): string;
   function Min(const A, B: Integer): Integer;
@@ -846,18 +2779,24 @@ begin
         end;
       if not bUtf8 then
         if Pos('UTF-8', UpperCase(S)) >= 0 then
-          bUtf8 := True;
+          bUtf8 := True; 
+      if IsSPRule(S) then
+      begin
+        S := PreConvertSP(S);
+        bUtf8 := True;
+      end;
       if bUtf8 then
       begin
-        S := Utf8Decode(S);
+        S := Utf8Decode(S);  
+        FileTxt.Text := S;
       end;
 
       Init('DML_SCRIPT', cTb, AOutput, nil);
       Exec('DML_SCRIPT', FileTxt.Text);
-    finally
-      FileTxt.Free;
-      AOutput.Free;
+    finally    
       Free;
+      AOutput.Free;  
+      FileTxt.Free;
     end;
 end;
 
@@ -1044,6 +2983,11 @@ begin
   CallAI(TMenuItem(Sender).Tag);
 end;
 
+procedure TfrmMainDml.MNAI_MCPServerClick(Sender: TObject);
+begin
+  CallAI(TMenuItem(Sender).Tag);
+end;
+
 procedure TfrmMainDml.Shape1MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -1112,6 +3056,14 @@ begin
   AllowDropFiles := True;
 
   FRecentFiles := TStringList.Create;
+  FMcpDescribePreviews := TStringList.Create;
+  FMcpDescribePreviews.CaseSensitive := False;
+  FMcpDescribePreviews.Sorted := True;
+  FMcpDescribePreviews.Duplicates := dupError;
+  FMcpChangeSetPreviews := TStringList.Create;
+  FMcpChangeSetPreviews.CaseSensitive := False;
+  FMcpChangeSetPreviews.Sorted := True;
+  FMcpChangeSetPreviews.Duplicates := dupError;
   FCustomTools := TStringList.Create;
   FAutoSaveMinutes := 5;
   FSaveTempFileOnExit := True;
@@ -1146,6 +3098,9 @@ begin
   frmEzdmlDbFile.Proc_OnDbFileMemoChanged := _OnDbFileMemoChanged;
 
   FCtMetaChangeList := TCtMetaChangeList.Create;
+  {$ifdef EZDML_CHATGPT}
+  SetMcpAppToolHandler(HandleMcpAppTool);
+  {$endif}
 
   if GetCtMetaDBReg('ORACLE')^.DbImpl = nil then
   begin
@@ -1157,8 +3112,10 @@ begin
   begin
     db := TCtMetaSqlsvrDb.Create;
     GetCtMetaDBReg('SQLSERVER')^.DbImpl := db;
-  end;
+  end;            
+  {$IFDEF USE_MSSQLCONN}
   MsSql_DBLIBDLL := DBLIBDLL;
+  {$ENDIF}           
   {$ENDIF}
   if GetCtMetaDBReg('MYSQL')^.DbImpl = nil then
   begin
@@ -1571,7 +3528,8 @@ begin
       MysqlLoadedLibrary := S;
     end;
 
-    {$IFDEF USE_MSSQL}
+    {$IFDEF USE_MSSQL}         
+    {$IFDEF USE_MSSQLCONN}
     S := ini.ReadString('Options', 'SQLSERVERLIB', '');
     if S = '' then
     begin
@@ -1584,6 +3542,7 @@ begin
     begin
       DBLibLibraryName := S;
     end;
+    {$ENDIF}   
     {$ENDIF}
 
     S := ini.ReadString('Options', 'POSTGRESLIB', '');
@@ -1648,8 +3607,19 @@ end;
 
 procedure TfrmMainDml.FormDestroy(Sender: TObject);
 begin
+  {$ifdef EZDML_CHATGPT}
+  SetMcpAppToolHandler(nil);
+  {$endif}
+  Application.RemoveAsyncCalls(Self);
   try
-    FRecentFiles.Free;
+    FRecentFiles.Free;      
+  {$ifndef EZDML_LITE}
+    ClearMcpDescribePreviews;
+    ClearMcpChangeSetPreviews;
+  {$endif}
+    FMcpDescribePreviews.Free;
+    FMcpChangeSetPreviews.Free;
+
     FCustomTools.Free;   
     FCtMetaChangeList.Free;
     FCtDataModelList.Free;
@@ -2136,12 +4106,25 @@ begin
   end;
 end;
 
-function TfrmMainDml.SaveDMLToTmpFile: string;
+function TfrmMainDml.SaveDMLToTmpFile(AForceEmpty: Boolean): string;
+  procedure SaveDmlTextFile(vfn: string);
+  var
+    ss: TStringList;
+  begin
+    vfn := ChangeFIleExt(vfn, '.~dml');
+    ss:= TStringList.Create;
+    try
+      ss.Text := FCtDataModelList.GetAllTableDescribe;
+      ss.SaveToFile(vfn);
+    finally
+      ss.Free;
+    end;
+  end;
 var
   lastFn, fn, sfn, sts: string;
 begin
   Result := '';
-  if FCtDataModelList.TableCount <= 0 then
+  if (FCtDataModelList.TableCount <= 0) and (not AForceEmpty) then
     Exit;
 
   sfn := FCurFileName;
@@ -2168,6 +4151,7 @@ begin
   begin
     lastFn := '';
     //快速加载文件不存在
+    SaveDmlTextFile(fn);
   end
   //判断两次的文件是否相同
   else if (lastFn <> '') and (lastFn <> fn) and IsSameFileContent(lastFn, fn) then
@@ -2176,7 +4160,9 @@ begin
     DeleteFile(Result);
     Result := lastFn;
     SetStatusBarMsg(sts);
-  end;
+  end
+  else
+    SaveDmlTextFile(fn);
 end;
 
 procedure TfrmMainDml.SaveIni;
@@ -2422,8 +4408,20 @@ begin
 end;
 
 procedure TfrmMainDml.TimerInitTimer(Sender: TObject);
+  function GetActPar: string;
+  var
+    I: Integer;
+  begin
+    Result := '';
+    for I := 1 to ParamCount do
+    if copy(ParamStr(I), 1, 4)= 'act=' then
+    begin
+      Result := Copy(ParamStr(I), 5, Length(ParamStr(I)));
+      Exit;
+    end;
+  end;
 var
-  fn, ext: string;
+  fn, ext, act: string;
   tp: Integer;
 begin
   TimerInit.Enabled := False;
@@ -2447,17 +4445,18 @@ begin
   CheckShowNewVersionInfo(False);
   if FMainSplitterPos >= 20 then
     Self.FFrameCtTableDef.PanelCttbTree.Width := FMainSplitterPos;
-  if ParamStr(1) <> '' then
-  begin
+
+  ext := '';
+  if (ParamStr(1) <> '') then
     ext := ExtractFileExt(ParamStr(1));
-    if LowerCase(ext) <> '.pas' then
+
+  if (LowerCase(ext) = '.dmj') or (LowerCase(ext) = '.dmx') or (LowerCase(ext) = '.dmh') then
+  begin
+    PromptOpenFile(ParamStr(1));
+    if ParamStr(2) <> '' then
     begin
-      PromptOpenFile(ParamStr(1));
-      if ParamStr(2) <> '' then
-      begin
-        if GetDmlScriptType(ParamStr(2)) <> '' then
-          ExecDmlScript(ParamStr(2));
-      end;
+      if GetDmlScriptType(ParamStr(2)) <> '' then
+        ExecDmlScript(ParamStr(2));
     end;
   end
   else if FCurFileName <> '' then
@@ -2518,6 +4517,10 @@ begin
 
   if FCurFileName = '' then
     FFrameCtTableDef.Init(FCtDataModelList, False);
+
+  act := GetActPar;
+  if act='McpServer' then
+    CallAI(201);
 end;
 
 function TfrmMainDml.TryLoadFromTmpFile(sfn: string): boolean;
@@ -3114,7 +5117,7 @@ begin
       CheckAutoSaveHydb;
       Exit;
     end;
-    Caption := frmEzdmlDbFile.DoBuiltinModelAutoLoad(FCtDataModelList, FCurFileName)+' '+TimeToStr(Now);
+    frmEzdmlDbFile.DoBuiltinModelAutoLoad(FCtDataModelList, FCurFileName);
     FCtDataModelList.MetaModified:=False;
     Result := True;
     RememberFileDateSize;
@@ -3182,6 +5185,15 @@ var
 begin
   EzdmlMenuActExecuteEvt('Model_ChatGPT');
   {$ifdef EZDML_CHATGPT}
+
+  if Act=201 then
+  begin
+    if EzMcpSvForm=nil then
+      EzMcpSvForm := TEzMcpSvForm.Create(Application);
+    EzMcpSvForm.Show;
+    Exit;
+  end;
+
   if Act=101 then
   begin
     if not Assigned(frmText2SQL) then
@@ -4170,7 +6182,10 @@ begin
     FCtTbList := Self.FCtDataModelList.CurDataModel.Tables;
     FCtTbList.Pack;
     oc := FCtTbList.Count;   
-    FCtDataModelList.ModelFileConfig.LastModel := '';
+    FCtDataModelList.ModelFileConfig.LastModel := '';  
+    combDbType.Text := GetLastCtDbType;    
+    if combDbType.Text='HTTP_JDBC' then
+      combDbType.Text := '';
     if ShowModal = mrOk then
     begin
       FFrameCtTableDef.FFrameCtTableList.RefreshTheTree;
@@ -4238,6 +6253,34 @@ begin
   if OpenDialogImp.Execute then
   begin
     PromptOpenFile(OpenDialogImp.FileName);
+  end;
+end;
+
+procedure TfrmMainDml.actModelDMLTextExecute(Sender: TObject);
+var
+  oc: Integer;
+begin               
+  EzdmlMenuActExecuteEvt('Model_DMLText');
+  Self.FCtDataModelList.CurDataModel.Tables.Pack;
+  with TfrmModelDMLText.Create(Self) do
+  try
+    Init(Self.FCtDataModelList.CurDataModel.Tables);
+    oc := Self.FCtDataModelList.CurDataModel.Tables.Count;
+    FCtDataModelList.ModelFileConfig.LastModel := '';
+    if ShowModal = mrOk then
+    begin
+      FFrameCtTableDef.FFrameCtTableList.RefreshTheTree;
+      FFrameCtTableDef.RefreshProp;
+      if oc=0 then
+        if Self.FCtDataModelList.CurDataModel.Tables.Count > 2 then
+        begin
+          FCtDataModelList.ModelFileConfig.LastModel := Self.FCtDataModelList.CurDataModel.Name;
+          TimerDelayCmd.Tag := 11;
+          TimerDelayCmd.Enabled := True;
+        end;
+    end;
+  finally
+    Release;
   end;
 end;
 
@@ -4562,22 +6605,58 @@ begin
   CtOpenDir(dir);
 end;
 
-procedure TfrmMainDml.actShowTmprFileExecute(Sender: TObject);
+procedure TfrmMainDml.actShowHistFileExecute(Sender: TObject);
 var
-  dir, fn: string;
+  dir, fn, baseName, historyFile, currentFileName, currentDmlFileName: string;
+  loadOk, builtInDb: Boolean;
 begin
   fn := FCurFileName;
   if fn = '' then
     if FCtDataModelList.TableCount > 0 then
       fn := GetConfFileOfApp('.dmh');
-  dir := GetTmpDirForFile(fn);
-  if not DirectoryExists(dir) then
+  if fn = '' then
   begin
-    dir := GetAppDefTempPath;
+    MessageDlg(srEzdmlNoHistoryBackup, mtInformation, [mbOK], 0);
+    Exit;
   end;
-  if not DirectoryExists(dir) then
-    ForceDirectories(dir);  
-  CtOpenDir(dir);
+  dir := GetTmpDirForFile(fn);
+  baseName := ChangeFileExt(ExtractDmlFileName(fn), '');
+  if not ShowDmlHistoryDialog(dir, baseName, FCurFileName, historyFile) then
+    Exit;
+
+  CheckCanEditMeta;
+  builtInDb := G_BuiltinHydbMode;
+  currentFileName := FCurFileName;
+  currentDmlFileName := FCurDmlFileName;
+  SaveDMLToTmpFile;
+
+  loadOk := False;
+  try
+    FCtDataModelList.Clear;
+    FFrameCtTableDef.Init(FCtDataModelList, True);
+    LoadFromFile(historyFile);
+    loadOk := True;
+  finally
+    if not builtInDb then
+    begin
+      FCurFileName := currentFileName;
+      FCurDmlFileName := currentDmlFileName;
+    end;
+    if loadOk then
+    begin
+      FCtDataModelList.MetaModified := True;
+      FLastAutoSaveDate := 0;
+      FCtMetaChangeList.Clear;
+      FAutoSaveCounter := 0;
+      FAutoSaveHydbCounter := 0;
+    end;
+    if not loadOk then
+      FCtDataModelList.MetaModified := True;
+    RememberFileDateSize;
+    CheckCaption;
+  end;
+  SetStatusBarMsg(Format(srEzdmlHistoryRestoredFmt,
+    [ExtractFileName(historyFile)]));
 end;
 
 procedure TfrmMainDml.actSqlToolExecute(Sender: TObject);

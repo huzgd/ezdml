@@ -1,0 +1,6 @@
+{"version":1,"strings":[
+{"hash":72240420,"name":"tfrmmodeldmltext.caption","sourcebytes":[77,111,100,101,108,32,68,77,76,32,84,101,120,116],"value":"Model DML Text"},
+{"hash":1371,"name":"tfrmmodeldmltext.btnok.caption","sourcebytes":[79,107],"value":"Ok"},
+{"hash":77089212,"name":"tfrmmodeldmltext.btncancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":205062314,"name":"tfrmmodeldmltext.lbtxttip.caption","sourcebytes":[69,100,105,116,32,68,77,76,32,116,101,120,116,32,104,101,114,101,58],"value":"Edit DML text here:"}
+]}

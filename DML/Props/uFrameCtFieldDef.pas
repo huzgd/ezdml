@@ -709,10 +709,10 @@ begin
           lbCustomSCTip.Visible := True;
         end;
       end;
-    finally
+    finally    
+      Free;
       FileTxt.Free;
       AOutput.Free;
-      Free;
     end;      
   {$endif}
 end;

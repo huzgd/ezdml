@@ -8,11 +8,11 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
   ClientHeight = 433
   ClientWidth = 473
   Color = clBtnFace
-  OnCloseQuery = FormCloseQuery
-  OnCreate = FormCreate
   ParentFont = True
   Position = poMainFormCenter
-  LCLVersion = '2.0.12.0'
+  LCLVersion = '4.8.0.0'
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
   object edtHttpUrl: TEdit
     Left = 48
     Height = 25
@@ -46,8 +46,8 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Top = 384
     Width = 71
     Caption = 'Help'
-    OnClick = btnHelpClick
     TabOrder = 10
+    OnClick = btnHelpClick
   end
   object btnSettings: TButton
     Left = 108
@@ -55,8 +55,8 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Top = 384
     Width = 71
     Caption = 'Settings'
-    OnClick = btnSettingsClick
     TabOrder = 11
+    OnClick = btnSettingsClick
   end
   object rdbHttp: TRadioButton
     Left = 22
@@ -65,9 +65,9 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Width = 77
     Caption = 'Http URL:'
     Checked = True
-    OnChange = rdbHttpChange
     TabOrder = 0
     TabStop = True
+    OnChange = rdbHttpChange
   end
   object rdbJdbc: TRadioButton
     Left = 22
@@ -75,8 +75,8 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Top = 140
     Width = 55
     Caption = 'JDBC:'
-    OnChange = rdbHttpChange
     TabOrder = 3
+    OnChange = rdbHttpChange
   end
   object btnStartHttpSv: TButton
     Left = 49
@@ -84,8 +84,8 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Top = 90
     Width = 135
     Caption = 'Start JDBC Server'
-    OnClick = btnStartHttpSvClick
     TabOrder = 2
+    OnClick = btnStartHttpSvClick
   end
   object Label1: TLabel
     Left = 49
@@ -101,8 +101,8 @@ object frmHttpJdbcConfig: TfrmHttpJdbcConfig
     Top = 180
     Width = 304
     ItemHeight = 17
-    OnCloseUp = combDbTypeCloseUp
     TabOrder = 5
+    OnCloseUp = combDbTypeCloseUp
   end
   object Label2: TLabel
     Left = 49

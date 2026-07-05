@@ -4,21 +4,7 @@ interface
 
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, ImgList,
-  CtMetaData, CtMetaTable, CtMetaFCLSqlDb, DB, sqlDb 
-  {$IF FPC_FULLVERSION>=30202}
-  , mysql80conn
-  {$define MYSQL80}
-  {$ELSE}
-  {$ifdef WIN32}
-  , mysql57conn
-  {$else}
-  {$ifndef EZDML_LITE}
-  , mysql57conn2     
-  {$else}
-  , mysql57conn
-  {$endif}
-  {$endif}
-  {$endif}   ;
+  CtMetaData, CtMetaTable, CtMetaFCLSqlDb, DB, sqlDb, mysql80conn;
 
 type
 
@@ -82,15 +68,9 @@ begin
     Exit;
   end;
 
-  {$IFDEF MYSQL80}
   Result := TMySQL80Connection.Create(nil);
   Result.CharSet := 'utf8';
   TMySQL80Connection(Result).SkipLibraryVersionCheck:=True;
-  {$ELSE}
-  Result := TMySQL57Connection.Create(nil);
-  Result.CharSet := 'utf8';
-  TMySQL57Connection(Result).SkipLibraryVersionCheck:=True;
-  {$ENDIF}
 end;
 
 procedure TCtMetaMysqlDb.SetDbSchema(const Value: string);
